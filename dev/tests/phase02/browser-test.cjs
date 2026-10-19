@@ -440,6 +440,9 @@ async function shot( page, name, fullPage ) {
 		try {
 			wp( 'eval-file', 'dev/tests/phase02/auth-cookies.php', 'destroy', auth.token );
 		} catch ( e ) {}
+		try {
+			wp( 'eval-file', 'dev/tests/phase02/fixtures.php', 'delete' );
+		} catch ( e ) {}
 		await browser.close();
 	}
 	const restoredFile = path.join( OUT, 'options-after.json' );

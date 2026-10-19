@@ -38,6 +38,7 @@ final class Plugin {
 		( new Migrations() )->register();
 
 		( new Design\Service() )->register();
+		( new Content\Service() )->register();
 	}
 
 	public function load_textdomain(): void {

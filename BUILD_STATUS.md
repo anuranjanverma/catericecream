@@ -10,9 +10,106 @@ Environment facts: see `ENVIRONMENT.md`.
 | 00 Environment and plan | Complete (documentation only) | 2026-10-19 |
 | 01 Foundation and catalogue protection | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 02 Design system and admin controls | **Complete: gate passed** (see verification) | 2026-10-19 |
-| 03 Products, events and structured editing | Not started. Awaiting owner instruction | |
+| 03 Products, events and structured editing | **Complete: gate passed** (see verification) | 2026-10-19 |
+| 04 Homepage and shared components | Not started. Awaiting owner instruction | |
 
-Git: first local commit `7f2cbc3` (Phase 00–01 baseline) made 2026-10-19 at the owner's request, after checking the staged set for credentials, dumps, logs and unrelated files. No remote. Phase 02 work is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02, committed at the owner's request after reviewing the staged set. Phase 03 work is **not committed yet**.
+
+---
+
+## Phase 03 log: Products, events and structured editing
+
+Prompt: `handoff/cater-ice-cream/prompts/03_products_events_and_structured_editing.md`.
+
+### Backup and authorised changes
+
+- Backup: `C:\laragon\backup\catericecream\pre-phase03-20261019-202015\` (52 tables, `wp-config.php`, `htaccess.txt`, SHA256SUMS), outside the web root.
+- **ACF Free 6.8.10** installed and activated (owner-authorised). `ACF_PRO` is not defined.
+- Schema migration v2: table `{prefix}cic_product_events`; event capabilities for administrator and editor.
+- WooCommerce routes: the Shop page is now `/treats/` ("Our Treats"); product base `/treats` → `/treats/{slug}/`. The seeder only changes these while they are still at WooCommerce's defaults.
+
+### Decisions
+
+| Concern | Implementation |
+| --- | --- |
+| Treats | The four seeds are real WooCommerce simple products (`dippin-dots`, `dipn-bananas`, `classic-ice-cream`, `frozen-yogurt`), with no duplicate CPT. Title, short description (card text), long description ("what it is" in Product detail), featured image and gallery stay in the normal Woo fields. Prices are empty; there is no fake zero. Identity meta is registered with REST schemas: `cic_key` (stable, unique, pattern), `cic_catalog_role=showcase`, `cic_catalog_active` (`"1"`/`"0"`), `cic_brand_type`, `cic_preset`. |
+| Brands | Reuses WooCommerce's built-in `product_brand`. Dippin' Dots and DipN' Bananas have brand terms; Classic and Frozen Yogurt are generic with no brand. Brand, category and tag archives 301 to the brand's single product or `/treats/`, so they never compete. |
+| Events | `cic_event` in the core plugin: public, REST (`/wp/v2/events`), archive `/events/`, revisions (including revisioned `cic_preset` meta), title/editor/excerpt/thumbnail/page-attributes, mapped `cic_event` capabilities. Seeds are Birthday, Wedding, Corporate and Anniversary; Anniversary is the fourth card. |
+| Structured fields | ACF Free local field groups ("Treat page composition", "Event page composition"), using only free field types (text, textarea, image, select, true/false, number, relationship, tab). Repeating content uses fixed named slots (3 chips, 4 qualities, 3 themes, 3 points, 6 FAQs, 2 stories, 3 steps); empty slots are hidden. Each section has show/order/preset controls. `show_in_rest` is on. Templates read plain post meta through `CIC\Content\ViewModel`, never ACF calls, so pages render even if ACF is off (tested). Optional core-block patterns ("FAQ list", "Story with photo") are available for the main editor area. |
+| Pairings (single source) | Table `cic_product_events` has UNIQUE(product_id, event_id) and an index on event_id. It stores the pairing copy itself (headline, description, photo, link label, optional event intro, two sort orders), so the same text renders on both pages. All writes go through `CIC\Content\Pairings`, which validates post types and IDs and rejects duplicates; REST writes are all-or-nothing. Permanent deletion of either record removes its pairings; trashed or draft records are kept but never shown publicly. Edited in the "Occasion pairings" box on the treat; the event screen shows a read-only "Paired treats" list. REST field `cic_pairings` has a schema: readable on products and events, writable on products with `edit_post`. |
+| Draft visibility | Public views and `Catalog::selectable_products()` / `selectable_events()` (for the Phase 06 quote controls) include only published records; treats must also be active. Inactive treats leave the catalogue and get `noindex`. |
+| Seeding | `wp cic seed-catalog` matches records by `cic_key` and fills only never-seeded fields (`_cic_seeded_fields`). The seed log `cic_seed_log` stops the seeder recreating a record an editor deleted or trashed, or a pairing an editor removed. Re-running reports 0 created / 0 filled. |
+| Media | `wp cic import-media` / the seeder imports only the masters placed on the `dippin-dots` and `birthday` manifest pages: **20 attachments**, which include the four treat featured images. Each is imported once (`_cic_asset_id`); later runs reuse it and keep attachment edits. Alt text comes from the manifest, and a provenance note (AI recreation, client review needed) goes in the description. WordPress generates the WebP sub-sizes (GD). |
+| Vertical slice | **Dippin' Dots** (09) and **Birthday** (04) are fully composed in approved section order. DD: hero (eyebrow, accent headline, CTA, jump link, feeling chips, photo), feelings, occasion pairings 2×2, theme inspiration with token swatches, detail split, quote starter. Birthday: centred three-colour headline (accent and second-accent markup), balloons and confetti as decorative SVG/CSS, three-photo collage, quote starter strip (POST, occasion pre-set), featured treats (2 large + compact + "More Frozen Treats"), scalloped story band, planning steps, quote panel + FAQ + service-area link. The other six records are minimal (identity, card text, featured image, headline) and use the same templates. |
+| Quote actions | Quote links carry the explicit selection (`?treat=dippin-dots`, `?event=birthday`). The Birthday starter strip POSTs location/date/guests with the occasion, so there is no personal data in URLs. The `/get-a-quote/` page and form are Phase 06, so these currently land on a 404. |
+| Design | Logo, palette and Design System defaults unchanged. Pages use their preset (`cic_preset` → `.cic-context-dots` / `-birthday`) unless a page override picks another. Composition CSS uses tokens only. |
+
+### Files
+
+- Core plugin 0.3.0: `src/Content/{Service,EventType,Catalog,Pairings,Fields,ViewModel,Media,Seeder,SeedData,Cli}.php`, `src/Content/Admin/PairingsBox.php`, `assets/js/pairings-admin.js`; `src/Database/Migrations.php` (v2); `src/Plugin.php`; `assets/css/design-admin.css` (pairing box).
+- Theme: `woocommerce.php` (treat routing), `single-cic_event.php`, `archive-cic_event.php`, `inc/content.php` (icons, images, breadcrumbs, section wrapper, balloons/confetti), `template-parts/treat/{single,archive,section-hero,section-feelings,section-occasions,section-themes,section-detail,section-faq,section-quote}.php`, `template-parts/event/{section-hero,section-starter,section-treats,section-stories,section-planning,section-quote,faq-list}.php`, `assets/css/compositions.css`, `functions.php`.
+- Dev: `dev/tests/phase03/{catalog-test.php,admin-edit-test.cjs,state.php}`; `dev/tests/phase02/browser-test.cjs` now deletes its own fixtures in `finally`.
+
+### How to add a fifth treat or event (no source edits)
+
+Products → Add new (or Events → Add new): enter the title, short description and image, and fill the composition tabs. A stable key is assigned from the slug on first save. Add pairings in "Occasion pairings" on the treat. The page renders at `/treats/{slug}/` or `/events/{slug}/` through the same templates, and appears in public choices once published (and active, for treats). Verified by test G (created, rendered both ways, deleted).
+
+### Verification actually performed
+
+1. `wp eval-file dev/tests/phase03/catalog-test.php`: **46/46 passed** on the final run:
+   - schema/index/capabilities; ACF Free only;
+   - 4 non-purchasable priceless products and 4 ordered events;
+   - routes (200s, 301s for `/product/…`, `/shop/`, brand/category archives, 404s for unknown slugs);
+   - pairings identical both ways and rendered on both pages; strict validation; DB-level duplicate refusal; indexed reverse query;
+   - draft/inactive visibility;
+   - seed rerun keeps edits, keeps a cleared field empty and does not recreate a removed pairing;
+   - fifth event and treat;
+   - REST read/permission/schema/invalid-meta;
+   - revisions incl. meta;
+   - no purchase markup, add-to-cart refused, Store API 403;
+   - media idempotency and alt-edit preservation;
+   - Twenty Twenty-Five theme switch and ACF deactivation still render.
+
+   The first run had one false-positive failure (the navigation menu legitimately links `/events/wedding/`); its `finally` block restored everything, which confirmed the cleanup.
+2. `node dev/tests/phase03/admin-edit-test.cjs` (headless Edge, real admin): **22/22 passed**:
+   - ACF tabs, 4 pairing rows, key and empty price on the product screen;
+   - saving via **Update** changed the ACF field on the treat page and the pairing text on **both** the treat and Birthday pages;
+   - an ACF field saved from the **block editor** reached the event page (accent markup kept);
+   - no horizontal overflow at 390/768/1440 on all four pages;
+   - approved section order on both slice pages;
+   - one high-priority hero image;
+   - Birthday preset colour from the central token;
+   - decorations `aria-hidden`; one `h1`; starter posts the occasion.
+
+   Content restored afterwards.
+3. Regression on the final code: Phase 01 guard **69/69**, Phase 02 server **51/51**, Phase 02 browser **58/58**. No PHP notices or warnings from site code in the debug log during the final runs.
+4. Seeder: first run created 8 records, filled 135 fields, added 7 pairings and imported 20 media; every later run reported 0 created / 0 filled / 0 pairings / 0 media.
+5. Screenshots (git-ignored) in `dev/tests/output/phase03/`: `treat-dippin-dots-{390,768,1440}.png`, `event-birthday-{390,768,1440}.png`, `treats-list-1440.png`, `events-list-1440.png`, `admin-treat-pairings.png`, `admin-event-block-editor.png`.
+6. Final state: 4 products, 4 events, 7 pairings, 0 fixtures, theme `cater-ice-cream`, Design/layout options at defaults, only the owner's login session.
+
+### Issues found and fixed during Phase 03
+
+- `register_meta` notices: registered defaults must satisfy the REST schema, so defaults are now set only where valid.
+- Boolean `false` meta is stored as `''` (indistinguishable from unset), so the active flag is stored as `"1"`/`"0"`.
+- The seeder would have recreated deliberately deleted pairings or trashed seed records; this is fixed with the seed log.
+- Mobile visual fixes: confetti over heading letters and dot decoration over hero text.
+- Test robustness: WooCommerce admin pages never reach network idle (now wait for editor elements, and the browser is always closed on failure; one run hung before this fix, with nothing modified and the restore executed); the Phase 02 browser test left its two fixture pages behind (now deleted in `finally`).
+
+### Unresolved / pending
+
+- **Pending visual/content work:**
+  - Footer logo treatment: the original raster logo sits on a light plate until an approved reversed logo exists.
+  - Navigation destinations: menus are custom links. `/about/`, `/service-areas/`, `/get-a-quote/` and the policy pages do not exist yet, and custom links do not follow a record's draft status (the Wedding link stays in the menu if Wedding is drafted).
+  - Quote targets 404 until Phase 06.
+- **Not yet built (later phases):**
+  - The other six records stay minimal, and Wedding/Anniversary/Corporate use the standard composition until Phase 07.
+  - `/treats/` and `/events/` are functional lists until Phase 08, and the "other event enquiries" text link is Phase 08.
+  - "Optional location overrides" on products wait for the Phase 05 location adapter / owner city code.
+- **Client confirmation needed:**
+  - Whether DipN' Bananas is a supplier brand (it has a brand term provisionally).
+  - Treat copy, options, ingredients and the AI photos.
+- **Not tested:** screen readers, Safari/Firefox and real touch devices; editor experience for non-admin roles (the editor role has event caps; Woo product caps are WooCommerce defaults); PHPCS (not installed).
+- Media sub-sizes use WordPress defaults (no custom crop sizes registered); slot-specific sizing will be reviewed in Phase 09.
 
 ---
 
@@ -203,9 +300,10 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | Theme | Custom hybrid PHP theme `cater-ice-cream` + `theme.json` | Shell (01); tokens, fonts, header/footer components (02) |
 | Business logic | Plugin `cater-ice-cream-core` (`CIC\` namespace) | Bootstrap (01); Design System, overrides, header/footer/contact settings (02) |
 | Purchase guard | `mu-plugins/cic-catalog-guard.php`, fail-closed | Built and verified (01) |
-| Editing | Gutenberg core blocks/patterns + ACF Free + Settings API; no ACF Pro, page builder or paid licence | ACF not yet installed |
-| Treats | 4 WooCommerce products, non-purchasable | Phase 03 |
-| Events | `cic_event` CPT, archive `/events/` | Phase 03 |
+| Editing | Gutenberg core blocks/patterns + ACF Free + Settings API; no ACF Pro, page builder or paid licence | ACF Free 6.8.10 field groups (03) |
+| Treats | 4 WooCommerce products, non-purchasable | Seeded; Dippin' Dots fully composed (03) |
+| Events | `cic_event` CPT, archive `/events/` | Seeded; Birthday fully composed (03) |
+| Pairings | `cic_product_events` table: single source of pairing copy, unique + indexed | Built (03) |
 | Cities | Custom tables + virtual routes behind a location-repository adapter | **Pending owner's city code** |
 | Enquiries | CF7 (3-step) + Flamingo as sole store | Phase 06 |
 | Scheduler | Action Scheduler (bundled, 4.1.0) | Available |
@@ -218,7 +316,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | Input | Status | Blocks |
 | --- | --- | --- |
 | **Owner's city template + rewrite-rule code and schema** | **Pending.** Spec §9 tables are a local fallback only; no competing production schema. Phase 05 uses a fixture until supplied | Final city schema/routes |
-| ACF (free) | Not installed | Phase 03 |
+| ACF (free) | **Installed (03)**: 6.8.10 | — |
 | Contact Form 7, Flamingo | Not installed | Phase 06 |
 | Final quote/contact form-field review | Pending | Phase 06 sign-off |
 | Approved coverage dataset (LA County, Ventura, Santa Barbara, Compton exclusion, shared ZIPs) | Pending reconciliation | Coverage go-live |
@@ -228,6 +326,8 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | Licensed font files (Fraunces, DM Sans) + licences | **Done (02)**: OFL, self-hosted WOFF2 | — |
 | Vector logo master | Raster only | Print only |
 | Client review of AI photos, product options, ingredients, policy copy, About biography | Pending | Launch |
+| Is DipN' Bananas a supplier brand? | Provisional brand term | Brand taxonomy |
+| Approved reversed (white) logo for the footer | Not supplied; original on a light plate | Footer visual |
 
 ## Risks
 
@@ -246,7 +346,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | --- | --- | --- |
 | 01 ✔ | Theme shell, core plugin, MU guard | Passed 2026-10-19 |
 | 02 ✔ | Design System admin + style preview + header/footer controls | Passed 2026-10-19 |
-| 03 | Products + Events models (ACF Free install) | 4 + 4 seeded and editable; pairing index consistent; `/treats/` permalinks |
+| 03 ✔ | Products + Events models (ACF Free install) | Passed 2026-10-19 |
 | 04 | Three-row header/footer + homepage | Approved structure; screenshots 390/768/1440 |
 | 05 | Locations adapter, importer, search, virtual routes, SEO | ZIP cases, collisions, canonicals, noindex (fixture until city code arrives) |
 | 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Save-before-notify proven in Mailpit |
@@ -258,4 +358,4 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 
 ## Next phase
 
-**Phase 03: Products, events and structured editing** (`prompts/03_products_events_and_structured_editing.md`), only when the owner asks. Needs the owner's go-ahead to install **ACF (free)**. Phase 02 work should be committed first if the owner wants a checkpoint.
+**Phase 04: Homepage and shared components** (`prompts/04_homepage_and_shared_components.md`), only when the owner asks. It should include the visual comparison of the shared header/footer and resolve or confirm the pending footer logo treatment and menu destinations. Phase 03 can be committed first if the owner wants a checkpoint.

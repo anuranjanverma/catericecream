@@ -37,6 +37,10 @@ Handoff locations (verified):
 - Dev scripts in `dev/` are CLI-only (blocked over HTTP by `dev/.htaccess`, and each exits unless `WP_CLI`).
 - Design values come only from the Design System (`CIC\Design\Schema` allowlist → theme.json filter + preset CSS). Never hardcode hex colours, fonts or page palettes in theme CSS or templates; use `--cic-color-*` roles, `--wp--preset--*` and `--wp--custom--cic--*`. After changing Schema defaults, run `wp eval-file dev/tools/build-theme-json.php` so theme.json stays in parity.
 - Re-run `dev/tests/phase02/design-test.php` (and the browser test when the UI changes) after design-system, header/footer or override changes.
+- Treats are WooCommerce products; events are `cic_event`. Pairing copy lives ONLY in `{prefix}cic_product_events` and is written ONLY through `CIC\Content\Pairings`. Never duplicate pairing text in post meta.
+- Structured fields are ACF Free local field groups (`CIC\Content\Fields`), free field types only (no Repeater/Flexible/Gallery/Options/Blocks). Templates read data through `CIC\Content\ViewModel`, never ACF functions.
+- `wp cic seed-catalog` is safe to re-run: it never overwrites edits or recreates removed records/pairings. Re-run `dev/tests/phase03/catalog-test.php` after catalogue, pairing, route or seed changes.
+- Tests must restore everything they change in `finally` (settings, statuses, fields, pairings, theme, plugins, fixtures) and close any browser on failure.
 - Never print or commit credentials from `wp-config.php`.
 
 ## Status tracking
