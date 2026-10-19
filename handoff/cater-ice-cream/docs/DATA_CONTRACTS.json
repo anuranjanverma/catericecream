@@ -1,0 +1,204 @@
+{
+  "spec_version": "1.1",
+  "purpose": "Implementation contract and local fixtures only; not approved production coverage or stock",
+  "commerce_mode_default": "catalogue",
+  "content_seeds": {
+    "events": [
+      {
+        "key": "birthday",
+        "title": "Birthdays",
+        "preset": "birthday"
+      },
+      {
+        "key": "wedding",
+        "title": "Weddings",
+        "preset": "wedding"
+      },
+      {
+        "key": "anniversary",
+        "title": "Anniversaries",
+        "preset": "anniversary"
+      },
+      {
+        "key": "corporate",
+        "title": "Corporate Events",
+        "preset": "corporate"
+      }
+    ],
+    "products": [
+      {
+        "key": "dippin-dots",
+        "title": "Dippin' Dots",
+        "catalog_role": "showcase",
+        "preset": "dots",
+        "price": null
+      },
+      {
+        "key": "dipn-bananas",
+        "title": "DipN' Bananas",
+        "catalog_role": "showcase",
+        "preset": "banana",
+        "price": null
+      },
+      {
+        "key": "classic-ice-cream",
+        "title": "Classic Ice Cream",
+        "catalog_role": "showcase",
+        "preset": "classic",
+        "price": null
+      },
+      {
+        "key": "frozen-yogurt",
+        "title": "Frozen Yogurt",
+        "catalog_role": "showcase",
+        "preset": "yogurt",
+        "price": null
+      }
+    ]
+  },
+  "design_defaults": {
+    "colors": {
+      "brand_raspberry": "#DE2879",
+      "action_primary": "#D92373",
+      "action_hover": "#BC1F64",
+      "text_primary": "#503564",
+      "strawberry": "#F3A2BD",
+      "lavender": "#B9A0DD",
+      "surface_soft": "#F3EFF9",
+      "surface_base": "#FFFFFF"
+    },
+    "font_heading": "Fraunces",
+    "font_body": "DM Sans",
+    "overrides": {
+      "inherit_marker": null,
+      "page": {},
+      "section": {},
+      "element": {}
+    },
+    "context_accents": {
+      "birthday": {
+        "sky": "#63C9EB",
+        "mint": "#8CDCBF",
+        "violet": "#7652B8"
+      },
+      "wedding": {
+        "ivory": "#FFFDF8",
+        "gold": "#B29458",
+        "blush": "#F5E7E8"
+      }
+    },
+    "inheritance": "Global font/colour token references everywhere; only deliberate visible local overrides differ"
+  },
+  "coverage_statuses": [
+    "covered",
+    "outside_area",
+    "manual_review",
+    "unknown",
+    "invalid"
+  ],
+  "zip_service_statuses": [
+    "unreviewed",
+    "enabled",
+    "disabled",
+    "manual_review"
+  ],
+  "approved_production_zip_rows": [],
+  "city_candidate_example": {
+    "country_code": "US",
+    "state_code": "CA",
+    "city_name": "Pasadena",
+    "city_slug": "pasadena",
+    "county_name": "Los Angeles",
+    "timezone": "America/Los_Angeles",
+    "publish_status": "draft",
+    "index_status": "noindex",
+    "latitude": null,
+    "longitude": null
+  },
+  "quote_request_example": {
+    "idempotency_key": "CLIENT_GENERATED_RANDOM_KEY",
+    "event_key": "birthday",
+    "other_event_description": null,
+    "date": null,
+    "date_unknown": true,
+    "estimated_guests": 40,
+    "location": {
+      "city_key": "pasadena-ca",
+      "zip": null,
+      "venue_address": null
+    },
+    "serving_start_local": null,
+    "duration_minutes": null,
+    "event_timezone": "America/Los_Angeles",
+    "treat_keys": [
+      "dippin-dots"
+    ],
+    "unsure_about_treats": false,
+    "flavour_preferences": "",
+    "theme_notes": "",
+    "dietary_notes": "",
+    "contact": {
+      "name": "Local Test Person",
+      "email": "quote-test@example.test",
+      "phone": null,
+      "preference": "email"
+    },
+    "additional_notes": "",
+    "source": {
+      "template": "product",
+      "product_key": "dippin-dots",
+      "event_key": null,
+      "city_key": null
+    }
+  },
+  "server_contract_notes": [
+    "Keys must resolve to published records; labels are resolved server-side.",
+    "Only event type, location and estimated guest count plus date or date_unknown are required in step one.",
+    "Phone is required only when phone contact is selected.",
+    "A nonempty treat_keys list and unsure_about_treats=true cannot both be accepted.",
+    "No client-supplied coverage or reservation assertion is trusted.",
+    "Raw contact, address, theme and dietary text never enter URL parameters or analytics.",
+    "Dates are local date-only values; event start time uses the event timezone.",
+    "Duplicate accepted idempotency keys return the existing request result without another message.",
+    "Success means a saved enquiry, not confirmed availability or a booking."
+  ],
+  "form_stack": {
+    "transport": "contact-form-7",
+    "store": "flamingo_inbound_message",
+    "workflow": "namespaced metadata referencing Flamingo ID",
+    "duplicate_lead_cpt": false,
+    "custom_quote_contact_endpoints": false,
+    "fields_status": "provisional pending owner review"
+  },
+  "dependencies": {
+    "paid_required": false,
+    "fields": "ACF Free",
+    "repeating_content": "Gutenberg core blocks/patterns",
+    "global_settings": "WordPress Settings API"
+  },
+  "notifications": {
+    "operator_recipient": "anuranjan.verma25@gmail.com",
+    "admin_editable": true,
+    "verified_sender": null,
+    "reminder_timing": null,
+    "reminders_enabled": false,
+    "access": [
+      "Web Karma",
+      "Yan"
+    ],
+    "staging_mail_capture": true
+  },
+  "coverage_acceptance": {
+    "covered": "allow quote",
+    "outside_area": "error and block quote",
+    "unknown": "request clarification",
+    "manual_review": "request clarification",
+    "invalid": "correct input",
+    "precedence": "explicit reviewed exclusion wins"
+  },
+  "city_implementation": {
+    "owner_code_pending": true,
+    "fallback_schema": "provisional",
+    "editorial_workflow": "reuse audited implementation or private revisioned WP record"
+  }
+}

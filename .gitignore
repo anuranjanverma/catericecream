@@ -1,0 +1,74 @@
+# Cater Ice Cream — allow-list .gitignore
+# Everything is ignored by default; only project-owned code and docs are re-included.
+# WordPress core, third-party plugins/themes, uploads and generated files stay out.
+
+/*
+!/.gitignore
+!/CLAUDE.md
+!/ENVIRONMENT.md
+!/BUILD_STATUS.md
+!/wp-cli.yml
+
+# Handoff reference packs (extracted). The ZIPs duplicate the extracted folders.
+!/handoff/
+/handoff/*.zip
+/handoff/**/.*.png.*
+
+# Developer tooling (CLI-only scripts, fixtures, tests)
+!/dev/
+
+# Project-owned WordPress code
+!/wp-content/
+/wp-content/*
+!/wp-content/themes/
+/wp-content/themes/*
+!/wp-content/themes/cater-ice-cream/
+!/wp-content/plugins/
+/wp-content/plugins/*
+!/wp-content/plugins/cater-ice-cream-core/
+!/wp-content/mu-plugins/
+/wp-content/mu-plugins/*
+!/wp-content/mu-plugins/cic-catalog-guard.php
+
+# Credentials and environment files (defence in depth, even inside allowed folders)
+wp-config.php
+wp-config-*.php
+.env
+.env.*
+*.pem
+*.key
+auth.json
+my.cnf
+*.cnf
+
+# Database dumps and backups
+*.sql
+*.sql.gz
+*.sqlite
+*.bak
+*.backup
+/backup/
+backups/
+
+# Logs and debug output
+*.log
+debug.log
+
+# Caches and generated files
+.cache/
+cache/
+.phpunit.result.cache
+node_modules/
+vendor/
+dist/
+build/
+*.map
+dev/tests/output/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp

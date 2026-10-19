@@ -1,0 +1,145 @@
+{
+  "version": "1.0",
+  "date": "2026-10-18",
+  "precedence": [
+    "Latest owner instructions",
+    "docs/BUILD_SPECIFICATION.md",
+    "This manifest and reference index",
+    "Page-specific composition reference",
+    "Older general brand guide"
+  ],
+  "references": [
+    {
+      "file": "designs/00_logo.png",
+      "page": "Logo",
+      "status": "Selected logo",
+      "corrections": "Preserve artwork. Prepare proper vector master from approved art before print."
+    },
+    {
+      "file": "designs/01_home_desktop.png",
+      "page": "Homepage desktop",
+      "status": "Composition reference with mandatory content corrections",
+      "corrections": "Remove all minimum/order-price copy. Add Anniversary to events. Global menu and written specification override screenshot text."
+    },
+    {
+      "file": "designs/02_home_mobile.png",
+      "page": "Homepage mobile",
+      "status": "Composition reference with mandatory content corrections",
+      "corrections": "Remove minimum/order-price copy. Add Anniversary. Read three scroll segments left to right."
+    },
+    {
+      "file": "designs/03_events_overview.png",
+      "page": "Events overview",
+      "status": "Current revised reference",
+      "corrections": "Four event cards, detail links and separate quote starter. No minimum text."
+    },
+    {
+      "file": "designs/04_birthday_final.png",
+      "page": "Birthday event",
+      "status": "Explicitly final occasion design",
+      "corrections": "Bright sky, mint and lilac. Do not use the earlier plain split hero."
+    },
+    {
+      "file": "designs/05_wedding_final.png",
+      "page": "Wedding event",
+      "status": "Explicitly final occasion design",
+      "corrections": "Premium ivory, champagne, blush and plum. Fine gold is decorative."
+    },
+    {
+      "file": "designs/06_anniversary_final.png",
+      "page": "Anniversary event",
+      "status": "Confirmed final occasion design",
+      "corrections": "Intimate warm shared memories. Quote forms should use the shared dedicated flow."
+    },
+    {
+      "file": "designs/07_corporate_final.png",
+      "page": "Corporate event",
+      "status": "Confirmed final occasion design",
+      "corrections": "Professional and social, not birthday decoration. Quote actions use shared flow."
+    },
+    {
+      "file": "designs/08_treats_catalogue.png",
+      "page": "Our Treats archive",
+      "status": "Current catalogue reference",
+      "corrections": "Correct Frozen Yogurt detail label to Lets discuss; remove unsupported registered marks and fake packaging."
+    },
+    {
+      "file": "designs/09_treat_dippin_dots.png",
+      "page": "Dippin Dots detail",
+      "status": "Accepted treat direction",
+      "corrections": "Emotion and occasion pairings are primary. Use real tiny-bead photos. Do not copy Austin/TX sample field; use local neutral placeholders. Quote starter leads dedicated flow."
+    },
+    {
+      "file": "designs/10_treat_dipn_bananas.png",
+      "page": "DipN Bananas detail",
+      "status": "Current treat reference",
+      "corrections": "Playful indulgence; product options and styling subject to actual confirmation."
+    },
+    {
+      "file": "designs/11_treat_classic.png",
+      "page": "Classic Ice Cream detail",
+      "status": "Current treat reference",
+      "corrections": "Familiarity and shared memories. No specific flavour stock promise."
+    },
+    {
+      "file": "designs/12_treat_yogurt.png",
+      "page": "Frozen Yogurt detail",
+      "status": "Current treat reference",
+      "corrections": "Bright relaxed mood, not nutritional or health claims."
+    },
+    {
+      "file": "designs/13_city_pasadena.png",
+      "page": "Pasadena city",
+      "status": "Accepted city reference",
+      "corrections": "Mid-page call panel. Map is illustrative; database supplies real coverage. Normal customer phone placeholder, not business number."
+    },
+    {
+      "file": "designs/14_about.png",
+      "page": "About",
+      "status": "Current supporting reference",
+      "corrections": "Use verified biography only. YK is a placeholder identity graphic, not an invented portrait."
+    },
+    {
+      "file": "designs/15_service_areas.png",
+      "page": "Service Areas hub",
+      "status": "Current supporting reference",
+      "corrections": "Selected ZIPs, not all county coverage. Map must use reviewed location data."
+    },
+    {
+      "file": "designs/16_contact.png",
+      "page": "Contact",
+      "status": "Current supporting reference",
+      "corrections": "General message form plus dedicated event quote link. Use neutral customer phone placeholder."
+    },
+    {
+      "file": "designs/17_quote_step_1.png",
+      "page": "Quote step one",
+      "status": "Current quote reference",
+      "corrections": "Date unknown allowed. Global contact value and responsive form controls."
+    },
+    {
+      "file": "designs/18_quote_later_steps.png",
+      "page": "Quote later steps and confirmation",
+      "status": "Current quote state reference",
+      "corrections": "Multiple treats OR Not sure. Normal customer phone placeholder. Success means saved enquiry, not booking."
+    },
+    {
+      "file": "designs/19_policy_and_404.png",
+      "page": "Policies and 404",
+      "status": "Layout only",
+      "corrections": "Policy body copy is deliberately placeholder text. Do not publish it as actual policy."
+    },
+    {
+      "file": "designs/20_mobile_supporting.png",
+      "page": "Mobile About Service Areas Contact",
+      "status": "Representative mobile layouts",
+      "corrections": "Not full pages. Finish lower sections responsively. Keep all text legible; correct image overlap rather than copying artefacts."
+    },
+    {
+      "file": "designs/21_mobile_detail_and_quote.png",
+      "page": "Mobile event treat quote",
+      "status": "Representative mobile layouts",
+      "corrections": "Not full scroll states. Stack readable occasion cards; do not reproduce tiny squeezed text."
+    }
+  ]
+}

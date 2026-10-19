@@ -1,0 +1,692 @@
+{
+  "method": "Built-in image generation from named reference mockup, then deterministic crop/resize and WebP encoding (quality 86, method 6). Original logo uses lossless WebP.",
+  "prompts": [
+    {
+      "id": "service-garden",
+      "ref": "01_home_desktop.png",
+      "scene": "Friendly dark-haired female caterer wearing plain black cap and apron over a white shirt serving a small cup of tiny colorful frozen ice cream beads to a happy little girl at a garden celebration. Takeaway tubs on table, greenery, warm natural daylight.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "wedding-couple",
+      "ref": "05_wedding_final.png",
+      "scene": "Bride in an ivory lace dress and groom in black tuxedo smiling at each other, holding small plain white cups of ice cream with spoons, elegant garden wedding, ivory flowers and warm sunset bokeh. Romantic premium natural candid medium shot.",
+      "ratio": "4:3",
+      "max_width": 1440
+    },
+    {
+      "id": "corporate-friends",
+      "ref": "01_home_desktop.png",
+      "scene": "Four diverse colleagues in smart business casual clothing laughing together with small unbranded ice cream cups and spoons in a sunny landscaped office courtyard. Inclusive professional adults, sociable relaxed expression, no party hats.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "birthday-child",
+      "ref": "03_events_overview.png",
+      "scene": "Delighted curly-haired young girl at the centre holding a little cup of ice cream with sprinkles, other children softly visible behind, outdoor birthday party, pastel pink and lavender balloons and warm string lights. Candid joyful close medium shot.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "anniversary-couple",
+      "ref": "06_anniversary_final.png",
+      "scene": "Happy couple in their early sixties laughing and sharing small plain cups of ice cream at their garden anniversary celebration. Man salt and pepper hair, woman shoulder length light brown hair, blush flowers, candlelight and soft warm bokeh, guests behind. Romantic candid medium shot.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "treat-dots-cup",
+      "ref": "08_treats_catalogue.png",
+      "scene": "Appetizing macro product photograph of one small plain white paper cup filled with MANY TINY round pastel rainbow frozen ice cream beads, each only 2-4mm, realistic Dippin Dots style frozen beads, NOT candy balls, NOT cereal, NOT scooped ice cream. Small pink spoon, a few tiny beads scattered on pale blush tabletop. No labels or logos.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "treat-dipped-bananas",
+      "ref": "08_treats_catalogue.png",
+      "scene": "Two frozen banana halves on wooden sticks coated in rich dark chocolate and chopped roasted nuts on a warm ivory tabletop, sliced ripe banana and chopped chocolate nearby. Appetizing close product shot, soft blush backdrop. No labels, no wrappers.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "treat-classic-scoops",
+      "ref": "08_treats_catalogue.png",
+      "scene": "Three realistic ice cream scoops, strawberry pink, vanilla cream and chocolate brown, in simple white bowls on a pale tabletop, strawberries and chocolate pieces nearby. Inviting classic dessert product photography, soft pink background.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "treat-frozen-yogurt",
+      "ref": "08_treats_catalogue.png",
+      "scene": "Two unbranded plain white paper cups of strawberry pink and ivory frozen yogurt soft serve, garnished with fresh raspberries, blueberries, strawberry slices and a little granola. Pale mint background, fresh garden daylight, appetizing realistic product shot.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "treat-more-frozen",
+      "ref": "01_home_desktop.png",
+      "scene": "Bright cheerful close product photograph of sprinkle-covered frozen ice cream bars and a scoop-topped waffle cone on pale lavender tabletop. Pink, turquoise and raspberry accents, colorful but realistic appetizing frozen treats. No packaging, no logos.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "events-treat-trio",
+      "ref": "03_events_overview.png",
+      "scene": "Three separate human hands lifting celebratory frozen treats against a pale lavender studio background: left small plain white cup of ice cream with colorful sprinkles, centre dark chocolate nut-coated banana on stick, right small plain white cup of pink frozen yogurt with berries. Hands enter frame from bottom, all treats fully visible, joyful clean composition.",
+      "ratio": "3:2",
+      "max_width": 1120
+    },
+    {
+      "id": "birthday-adult-friends",
+      "ref": "04_birthday_final.png",
+      "scene": "Three young adult friends laughing together at a colorful outdoor birthday gathering while holding small ice cream cups. Raspberry, sky blue and lilac balloons, greenery and string lights. Candid natural joy, diverse adults, clean hands and correct dessert proportions.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "birthday-father-daughter",
+      "ref": "04_birthday_final.png",
+      "scene": "Smiling father leaning beside his delighted curly-haired daughter who holds a small cup of ice cream, colorful garden birthday party, soft pink and yellow balloons and string lights, family memory candid photo. Natural people and hands.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "birthday-milestone-friends",
+      "ref": "04_birthday_final.png",
+      "scene": "Group of four friends in their forties and fifties celebrating a milestone birthday outdoors, raising small cups of ice cream, bright pink and lavender balloons, colorful festive clothing, candid laughter, welcoming and warm.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "wedding-dessert-hands",
+      "ref": "05_wedding_final.png",
+      "scene": "Close-up of bride and groom's hands holding two small plain cups of tiny pastel frozen ice cream beads, ivory lace dress and black tuxedo softly blurred behind, white flowers and golden garden light. Sophisticated romantic wedding dessert detail. No visible text.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "wedding-friends-inset",
+      "ref": "05_wedding_final.png",
+      "scene": "Three bridesmaids in elegant pale blush dresses smiling with a bride at a garden wedding, holding small white cups of ice cream, ivory floral arrangements, warm sunshine, natural candid joyful photograph.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "wedding-reception",
+      "ref": "05_wedding_final.png",
+      "scene": "Wide candid photograph of bride and groom at centre surrounded by wedding friends at a long garden reception table, everyone smiling with small ice cream cups, ivory flowers and soft candlelight, warm luxurious romantic evening, no text.",
+      "ratio": "16:9",
+      "max_width": 1440
+    },
+    {
+      "id": "anniversary-garden-party",
+      "ref": "06_anniversary_final.png",
+      "scene": "Mature anniversary couple laughing with family and adult friends at a garden dinner table, everyone holding small white cups of ice cream, blush floral centrepiece and string lights, warm intimate celebratory atmosphere, natural candid medium-wide shot.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "corporate-caterer",
+      "ref": "07_corporate_final.png",
+      "scene": "Friendly female caterer in plain black cap and apron over white shirt handing a small cup of ice cream to smartly dressed colleagues at an outdoor office event, modern office facade, trees, professional happy atmosphere, candid medium shot, no visible branding.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "corporate-team-break",
+      "ref": "07_corporate_final.png",
+      "scene": "Four diverse colleagues in smart business attire gathered around a courtyard table enjoying little cups of ice cream, casual friendly conversation during company gathering, office garden background, natural warm daylight, no birthday decor.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "dots-hero",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "A small clear cup overflowing with hundreds of TINY pastel rainbow frozen ice cream beads only 2-4mm each, translucent spoon angled upward. Cup large in foreground, smiling mother and young daughter enjoying small cups softly blurred in upper-right background at a sunny garden celebration. Pale sky-blue/pink backdrop, realistic frozen beads NOT large candy spheres, no text.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "dots-family",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Happy curly-haired girl holding a small plain white cup filled with tiny rainbow frozen ice cream beads, mother beside her, colorful garden birthday with balloons. Frozen beads only 2-4mm in cup; real small dessert portions, joyful candid photo.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "dots-wedding",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Bride and groom in ivory lace and black tuxedo smiling while tasting tiny pastel frozen ice cream beads from small plain white cups at a sunny floral garden wedding. Romantic elegant candid photograph, no text.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "dots-corporate",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Diverse business colleagues laughing with small plain cups of tiny rainbow frozen ice cream beads in a landscaped office courtyard. Professional clothing, friendly afternoon break, realistic candid photo.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "dots-anniversary",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Loving couple in their sixties tasting tiny pastel frozen ice cream beads from little plain white cups, warm garden anniversary celebration, flowers and soft lights, gentle laughter, candid realistic image.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "dots-theme-playful",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Dessert table at a colorful playful garden celebration, several small clear cups of TINY rainbow frozen ice cream beads, pastel balloons and bright raspberry/sky blue decorations softly blurred, table confetti without lettering, close-up food photography.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "dots-theme-retro",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Close food photo of small cups of tiny pastel frozen ice cream beads at a nostalgic pink dessert table, soft pink striped napkins, a few retro pastel bowls, warm daylight, cozy celebratory styling, no text or logos.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "dots-theme-elegant",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Several small clear cups of delicate pastel frozen ice cream beads on an elegant ivory garden reception table with blush roses and fine champagne gold cutlery, soft floral bokeh, refined romantic food photography, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "dots-detail-macro",
+      "ref": "09_treat_dippin_dots.png",
+      "scene": "Close macro photograph of a clear cup of tiny pastel pink, blue, yellow and white frozen ice cream beads with a clear spoon scooping a little portion. Tiny realistic 2-4mm frozen beads, light frost, pale blue tabletop, appetizing texture, no candy or marshmallows.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "banana-hero",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Extreme appetizing close photograph of one chocolate-covered frozen banana on wooden stick angled from lower right to upper left, topped with chopped roasted nuts and tiny colorful sprinkles, banana slices and chocolate curls softly blurred on pale blush tabletop. Rich glossy chocolate with realistic surface texture. No text.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "banana-birthday",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Happy girl with curly brown hair enjoying a chocolate-dipped frozen banana on wooden stick with chopped nuts at a colorful garden birthday, pastel balloons, warm candid sunlight. Realistic dessert size, natural hand anatomy.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "banana-wedding",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Elegant bride and groom smiling together while holding chocolate-covered frozen bananas on wooden sticks, ivory flowers and romantic sunny garden wedding background. Candid premium dessert moment, no branding.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "banana-corporate",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Diverse smartly dressed coworkers laughing with chocolate-covered frozen bananas on sticks during an outdoor company event, office courtyard greenery, natural professional atmosphere, no party hats.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "banana-anniversary",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Warm loving mature couple smiling and sharing a moment with chocolate-covered frozen bananas on wooden sticks at a garden anniversary celebration, blush flowers and evening bokeh. Natural candid photograph.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "banana-theme-garden",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Chocolate-covered frozen banana pops upright on a pale dessert stand amid pink roses, white flowers and fresh garden greenery, chocolate with finely chopped nuts, daylight, romantic playful dessert table detail, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "banana-theme-modern",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Refined close photograph of chocolate-covered frozen banana pops with finely chopped roasted nuts on a matte ivory plate, minimalist contemporary dessert table, warm cream backdrop, a few banana slices and chocolate pieces, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "banana-theme-evening",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Chocolate-covered frozen banana pops with delicate toppings on an elegant cream dessert stand at an intimate evening celebration, candlelight and golden string-light bokeh behind, appetizing warm editorial food photograph, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "banana-detail-macro",
+      "ref": "10_treat_dipn_bananas.png",
+      "scene": "Macro still life of two frozen banana halves coated in dark chocolate and chopped roasted nuts on wooden sticks, one cut end reveals creamy pale banana centre, sliced bananas and chopped chocolate nearby, warm ivory surface, crisp appetizing texture, no labels.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "classic-family",
+      "ref": "11_treat_classic.png",
+      "scene": "Happy young girl and her silver-haired grandmother smiling together while eating classic ice cream from little white cups in a sunlit garden, strawberry pink and vanilla ice cream, intimate multigenerational celebration, natural candid photograph.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "classic-couple",
+      "ref": "11_treat_classic.png",
+      "scene": "Young couple laughing warmly while holding classic ice cream cones, woman long wavy brown hair, man dark hair and light beard, soft garden wedding celebration background with ivory flowers, candid natural daylight photograph.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "classic-theme-retro",
+      "ref": "11_treat_classic.png",
+      "scene": "Vanilla and strawberry ice cream scoops in small glass sundae bowls on a pink retro dessert table with pale pink striped napkins, nostalgic cheerful styling, soft daylight, food-focused photo, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "classic-theme-garden",
+      "ref": "11_treat_classic.png",
+      "scene": "Three classic waffle cones with vanilla, strawberry and peach-colored ice cream in a simple stand on a garden party table, white flowers, green leaves, warm natural sunlight, relaxed refined food photography.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "classic-theme-elegant",
+      "ref": "11_treat_classic.png",
+      "scene": "Elegant vanilla ice cream scoops in white porcelain dessert bowls with raspberries, a little chocolate drizzle and fine champagne gold spoons, ivory tablecloth and floral bokeh, restrained sophisticated food photograph.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "classic-detail-macro",
+      "ref": "11_treat_classic.png",
+      "scene": "Macro photograph of strawberry pink ice cream with soft scoop ridges in a simple white bowl, fresh strawberries and softly blurred vanilla ice cream bowl behind, pale blush background, realistic creamy texture.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "yogurt-friends",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Three young adult women laughing together outdoors, each holding a small plain white cup of pink and ivory frozen yogurt topped with berries, sunny garden celebration, green leaves and warm bokeh, relaxed candid photograph.",
+      "ratio": "4:3",
+      "max_width": 1120
+    },
+    {
+      "id": "yogurt-theme-garden",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Small white bowls of pink and ivory frozen yogurt swirls topped with berries on a sunny garden party table, fresh green foliage, tiny white flowers, warm light, relaxed appetizing food detail, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "yogurt-theme-modern",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Three small plain white cups of neat pink and ivory frozen yogurt swirls with raspberries blueberries and strawberry slices on a clean pale mint tabletop, minimal contemporary styling, soft studio daylight, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "yogurt-theme-social",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Friends casually gathered around a garden table with several small cups of berry-topped frozen yogurt in foreground, greenery and soft warm string lights, casual welcoming social celebration, focus on dessert table, no text.",
+      "ratio": "4:3",
+      "max_width": 800
+    },
+    {
+      "id": "yogurt-birthday",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Happy curly-haired girl tasting strawberry frozen yogurt with a spoon from a small plain white cup at a garden birthday party, colorful balloons and greenery, natural candid delight, no text.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "yogurt-wedding",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Bride and groom smiling together with little cups of berry-topped ivory frozen yogurt at an elegant outdoor wedding, ivory lace dress and black tuxedo, blush flowers and warm sunlight, candid realistic photo.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "yogurt-corporate",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Two diverse colleagues in business casual clothing laughing over small cups of berry-topped frozen yogurt in an office garden courtyard, professional friendly midday break, natural realistic photo.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "yogurt-anniversary",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Mature couple in their sixties smiling closely with small plain cups of pink frozen yogurt and berries at a garden anniversary gathering, warm natural evening light, intimate candid photograph.",
+      "ratio": "4:3",
+      "max_width": 720
+    },
+    {
+      "id": "yogurt-detail-macro",
+      "ref": "12_treat_yogurt.png",
+      "scene": "Extreme appetizing macro food photograph of soft strawberry-pink frozen yogurt swirl with smooth ridges, fresh raspberries around it, a hint of ivory swirl beside it, pale mint and blush background, realistic texture, no text.",
+      "ratio": "4:3",
+      "max_width": 960
+    },
+    {
+      "id": "county-los-angeles",
+      "ref": "15_service_areas.png",
+      "scene": "Photorealistic Southern California cityscape of downtown Los Angeles skyline at golden hour with tall palm trees in foreground, warm lavender-pink sky, crisp architecture, no text, no invented landmark signage. Landscape panoramic travel editorial photograph.",
+      "ratio": "16:9",
+      "max_width": 960
+    },
+    {
+      "id": "county-ventura",
+      "ref": "15_service_areas.png",
+      "scene": "Photorealistic Ventura County Southern California coast, Pacific Ocean blue waves, sandy beach and green coastal hills in warm afternoon light, natural realistic landscape travel photograph, no text.",
+      "ratio": "16:9",
+      "max_width": 960
+    },
+    {
+      "id": "county-santa-barbara",
+      "ref": "15_service_areas.png",
+      "scene": "Photorealistic Santa Barbara Southern California coastline with tall palms, cream Spanish-style waterfront buildings and distant mountains, clear blue sky and sunny welcoming light, landscape travel editorial photograph, no text.",
+      "ratio": "16:9",
+      "max_width": 960
+    },
+    {
+      "id": "quote-treat-assortment",
+      "ref": "17_quote_step_1.png",
+      "scene": "Appetizing still life of a small unbranded white bowl of pink and vanilla ice cream with sprinkles, a tiny clear cup of pastel frozen ice cream beads, and a chocolate-coated nut-topped frozen banana on wooden stick, pale blush tabletop, clean joyful dessert styling, no lettering, no logos.",
+      "ratio": "4:3",
+      "max_width": 720
+    }
+  ],
+  "source_images": {
+    "service-garden": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/01_home_desktop.png"
+    },
+    "wedding-couple": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/05_wedding_final.png"
+    },
+    "corporate-friends": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/01_home_desktop.png"
+    },
+    "birthday-child": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/03_events_overview.png"
+    },
+    "anniversary-couple": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/06_anniversary_final.png"
+    },
+    "treat-dots-cup": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/08_treats_catalogue.png"
+    },
+    "treat-dipped-bananas": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/08_treats_catalogue.png"
+    },
+    "treat-classic-scoops": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/08_treats_catalogue.png"
+    },
+    "treat-frozen-yogurt": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/08_treats_catalogue.png"
+    },
+    "treat-more-frozen": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/01_home_desktop.png"
+    },
+    "events-treat-trio": {
+      "width": 1536,
+      "height": 1024,
+      "reference": "designs/03_events_overview.png"
+    },
+    "birthday-adult-friends": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/04_birthday_final.png"
+    },
+    "birthday-father-daughter": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/04_birthday_final.png"
+    },
+    "birthday-milestone-friends": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/04_birthday_final.png"
+    },
+    "wedding-dessert-hands": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/05_wedding_final.png"
+    },
+    "wedding-friends-inset": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/05_wedding_final.png"
+    },
+    "wedding-reception": {
+      "width": 1672,
+      "height": 941,
+      "reference": "designs/05_wedding_final.png"
+    },
+    "anniversary-garden-party": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/06_anniversary_final.png"
+    },
+    "corporate-caterer": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/07_corporate_final.png"
+    },
+    "corporate-team-break": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/07_corporate_final.png"
+    },
+    "dots-hero": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-family": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-wedding": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-corporate": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-anniversary": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-theme-playful": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-theme-retro": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-theme-elegant": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "dots-detail-macro": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/09_treat_dippin_dots.png"
+    },
+    "banana-hero": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-birthday": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-wedding": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-corporate": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-anniversary": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-theme-garden": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-theme-modern": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-theme-evening": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "banana-detail-macro": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/10_treat_dipn_bananas.png"
+    },
+    "classic-family": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/11_treat_classic.png"
+    },
+    "classic-couple": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/11_treat_classic.png"
+    },
+    "classic-theme-retro": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/11_treat_classic.png"
+    },
+    "classic-theme-garden": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/11_treat_classic.png"
+    },
+    "classic-theme-elegant": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/11_treat_classic.png"
+    },
+    "classic-detail-macro": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/11_treat_classic.png"
+    },
+    "yogurt-friends": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-theme-garden": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-theme-modern": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-theme-social": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-birthday": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-wedding": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-corporate": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-anniversary": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "yogurt-detail-macro": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/12_treat_yogurt.png"
+    },
+    "county-los-angeles": {
+      "width": 1672,
+      "height": 941,
+      "reference": "designs/15_service_areas.png"
+    },
+    "county-ventura": {
+      "width": 1672,
+      "height": 941,
+      "reference": "designs/15_service_areas.png"
+    },
+    "county-santa-barbara": {
+      "width": 1672,
+      "height": 941,
+      "reference": "designs/15_service_areas.png"
+    },
+    "quote-treat-assortment": {
+      "width": 1448,
+      "height": 1086,
+      "reference": "designs/17_quote_step_1.png"
+    }
+  },
+  "mascot": "Built-in image-generation isolation of original logo mascot, alpha transparency; no intended palette or geometry change. Logo itself is original resized artwork."
+}

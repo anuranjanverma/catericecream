@@ -1,0 +1,5 @@
+# WP-CLI project config (no secrets).
+path: .
+url: https://catericecream.test
+apache_modules:
+  - mod_rewrite

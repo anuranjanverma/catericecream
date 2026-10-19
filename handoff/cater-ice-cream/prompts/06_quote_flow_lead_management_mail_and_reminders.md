@@ -1,0 +1,11 @@
+# Prompt 06 Quote flow lead management mail and reminders
+
+Implement sections 12, 13, 15 and 17. Build the real three-step form and success state using the quote reference boards. Preserve explicit incoming selections and ask only missing required information. Date not set yet and Other event must work. Multiple treats and Not sure yet are exclusive. Phone is optional unless Phone is the contact preference. Handle local California dates without UTC shifting.
+
+Use CF7 submission transport with server-side validation, request limits, abuse controls and atomic idempotency. Persist one Flamingo enquiry before notifications; do not create cic_lead or duplicate endpoints. No personal information in query strings, analytics, public APIs, search or logs. Mail failure must leave a recoverable saved request and retry state, not a duplicate submission. Provide the lead admin list, details, status, notes, assignee, next follow-up, safe export and editable mail/reminder configuration.
+
+Use mail capture and .test addresses on staging. Configure supported queuing and scheduled reminders with deduplication, safe rescheduling and cancellation for closed/spam leads. Do not send real messages, enable SMS or connect an external CRM. Implement Contact through the same safe submission foundation. Verify retry/double-click, validation, expired token, network failure, malformed identifiers, mail failure, admin access and confirmation refresh. Test analytics only after server acceptance and without personal payloads.
+
+## Version 1.1 acceptance additions
+
+CF7 is the sole transport and Flamingo the sole store. No private cic_lead duplicate. Use one progressively enhanced CF7 form for all steps. Implement supported dynamic option validation and server coverage checks. Test save-before-mail hook ordering, atomic retry coordination, hidden-field errors, no-JS form, plugin-dependency failure and saved-enquiry/mail-failure recovery. Workflow metadata references Flamingo IDs. Both Yan/team get scoped access. Initial admin-editable recipient anuranjan.verma25@gmail.com; production sender pending. Choose one notification owner; no duplicate CF7/custom emails. Reminders internal-only and disabled until timing is configured. Existing fields are provisional.

@@ -1,0 +1,34 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": false,
+		"layout": {
+			"contentSize": "1200px",
+			"wideSize": "1440px"
+		},
+		"color": {
+			"custom": false,
+			"customGradient": false,
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"palette": [
+				{ "slug": "brand-raspberry", "name": "Brand raspberry", "color": "#DE2879" },
+				{ "slug": "action-primary", "name": "Action primary", "color": "#D92373" },
+				{ "slug": "action-primary-hover", "name": "Action primary hover", "color": "#BC1F64" },
+				{ "slug": "text-primary", "name": "Text primary (deep plum)", "color": "#503564" },
+				{ "slug": "strawberry", "name": "Strawberry", "color": "#F3A2BD" },
+				{ "slug": "lavender", "name": "Lavender", "color": "#B9A0DD" },
+				{ "slug": "surface-soft", "name": "Surface soft", "color": "#F3EFF9" },
+				{ "slug": "surface-base", "name": "Surface base", "color": "#FFFFFF" }
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"defaultFontSizes": false
+		},
+		"spacing": {
+			"customSpacingSize": false
+		}
+	}
+}
