@@ -1,6 +1,6 @@
 <?php
 /**
- * Document head and site header shell. The approved three-row header is built in Phase 04.
+ * Document head and the shared site header.
  *
  * @package CaterIceCream
  */
@@ -16,18 +16,5 @@ defined( 'ABSPATH' ) || exit;
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 <a class="cic-skip-link screen-reader-text" href="#main"><?php esc_html_e( 'Skip to content', 'cater-ice-cream' ); ?></a>
-<header class="cic-site-header">
-	<div class="cic-site-header__brand">
-		<?php if ( has_custom_logo() ) : ?>
-			<?php the_custom_logo(); ?>
-		<?php else : ?>
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
-		<?php endif; ?>
-	</div>
-	<?php if ( has_nav_menu( 'primary' ) ) : ?>
-		<nav class="cic-site-header__nav" aria-label="<?php esc_attr_e( 'Primary', 'cater-ice-cream' ); ?>">
-			<?php wp_nav_menu( array( 'theme_location' => 'primary', 'container' => false ) ); ?>
-		</nav>
-	<?php endif; ?>
-</header>
+<?php get_template_part( 'template-parts/header/site-header' ); ?>
 <main id="main" class="cic-main" tabindex="-1">

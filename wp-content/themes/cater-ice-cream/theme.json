@@ -3,32 +3,438 @@
 	"version": 3,
 	"settings": {
 		"appearanceTools": false,
-		"layout": {
-			"contentSize": "1200px",
-			"wideSize": "1440px"
-		},
 		"color": {
 			"custom": false,
+			"customDuotone": false,
 			"customGradient": false,
-			"defaultPalette": false,
+			"defaultDuotone": false,
 			"defaultGradients": false,
+			"defaultPalette": false,
+			"duotone": [],
+			"gradients": [],
 			"palette": [
-				{ "slug": "brand-raspberry", "name": "Brand raspberry", "color": "#DE2879" },
-				{ "slug": "action-primary", "name": "Action primary", "color": "#D92373" },
-				{ "slug": "action-primary-hover", "name": "Action primary hover", "color": "#BC1F64" },
-				{ "slug": "text-primary", "name": "Text primary (deep plum)", "color": "#503564" },
-				{ "slug": "strawberry", "name": "Strawberry", "color": "#F3A2BD" },
-				{ "slug": "lavender", "name": "Lavender", "color": "#B9A0DD" },
-				{ "slug": "surface-soft", "name": "Surface soft", "color": "#F3EFF9" },
-				{ "slug": "surface-base", "name": "Surface base", "color": "#FFFFFF" }
+				{
+					"slug": "brand-raspberry",
+					"name": "Brand raspberry",
+					"color": "#DE2879"
+				},
+				{
+					"slug": "action-primary",
+					"name": "Primary action",
+					"color": "#D92373"
+				},
+				{
+					"slug": "action-primary-hover",
+					"name": "Primary action hover",
+					"color": "#BC1F64"
+				},
+				{
+					"slug": "on-action",
+					"name": "Text on actions",
+					"color": "#FFFFFF"
+				},
+				{
+					"slug": "action-secondary",
+					"name": "Secondary action",
+					"color": "#503564"
+				},
+				{
+					"slug": "focus",
+					"name": "Focus ring",
+					"color": "#503564"
+				},
+				{
+					"slug": "error",
+					"name": "Error messages and invalid fields",
+					"color": "#B3261E"
+				},
+				{
+					"slug": "text-primary",
+					"name": "Text (deep plum)",
+					"color": "#503564"
+				},
+				{
+					"slug": "text-muted",
+					"name": "Muted text",
+					"color": "#6B587A"
+				},
+				{
+					"slug": "strawberry",
+					"name": "Strawberry",
+					"color": "#F3A2BD"
+				},
+				{
+					"slug": "lavender",
+					"name": "Lavender",
+					"color": "#B9A0DD"
+				},
+				{
+					"slug": "surface-soft",
+					"name": "Surface soft",
+					"color": "#F3EFF9"
+				},
+				{
+					"slug": "surface-base",
+					"name": "Surface base",
+					"color": "#FFFFFF"
+				},
+				{
+					"slug": "border",
+					"name": "Borders and field outlines",
+					"color": "#DDD3EA"
+				},
+				{
+					"slug": "birthday-sky",
+					"name": "Birthday sky",
+					"color": "#63C9EB"
+				},
+				{
+					"slug": "birthday-mint",
+					"name": "Birthday mint",
+					"color": "#8CDCBF"
+				},
+				{
+					"slug": "birthday-violet",
+					"name": "Birthday violet",
+					"color": "#7652B8"
+				},
+				{
+					"slug": "birthday-surface",
+					"name": "Birthday pale surface",
+					"color": "#EAF6FB"
+				},
+				{
+					"slug": "wedding-ivory",
+					"name": "Wedding ivory",
+					"color": "#FFFDF8"
+				},
+				{
+					"slug": "wedding-gold",
+					"name": "Wedding champagne gold",
+					"color": "#B29458"
+				},
+				{
+					"slug": "wedding-blush",
+					"name": "Wedding blush",
+					"color": "#F5E7E8"
+				},
+				{
+					"slug": "treat-chocolate",
+					"name": "Treat chocolate",
+					"color": "#7A4129"
+				},
+				{
+					"slug": "treat-blush",
+					"name": "Treat blush surface",
+					"color": "#FBEFF0"
+				},
+				{
+					"slug": "treat-mint",
+					"name": "Treat mint surface",
+					"color": "#EBF8F5"
+				},
+				{
+					"slug": "treat-sky",
+					"name": "Treat sky surface",
+					"color": "#EBF6FD"
+				}
 			]
 		},
 		"typography": {
 			"customFontSize": false,
-			"defaultFontSizes": false
+			"defaultFontSizes": false,
+			"dropCap": false,
+			"fontStyle": false,
+			"fontWeight": false,
+			"letterSpacing": false,
+			"lineHeight": false,
+			"textTransform": false,
+			"fluid": {
+				"minViewportWidth": "390px",
+				"maxViewportWidth": "1440px"
+			},
+			"fontFamilies": [
+				{
+					"name": "Fraunces",
+					"slug": "fraunces",
+					"fontFamily": "Fraunces, 'Iowan Old Style', 'Palatino Linotype', Georgia, serif",
+					"fontFace": [
+						{
+							"fontFamily": "Fraunces",
+							"fontStyle": "normal",
+							"fontWeight": "600 700",
+							"fontDisplay": "swap",
+							"unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+							"src": [
+								"file:./assets/fonts/fraunces/fraunces-roman-latin.woff2"
+							]
+						},
+						{
+							"fontFamily": "Fraunces",
+							"fontStyle": "italic",
+							"fontWeight": "600",
+							"fontDisplay": "swap",
+							"unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+							"src": [
+								"file:./assets/fonts/fraunces/fraunces-italic-latin.woff2"
+							]
+						}
+					]
+				},
+				{
+					"name": "DM Sans",
+					"slug": "dm-sans",
+					"fontFamily": "'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+					"fontFace": [
+						{
+							"fontFamily": "DM Sans",
+							"fontStyle": "normal",
+							"fontWeight": "400 700",
+							"fontDisplay": "swap",
+							"unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+							"src": [
+								"file:./assets/fonts/dm-sans/dmsans-roman-latin.woff2"
+							]
+						}
+					]
+				},
+				{
+					"name": "System serif",
+					"slug": "system-serif",
+					"fontFamily": "'Iowan Old Style', 'Palatino Linotype', Georgia, serif"
+				},
+				{
+					"name": "System sans-serif",
+					"slug": "system-sans",
+					"fontFamily": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+				}
+			],
+			"fontSizes": [
+				{
+					"slug": "caption",
+					"name": "Caption",
+					"size": "14px",
+					"fluid": {
+						"min": "13px",
+						"max": "14px"
+					}
+				},
+				{
+					"slug": "body",
+					"name": "Body",
+					"size": "18px",
+					"fluid": {
+						"min": "16px",
+						"max": "18px"
+					}
+				},
+				{
+					"slug": "lead",
+					"name": "Lead paragraph",
+					"size": "20px",
+					"fluid": {
+						"min": "18px",
+						"max": "20px"
+					}
+				},
+				{
+					"slug": "h4",
+					"name": "Heading 4",
+					"size": "22px",
+					"fluid": {
+						"min": "20px",
+						"max": "22px"
+					}
+				},
+				{
+					"slug": "h3",
+					"name": "Heading 3",
+					"size": "28px",
+					"fluid": {
+						"min": "24px",
+						"max": "28px"
+					}
+				},
+				{
+					"slug": "h2",
+					"name": "Heading 2",
+					"size": "42px",
+					"fluid": {
+						"min": "32px",
+						"max": "42px"
+					}
+				},
+				{
+					"slug": "h1",
+					"name": "Heading 1",
+					"size": "64px",
+					"fluid": {
+						"min": "40px",
+						"max": "64px"
+					}
+				}
+			]
 		},
 		"spacing": {
-			"customSpacingSize": false
+			"customSpacingSize": false,
+			"defaultSpacingSizes": false,
+			"margin": false,
+			"padding": false,
+			"spacingSizes": [
+				{
+					"slug": "10",
+					"name": "1 × unit",
+					"size": "8px"
+				},
+				{
+					"slug": "20",
+					"name": "2 × unit",
+					"size": "16px"
+				},
+				{
+					"slug": "30",
+					"name": "3 × unit",
+					"size": "24px"
+				},
+				{
+					"slug": "40",
+					"name": "4 × unit",
+					"size": "32px"
+				},
+				{
+					"slug": "50",
+					"name": "6 × unit",
+					"size": "48px"
+				},
+				{
+					"slug": "60",
+					"name": "8 × unit",
+					"size": "64px"
+				},
+				{
+					"slug": "70",
+					"name": "12 × unit",
+					"size": "96px"
+				}
+			]
+		},
+		"layout": {
+			"contentSize": "1200px",
+			"wideSize": "1440px"
+		},
+		"custom": {
+			"cic": {
+				"font": {
+					"heading": "var(--wp--preset--font-family--fraunces)",
+					"body": "var(--wp--preset--font-family--dm-sans)",
+					"headingWeight": 700,
+					"bodyWeight": 400,
+					"uiWeight": 500,
+					"strongWeight": 700,
+					"headingAccentStyle": "normal",
+					"headingTracking": "0em",
+					"eyebrowTracking": "0.18em",
+					"buttonTracking": "0em"
+				},
+				"fs": {
+					"h1": {
+						"min": 40,
+						"max": 64,
+						"lhMin": 44,
+						"lhMax": 70
+					},
+					"h2": {
+						"min": 32,
+						"max": 42,
+						"lhMin": 38,
+						"lhMax": 48
+					},
+					"h3": {
+						"min": 24,
+						"max": 28,
+						"lhMin": 30,
+						"lhMax": 34
+					},
+					"h4": {
+						"min": 20,
+						"max": 22,
+						"lhMin": 26,
+						"lhMax": 28
+					},
+					"lead": {
+						"min": 18,
+						"max": 20,
+						"lhMin": 28,
+						"lhMax": 30
+					},
+					"body": {
+						"min": 16,
+						"max": 18,
+						"lhMin": 26,
+						"lhMax": 28
+					},
+					"caption": {
+						"min": 13,
+						"max": 14,
+						"lhMin": 18,
+						"lhMax": 20
+					},
+					"label": {
+						"min": 14,
+						"max": 14,
+						"lhMin": 20,
+						"lhMax": 20
+					},
+					"button": {
+						"min": 16,
+						"max": 16,
+						"lhMin": 20,
+						"lhMax": 20
+					},
+					"eyebrow": {
+						"min": 12,
+						"max": 13,
+						"lhMin": 16,
+						"lhMax": 18
+					},
+					"nav": {
+						"min": 16,
+						"max": 16,
+						"lhMin": 22,
+						"lhMax": 22
+					}
+				},
+				"layout": {
+					"gutterMin": 16,
+					"gutterMax": 32,
+					"sectionMin": 48,
+					"sectionMax": 88,
+					"space": "8px"
+				},
+				"radius": {
+					"card": "20px",
+					"button": "999px",
+					"field": "10px",
+					"image": "24px"
+				},
+				"component": {
+					"buttonPadY": "14px",
+					"buttonPadX": "28px",
+					"buttonShadow": "0 6px 16px color-mix(in srgb, var(--wp--preset--color--text-primary) 14%, transparent)",
+					"fieldHeight": "48px",
+					"fieldBorder": "var(--wp--preset--color--border)",
+					"cardShadow": "0 8px 24px color-mix(in srgb, var(--wp--preset--color--text-primary) 10%, transparent)",
+					"cardBorder": "0 solid transparent",
+					"accordionSurface": "var(--wp--preset--color--surface-base)",
+					"accordionBorder": "1px solid var(--wp--preset--color--border)",
+					"callPanelSurface": "var(--wp--preset--color--action-primary)",
+					"callPanelText": "var(--wp--preset--color--on-action)",
+					"quoteStarterSurface": "var(--wp--preset--color--surface-base)",
+					"headerSurface": "var(--wp--preset--color--surface-base)",
+					"footerSurface": "var(--wp--preset--color--text-primary)",
+					"footerText": "var(--wp--preset--color--on-action)"
+				}
+			}
 		}
 	}
 }

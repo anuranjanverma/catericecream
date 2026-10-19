@@ -36,6 +36,8 @@ final class Plugin {
 		( new Dependencies() )->register();
 		( new SiteHealth() )->register();
 		( new Migrations() )->register();
+
+		( new Design\Service() )->register();
 	}
 
 	public function load_textdomain(): void {

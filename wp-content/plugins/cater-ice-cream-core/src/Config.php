@@ -32,7 +32,28 @@ final class Config {
 			// Notification recipient, not a sender or login identity. Local/staging mail is captured.
 			'operator_recipient' => 'anuranjan.verma25@gmail.com',
 			'event_timezone'     => 'America/Los_Angeles',
+			// Public CTA labels and recurring text (Phase 02). Edited on Header, Footer & Contact.
+			'quote_label'        => 'Get a Quote',
+			'quote_url'          => '/get-a-quote/',
+			'call_label'         => 'Call',
+			'availability_note'  => 'Your date and service availability will be confirmed with your quote.',
+			'website_label'      => 'catericecream.com',
+			// Social profiles stay empty until real URLs are supplied; empty ones are never displayed.
+			'social_instagram'   => '',
+			'social_facebook'    => '',
+			'social_tiktok'      => '',
+			'social_yelp'        => '',
 		);
+	}
+
+	/**
+	 * Defaults merged with saved values.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function all(): array {
+		$saved = get_option( self::OPTION_SETTINGS, array() );
+		return array_merge( self::defaults(), is_array( $saved ) ? array_intersect_key( $saved, self::defaults() ) : array() );
 	}
 
 	/**

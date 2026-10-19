@@ -35,6 +35,8 @@ Handoff locations (verified):
 - Back up the DB and `wp-config.php` to `C:\laragon\backup\catericecream\<label>-<timestamp>\` before schema or config changes.
 - Purchase prevention lives ONLY in `wp-content/mu-plugins/cic-catalog-guard.php`. Never move it into the theme or core plugin. Re-run `dev/tests/phase01/guard-test.php` after any WooCommerce, guard or REST change.
 - Dev scripts in `dev/` are CLI-only (blocked over HTTP by `dev/.htaccess`, and each exits unless `WP_CLI`).
+- Design values come only from the Design System (`CIC\Design\Schema` allowlist → theme.json filter + preset CSS). Never hardcode hex colours, fonts or page palettes in theme CSS or templates; use `--cic-color-*` roles, `--wp--preset--*` and `--wp--custom--cic--*`. After changing Schema defaults, run `wp eval-file dev/tools/build-theme-json.php` so theme.json stays in parity.
+- Re-run `dev/tests/phase02/design-test.php` (and the browser test when the UI changes) after design-system, header/footer or override changes.
 - Never print or commit credentials from `wp-config.php`.
 
 ## Status tracking

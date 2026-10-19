@@ -36,3 +36,14 @@ add_action(
 		);
 	}
 );
+
+/**
+ * Mark JavaScript support before first paint so the mobile menu does not flash open.
+ */
+add_action(
+	'wp_head',
+	static function (): void {
+		wp_print_inline_script_tag( 'document.documentElement.classList.add("cic-js");' );
+	},
+	1
+);
