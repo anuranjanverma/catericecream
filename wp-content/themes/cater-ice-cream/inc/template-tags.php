@@ -106,6 +106,31 @@ function cic_theme_row_classes( array $row ): string {
  *
  * @param array<string, mixed> $attrs Extra attributes.
  */
+/**
+ * The approved original Cater mascot (brand pack, bundled with the theme). Decorative by default.
+ *
+ * @param array<string, string> $attrs Extra attributes.
+ */
+function cic_theme_mascot( int $width, array $attrs = array() ): string {
+	$attrs = array_merge(
+		array(
+			'src'      => get_template_directory_uri() . '/assets/brand/mascot-original.webp',
+			'width'    => (string) $width,
+			'height'   => (string) round( $width * 535 / 640 ),
+			'alt'      => '',
+			'loading'  => 'lazy',
+			'decoding' => 'async',
+			'class'    => 'cic-mascot',
+		),
+		$attrs
+	);
+	$html = '<img';
+	foreach ( $attrs as $name => $value ) {
+		$html .= ' ' . esc_attr( $name ) . '="' . esc_attr( (string) $value ) . '"';
+	}
+	return $html . '>';
+}
+
 function cic_theme_bundled_logo( int $width, array $attrs = array() ): string {
 	$base   = get_template_directory_uri() . '/assets/brand/logo-original-';
 	$srcset = $base . '384.webp 384w, ' . $base . '576.webp 576w, ' . $base . '768.webp 768w';

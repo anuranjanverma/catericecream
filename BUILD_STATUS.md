@@ -12,9 +12,115 @@ Environment facts: see `ENVIRONMENT.md`.
 | 02 Design system and admin controls | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 03 Products, events and structured editing | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 04 Homepage and shared components | **Approved by the owner (2026-10-20)**, header logo size restored to the initial Phase 04 values (https://catericecream.test/) | 2026-10-20 |
-| 05 Locations, import, search, routes and SEO | **Complete on local fixtures: gate passed, awaiting owner review** (owner city code + approved dataset still pending; fixtures are not approved coverage) | 2026-10-20 |
+| 05 Locations, import, search, routes and SEO | **Provisional: built and tested with local fixtures only; NOT launch-ready.** Production city/state integration deferred until the owner supplies the historical city code and approved coverage data | 2026-10-20 |
+| 06 Quote flow, lead management, mail and reminders | **Pending.** Deferred by owner instruction to after Phase 07; full quote-flow integration and testing outstanding | |
+| 07 Event and treat compositions | **Eight detail pages built and verified, awaiting owner review.** Built before Phase 06 by owner instruction; the vertical-slice/quote-flow prerequisite is **DEFERRED, not passed** | 2026-10-20 |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size. Each was committed at the owner's request after reviewing the staged set. Phase 05 is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05 (provisional). Each was committed at the owner's request after reviewing the staged set. Phase 07 is **not committed yet**.
+
+---
+
+## Build-sequence change (owner instruction, 2026-10-20)
+
+- **Phase 05 is provisional.** It is tested with labelled local fixtures only and is **not launch-ready**. Production city/state integration is deferred until the owner supplies the historical city code and approved coverage data.
+  - The Phase 05 work is preserved unchanged.
+  - Fixture rows count only on local/development sites and are visibly labelled as test data.
+  - No fixture location is presented as confirmed production coverage.
+- **Phase 07 now runs before Phase 06.** This explicitly overrides the v1.1 prerequisite that the vertical slice, including the complete CF7–Flamingo quote flow, passes before page expansion.
+  - That prerequisite is **DEFERRED, not passed**.
+  - Full quote-flow integration and testing remain **pending Phase 06**.
+
+## Phase 07 log: Event and treat compositions
+
+Prompt: `handoff/cater-ice-cream/prompts/07_event_and_treat_compositions.md`. References read for each page:
+
+| Page | Reference |
+| --- | --- |
+| Birthday | `04_birthday_final.png` |
+| Wedding | `05_wedding_final.png` |
+| Anniversary | `06_anniversary_final.png` |
+| Corporate | `07_corporate_final.png` |
+| Dippin' Dots | `09_treat_dippin_dots.png` |
+| DipN' Bananas | `10_treat_dipn_bananas.png` |
+| Classic Ice Cream | `11_treat_classic.png` |
+| Frozen Yogurt | `12_treat_yogurt.png` |
+
+Also read: `21_mobile_detail_and_quote.png`, plus each page's rows in `PAGE_IMAGE_MAP.csv` / `ASSET_MANIFEST.json`.
+
+**URLs:** `/events/{birthday,wedding,anniversary,corporate}/` and `/treats/{dippin-dots,dipn-bananas,classic-ice-cream,frozen-yogurt}/`.
+
+Stopped after these eight pages for review. Phase 06 and Phase 08 have not started. The homepage, including the restored 190/136 px header logo, is unchanged, and the shared header and footer are reused.
+
+### Backup
+`C:\laragon\backup\catericecream\pre-phase07-20261020-103351\` (DB dump, `wp-config.php`, `.htaccess`, SHA256SUMS), taken before the content seed. No schema change in this phase.
+
+### Decisions
+
+| Area | Decision |
+| --- | --- |
+| Distinct compositions | Each event composition has its own approved section list and order (`Fields::EVENT_LAYOUT_SECTIONS`), plus section variants where the references differ (`single-cic_event.php`), so pages are **not** one reordered template:<br>• Birthday: hero, starter, treats, stories, planning, quote (Phase 03 composition kept).<br>• Wedding: hero (photo + ivory card + rings), ribbon, sweet-moment story, treats, wide photo band, planning, quote panel.<br>• Anniversary: hero (split + hearts), values, treats on a lavender band, story, planning, quote + FAQ.<br>• Corporate: the same order as Anniversary with professional styling (no hearts; strokes and a people-line motif; lavender FAQ card).<br>Treats get a **Composition** field (`Fields::TREAT_LAYOUTS`):<br>• **split**: 09 Dippin' Dots and 10 DipN' Bananas (the references share it; DD has no FAQ in 09, Bananas has its FAQ band).<br>• **classic**: centred hero card between photos, alternating occasion rows, FAQ + starter side by side.<br>• **yogurt**: fresh hero, mood boards **before** occasions, vertical occasion cards with icon badges, intro + starter + FAQ trio. |
+| Section order safety | Section "order" fields no longer default to a number. Empty means the approved order of the page's composition, so an admin save can't freeze a generic order (verified A3/A6). |
+| Editable content | New ACF Free fields (free types only):<br>• events: ribbon phrases, three value points, story eyebrow/heading/text/photo/inset/three points, wide photo + caption, treats eyebrow;<br>• treats: composition, second/third hero photo, theme icon, FAQ intro.<br>Everything else uses the Phase 03 fields, WooCommerce product fields, the Events CPT and the single pairing table. |
+| Content | Copy from the mockups, corrected per the handoff: no prices or minimums, no ® marks, no stock/flavour/dietary guarantees (a cautious allergen disclaimer only), no health claims on Frozen Yogurt, and theme boards labelled "Styling inspiration only". Seeded non-destructively. |
+| Pairings | 9 new pairings, so every treat has all four occasions (**16 total**). The three existing seed rows gained their mapped photos only because they had none. Classic × Birthday copy was refreshed only because it still exactly equalled the previous seed text (`Pairings::fill_seeded`). Editor changes are never overwritten. |
+| Media | 30 more masters imported idempotently from the asset map (**56 total**, each once). The approved original mascot (`brand/mascot-original.webp`) is bundled with the theme for the "Your treat" pill and the treat FAQ, like the logo. |
+| Styling | `assets/css/details.css`: Design System roles/tokens only (no hex).<br>• Occasion moods come from the existing presets (`wedding` ivory/blush/champagne gold, `anniversary` strawberry, `corporate` lavender, `banana`/`classic`/`yogurt`).<br>• Wedding accent words use the bundled Fraunces italic.<br>• The Classic card headline uses the Design System **H2** scale tokens (11 shows a smaller card headline); every other heading keeps the central H1/H2.<br>• `fetchpriority="auto"` on eager non-LCP images stops WordPress promoting a second high-priority image. |
+| Motifs | `cic_theme_motif()`: real inline SVG (rings, gold wave, botanical sprigs, double heart, sparkle, strokes, people line), `aria-hidden`, coloured by the preset. Wedding gets a delicate line-trace and sway animation, disabled under `prefers-reduced-motion`. Confetti stays on Birthday only. 9 new line icons (banana, spoon, cup, handshake, building, rings, briefcase, cake, two cups). |
+| Quote actions | Every Plan/Get-a-quote link carries the explicit selection (`/get-a-quote/?event=…` or `?treat=…`) through the existing context helper.<br>• One shared **non-personal starter** component (`template-parts/components/quote-starter.php`) on every detail page, with the event or treat fixed: events collect venue city/ZIP, date and guests; treats collect location, event type and date.<br>• It validates, blocks a confirmed outside-area location with the exact message, and lands on the interim quote route, which only shows the choices.<br>• **No second form system, no stored submission, no success message.** Names, emails and phones wait for the CF7 form in **Phase 06**.<br>• The Birthday starter strip now uses the same helper (GET, validated keys) instead of a bare POST. |
+| Fix carried from Phase 05 | The autocomplete list styles moved from `locations.css` to `main.css`, so the homepage and detail-page location inputs show a styled list. |
+
+### Files
+- **Core plugin (0.5.0):** `src/Content/Fields.php` (layouts, section lists, new fields, icons, order-field default), `src/Content/ViewModel.php` (layout-aware `sections()`, event/treat data), `src/Content/SeedData.php` (event and treat content, pairings, media pages), `src/Content/Seeder.php` + `src/Content/Pairings.php` (`fill_seeded`), `cater-ice-cream-core.php`.
+- **Theme:**
+  - new `assets/css/details.css`, `assets/brand/mascot-original.webp`;
+  - new `template-parts/components/quote-starter.php`;
+  - new `template-parts/event/section-{hero-wedding,hero-split,ribbon,values,feature,treats-brands,gallery,planning-band,quote-panel}.php`;
+  - new `template-parts/treat/section-{hero-classic,hero-yogurt,occasions-rows,occasions-cards,quote-faq,quote-trio}.php` and `template-parts/treat/your-treat.php`;
+  - changed `single-cic_event.php`, `template-parts/treat/{single,section-quote,section-faq,section-themes}.php`, `template-parts/event/section-starter.php`, `inc/content.php` (icons, motifs, image priority, enqueue), `inc/template-tags.php` (mascot), `assets/css/main.css`, `assets/css/locations.css`.
+- **Tests:**
+  - new `dev/tests/phase07/{details-test.php,browser-test.cjs,admin-details-test.cjs,state.php}`;
+  - expectations updated where Phase 07 intentionally changed facts: phase03 `catalog-test.php` D1 (16 pairings) and `admin-edit-test.cjs` S5 (starter via the context helper, non-personal keys only); phase04 `home-test.php` E2 (56 masters).
+
+### Verification actually performed
+1. **`dev/tests/phase07/details-test.php`: 23/23.**
+   - Every page's section set and order (view model and rendered HTML).
+   - Composition-specific markup; confetti only on Birthday and rings only on Wedding; presets.
+   - One h1; images with width/height/alt; ≤ 1 high-priority image; no embedded mockups; motifs aria-hidden.
+   - All 20 unique content links internal and 200; each treat links all four occasions and each new event all four treats.
+   - Quote links and starters carry the event/treat with no personal fields; the quote route shows the selections without any success claim; no form-plugin output.
+   - No minimum/price/®/guarantee copy; no yogurt health claims; theme boards labelled as inspiration.
+   - 16 pairings, with shared copy on the treat and event pages; no add-to-cart, price or Offer schema, and products non-purchasable; seeder re-run changes nothing; compositions are record settings.
+   - The first run found two real issues (core added a second high-priority image on 3 pages, fixed) and three test-expectation errors (corrected).
+2. **`dev/tests/phase07/browser-test.cjs`: 13/13** (headless Edge, one browser, closed).
+   - No overflow on 8 pages × 390/768/1440.
+   - Mobile reading order (Wedding photo then card as in 21; Classic card then scoops; split heroes text then photo); mobile occasion cards two per row.
+   - Wedding motion runs and stops under reduced motion (confetti too).
+   - Wedding CTA → `/get-a-quote/?event=wedding`, no success text; Bananas CTA carries the treat while keeping the earlier explicit occasion.
+   - Corporate starter blocks 90224 with the exact message and keeps the guests answer, then continues with only event/location/guests; Yogurt starter carries treat + occasion + location; Birthday strip uses the helper.
+   - **One Design System change (primary action colour) restyled the CTA on all 8 pages without editing them**, every heading inherits the global family, and the restore returned the original colour.
+3. **`dev/tests/phase07/admin-details-test.cjs`: 7/7.**
+   - Wedding in the block editor: ribbon and story heading saved, shown on the page, approved section order kept.
+   - Classic on the product screen: FAQ question and theme title saved and shown, order kept.
+   - Restore confirmed.
+4. **Regressions, one suite at a time:** Phase 01 guard **69/69** (fixtures created and deleted: catalogue protection intact); Phase 02 server **51/51** and browser **58/58**; Phase 03 server **46/46** and admin **22/22**; Phase 04 server **25/25**, browser **22/22**, admin fields **6/6**; Phase 05 server **55/55**, browser **24/24**, admin **12/12**.
+5. **Hygiene:** no PHP notices or warnings in the debug log; no hex colours in the new CSS; every test browser closed; only the owner's WordPress session remains; all test edits restored.
+6. **Evidence** (`dev/tests/output/phase07/`, git-ignored; unscaled true widths):
+   - `{page}-{390,768,1440}.png` full pages and `-viewport.png` first views for all 8 pages (e.g. wedding-390 390×4566, wedding-1440 1440×3888);
+   - 100 `section-{page}-{390,1440}-*.png`;
+   - `admin-wedding-fields.png`, `admin-classic-fields.png`.
+
+### Remaining differences from the references (for review)
+- **Quote panels:** the mockups show name, email and phone fields. Until the Phase 06 CF7 form exists, the panels collect only non-personal choices and hand over to `/get-a-quote/`.
+- **Heading sizes:** the central Design System sizes (approved with the homepage) make some headlines wrap differently from the raster mockups (e.g. "Good teams deserve" breaks after "deserve"). The Classic card headline uses the H2 scale to fit its card.
+- **Small icon differences:** the line icons are the bundled set, not pixel copies of each mockup glyph.
+- **Botanical/gold line art:** drawn as simple SVG motifs, not traced from the AI images.
+- **Not tested:** screen readers, Safari/Firefox, real touch devices, PHPCS.
+
+### Pending
+- **Phase 06:** CF7 + Flamingo quote flow (contact fields, storage before notification, Mailpit). This needs the owner's go-ahead to install CF7/Flamingo. Full quote-flow integration and testing from every detail page are **pending**.
+- **Deferred gate:** vertical-slice gate (complete quote flow) recorded as **deferred** by owner instruction.
+- **City code:** owner's city code + approved coverage data (Phase 05 production integration).
+- **Client review:** AI photos, product options/ingredients, and whether DipN' Bananas is a supplier brand.
 
 ---
 
@@ -626,19 +732,18 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 02 ✔ | Design System admin + style preview + header/footer controls | Passed 2026-10-19 |
 | 03 ✔ | Products + Events models (ACF Free install) | Passed 2026-10-19 |
 | 04 ✔ | Three-row header/footer + homepage | Approved by owner 2026-10-20 |
-| 05 ✔ | Locations adapter, importer, search, virtual routes, SEO | Passed on local fixtures 2026-10-20; awaiting owner review (city code + dataset pending) |
-| 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Save-before-notify proven in Mailpit |
-| — | Vertical-slice gate | Before Phase 07 |
-| 07 | Remaining event + treat compositions | Screenshot comparison |
+| 05 (provisional) | Locations adapter, importer, search, virtual routes, SEO | Fixture tests passed 2026-10-20; **not launch-ready**: production integration deferred (city code + approved data) |
+| 07 ✔ (before 06) | Event + treat compositions (8 detail pages) | Built and verified 2026-10-20; awaiting owner review |
+| 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Pending: save-before-notify proven in Mailpit |
+| — | Vertical-slice gate (complete quote flow) | **Deferred by owner instruction** (not passed) until Phase 06 |
 | 08 | Archives, hubs, About, Contact, policies, 404 | Navigation and forms complete |
 | 09 | Visual, accessibility, performance review | Differences fixed or recorded |
 | 10 | Release candidate + operational guide | Backup/rollback rehearsed on staging |
 
 ## Next phase
 
-**Owner review of Phase 05**:
-- pages: https://catericecream.test/service-areas/, `/service-areas/california/` and `/service-areas/california/pasadena/`;
-- admin: **Service Areas** menu;
-- screenshots: `dev/tests/output/phase05/`.
+**Owner review of the Phase 07 detail pages** (`/events/{birthday,wedding,anniversary,corporate}/`, `/treats/{dippin-dots,dipn-bananas,classic-ice-cream,frozen-yogurt}/`, screenshots in `dev/tests/output/phase07/`).
 
-Then **Phase 06: Quote flow, lead management, mail and reminders** (`prompts/06_quote_flow_lead_management_mail_and_reminders.md`), when asked. It needs the owner's go-ahead to install CF7 + Flamingo.
+Then, when asked, **Phase 06: Quote flow, lead management, mail and reminders** (`prompts/06_quote_flow_lead_management_mail_and_reminders.md`). It needs the owner's go-ahead to install CF7 + Flamingo, and closes the deferred quote-flow gate.
+
+Phase 05 production integration waits for the owner's city code and approved coverage data.

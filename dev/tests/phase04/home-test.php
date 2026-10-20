@@ -86,6 +86,6 @@ cic4_check( 'D7 search form posts nowhere personal: GET to the quote route with 
 WP_CLI::log( '== E. Seeding' );
 $result = ( new Seeder() )->run( false );
 cic4_check( 'E1 seed re-run changes nothing', 0 === $result['report']['created'] && 0 === $result['report']['filled'] && 0 === $result['report']['pairs'], $result['report'] );
-cic4_check( 'E2 26 masters imported in total (slice + homepage + 3 county photos), each once', 26 === count( get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => '_cic_asset_id', 'numberposts' => -1, 'fields' => 'ids' ) ) ) ); // phpcs:ignore
+cic4_check( 'E2 56 masters imported in total (slice, homepage, county and Phase 07 detail-page photos), each once', 56 === count( get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => '_cic_asset_id', 'numberposts' => -1, 'fields' => 'ids' ) ) ) ); // phpcs:ignore
 
 WP_CLI::log( sprintf( '== RESULT: %d passed, %d failed', $cic4['pass'], $cic4['fail'] ) );

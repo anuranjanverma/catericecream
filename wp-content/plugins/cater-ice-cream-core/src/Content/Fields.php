@@ -40,11 +40,34 @@ final class Fields {
 		'wand'       => 'Magic wand',
 		'home'       => 'House',
 		'sundae'     => 'Sundae',
+		'banana'     => 'Banana',
+		'spoon'      => 'Spoon',
+		'cup'        => 'Dessert cup',
+		'handshake'  => 'Handshake',
+		'building'   => 'Office building',
+		'rings'      => 'Rings',
+		'briefcase'  => 'Briefcase',
+		'cake'       => 'Birthday cake',
+		'gift-cups'  => 'Two dessert cups',
 	);
 
 	public const FAQ_SLOTS = 6;
 
-	/** Treat sections in approved order (09_treat_dippin_dots.png). */
+	/** Treat compositions (09–12). DipN' Bananas shares the Dippin' Dots composition. */
+	public const TREAT_LAYOUTS = array(
+		'split'   => 'Split hero (Dippin\' Dots / DipN\' Bananas)',
+		'classic' => 'Centred hero (Classic Ice Cream)',
+		'yogurt'  => 'Fresh hero (Frozen Yogurt)',
+	);
+
+	/** Approved section order per treat composition (FAQ sits inside the quote area in 11/12). */
+	public const TREAT_LAYOUT_SECTIONS = array(
+		'split'   => array( 'hero', 'feelings', 'occasions', 'themes', 'detail', 'faq', 'quote' ),
+		'classic' => array( 'hero', 'feelings', 'occasions', 'themes', 'detail', 'quote' ),
+		'yogurt'  => array( 'hero', 'feelings', 'themes', 'occasions', 'detail', 'quote' ),
+	);
+
+	/** Treat sections (labels for the section controls). */
 	public const TREAT_SECTIONS = array(
 		'hero'      => 'Hero',
 		'feelings'  => 'Feelings',
@@ -55,14 +78,27 @@ final class Fields {
 		'quote'     => 'Quote starter',
 	);
 
-	/** Event sections in approved order (04_birthday_final.png). */
+	/** Event sections (labels for the section controls); each layout uses its own subset. */
 	public const EVENT_SECTIONS = array(
 		'hero'     => 'Hero',
-		'starter'  => 'Quote starter strip',
+		'starter'  => 'Quote starter strip (Birthday)',
+		'ribbon'   => 'Ribbon phrases (Wedding)',
+		'values'   => 'Value points (Anniversary, Corporate)',
+		'feature'  => 'Story with photo (Wedding, Anniversary, Corporate)',
 		'treats'   => 'Featured treats',
-		'stories'  => 'Occasion stories',
-		'planning' => 'Planning prompts',
+		'stories'  => 'Occasion stories (Birthday)',
+		'gallery'  => 'Wide photo band (Wedding)',
+		'planning' => 'Planning steps',
 		'quote'    => 'Quote and FAQ',
+	);
+
+	/** Approved section order per event composition (04–07). Not one reordered template. */
+	public const EVENT_LAYOUT_SECTIONS = array(
+		'birthday'    => array( 'hero', 'starter', 'treats', 'stories', 'planning', 'quote' ),
+		'wedding'     => array( 'hero', 'ribbon', 'feature', 'treats', 'gallery', 'planning', 'quote' ),
+		'anniversary' => array( 'hero', 'values', 'treats', 'feature', 'planning', 'quote' ),
+		'corporate'   => array( 'hero', 'values', 'treats', 'feature', 'planning', 'quote' ),
+		'standard'    => array( 'hero', 'treats', 'feature', 'planning', 'quote' ),
 	);
 
 	/** Homepage sections in approved order (01/02 home references). */
@@ -216,13 +252,13 @@ final class Fields {
 			$contexts[ $key ] = $def['label'];
 		}
 		$fields = array(
-			self::f( 'message', 'cic_sections_help', 'How sections work', array( 'message' => 'Sections appear in the approved order by default. Untick a section to hide it, change its order number to move it, or choose a preset to restyle just that section. Empty sections are hidden automatically.' ) ),
+			self::f( 'message', 'cic_sections_help', 'How sections work', array( 'message' => 'Sections appear in the approved order of this page\'s composition by default (leave the order empty to keep it). Untick a section to hide it, enter an order number to move it, or choose a preset to restyle just that section. Empty sections, and sections that are not part of the chosen composition, are not shown.' ) ),
 		);
 		$i = 0;
 		foreach ( $sections as $key => $label ) {
 			$i++;
 			$fields[] = self::f( 'true_false', 'cic_sec_' . $key . '_on', $label . ': show', array( 'default_value' => 1, 'ui' => 1, 'wrapper' => array( 'width' => '30' ) ) );
-			$fields[] = self::f( 'number', 'cic_sec_' . $key . '_order', $label . ': order', array( 'default_value' => $i * 10, 'min' => 0, 'max' => 999, 'step' => 1, 'wrapper' => array( 'width' => '30' ) ) );
+			$fields[] = self::f( 'number', 'cic_sec_' . $key . '_order', $label . ': order', array( 'default_value' => '', 'placeholder' => (string) ( $i * 10 ), 'instructions' => 'Empty = approved order.', 'min' => 0, 'max' => 999, 'step' => 1, 'wrapper' => array( 'width' => '30' ) ) );
 			$fields[] = self::f( 'select', 'cic_sec_' . $key . '_preset', $label . ': preset', array( 'choices' => $contexts, 'default_value' => '', 'wrapper' => array( 'width' => '40' ) ) );
 		}
 		return $fields;
@@ -478,12 +514,15 @@ final class Fields {
 		$fields = array(
 			self::tab( 'treat_hero', 'Hero' ),
 			self::f( 'message', 'cic_treat_reuse_help', 'Standard WooCommerce fields', array( 'message' => 'Title, short description (catalogue card text), long description (shown as "what it is" in Product detail), featured image and the product gallery stay in the normal WooCommerce fields.' ) ),
+			self::f( 'select', 'cic_treat_layout', 'Composition', array( 'choices' => self::TREAT_LAYOUTS, 'default_value' => 'split', 'instructions' => 'Approved page composition (references 09–12): hero style, section order and occasion card style.' ) ),
 			self::text( 'cic_hero_eyebrow', 'Eyebrow', 'Small capitals line above the headline.' ),
 			self::area( 'cic_hero_headline', 'Emotional headline', 'One line per row. Wrap accent words in &lt;em&gt;…&lt;/em&gt;.', 2 ),
 			self::area( 'cic_hero_intro', 'Introduction' ),
 			self::text( 'cic_hero_cta', 'Quote button label', 'Opens the shared quote flow with this treat selected.' ),
 			self::text( 'cic_hero_jump', 'Jump link label', 'Scrolls to the occasion pairings, e.g. "Find your occasion".' ),
-			self::image( 'cic_hero_image', 'Hero photo', 'Large photo on the right.' ),
+			self::image( 'cic_hero_image', 'Hero photo', 'Large photo (Classic: the scoops at the bottom centre).' ),
+			self::image( 'cic_hero_image_2', 'Second hero photo (optional)', 'Classic: left photo. Frozen Yogurt: people photo behind the product.' ),
+			self::image( 'cic_hero_image_3', 'Third hero photo (optional)', 'Classic: right photo.' ),
 			self::text( 'cic_card_tagline', 'Catalogue card tagline', 'Short line on homepage and catalogue cards, e.g. Little beads. Big smiles.' ),
 			self::text( 'cic_card_link', 'Catalogue card link label', 'e.g. Explore Dippin Dots.' ),
 		);
@@ -509,6 +548,7 @@ final class Fields {
 			$fields[] = self::text( "cic_theme_{$i}_title", "Theme {$i}: title" );
 			$fields[] = self::area( "cic_theme_{$i}_text", "Theme {$i}: description", '', 2 );
 			$fields[] = self::image( "cic_theme_{$i}_image", "Theme {$i}: photo" );
+			$fields[] = self::icon( "cic_theme_{$i}_icon", "Theme {$i}: icon (optional, shown instead of swatches)" );
 			$fields[] = self::f( 'select', "cic_theme_{$i}_palette", "Theme {$i}: palette swatches", array( 'choices' => $palette, 'multiple' => 1, 'ui' => 1, 'return_format' => 'value', 'instructions' => 'Up to three Design System colours shown as swatches. Styling inspiration only.' ) );
 		}
 		$fields[] = self::text( 'cic_theme_note', 'Note under the themes', 'Keep it clear that decor and options are discussed separately; no stock promise.' );
@@ -524,6 +564,7 @@ final class Fields {
 		$fields[] = self::area( 'cic_ingredient_note', 'Ingredient / dietary note', 'Client-approved wording only. No dietary guarantees.', 2 );
 		$fields[] = self::tab( 'treat_faq', 'FAQs' );
 		$fields[] = self::heading( 'cic_faq_heading', 'FAQ heading' );
+		$fields[] = self::text( 'cic_treat_faq_intro', 'FAQ introduction (optional)' );
 		for ( $i = 1; $i <= self::FAQ_SLOTS; $i++ ) {
 			$fields[] = self::text( "cic_faq_{$i}_q", "Question {$i}" );
 			$fields[] = self::area( "cic_faq_{$i}_a", "Answer {$i}", '', 2 );
@@ -555,7 +596,7 @@ final class Fields {
 	public static function event_group(): array {
 		$fields = array(
 			self::tab( 'event_hero', 'Hero' ),
-			self::f( 'select', 'cic_layout', 'Composition', array( 'choices' => self::EVENT_LAYOUTS, 'default_value' => 'standard', 'instructions' => 'Approved page composition. Birthday is built in Phase 03; the others use the standard composition until Phase 07.' ) ),
+			self::f( 'select', 'cic_layout', 'Composition', array( 'choices' => self::EVENT_LAYOUTS, 'default_value' => 'standard', 'instructions' => 'Approved page composition: its own sections, order and occasion styling (references 04–07).' ) ),
 			self::text( 'cic_hero_eyebrow', 'Eyebrow' ),
 			self::area( 'cic_hero_headline', 'Headline', 'One line per row. &lt;em&gt;…&lt;/em&gt; uses the accent colour; &lt;strong&gt;…&lt;/strong&gt; uses the second accent.', 3 ),
 			self::area( 'cic_hero_intro', 'Introduction', '', 2 ),
@@ -563,14 +604,36 @@ final class Fields {
 			self::text( 'cic_hero_link_label', 'Treats link label' ),
 		);
 		for ( $i = 1; $i <= 3; $i++ ) {
-			$fields[] = self::image( "cic_hero_image_{$i}", "Hero photo {$i}", 1 === $i ? 'Left of the collage.' : ( 2 === $i ? 'Centre (largest).' : 'Right.' ) );
+			$fields[] = self::image( "cic_hero_image_{$i}", "Hero photo {$i}", 1 === $i ? 'Birthday: left of the collage. Wedding: full-width background. Anniversary/Corporate: main photo.' : ( 2 === $i ? 'Birthday: centre (largest). Anniversary/Corporate: framed inset.' : 'Birthday: right.' ) );
 		}
+		$fields[] = self::tab( 'event_ribbon', 'Ribbon and values' );
+		$fields[] = self::area( 'cic_ev_ribbon', 'Ribbon phrases (Wedding)', 'One phrase per line, e.g. Favourite treats / Thoughtful service / A moment to savour.', 3 );
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "cic_ev_value_{$i}_icon", "Value {$i}: icon (Anniversary, Corporate)" );
+			$fields[] = self::text( "cic_ev_value_{$i}_title", "Value {$i}: title" );
+			$fields[] = self::text( "cic_ev_value_{$i}_text", "Value {$i}: text" );
+		}
+		$fields[] = self::tab( 'event_feature', 'Story with photo' );
+		$fields[] = self::text( 'cic_ev_feature_eyebrow', 'Eyebrow' );
+		$fields[] = self::area( 'cic_ev_feature_heading', 'Heading', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 );
+		$fields[] = self::area( 'cic_ev_feature_text', 'Text', '', 3 );
+		$fields[] = self::image( 'cic_ev_feature_image', 'Photo' );
+		$fields[] = self::image( 'cic_ev_feature_image_2', 'Inset photo (Wedding)' );
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "cic_ev_feature_{$i}_icon", "Point {$i}: icon" );
+			$fields[] = self::text( "cic_ev_feature_{$i}_title", "Point {$i}: title" );
+			$fields[] = self::text( "cic_ev_feature_{$i}_text", "Point {$i}: text (optional)" );
+		}
+		$fields[] = self::tab( 'event_gallery', 'Wide photo band' );
+		$fields[] = self::image( 'cic_ev_gallery_image', 'Wide photo (Wedding)' );
+		$fields[] = self::text( 'cic_ev_gallery_caption', 'Caption line under the photo' );
 		$fields[] = self::tab( 'event_starter', 'Quote starter strip' );
 		$fields[] = self::text( 'cic_starter_label_location', 'Location label' );
 		$fields[] = self::text( 'cic_starter_label_date', 'Date label' );
 		$fields[] = self::text( 'cic_starter_label_guests', 'Guests label' );
 		$fields[] = self::text( 'cic_starter_cta', 'Button label' );
 		$fields[] = self::tab( 'event_treats', 'Featured treats' );
+		$fields[] = self::text( 'cic_ev_treats_eyebrow', 'Eyebrow (optional)' );
 		$fields[] = self::heading( 'cic_treats_heading', 'Section heading' );
 		$fields[] = self::text( 'cic_treats_intro', 'Introduction' );
 		$fields[] = self::f( 'message', 'cic_treats_help', 'Which treats appear', array( 'message' => 'Treats paired with this event appear here automatically, using the pairing order (the first two are shown large). Edit pairings on each treat.' ) );

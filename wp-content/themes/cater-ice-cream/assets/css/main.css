@@ -1233,3 +1233,37 @@ body.cic-drawer-open {
 		scroll-behavior: auto !important;
 	}
 }
+
+/* Location autocomplete list (ARIA combobox from context.js), used by every location input. */
+.cic-ac-host {
+	position: relative;
+}
+
+.cic-ac-list {
+	position: absolute;
+	top: calc(100% + 4px);
+	right: 0;
+	left: 0;
+	z-index: 20;
+	max-height: 18rem;
+	margin: 0;
+	padding: 0.35rem;
+	overflow-y: auto;
+	border: 1px solid var(--wp--custom--cic--component--field-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	list-style: none;
+}
+
+.cic-ac-list [role="option"] {
+	padding: 0.6rem 0.75rem;
+	border-radius: calc(var(--cic-radius-field) * 0.6);
+	color: var(--wp--preset--color--text-primary);
+	cursor: pointer;
+}
+
+.cic-ac-list [role="option"][aria-selected="true"],
+.cic-ac-list [role="option"]:hover {
+	background-color: var(--wp--preset--color--surface-soft);
+}

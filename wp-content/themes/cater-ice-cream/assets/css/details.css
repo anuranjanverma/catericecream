@@ -1,0 +1,1515 @@
+/*
+ * Event and treat detail compositions added in Phase 07: Wedding (05), Anniversary (06),
+ * Corporate (07), DipN' Bananas (10, shares the 09 split composition), Classic Ice Cream (11) and
+ * Frozen Yogurt (12), plus the shared quote starter and line motifs. Birthday (04) and Dippin' Dots
+ * (09) keep compositions.css. Colours: Design System roles/tokens only; each page's preset
+ * (.cic-context-wedding, -anniversary, -corporate, -banana, -classic, -yogurt) supplies the mood.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Shared: motifs, ruled eyebrows/titles, quote starter, mascot
+ * ------------------------------------------------------------------ */
+.cic-motif {
+	position: absolute;
+	z-index: 0;
+	pointer-events: none;
+	color: var(--cic-color-decor);
+}
+
+.cic-ruled-eyebrow {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	color: var(--cic-color-decor);
+}
+
+.cic-ruled-eyebrow::after {
+	flex: 0 0 3rem;
+	height: 1px;
+	background-color: currentColor;
+	content: "";
+}
+
+.cic-ruled-title,
+.cic-ruled-caption {
+	display: flex;
+	gap: 1.25rem;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.cic-ruled-title::before,
+.cic-ruled-title::after,
+.cic-ruled-caption::before,
+.cic-ruled-caption::after {
+	flex: 1 1 2rem;
+	max-width: 10rem;
+	height: 1px;
+	background-color: var(--cic-color-decor);
+	content: "";
+}
+
+.cic-mascot {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.cic-your-treat__mascot {
+	display: grid;
+	flex: none;
+	width: 3.5rem;
+	height: 3.5rem;
+	place-items: center;
+	overflow: hidden;
+	border-radius: 50%;
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-your-treat__mascot .cic-mascot {
+	width: 2.9rem;
+}
+
+/* Shared quote starter (non-personal choices → quote route). */
+.cic-qs {
+	display: grid;
+	gap: 0.85rem;
+}
+
+.cic-qs__fields {
+	display: grid;
+	gap: 0.85rem;
+}
+
+.cic-qs__field {
+	display: grid;
+	gap: 0.3rem;
+	margin: 0;
+	text-align: left;
+}
+
+.cic-qs__control {
+	position: relative;
+	display: block;
+}
+
+.cic-qs__icon {
+	position: absolute;
+	top: 50%;
+	left: 0.8rem;
+	z-index: 1;
+	display: inline-flex;
+	color: var(--cic-color-link);
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.cic-qs__icon .cic-icon {
+	width: 1.15rem;
+	height: 1.15rem;
+}
+
+.cic-qs .cic-input {
+	width: 100%;
+	padding-left: 2.6rem;
+}
+
+.cic-qs__submit {
+	width: 100%;
+}
+
+.cic-qs__note {
+	margin: 0;
+	text-align: center;
+}
+
+.cic-qs__call {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-qs__call .cic-icon {
+	width: 1.1rem;
+	height: 1.1rem;
+	color: var(--cic-color-link);
+}
+
+.cic-qs__call a {
+	color: var(--cic-color-link);
+}
+
+@media (min-width: 600px) {
+	.cic-qs__fields--3 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.cic-qs__fields--3 .cic-qs__field--location {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-qs--row .cic-qs__fields--3 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-qs--row .cic-qs__fields--3 .cic-qs__field--location {
+		grid-column: auto;
+	}
+
+	.cic-qs--row .cic-qs__submit {
+		justify-self: center;
+		width: min(100%, 22rem);
+	}
+
+	.cic-qs--stack .cic-qs__fields--3 {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.cic-qs--panel .cic-qs__fields--3 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-qs--panel .cic-qs__fields--3 .cic-qs__field--location {
+		grid-column: auto;
+	}
+
+	.cic-qs--panel .cic-qs__submit {
+		justify-self: center;
+		width: min(100%, 20rem);
+	}
+}
+
+/* Accent words in the heading font's italic for the premium Wedding mood. */
+.cic-event--wedding :is(h1, h2) em {
+	font-style: italic;
+	font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ *
+ * Event heroes: Wedding (05) and split (06 Anniversary, 07 Corporate)
+ * ------------------------------------------------------------------ */
+.cic-event--wedding .cic-event__hero,
+.cic-event--anniversary .cic-event__hero,
+.cic-event--corporate .cic-event__hero,
+.cic-event--standard .cic-event__hero {
+	padding-bottom: 0;
+	text-align: left;
+}
+
+.cic-wed-hero {
+	position: relative;
+	background-color: var(--cic-color-surface);
+}
+
+.cic-wed-hero__photo {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
+
+.cic-wed-hero__inner {
+	position: relative;
+	z-index: 1;
+}
+
+.cic-wed-hero__card {
+	position: relative;
+	margin-top: -3rem;
+	padding: calc(var(--cic-space) * 3) calc(var(--cic-space) * 2.5) calc(var(--cic-space) * 3.5);
+	border-radius: calc(var(--cic-radius-card) * 1.5) calc(var(--cic-radius-card) * 1.5) 0 0;
+	background-color: var(--cic-color-surface);
+}
+
+.cic-wed-hero__card .cic-lead {
+	max-width: 30rem;
+}
+
+.cic-wed-hero__rings {
+	top: 1.25rem;
+	right: 1.25rem;
+	width: 4rem;
+}
+
+.cic-wed-hero__wave {
+	position: absolute;
+	right: 0;
+	bottom: -2px;
+	left: 0;
+	z-index: 1;
+	width: 100%;
+	height: auto;
+	stroke-width: 3;
+}
+
+.cic-motif__trail {
+	stroke-dasharray: 600;
+	stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	/* Delicate ring/botanical line motion for Wedding only. */
+	.cic-event--wedding .cic-motif__trail {
+		animation: cic-trace 6s ease-in-out 1 both;
+	}
+
+	.cic-event--wedding .cic-motif--botanical {
+		transform-origin: bottom center;
+		animation: cic-sway 7s ease-in-out infinite alternate;
+	}
+}
+
+@keyframes cic-trace {
+	from {
+		stroke-dashoffset: 600;
+	}
+
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes cic-sway {
+	from {
+		transform: rotate(-1.5deg);
+	}
+
+	to {
+		transform: rotate(1.5deg);
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-wed-hero {
+		display: flex;
+		align-items: center;
+		min-height: 560px;
+	}
+
+	.cic-wed-hero__photo {
+		position: absolute;
+		inset: 0 0 0 28%;
+		aspect-ratio: auto;
+	}
+
+	.cic-wed-hero__inner {
+		width: min(100% - 2 * var(--cic-gutter), var(--cic-wide));
+	}
+
+	.cic-wed-hero__card {
+		width: min(40rem, 50%);
+		margin: 2rem 0 4rem;
+		border-radius: 0 calc(var(--cic-radius-card) * 2) calc(var(--cic-radius-card) * 2) 0;
+		box-shadow: 30px 0 60px color-mix(in srgb, var(--cic-color-surface) 70%, transparent);
+	}
+}
+
+.cic-split-hero {
+	padding-top: calc(var(--cic-space) * 3);
+	background: linear-gradient(180deg, var(--wp--preset--color--surface-soft), var(--wp--preset--color--surface-base));
+}
+
+.cic-split-hero__grid {
+	display: grid;
+	gap: 1.5rem;
+	align-items: center;
+}
+
+.cic-split-hero__text {
+	position: relative;
+	z-index: 1;
+}
+
+.cic-split-hero__eyebrow {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.cic-split-hero__title {
+	position: relative;
+}
+
+.cic-split-hero__hearts {
+	top: -0.6em;
+	right: -0.6em;
+	width: 2.2em;
+	color: var(--cic-color-heading-accent);
+}
+
+.cic-split-hero__media {
+	position: relative;
+	padding-bottom: 2.5rem;
+}
+
+.cic-split-hero__main {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	border-radius: 44% 56% 48% 52% / 10% 12% 14% 16%;
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-split-hero__inset {
+	position: absolute;
+	right: 0.5rem;
+	bottom: 0;
+	z-index: 2;
+	width: 42%;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	border: 5px solid var(--wp--preset--color--surface-base);
+	border-radius: var(--cic-radius-image);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	transform: rotate(3deg);
+}
+
+.cic-split-hero__sparkle,
+.cic-split-hero__strokes {
+	top: -0.5rem;
+	right: 1rem;
+	z-index: 3;
+	width: 2.75rem;
+	color: var(--cic-color-heading-accent);
+}
+
+.cic-split-hero__strokes {
+	top: auto;
+	bottom: 2.5rem;
+	left: 40%;
+	right: auto;
+}
+
+@media (min-width: 900px) {
+	.cic-split-hero__grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		min-height: 480px;
+	}
+
+	.cic-split-hero__media {
+		margin-right: calc(-1 * var(--cic-gutter));
+		padding-bottom: 3rem;
+	}
+
+	.cic-split-hero__main {
+		aspect-ratio: 5 / 4;
+		border-radius: 30% 0 0 22% / 40% 0 0 30%;
+	}
+
+	.cic-split-hero__inset {
+		right: 2rem;
+		width: 34%;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Ribbon (05), values (06/07)
+ * ------------------------------------------------------------------ */
+.cic-ribbon {
+	padding-block: 1.75rem;
+	background-color: var(--cic-color-surface);
+}
+
+.cic-ribbon__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.35rem);
+	letter-spacing: 0.04em;
+}
+
+.cic-ribbon__list li + li::before {
+	margin-right: 1rem;
+	color: var(--cic-color-decor);
+	content: "•";
+}
+
+@media (min-width: 900px) {
+	.cic-ribbon__inner {
+		display: flex;
+		gap: 1.5rem;
+		align-items: center;
+	}
+
+	.cic-ribbon__inner::before,
+	.cic-ribbon__inner::after {
+		flex: 1;
+		height: 1px;
+		background-color: var(--cic-color-decor);
+		content: "";
+	}
+}
+
+.cic-ev-values {
+	padding-block: calc(var(--cic-section-pad) * 0.45);
+}
+
+.cic-ev-values__list {
+	display: grid;
+	gap: 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-ev-value {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+}
+
+.cic-ev-value__icon {
+	display: grid;
+	flex: none;
+	width: 4rem;
+	height: 4rem;
+	place-items: center;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--cic-color-accent) 28%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-link);
+}
+
+.cic-event--corporate .cic-ev-value__icon {
+	width: 4.75rem;
+	height: 4.75rem;
+	background-color: color-mix(in srgb, var(--wp--preset--color--strawberry) 22%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-heading);
+}
+
+.cic-ev-value__icon .cic-icon {
+	width: 2rem;
+	height: 2rem;
+}
+
+.cic-ev-value__title {
+	display: block;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: 1.15rem;
+}
+
+.cic-ev-value__text > span {
+	display: block;
+	color: var(--cic-color-muted);
+	font-size: 0.9375rem;
+}
+
+@media (min-width: 768px) {
+	.cic-ev-values__list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-ev-value + .cic-ev-value {
+		padding-left: 1.25rem;
+		border-left: 1px solid var(--cic-color-border);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Story with photo (05/06/07)
+ * ------------------------------------------------------------------ */
+.cic-feature__grid {
+	display: grid;
+	gap: 2rem;
+	align-items: center;
+}
+
+.cic-feature__media {
+	position: relative;
+}
+
+.cic-feature__body {
+	position: relative;
+}
+
+.cic-feature__text {
+	color: var(--cic-color-text);
+}
+
+.cic-feature__points {
+	display: grid;
+	gap: 1rem;
+	margin: 1.5rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-feature__points li {
+	display: flex;
+	gap: 0.85rem;
+	align-items: center;
+}
+
+.cic-feature__icon {
+	display: grid;
+	flex: none;
+	width: 2.75rem;
+	height: 2.75rem;
+	place-items: center;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--cic-color-heading-accent) 14%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-heading-accent);
+}
+
+.cic-feature__icon .cic-icon {
+	width: 1.4rem;
+	height: 1.4rem;
+}
+
+.cic-feature__point strong {
+	display: block;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-feature__point span {
+	display: block;
+	color: var(--cic-color-muted);
+	font-size: 0.9375rem;
+}
+
+.cic-feature__motif {
+	right: 0;
+	bottom: -1rem;
+	width: 6rem;
+	color: var(--cic-color-heading-accent);
+	opacity: 0.85;
+}
+
+.cic-event--corporate .cic-feature__motif {
+	color: var(--wp--preset--color--lavender);
+}
+
+/* Wedding: arched photo + tilted inset, botanical line art, icon points in columns. */
+.cic-feature--wedding {
+	background-color: var(--cic-color-surface);
+}
+
+.cic-feature--wedding .cic-feature__photo {
+	width: 78%;
+	aspect-ratio: 4 / 5;
+	overflow: hidden;
+	border: 1px solid var(--cic-color-decor);
+	border-radius: 999px 999px var(--cic-radius-image) var(--cic-radius-image);
+}
+
+.cic-feature--wedding .cic-feature__inset {
+	position: absolute;
+	right: 0;
+	bottom: -1.5rem;
+	width: 52%;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	border: 6px solid var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	transform: rotate(-4deg);
+}
+
+.cic-feature__botanical--l {
+	bottom: 10%;
+	left: -1.5rem;
+	width: 4.5rem;
+}
+
+.cic-feature__points--columns .cic-feature__icon {
+	width: auto;
+	height: auto;
+	background: none;
+	color: var(--cic-color-decor);
+}
+
+.cic-feature__points--columns .cic-feature__icon .cic-icon {
+	width: 2.5rem;
+	height: 2.5rem;
+}
+
+@media (min-width: 768px) {
+	.cic-feature__points--columns {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0;
+	}
+
+	.cic-feature__points--columns li {
+		flex-direction: column;
+		padding-inline: 1rem;
+		text-align: center;
+	}
+
+	.cic-feature__points--columns li + li {
+		border-left: 1px solid var(--cic-color-decor);
+	}
+}
+
+/* Anniversary / Corporate: wide photo bleeding to the left edge. */
+.cic-feature--split .cic-feature__photo {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	border-radius: var(--cic-radius-image);
+}
+
+@media (min-width: 900px) {
+	.cic-feature__grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 3.5rem;
+	}
+
+	.cic-feature--split {
+		padding-block: 0;
+	}
+
+	.cic-feature--split .cic-feature__media {
+		align-self: stretch;
+		margin-left: calc(-1 * var(--cic-gutter));
+	}
+
+	.cic-feature--split .cic-feature__photo {
+		height: 100%;
+		min-height: 420px;
+		border-radius: 0 calc(var(--cic-radius-image) * 2) calc(var(--cic-radius-image) * 2) 0;
+	}
+
+	.cic-feature--split .cic-feature__body {
+		padding-block: calc(var(--cic-section-pad) * 0.6);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Treats: brand pair + text links (05/06/07)
+ * ------------------------------------------------------------------ */
+.cic-brands {
+	padding-top: calc(var(--cic-section-pad) * 0.6);
+	padding-bottom: calc(var(--cic-section-pad) * 0.5);
+}
+
+.cic-event--wedding .cic-brands {
+	background-color: var(--cic-color-surface);
+}
+
+.cic-brands__eyebrow {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+	margin: 0 0 0.25rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: 1.15rem;
+}
+
+.cic-brands__title {
+	margin-bottom: 1.25rem;
+	text-align: center;
+}
+
+.cic-brands__title--left {
+	text-align: left;
+}
+
+.cic-brand-pair {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-brand-pair__card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border-radius: var(--cic-radius-card);
+	background-color: color-mix(in srgb, var(--wp--preset--color--strawberry) 14%, var(--wp--preset--color--surface-base));
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-brand-pair__card + .cic-brand-pair__card {
+	background-color: color-mix(in srgb, var(--wp--preset--color--treat-chocolate) 8%, var(--wp--preset--color--surface-base));
+}
+
+.cic-brand-pair__media {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
+
+.cic-brand-pair__body {
+	padding: 0.85rem 1rem 1rem;
+}
+
+.cic-brand-pair__name {
+	--cic-fs-min: 22;
+	--cic-fs-max: 38;
+	--cic-lh-min: 24;
+	--cic-lh-max: 40;
+	margin: 0 0 0.35rem;
+}
+
+.cic-brand-pair__name a {
+	color: var(--cic-color-heading);
+	text-decoration: none;
+}
+
+.cic-brand-pair__name a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.cic-brand-pair__card:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+.cic-brand-pair__name a:focus-visible {
+	outline: none;
+}
+
+.cic-brand-pair__more {
+	margin: 0;
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-brand-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 0.6rem;
+	align-items: center;
+	justify-content: center;
+	margin: 1.25rem 0 0;
+	font-size: 0.9375rem;
+}
+
+.cic-brand-links a {
+	color: var(--cic-color-heading);
+	text-decoration: none;
+}
+
+.cic-brand-links a:hover {
+	text-decoration: underline;
+}
+
+.cic-brand-links__rule {
+	width: 1px;
+	height: 1.25rem;
+	margin-inline: 0.4rem;
+	background-color: var(--cic-color-border);
+}
+
+.cic-brand-links .cic-brand-links__all {
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-ui);
+}
+
+@media (min-width: 768px) {
+	.cic-brand-pair {
+		gap: 1.25rem;
+	}
+
+	.cic-brand-pair__card {
+		display: grid;
+		grid-template-columns: 58% 1fr;
+		align-items: center;
+		min-height: 11rem;
+	}
+
+	.cic-brand-pair__media {
+		height: 100%;
+		aspect-ratio: auto;
+	}
+
+	.cic-brand-pair__body {
+		padding: 1rem 1.25rem;
+	}
+}
+
+/* Wide photo band (05). */
+.cic-gallery {
+	background-color: var(--cic-color-surface);
+}
+
+.cic-gallery__photo {
+	position: relative;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+}
+
+.cic-gallery__botanical {
+	top: 0.5rem;
+	width: clamp(3rem, 7vw, 6rem);
+	color: var(--wp--preset--color--surface-base);
+	opacity: 0.85;
+}
+
+.cic-gallery__botanical--l {
+	left: 0.5rem;
+}
+
+.cic-gallery__botanical--r {
+	right: 0.5rem;
+	transform: scaleX(-1);
+}
+
+.cic-ruled-caption {
+	margin: 0 auto;
+	padding-block: 1.25rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem);
+	letter-spacing: 0.04em;
+}
+
+@media (min-width: 900px) {
+	.cic-gallery__photo {
+		aspect-ratio: auto;
+		height: clamp(320px, 30vw, 440px);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Planning band (05/06/07)
+ * ------------------------------------------------------------------ */
+.cic-plan-band {
+	padding-block: calc(var(--cic-section-pad) * 0.55);
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 22%, var(--wp--preset--color--surface-base));
+}
+
+.cic-event--wedding .cic-plan-band {
+	background-color: var(--cic-color-surface-alt);
+}
+
+.cic-plan-band__title {
+	margin-bottom: 1.5rem;
+}
+
+.cic-plan-band__steps {
+	display: grid;
+	gap: 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-plan-band__step {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+}
+
+.cic-plan-band__num {
+	display: grid;
+	flex: none;
+	width: 3.5rem;
+	height: 3.5rem;
+	place-items: center;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--wp--preset--color--strawberry) 45%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-heading-accent);
+	font-family: var(--cic-font-heading);
+	font-size: 1.35rem;
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-event--wedding .cic-plan-band__num {
+	border: 1px solid var(--cic-color-decor);
+	background: none;
+	color: var(--cic-color-decor);
+	font-weight: 400;
+}
+
+.cic-plan-band__text strong {
+	display: block;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: 1.1rem;
+}
+
+.cic-plan-band__text span {
+	display: block;
+	color: var(--cic-color-muted);
+}
+
+@media (min-width: 768px) {
+	.cic-plan-band__steps {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-plan-band__step + .cic-plan-band__step {
+		padding-left: 1.25rem;
+		border-left: 1px solid var(--cic-color-border);
+	}
+
+	.cic-event--wedding .cic-plan-band__step + .cic-plan-band__step {
+		border-left-color: var(--cic-color-decor);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Quote panel + FAQ (05/06/07)
+ * ------------------------------------------------------------------ */
+.cic-qpanel__grid {
+	display: grid;
+	gap: 2rem;
+	align-items: start;
+}
+
+.cic-qpanel__panel {
+	position: relative;
+	padding: calc(var(--cic-space) * 3) calc(var(--cic-space) * 2.5);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--custom--cic--component--quote-starter-surface);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-qpanel__title {
+	--cic-fs-min: 26;
+	--cic-fs-max: 36;
+	--cic-lh-min: 30;
+	--cic-lh-max: 40;
+	margin-bottom: 1.25rem;
+}
+
+.cic-qpanel__faq-title {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+}
+
+.cic-qpanel__area {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	margin: 1.25rem 0 0;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--cic-color-border);
+	color: var(--cic-color-link);
+}
+
+.cic-qpanel--corporate .cic-qpanel__faq {
+	padding: calc(var(--cic-space) * 3);
+	border-radius: var(--cic-radius-card);
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 25%, var(--wp--preset--color--surface-base));
+}
+
+/* Wedding: centred framed panel with botanical line art; FAQ and area link below. */
+.cic-qpanel--wedding {
+	background-color: var(--cic-color-surface);
+}
+
+.cic-qpanel--wedding .cic-qpanel__panel {
+	border: 1px solid var(--cic-color-decor);
+	background-color: var(--cic-color-surface);
+	box-shadow: none;
+}
+
+.cic-qpanel--wedding .cic-qpanel__title {
+	text-align: center;
+}
+
+.cic-qpanel__botanical {
+	display: none;
+	top: 1rem;
+	width: 5rem;
+}
+
+.cic-qpanel__botanical--l {
+	left: -5.5rem;
+}
+
+.cic-qpanel__botanical--r {
+	right: -5.5rem;
+	transform: scaleX(-1);
+}
+
+@media (min-width: 900px) {
+	.cic-qpanel__grid {
+		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+		gap: 3rem;
+	}
+
+	.cic-qpanel--anniversary .cic-qpanel__faq {
+		padding-left: 2.5rem;
+		border-left: 1px solid var(--cic-color-border);
+	}
+
+	.cic-qpanel--wedding .cic-qpanel__grid {
+		grid-template-columns: minmax(0, 1fr);
+		max-width: 52rem;
+		margin-inline: auto;
+	}
+
+	.cic-qpanel--wedding .cic-qpanel__faq {
+		display: grid;
+		grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+		gap: 2rem;
+		align-items: center;
+	}
+
+	.cic-qpanel--wedding .cic-qpanel__area {
+		margin: 0;
+		padding: 0 0 0 2rem;
+		border-top: 0;
+		border-left: 1px solid var(--cic-color-decor);
+	}
+}
+
+@media (min-width: 1200px) {
+	.cic-qpanel__botanical {
+		display: block;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Treats: Classic hero (11), Yogurt hero (12)
+ * ------------------------------------------------------------------ */
+.cic-treat--classic .cic-treat__hero,
+.cic-classic-hero {
+	padding: 0;
+	background-color: var(--cic-color-surface-alt);
+}
+
+.cic-classic-hero__stage {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+}
+
+.cic-classic-hero__card {
+	position: relative;
+	z-index: 2;
+	grid-column: 1 / -1;
+	grid-row: 1;
+	padding: calc(var(--cic-space) * 3) var(--cic-gutter) calc(var(--cic-space) * 2.5);
+	background-color: color-mix(in srgb, var(--wp--preset--color--surface-base) 88%, transparent);
+	text-align: center;
+}
+
+.cic-classic-hero__card .cic-breadcrumbs ol,
+.cic-classic-hero__card .cic-hero__actions {
+	justify-content: center;
+}
+
+/* The centred card headline follows the Design System H2 scale (smaller card, as in 11). */
+.cic-classic-hero .cic-hero__title {
+	--cic-fs-min: var(--cic-fs-h2-min);
+	--cic-fs-max: var(--cic-fs-h2-max);
+	--cic-lh-min: var(--cic-fs-h2-lh-min);
+	--cic-lh-max: var(--cic-fs-h2-lh-max);
+}
+
+.cic-classic-hero__intro {
+	max-width: 32rem;
+	margin-inline: auto;
+}
+
+.cic-classic-hero__heart {
+	top: 1rem;
+	right: 1rem;
+	width: 3rem;
+	color: var(--wp--preset--color--lavender);
+}
+
+.cic-classic-hero__scoops {
+	grid-column: 1 / -1;
+	grid-row: 2;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+}
+
+.cic-classic-hero__side {
+	grid-row: 3;
+	aspect-ratio: 1;
+	overflow: hidden;
+}
+
+@media (min-width: 900px) {
+	.cic-classic-hero__stage {
+		grid-template-columns: 0.8fr minmax(30rem, 1.3fr) 0.8fr;
+		grid-template-rows: auto auto;
+		min-height: 560px;
+	}
+
+	.cic-classic-hero__side {
+		grid-row: 1 / -1;
+		aspect-ratio: auto;
+	}
+
+	.cic-classic-hero__side--l {
+		grid-column: 1;
+	}
+
+	.cic-classic-hero__side--r {
+		grid-column: 3;
+	}
+
+	.cic-classic-hero__card {
+		grid-column: 2;
+		grid-row: 1;
+		align-self: start;
+		margin-top: 2.5rem;
+		padding: calc(var(--cic-space) * 3) calc(var(--cic-space) * 3) calc(var(--cic-space) * 2);
+		border-radius: var(--cic-radius-card);
+		box-shadow: var(--wp--custom--cic--component--card-shadow);
+	}
+
+	.cic-classic-hero__scoops {
+		position: relative;
+		z-index: 1;
+		grid-column: 1 / -1;
+		grid-row: 2;
+		width: 46%;
+		margin: -2rem auto 0;
+		aspect-ratio: 16 / 7;
+		border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+	}
+}
+
+.cic-yogurt-hero__media {
+	position: relative;
+	min-height: 320px;
+}
+
+.cic-yogurt-hero__friends {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 62%;
+	aspect-ratio: 4 / 5;
+	overflow: hidden;
+	border-radius: 999px 0 0 999px;
+}
+
+.cic-yogurt-hero__product {
+	position: relative;
+	z-index: 1;
+	width: 78%;
+	margin-top: 3.5rem;
+	aspect-ratio: 1;
+	overflow: hidden;
+	border: 6px solid var(--wp--preset--color--surface-base);
+	border-radius: 50%;
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-yogurt-hero__leaf {
+	width: 3.5rem;
+	color: var(--cic-color-decor);
+	opacity: 0.85;
+}
+
+.cic-yogurt-hero__leaf--1 {
+	top: 0;
+	left: 8%;
+	transform: rotate(-25deg);
+}
+
+.cic-yogurt-hero__leaf--2 {
+	right: 4%;
+	bottom: 6%;
+	transform: rotate(160deg);
+}
+
+@media (min-width: 900px) {
+	.cic-treat--yogurt .cic-treat__hero .cic-hero__grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		min-height: 560px;
+	}
+
+	.cic-yogurt-hero__media {
+		align-self: stretch;
+		margin-right: calc(-1 * var(--cic-gutter));
+	}
+
+	.cic-yogurt-hero__friends {
+		width: 58%;
+		height: 92%;
+		aspect-ratio: auto;
+	}
+
+	.cic-yogurt-hero__product {
+		position: absolute;
+		bottom: 1.5rem;
+		left: 0;
+		width: 64%;
+		margin: 0;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Treats: occasion rows (11), occasion cards (12), theme icons (12)
+ * ------------------------------------------------------------------ */
+.cic-occ-rows {
+	display: grid;
+	gap: 1rem;
+	margin: 2rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-occ-row {
+	display: grid;
+}
+
+.cic-occ-row__media {
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+}
+
+.cic-occ-row__body {
+	padding: calc(var(--cic-space) * 2.5);
+}
+
+.cic-occ-row__body h3 {
+	--cic-fs-min: 20;
+	--cic-fs-max: 26;
+	--cic-lh-min: 24;
+	--cic-lh-max: 30;
+	margin-bottom: 0.3em;
+}
+
+.cic-occ-row__body p {
+	color: var(--cic-color-muted);
+}
+
+@media (min-width: 768px) {
+	.cic-occ-row {
+		grid-template-columns: 40% 1fr;
+		align-items: center;
+	}
+
+	/* Photos crop to the text height, so rows stay as compact as the reference. */
+	.cic-occ-row__media {
+		position: relative;
+		align-self: stretch;
+		min-height: 9.5rem;
+		aspect-ratio: auto;
+	}
+
+	.cic-occ-row__media .cic-photo {
+		position: absolute;
+		inset: 0;
+	}
+
+	.cic-occ-row--flip {
+		grid-template-columns: 1fr 40%;
+	}
+
+	.cic-occ-row--flip .cic-occ-row__media {
+		order: 2;
+	}
+}
+
+.cic-occ-cards {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.85rem;
+	margin: 2rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-occ-card {
+	position: relative;
+}
+
+.cic-occ-card__media {
+	position: relative;
+	aspect-ratio: 4 / 3;
+}
+
+.cic-occ-card__media .cic-photo {
+	border-radius: var(--cic-radius-card) var(--cic-radius-card) 0 0;
+}
+
+.cic-occ-card__badge {
+	position: absolute;
+	bottom: -1.25rem;
+	left: 0.85rem;
+	display: grid;
+	width: 2.75rem;
+	height: 2.75rem;
+	place-items: center;
+	border-radius: 50%;
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	color: var(--cic-color-link);
+}
+
+.cic-occ-card__badge .cic-icon {
+	width: 1.4rem;
+	height: 1.4rem;
+}
+
+.cic-occ-card__body {
+	padding: 1.75rem 0.9rem 1rem;
+}
+
+.cic-occ-card__title {
+	--cic-fs-min: 17;
+	--cic-fs-max: 22;
+	--cic-lh-min: 21;
+	--cic-lh-max: 26;
+	margin-bottom: 0.3em;
+}
+
+.cic-occ-card__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.cic-occ-card__title a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.cic-occ-card:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+.cic-occ-card__title a:focus-visible {
+	outline: none;
+}
+
+.cic-occ-card__body p:last-child {
+	margin: 0;
+	color: var(--cic-color-muted);
+	font-size: 0.9375rem;
+}
+
+@media (min-width: 1000px) {
+	.cic-occ-cards {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 1.25rem;
+	}
+}
+
+.cic-theme-card__body {
+	position: relative;
+}
+
+.cic-theme-card__icon {
+	position: absolute;
+	top: 1rem;
+	right: 0;
+	display: grid;
+	width: 2.5rem;
+	height: 2.5rem;
+	place-items: center;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--cic-color-accent) 30%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-link);
+}
+
+.cic-theme-card__icon .cic-icon {
+	width: 1.3rem;
+	height: 1.3rem;
+}
+
+.cic-treat--yogurt .cic-theme-card__body {
+	padding-right: 3rem;
+}
+
+/* Treat FAQ with mascot (10). */
+.cic-faq-split__mascot {
+	display: block;
+	width: 6rem;
+	margin-top: 1rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Treat closing areas: Classic (11) FAQ + starter, Yogurt (12) trio
+ * ------------------------------------------------------------------ */
+.cic-treat-close {
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 14%, var(--wp--preset--color--surface-base));
+}
+
+.cic-treat-close__grid {
+	display: grid;
+	gap: 2rem;
+	align-items: start;
+}
+
+.cic-treat-close__panel {
+	padding: calc(var(--cic-space) * 3) calc(var(--cic-space) * 2.5);
+	border-radius: var(--cic-radius-card);
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 22%, var(--wp--preset--color--surface-base));
+}
+
+.cic-treat-close__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.25rem;
+}
+
+.cic-treat-close__title {
+	--cic-fs-min: 24;
+	--cic-fs-max: 34;
+	--cic-lh-min: 28;
+	--cic-lh-max: 38;
+	margin: 0;
+}
+
+.cic-treat-close__faq-title {
+	--cic-fs-min: 24;
+	--cic-fs-max: 30;
+	--cic-lh-min: 28;
+	--cic-lh-max: 34;
+}
+
+.cic-treat-close__intro p {
+	color: var(--cic-color-text);
+}
+
+.cic-treat-close__form {
+	padding: calc(var(--cic-space) * 2.5);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+@media (min-width: 900px) {
+	.cic-treat-close--classic .cic-treat-close__grid {
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+	}
+
+	.cic-treat-close--trio .cic-treat-close__grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr);
+	}
+
+	.cic-treat-close--trio .cic-treat-close__faq {
+		padding-left: 1.5rem;
+		border-left: 1px solid var(--cic-color-border);
+	}
+}
+
+/* Small screens: keep decorative lines away from text. */
+@media (max-width: 899.98px) {
+	.cic-wed-hero__wave,
+	.cic-classic-hero__heart {
+		display: none;
+	}
+
+	.cic-ribbon__list {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.cic-ribbon__list li + li::before {
+		content: none;
+	}
+}

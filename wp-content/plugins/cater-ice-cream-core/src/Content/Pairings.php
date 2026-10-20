@@ -166,6 +166,38 @@ final class Pairings {
 		return $ok;
 	}
 
+	/**
+	 * Seeder-only refresh of a pairing it created earlier, without touching editor changes:
+	 * an image is set only where none exists, and text changes only where it still equals the
+	 * previous seed text exactly (so it cannot be an editor's edit).
+	 *
+	 * @param array<string, string> $replaces Previous seed values (headline, description, link_label).
+	 * @param array<string, string> $values   New seed values for those fields.
+	 * @return string[] Fields updated.
+	 */
+	public static function fill_seeded( int $product_id, int $event_id, int $image_id, array $replaces, array $values ): array {
+		global $wpdb;
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE product_id = %d AND event_id = %d', $product_id, $event_id ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		if ( ! $row ) {
+			return array();
+		}
+		$changes = array();
+		if ( $image_id && 0 === (int) $row['image_id'] && wp_attachment_is_image( $image_id ) ) {
+			$changes['image_id'] = $image_id;
+		}
+		foreach ( array( 'headline', 'description', 'link_label' ) as $field ) {
+			if ( isset( $replaces[ $field ], $values[ $field ] ) && (string) $row[ $field ] === $replaces[ $field ] ) {
+				$changes[ $field ] = sanitize_text_field( $values[ $field ] );
+			}
+		}
+		if ( $changes ) {
+			$changes['updated_gmt'] = current_time( 'mysql', true );
+			$wpdb->update( self::table(), $changes, array( 'id' => (int) $row['id'] ) );
+			self::flush( $product_id, array( $event_id ) );
+		}
+		return array_keys( array_diff_key( $changes, array( 'updated_gmt' => 1 ) ) );
+	}
+
 	/** Permanently deleting a product or event removes its pairings (trash keeps them, hidden publicly). */
 	public function delete_for_post( int $post_id ): void {
 		global $wpdb;

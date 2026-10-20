@@ -47,6 +47,11 @@ Handoff locations (verified):
   - **Fixtures:** `data/fixtures/*.csv` are test data (`dataset=fixture`), counted only on local/development. Never present them as approved coverage. Load real data only through the importer with `--dataset=production` after owner review.
   - **Routes and cache:** virtual routes `/service-areas/{state}/{city}/`. Never add city×event×treat routes. Flush rewrites only by bumping `Routes::ROUTE_VERSION`. Every location write must call `Tables::bump_cache()`, and the cache version must never be restored or lowered.
   - **SEO:** location metadata comes only from the SEO adapter (`CIC\Seo`). City pages stay noindex until published + Index + reviewed content. Run `dev/tests/phase05/locations-test.php` (and the phase05 browser/admin tests for UI changes) after location, route, SEO or import changes.
+- Build sequence (owner, 2026-10-20): Phase 05 is provisional (fixtures only, not launch-ready); Phase 07 ran before Phase 06; the vertical-slice/quote-flow gate is DEFERRED, not passed.
+- Detail pages (Phase 07):
+  - **Compositions:** each event layout and treat composition has its own approved section list (`Fields::EVENT_LAYOUT_SECTIONS` / `TREAT_LAYOUT_SECTIONS`) and section variants. Never flatten them into one reordered template. Section order fields stay empty by default (empty = approved order).
+  - **Quote actions:** go only through the context helper and the shared non-personal starter (`template-parts/components/quote-starter.php`). No second form system and no success message before the Phase 06 CF7 flow.
+  - **Tests:** run `dev/tests/phase07/details-test.php` (and the phase07 browser/admin tests for UI changes) after detail-page, pairing or seed changes.
 - Run browser tests one at a time and make sure each closes its browser (memory).
 - Tests must restore everything they change in `finally` (settings, statuses, fields, pairings, theme, plugins, fixtures) and close any browser on failure.
 - Never print or commit credentials from `wp-config.php`.

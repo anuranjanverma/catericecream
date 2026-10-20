@@ -147,10 +147,12 @@ async function scrollAll( page ) {
 		balloons: Array.from( document.querySelectorAll( '.cic-balloon' ) ).every( ( b ) => 'true' === b.getAttribute( 'aria-hidden' ) ),
 		form: document.querySelector( '.cic-starter' ).getAttribute( 'method' ),
 		hidden: document.querySelector( '.cic-starter [name=event]' ).value,
+		helper: document.querySelector( '.cic-starter' ).hasAttribute( 'data-cic-quote-form' ),
+		names: Array.from( document.querySelectorAll( '.cic-starter [name]' ) ).map( ( el ) => el.name ).sort().join( ',' ),
 		h1s: document.querySelectorAll( 'h1' ).length,
 	} ) );
 	check( 'S4 Birthday uses its preset (violet third line from the central token), decorations hidden from AT, one h1', ctx.body && 'rgb(118, 82, 184)' === ctx.strong && ctx.balloons && 1 === ctx.h1s, ctx );
-	check( 'S5 quote starter carries the occasion by POST (no personal data in the URL)', 'post' === ctx.form && 'birthday' === ctx.hidden, ctx );
+	check( 'S5 quote starter carries the occasion through the context helper: only validated non-personal keys (event, location, date, guests), no personal data', 'get' === ctx.form && ctx.helper && 'birthday' === ctx.hidden && 'date,event,guests,location' === ctx.names, ctx );
 	await browser.close();
 
 	const failed = results.filter( ( r ) => ! r ).length;

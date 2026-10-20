@@ -71,8 +71,15 @@ final class Seeder {
 				}
 				$pair_key = $key . ':' . $event_key;
 				if ( in_array( $pair_key, $this->log['pairs'], true ) ) {
-					continue; // Seeded before: an editor may have edited or removed it deliberately.
+					// Seeded before: never recreate or overwrite it; only fill a missing photo or
+					// refresh text that still equals the previous seed text exactly.
+					$image = isset( $pair['image'] ) ? (int) $this->resolve( $pair['image'] ) : 0;
+					if ( Pairings::fill_seeded( $product_id, $events[ $event_key ], $image, (array) ( $pair['replaces'] ?? array() ), $pair ) ) {
+						$this->report['filled']++;
+					}
+					continue;
 				}
+				unset( $pair['replaces'] );
 				$row             = $pair;
 				$row['event_id'] = $events[ $event_key ];
 				$row['image_id'] = isset( $pair['image'] ) ? (int) $this->resolve( $pair['image'] ) : 0;

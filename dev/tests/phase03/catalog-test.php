@@ -136,7 +136,7 @@ try {
 		$e = array_values( array_filter( Pairings::for_event( (int) $row['event_id'] ), static fn( $x ) => $x['product_id'] === (int) $row['product_id'] ) )[0];
 		$same = $same && $p === $e;
 	}
-	cic3_check( 'D1 seven seeded pairings; product-side and event-side reads return identical rows', 7 === count( $all ) && $same );
+	cic3_check( 'D1 sixteen seeded pairings (four treats × four occasions, Phase 07); product-side and event-side reads return identical rows', 16 === count( $all ) && $same );
 	$tvm = ViewModel::treat( $dd );
 	$evm = ViewModel::event( $birthday );
 	$tb  = array_values( array_filter( $tvm['occasions']['items'], static fn( $i ) => $i['event_id'] === $birthday ) )[0];

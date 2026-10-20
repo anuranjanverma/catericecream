@@ -30,8 +30,13 @@ echo cic_theme_section_open( 'cic-treat', $args['section'], 'cic-section' ); // 
 							</span>
 						<?php endif; ?>
 					</div>
-					<h3 class="cic-theme-card__title"><?php echo esc_html( $cic_item['title'] ); ?></h3>
-					<p><?php echo esc_html( $cic_item['text'] ); ?></p>
+					<div class="cic-theme-card__body">
+						<h3 class="cic-theme-card__title"><?php echo esc_html( $cic_item['title'] ); ?></h3>
+						<p><?php echo esc_html( $cic_item['text'] ); ?></p>
+						<?php if ( ! $cic_item['palette'] && '' !== $cic_item['icon'] ) : ?>
+							<span class="cic-theme-card__icon"><?php echo cic_theme_icon( $cic_item['icon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
+						<?php endif; ?>
+					</div>
 				</li>
 			<?php endforeach; ?>
 		</ul>

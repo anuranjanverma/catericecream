@@ -45,16 +45,19 @@ final class ViewModel {
 	}
 
 	/**
-	 * Enabled, non-empty sections sorted by their order number.
+	 * Enabled, non-empty sections sorted by their order number. An empty order keeps the approved
+	 * position; $layout (a composition's approved key list) limits and orders the candidates.
 	 *
-	 * @param array<string, string> $defined Section definitions (approved order).
+	 * @param array<string, string> $defined Section definitions (labels; default order).
 	 * @param array<string, bool>   $has     Section key => has content.
+	 * @param string[]|null         $layout  Approved keys for the page's composition, in order.
 	 * @return array<int, array{key: string, preset: string}>
 	 */
-	private static function sections( int $id, array $defined, array $has ): array {
-		$out = array();
-		$i   = 0;
-		foreach ( array_keys( $defined ) as $key ) {
+	private static function sections( int $id, array $defined, array $has, ?array $layout = null ): array {
+		$out  = array();
+		$i    = 0;
+		$keys = null === $layout ? array_keys( $defined ) : array_values( array_intersect( $layout, array_keys( $defined ) ) );
+		foreach ( $keys as $key ) {
 			$i++;
 			$on = get_post_meta( $id, 'cic_sec_' . $key . '_on', true );
 			if ( '0' === (string) $on || empty( $has[ $key ] ) ) {
@@ -552,6 +555,7 @@ final class ViewModel {
 				'title'   => self::m( $id, "cic_theme_{$i}_title" ),
 				'text'    => self::m( $id, "cic_theme_{$i}_text" ),
 				'image'   => self::img( $id, "cic_theme_{$i}_image" ),
+				'icon'    => self::m( $id, "cic_theme_{$i}_icon" ),
 				'palette' => array_values( array_filter( (array) $palette, static fn( $p ) => isset( Schema::colors()[ $p ] ) ) ),
 			);
 		}
@@ -563,6 +567,7 @@ final class ViewModel {
 		foreach ( Pairings::for_product( $id, true ) as $row ) {
 			$occasions[] = array(
 				'event_id'    => $row['event_id'],
+				'event_key'   => Catalog::key( (int) $row['event_id'] ),
 				'event_title' => get_the_title( $row['event_id'] ),
 				'event_url'   => get_permalink( $row['event_id'] ),
 				'headline'    => $row['headline'],
@@ -579,10 +584,14 @@ final class ViewModel {
 			)
 		);
 
+		$layout = self::m( $id, 'cic_treat_layout' );
+		$layout = isset( Fields::TREAT_LAYOUTS[ $layout ] ) ? $layout : 'split';
+
 		$vm = array(
 			'id'        => $id,
 			'key'       => $key,
 			'title'     => $title,
+			'layout'    => $layout,
 			'url'       => get_permalink( $id ),
 			'quote_url' => self::quote_url( 'treat', $key ),
 			'hero'      => array(
@@ -592,6 +601,8 @@ final class ViewModel {
 				'cta'      => self::m( $id, 'cic_hero_cta' ) ?: Contact::get()['quote_label'],
 				'jump'     => self::m( $id, 'cic_hero_jump' ),
 				'image'    => self::img( $id, 'cic_hero_image' ) ?: (int) $product->get_image_id(),
+				'image_2'  => self::img( $id, 'cic_hero_image_2' ),
+				'image_3'  => self::img( $id, 'cic_hero_image_3' ),
 				'chips'    => self::filled( $chips, 'label' ),
 			),
 			'feelings'  => array(
@@ -620,6 +631,7 @@ final class ViewModel {
 			),
 			'faq'       => array(
 				'heading' => self::rich( self::m( $id, 'cic_faq_heading' ) ?: __( 'Good to know.', 'cater-ice-cream-core' ) ),
+				'intro'   => self::m( $id, 'cic_treat_faq_intro' ),
 				'items'   => self::faqs( $id ),
 			),
 			'quote'     => array(
@@ -627,6 +639,7 @@ final class ViewModel {
 				'intro'   => self::m( $id, 'cic_quote_intro' ),
 				'cta'     => self::m( $id, 'cic_quote_cta' ) ?: Contact::get()['quote_label'],
 				'note'    => self::m( $id, 'cic_quote_note' ) ?: Contact::get()['availability_note'],
+				'events'  => self::event_options(),
 			),
 			'related'   => $related,
 		);
@@ -642,7 +655,8 @@ final class ViewModel {
 				'detail'    => '' !== $vm['detail']['heading'] && ( '' !== trim( $vm['detail']['body'] ) || $vm['detail']['points'] ),
 				'faq'       => (bool) $vm['faq']['items'],
 				'quote'     => true,
-			)
+			),
+			Fields::TREAT_LAYOUT_SECTIONS[ $layout ]
 		);
 		return $vm;
 	}
@@ -768,9 +782,13 @@ final class ViewModel {
 			);
 		}
 
-		$stories = $steps = array();
+		$stories = $steps = $values = $points = array();
 		for ( $i = 1; $i <= 2; $i++ ) {
 			$stories[] = array( 'title' => self::lines( self::m( $id, "cic_story_{$i}_title" ) ), 'text' => self::m( $id, "cic_story_{$i}_text" ), 'image' => self::img( $id, "cic_story_{$i}_image" ) );
+		}
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$values[] = array( 'icon' => self::m( $id, "cic_ev_value_{$i}_icon" ), 'title' => self::m( $id, "cic_ev_value_{$i}_title" ), 'text' => self::m( $id, "cic_ev_value_{$i}_text" ) );
+			$points[] = array( 'icon' => self::m( $id, "cic_ev_feature_{$i}_icon" ), 'title' => self::m( $id, "cic_ev_feature_{$i}_title" ), 'text' => self::m( $id, "cic_ev_feature_{$i}_text" ) );
 		}
 		for ( $i = 1; $i <= 3; $i++ ) {
 			$steps[] = array( 'title' => self::m( $id, "cic_plan_{$i}_title" ), 'text' => self::m( $id, "cic_plan_{$i}_text" ) );
@@ -780,12 +798,14 @@ final class ViewModel {
 			$images[] = self::img( $id, "cic_hero_image_{$i}" );
 		}
 		$layout = self::m( $id, 'cic_layout' );
+		$layout = isset( Fields::EVENT_LAYOUTS[ $layout ] ) ? $layout : 'standard';
+		$ribbon = array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', self::m( $id, 'cic_ev_ribbon' ) ) ) ) );
 
 		$vm = array(
 			'id'        => $id,
 			'key'       => $key,
 			'title'     => $title,
-			'layout'    => isset( Fields::EVENT_LAYOUTS[ $layout ] ) ? $layout : 'standard',
+			'layout'    => $layout,
 			'url'       => get_permalink( $id ),
 			'quote_url' => self::quote_url( 'event', $key ),
 			'hero'      => array(
@@ -803,7 +823,22 @@ final class ViewModel {
 				'cta'      => self::m( $id, 'cic_starter_cta' ) ?: Contact::get()['quote_label'],
 				'note'     => Contact::get()['availability_note'],
 			),
+			'ribbon'    => $ribbon,
+			'values'    => self::filled( $values, 'title' ),
+			'feature'   => array(
+				'eyebrow' => self::m( $id, 'cic_ev_feature_eyebrow' ),
+				'heading' => self::lines( self::m( $id, 'cic_ev_feature_heading' ) ),
+				'text'    => self::m( $id, 'cic_ev_feature_text' ),
+				'image'   => self::img( $id, 'cic_ev_feature_image' ),
+				'inset'   => self::img( $id, 'cic_ev_feature_image_2' ),
+				'points'  => self::filled( $points, 'title' ),
+			),
+			'gallery'   => array(
+				'image'   => self::img( $id, 'cic_ev_gallery_image' ),
+				'caption' => self::m( $id, 'cic_ev_gallery_caption' ),
+			),
 			'treats'    => array(
+				'eyebrow'    => self::m( $id, 'cic_ev_treats_eyebrow' ),
 				'heading'    => self::rich( self::m( $id, 'cic_treats_heading' ) ),
 				'intro'      => self::m( $id, 'cic_treats_intro' ),
 				'items'      => $treats,
@@ -829,6 +864,11 @@ final class ViewModel {
 				'faqs'       => self::faqs( $id ),
 				'area_label' => self::m( $id, 'cic_area_link_label' ),
 				'area_url'   => home_url( '/service-areas/' ),
+				'starter'    => array(
+					'location_label' => __( 'Venue city or ZIP code', 'cater-ice-cream-core' ),
+					'date_label'     => __( 'Event date', 'cater-ice-cream-core' ),
+					'guests_label'   => __( 'Estimated guests', 'cater-ice-cream-core' ),
+				),
 			),
 		);
 
@@ -838,11 +878,16 @@ final class ViewModel {
 			array(
 				'hero'     => true,
 				'starter'  => '' !== $vm['starter']['location'],
+				'ribbon'   => (bool) $ribbon,
+				'values'   => (bool) $vm['values'],
+				'feature'  => '' !== $vm['feature']['heading'],
 				'treats'   => (bool) $vm['treats']['items'],
 				'stories'  => (bool) $vm['stories']['items'],
+				'gallery'  => (bool) $vm['gallery']['image'],
 				'planning' => (bool) $vm['planning']['steps'],
 				'quote'    => true,
-			)
+			),
+			Fields::EVENT_LAYOUT_SECTIONS[ $layout ]
 		);
 		return $vm;
 	}

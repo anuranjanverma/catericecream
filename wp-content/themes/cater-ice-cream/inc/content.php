@@ -33,6 +33,15 @@ function cic_theme_icon( string $name ): string {
 		'sundae'     => '<path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M9 19l-1 2h8l-1-2"/><path d="M7 11a5 5 0 0 1 10 0"/><circle cx="12" cy="4" r="1.5"/><path d="M12 5.5V6"/>',
 		'phone'      => '<path d="M6.6 3.5h3l1.5 4-2 1.3a10 10 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/>',
 		'chevron'    => '<path d="M9 6l6 6-6 6"/>',
+		'banana'     => '<path d="M5 6c-1 6 2 12 9 13 3 .4 5-.6 6-2-6 0-10-4-11-11z"/><path d="M5 6l-.5-2"/>',
+		'spoon'      => '<ellipse cx="15.5" cy="7.5" rx="3.5" ry="4.5" transform="rotate(40 15.5 7.5)"/><path d="M13 10.5L5 19"/>',
+		'cup'        => '<path d="M6 9h12l-1.6 11H7.6z"/><path d="M5 9h14"/><path d="M8 9a4 4 0 0 1 8 0"/><path d="M12 5V3"/>',
+		'handshake'  => '<path d="M2.5 11l3.5-3.5 3 1 3-2 3.5 1 3.5-1 2.5 4"/><path d="M6 7.5l5.5 7a1.6 1.6 0 0 0 2.4.2l3.6-3.2"/><path d="M9.5 14.5l2 2M12 13l2 2M2.5 11l4 4.5"/>',
+		'building'   => '<rect x="5" y="3.5" width="10" height="17" rx="1"/><path d="M15 9h4v11.5h-4"/><path d="M8 7h1.5M10.5 7H12M8 10.5h1.5M10.5 10.5H12M8 14h1.5M10.5 14H12M9 20.5V17h2v3.5"/>',
+		'rings'      => '<circle cx="9" cy="14" r="5"/><circle cx="15" cy="14" r="5"/><path d="M10.5 6.5L12 4l1.5 2.5"/>',
+		'briefcase'  => '<rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V5.5h6v2"/><path d="M3.5 12.5h17M11 12.5v2h2v-2"/>',
+		'cake'       => '<path d="M4.5 20.5h15V13a2 2 0 0 0-2-2h-11a2 2 0 0 0-2 2z"/><path d="M4.5 15.5c1.5 1.3 3 1.3 4.5 0s3-1.3 4.5 0 3 1.3 4.5 0"/><path d="M8 11V8.5M12 11V8.5M16 11V8.5"/><path d="M8 6.5v-1M12 6.5v-1M16 6.5v-1"/>',
+		'gift-cups'  => '<path d="M3.5 10.5h8L10 20H5z"/><path d="M12.5 10.5h8L19 20h-5z"/><path d="M4.5 10.5a3 3 0 0 1 6 0M13.5 10.5a3 3 0 0 1 6 0"/><path d="M8 5l1 -2M16 5l-1-2M12 6V3.5"/>',
 		'arrow'      => '<path d="M5 12h14M13 6l6 6-6 6"/>',
 		'arrow-down' => '<path d="M12 5v14M6 13l6 6 6-6"/>',
 	);
@@ -56,7 +65,9 @@ function cic_theme_image( int $id, string $sizes, string $priority = 'lazy', arr
 		$attrs['loading']       = 'eager';
 		$attrs['fetchpriority'] = 'high';
 	} elseif ( 'eager' === $priority ) {
-		$attrs['loading'] = 'eager';
+		// Explicit "auto" stops core from promoting a second image to high priority.
+		$attrs['loading']       = 'eager';
+		$attrs['fetchpriority'] = 'auto';
 	} else {
 		$attrs['loading'] = 'lazy';
 	}
@@ -113,6 +124,27 @@ function cic_theme_confetti( string $class = '' ): string {
 	return '<span class="cic-confetti ' . esc_attr( $class ) . '" aria-hidden="true">' . $pieces . '</span>';
 }
 
+/**
+ * Decorative line motifs drawn as real SVG (never screenshot slices). Stroke uses currentColor,
+ * so colour comes from the page preset (e.g. Wedding champagne gold via --cic-color-decor).
+ * Motion (where any) is CSS-only and disabled for reduced-motion users.
+ */
+function cic_theme_motif( string $name, string $class = '' ): string {
+	$motifs = array(
+		'rings'       => array( '0 0 80 60', '<circle cx="30" cy="36" r="15"/><circle cx="48" cy="36" r="15"/><path d="M62 10c-3-5-10-3-9 3 1 4 9 8 9 8s8-4 9-8c1-6-6-8-9-3z"/><path d="M4 56c18-10 30-4 46-12" class="cic-motif__trail"/>' ),
+		'gold-wave'   => array( '0 0 1440 40', '<path d="M0 26c160 12 300-18 470-8s300 22 470 6 340-26 500-6" class="cic-motif__trail"/>' ),
+		'botanical'   => array( '0 0 120 200', '<path d="M60 196C58 140 64 90 92 8"/><path d="M62 150c-20-6-34-20-40-40 20 2 36 16 40 40zM66 116c18-8 30-24 32-44-18 6-30 22-32 44zM70 82c-18-6-28-20-30-38 18 4 28 18 30 38zM78 50c14-6 22-18 24-34-14 6-22 18-24 34z"/>' ),
+		'hearts'      => array( '0 0 120 70', '<path d="M30 58C12 46 6 34 10 24c4-10 18-10 22 0 4-10 18-10 22 0 4 12-6 24-24 34z"/><path d="M70 50c-14-9-18-18-15-26 3-7 13-7 16 0 3-7 13-7 16 0 3 9-4 18-17 26z"/><path d="M86 30c10-6 20-6 30 2" class="cic-motif__trail"/>' ),
+		'sparkle'     => array( '0 0 48 48', '<path d="M24 6l3 12 12 3-12 3-3 12-3-12-12-3 12-3z"/><path d="M40 6l1 4 4 1-4 1-1 4-1-4-4-1 4-1z"/>' ),
+		'strokes'     => array( '0 0 48 48', '<path d="M10 40l8-10M20 44l4-14M30 42l-2-12"/>' ),
+		'people-line' => array( '0 0 96 64', '<circle cx="30" cy="22" r="8"/><circle cx="66" cy="22" r="8"/><circle cx="48" cy="16" r="9"/><path d="M14 56c0-10 8-18 16-18M82 56c0-10-8-18-16-18M30 58c0-12 8-22 18-22s18 10 18 22"/>' ),
+	);
+	if ( ! isset( $motifs[ $name ] ) ) {
+		return '';
+	}
+	return '<svg class="cic-motif cic-motif--' . esc_attr( $name ) . ' ' . esc_attr( $class ) . '" viewBox="' . esc_attr( $motifs[ $name ][0] ) . '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $motifs[ $name ][1] . '</svg>';
+}
+
 /** "Your treat" / quote link for a record (explicit selection carried to the quote flow). */
 function cic_theme_arrow_link( string $url, string $label, string $class = 'cic-text-link' ): string {
 	return '<a class="' . esc_attr( $class ) . '" href="' . esc_url( $url ) . '">' . esc_html( $label ) . ' <span aria-hidden="true">→</span></a>';
@@ -125,6 +157,9 @@ add_action(
 		$location = is_page( 'service-areas' ) || ( class_exists( '\CIC\Locations\Routes' ) && null !== \CIC\Locations\Routes::current() );
 		if ( $home || $location || is_page( 'get-a-quote' ) || is_singular( array( 'product', 'cic_event' ) ) || is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) ) {
 			wp_enqueue_style( 'cic-compositions', get_template_directory_uri() . '/assets/css/compositions.css', array( 'cic-main' ), cic_theme_asset_version( 'assets/css/compositions.css' ) );
+		}
+		if ( is_singular( array( 'product', 'cic_event' ) ) ) {
+			wp_enqueue_style( 'cic-details', get_template_directory_uri() . '/assets/css/details.css', array( 'cic-compositions' ), cic_theme_asset_version( 'assets/css/details.css' ) );
 		}
 		if ( $home || $location || is_page( 'get-a-quote' ) ) {
 			wp_enqueue_style( 'cic-home', get_template_directory_uri() . '/assets/css/home.css', array( 'cic-compositions' ), cic_theme_asset_version( 'assets/css/home.css' ) );
