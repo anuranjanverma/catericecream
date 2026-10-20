@@ -17,8 +17,55 @@ Environment facts: see `ENVIRONMENT.md`.
 | 07 Event and treat compositions | **Eight detail pages built and verified, awaiting owner review.** Built before Phase 06 by owner instruction; the vertical-slice/quote-flow prerequisite is **DEFERRED, not passed** | 2026-10-20 |
 | 08 Archives and supporting pages | **Built and verified, awaiting owner review.** Contact submissions + full quote flow pending Phase 06 | 2026-10-20 |
 | Service Areas admin enhancement | **Built and verified, awaiting owner review** (Add City, ZIP add/assign/remove, readable coverage controls, navigation, inheritance display, import conflict protection) | 2026-10-20 |
+| 09 Visual, accessibility and performance review | **Review done; 9 defects fixed and re-verified; awaiting owner review.** Automated + manual checks recorded below. Not an accessibility-compliance or launch-readiness claim | 2026-10-20 |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. `800e07b` Service Areas admin enhancement. Phase 06 is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. `800e07b` Service Areas admin enhancement; `1823bc2` Phase 06. Phase 09 is **not committed yet**.
+
+---
+
+## Phase 09 log: Visual, accessibility and performance review
+
+Prompt: `prompts/09_visual_accessibility_and_performance_review.md` (+ spec §16, §18, `docs/ADMIN_ACCEPTANCE_CHECKLIST.md`). Approved homepage, the 190/136 px header logo and the page designs were preserved; only reproducible defects were fixed. Policies stay drafts, coverage stays fixtures only, reminders stay off, mail is local capture only.
+
+**How it was checked**
+- *Automated:* `dev/tests/phase09/audit.cjs` — 18 page types (home, Events, 4 events, Our Treats, 4 treats, Service Areas, state hub, city, About, Contact, Get a Quote, 404) × 390/768/1440 px: axe-core 4.10.2 (WCAG 2.0/2.1 A + AA rule tags), horizontal overflow, CLS (including scrolling), LCP element/time/loading attribute, broken images, alt attributes, heading structure, duplicate ids, touch targets (390 px), page weight by type, commerce scripts/controls, then all 45 internal links found. `dev/tests/phase09/interaction-test.cjs` — fields never covered by sticky/fixed elements, visible focus on every Tab stop, reduced motion, no endless motion, keyboard accordions, image sizing. `dev/tests/phase09/review-test.php` — regressions for the fixes and the "do not change" constraints. Plus every earlier suite (functional, catalogue, coverage, quote/contact, permissions).
+- *Manual inspection* (screenshots read against the reference boards): mobile first screens of all page types (homepage, Events, Birthday, Wedding, Anniversary, Corporate, Our Treats, a treat, Service Areas, city, About, Contact), tablet first screens (homepage, Corporate, Our Treats, quote), the mobile drawer with an open submenu, the desktop dropdown, the tablet footer, the homepage FAQ, and the focused date field. Earlier phases' 1440 px comparisons were not repeated except where code changed.
+- *Conditions:* local Laragon (Apache + PHP 8.5.1), no network throttling, headless Edge, cache disabled per page, warm-up request first. Timings are indicative only; they are not field or Lighthouse scores.
+
+**Defects found and fixed (all re-verified)**
+
+| # | Defect (evidence) | Fix |
+| --- | --- | --- |
+| 1 | Text links `#D92373` on tinted surfaces 3.8–4.45:1 (axe colour-contrast on 16 page types) | Design System `link` role default → existing `action_hover` token `#BC1F64` (4.85–5.97:1 on every surface). Buttons keep `#D92373`; a colour saved in the Design System admin still wins |
+| 2 | Wedding ruled eyebrow in champagne gold 2.84:1 on ivory | Eyebrow text uses the heading role like every other eyebrow; gold kept for the rule line (gold is "decorative only" in the Design System) |
+| 3 | Wedding plan-step numerals in gold 2.4:1 | Digit uses the heading role; gold ring kept |
+| 4 | Unused WooCommerce scripts on every page (woocommerce, BlockUI, js-cookie, Sourcebuster, order attribution — the last also set tracking cookies without an approved tracking configuration) | Added to the guard's catalogue-mode script list (survives theme switches) |
+| 5 | Treat pages loaded WooCommerce gallery zoom/flexslider/photoswipe + single-product + jQuery and hidden lightbox markup, none used by the custom compositions | Theme gallery supports removed, `wc-single-product` dequeued (product gallery images stay editable) |
+| 6 | Touch targets under 44 px at 390 px: county city links (21), text links (26), breadcrumbs (17), footer phone (32), hero search inputs (28), pairing/nearby/phone/jump links (17–26), catalogue jump pills (40) | Hit area extended with padding + equal negative margin (visible layout unchanged); jump pills `min-height` 40 → 44 px |
+| 7 | Decorative mascot downloaded at 640 px / 113 KB for 46–88 px uses | 160/320 px resampled copies of the same approved artwork + `srcset`/`sizes` (4.6 / 10.8 KB) |
+| 8 | Homepage FAQ heading read "A few things youmight be wondering." — ACF key `field_cic_faq_heading` was a textarea on the homepage but a single-line text field on events/treats, so admin saves stripped the line break | All three definitions are multi-line now; the stored value was repaired (it still held the mangled seed text) |
+| 9 | Wedding botanical motif swayed endlessly (and the line trace ran 6 s) for visitors without a reduced-motion preference (WCAG 2.2.2) | Two 2.5 s passes then still; trace 4.5 s |
+
+**Investigated, not defects:** homepage LCP of 1.7 s was the first navigation in a fresh browser (TTFB 1.49 s first vs 0.30 s warm, reproduced on another page; audit now warms up). "Missing" focus rings on homepage cards and search fields were `:focus-within` rings on their wrappers; date/time fields were confirmed by manual inspection (3 px plum outline). Event/occasion card title links are stretched over the whole card. The 404 page's footer logo is lazy but not the LCP. The header logo's light box is the owner-approved original raster.
+
+**Final results**
+- Audit (final runs): axe **0 violations** on all 18 page types at 390, 768 and 1440 px; no horizontal overflow; CLS ≤ 0.08 everywhere (largest: Events at 390, 0.080); every LCP image eager with `fetchpriority=high` where it is an image; no broken images, no missing alt attributes, no duplicate ids, one `h1` per page, no heading-level skips; no small touch targets left at 390 px (the visually hidden skip link excluded); no commerce scripts or controls; 45 internal links checked, only the deliberate 404 test URL fails. Local LCP 0.49–0.86 s (390) and 0.58–1.20 s (1440; 1.2 s is the 404 page). Page weight 486 KB (quote) to 1.86 MB (homepage, mostly approved photography); fonts: two local WOFF2 files (~74 KB).
+- `interaction-test.cjs` **7/7**; `review-test.php` **8/8**.
+- Regressions: Phase 01 guard **69/69** (re-run because the guard changed), 02 design **51/51** + browser **58/58**, 03 **46/46** + admin edit **22/22**, 04 **25/25** + browser **22/22** + admin fields **6/6**, 05 **55/55** + browser **24/24** + admin **12/12**, 06 server **49/49** + submissions **27/27** + browser **35/35**, 07 **23/23** + browser **13/13** + admin **7/7**, 08 **24/24** + browser **11/11**, Service Areas **42/42** + browser **21/21**. One expectation update: Phase 04 H4 now checks the prefilled Phase 06 form instead of the interim summary list.
+- Clean state: no test enquiries, contacts, users, submission rows, scheduled jobs, fixture products or orders left; operator recipient unchanged; no new PHP log entries; no test browsers open.
+
+**Admin acceptance checklist (evidence):** global action colour / fonts / heading scale / preset changes and override reset — Phase 02 browser T3–T8, T12; phone propagation — T13.3; header rows, mobile drawer, sticky anchors — T13–T14; content edits, pairings, new records, theme switch — Phases 03/07 + guard suite; locations dry run, idempotent re-import, ZIP cases, Compton exclusion, 404/redirect/noindex — Phase 05 + Service Areas suites; forms and lead operations — Phase 06 suites; catalogue protection (all purchase paths, theme switch, core plugin off, no orders) — guard 69/69; responsive and accessibility — this phase.
+
+**Not tested:** screen readers (NVDA/JAWS/VoiceOver), Safari and Firefox, real phones/tablets and touch input, Windows high-contrast / forced colours, 200–400 % zoom and text-spacing overrides, colour-vision simulation, slow networks or field performance (no Lighthouse/CrUX), a production server, PHPCS. Automated axe checks find only part of WCAG issues: **this is not an accessibility-compliance statement and not a launch-readiness claim.**
+
+**Remaining launch dependencies**
+- Approved production coverage data (only labelled fixtures today) and the owner's review of city content.
+- Verified production mail sender/domain, Yan / Web Karma account emails, reminder timing.
+- Owner review of the provisional quote/contact form fields; approved privacy policy and website terms (both drafts; the footer legal links and the form privacy link appear only once they are published).
+- Real event/product photography and client review of the AI images, product options and ingredients; an approved reversed (white) footer logo if wanted.
+- Analytics/privacy configuration (no analytics installed; events are ready for `dataLayer`).
+- Hosting/staging, working server cron + delivery monitoring, backup destination and restore rehearsal (Phase 10).
+- Manual accessibility testing with assistive technology and real devices, and field performance measurement on the production host.
 
 ---
 
@@ -871,11 +918,11 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 07 ✔ (before 06) | Event + treat compositions (8 detail pages) | Built and verified 2026-10-20; awaiting owner review |
 | 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Built and verified 2026-10-20 (save-before-notify proven, Mailpit); awaiting owner review |
 | — | Vertical-slice gate (complete quote flow) | Built and tested in Phase 06; owner review pending |
-| 09 | Visual, accessibility, performance review | Differences fixed or recorded |
+| 09 | Visual, accessibility, performance review | Done 2026-10-20: defects fixed and re-verified, remaining items recorded; owner review pending |
 | 10 | Release candidate + operational guide | Backup/rollback rehearsed on staging |
 
 ## Next phase
 
-**Owner review** of Phase 06 (quote + Contact forms, enquiry admin), Phases 07–08 and the Service Areas admin. Then, when asked, the next phase prompt.
+**Owner review** of Phases 06–09 and the Service Areas admin. Phase 10 (release candidate and operational guide) only when asked.
 
-Launch still needs: approved production coverage data, the verified mail sender, Yan/Web Karma account emails, reminder timing, final form-field review, approved policy copy, real photos and hosting details.
+See "Remaining launch dependencies" in the Phase 09 log.

@@ -140,7 +140,7 @@
 .cic-jump a {
 	display: inline-flex;
 	align-items: center;
-	min-height: 40px;
+	min-height: 44px; /* Touch target (Phase 09; was 40px). */
 	padding: 0.35rem 1.1rem;
 	border-radius: 999px;
 	background-color: var(--wp--preset--color--surface-soft);

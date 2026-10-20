@@ -186,7 +186,9 @@ final class Schema {
 			'action_hover'   => 'action_hover',
 			'on_action'      => 'on_action',
 			'secondary'      => 'action_secondary',
-			'link'           => 'action_primary',
+			// Text links use the deeper raspberry: the primary action pink is 3.8–4.45:1 on the
+			// tinted surfaces, below AA for normal-size text (Phase 09 audit). Buttons are unchanged.
+			'link'           => 'action_hover',
 			'border'         => 'border',
 			'focus'          => 'focus',
 		);

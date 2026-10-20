@@ -93,6 +93,13 @@ const BLOCKED_SCRIPTS = array(
 	'wc-cart',
 	'wc-checkout',
 	'wc-mini-cart-block-frontend',
+	// Phase 09: general WooCommerce front-end scripts have no use in catalogue mode, and order
+	// attribution (Sourcebuster) sets tracking cookies with no approved tracking configuration.
+	'woocommerce',
+	'wc-jquery-blockui',
+	'wc-js-cookie',
+	'sourcebuster-js',
+	'wc-order-attribution',
 );
 
 /** Order and customer emails that must never be sent from the catalogue. */

@@ -115,6 +115,9 @@ function cic_theme_mascot( int $width, array $attrs = array() ): string {
 	$attrs = array_merge(
 		array(
 			'src'      => get_template_directory_uri() . '/assets/brand/mascot-original.webp',
+			// Resampled copies of the same approved artwork, so small decorations do not download 640px.
+			'srcset'   => get_template_directory_uri() . '/assets/brand/mascot-original-160.webp 160w, ' . get_template_directory_uri() . '/assets/brand/mascot-original-320.webp 320w, ' . get_template_directory_uri() . '/assets/brand/mascot-original.webp 640w',
+			'sizes'    => $width . 'px',
 			'width'    => (string) $width,
 			'height'   => (string) round( $width * 535 / 640 ),
 			'alt'      => '',

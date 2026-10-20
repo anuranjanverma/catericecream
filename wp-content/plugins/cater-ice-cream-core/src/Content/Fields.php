@@ -796,7 +796,7 @@ final class Fields {
 		}
 		$fields[] = self::area( 'cic_ingredient_note', 'Ingredient / dietary note', 'Client-approved wording only. No dietary guarantees.', 2 );
 		$fields[] = self::tab( 'treat_faq', 'FAQs' );
-		$fields[] = self::heading( 'cic_faq_heading', 'FAQ heading' );
+		$fields[] = self::area( 'cic_faq_heading', 'FAQ heading', 'One line per row. (Same field as the homepage FAQ heading, so it is multi-line everywhere.)', 2 );
 		$fields[] = self::text( 'cic_treat_faq_intro', 'FAQ introduction (optional)' );
 		for ( $i = 1; $i <= self::FAQ_SLOTS; $i++ ) {
 			$fields[] = self::text( "cic_faq_{$i}_q", "Question {$i}" );
@@ -892,7 +892,7 @@ final class Fields {
 		$fields[] = self::tab( 'event_quote', 'Quote and FAQ' );
 		$fields[] = self::heading( 'cic_quote_heading', 'Quote heading' );
 		$fields[] = self::text( 'cic_quote_cta', 'Quote button label' );
-		$fields[] = self::heading( 'cic_faq_heading', 'FAQ heading' );
+		$fields[] = self::area( 'cic_faq_heading', 'FAQ heading', 'One line per row. (Same field as the homepage FAQ heading, so it is multi-line everywhere.)', 2 );
 		for ( $i = 1; $i <= self::FAQ_SLOTS; $i++ ) {
 			$fields[] = self::text( "cic_faq_{$i}_q", "Question {$i}" );
 			$fields[] = self::area( "cic_faq_{$i}_a", "Answer {$i}", '', 2 );

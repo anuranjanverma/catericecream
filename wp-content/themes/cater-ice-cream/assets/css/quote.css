@@ -835,6 +835,7 @@ legend.cic-field__label {
 
 .cic-glance__edit .cic-text-link {
 	min-height: 44px;
+	margin: 0;
 	padding: 0;
 	border: 0;
 	background: none;

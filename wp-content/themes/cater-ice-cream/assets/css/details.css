@@ -16,17 +16,19 @@
 	color: var(--cic-color-decor);
 }
 
+/* Eyebrow text uses the heading role like every other eyebrow; the decorative role (e.g. Wedding
+   champagne gold, "decorative only") draws the rule line. Gold text was 2.84:1 on ivory. */
 .cic-ruled-eyebrow {
 	display: flex;
 	gap: 0.75rem;
 	align-items: center;
-	color: var(--cic-color-decor);
+	color: var(--cic-color-heading);
 }
 
 .cic-ruled-eyebrow::after {
 	flex: 0 0 3rem;
 	height: 1px;
-	background-color: currentColor;
+	background-color: var(--cic-color-decor);
 	content: "";
 }
 
@@ -254,12 +256,14 @@
 @media (prefers-reduced-motion: no-preference) {
 	/* Delicate ring/botanical line motion for Wedding only. */
 	.cic-event--wedding .cic-motif__trail {
-		animation: cic-trace 6s ease-in-out 1 both;
+		animation: cic-trace 4.5s ease-in-out 1 both;
 	}
 
+	/* Two gentle passes (5 s in total), then still: automatic motion longer than 5 s next to
+	   content would need a pause control (WCAG 2.2.2). */
 	.cic-event--wedding .cic-motif--botanical {
 		transform-origin: bottom center;
-		animation: cic-sway 7s ease-in-out infinite alternate;
+		animation: cic-sway 2.5s ease-in-out 2 alternate;
 	}
 }
 
@@ -923,7 +927,8 @@
 .cic-event--wedding .cic-plan-band__num {
 	border: 1px solid var(--cic-color-decor);
 	background: none;
-	color: var(--cic-color-decor);
+	/* Gold stays on the ring (decorative); the digit uses the heading role (gold digits were 2.4:1). */
+	color: var(--cic-color-heading);
 	font-weight: 400;
 }
 

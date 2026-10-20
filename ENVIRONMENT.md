@@ -31,7 +31,7 @@ Legend: **[V]** verified by command output · **[A]** assumption / not yet verif
 | Database | MySQL 8.4.3, DB `catericecream`, `utf8mb4` / `utf8mb4_0900_ai_ci`, strict `sql_mode`, prefix `wp_` [V] |
 | Mail | Mailpit 1.22.3 (SMTP 127.0.0.1:1025, UI http://localhost:8025), **no relay configured**, so nothing leaves the machine [V]. PHP `sendmail_path` → Mailpit works from the CLI only: inside Apache's php-cgi, `mail()` fails ("Could not instantiate mail function", found in Phase 06). The local-only MU plugin `cic-local-mail.php` therefore routes WordPress mail to Mailpit over SMTP when `WP_ENVIRONMENT_TYPE=local` (inactive elsewhere). **Web-request capture verified in Phase 06** [V] |
 
-## 3 WordPress state (after Phase 06)
+## 3 WordPress state (after Phase 09)
 
 | Item | Value |
 | --- | --- |
@@ -39,7 +39,7 @@ Legend: **[V]** verified by command output · **[A]** assumption / not yet verif
 | Environment | `WP_ENVIRONMENT_TYPE=local`; `WP_DEBUG=true`, `WP_DEBUG_DISPLAY=false`, `display_errors=0`, log outside web root [V] |
 | Active theme | **Cater Ice Cream 0.2.0** (tokens, self-hosted fonts, header/footer components) [V] |
 | Plugins | **WooCommerce 11.2.1** (active), **Cater Ice Cream Core 0.7.0** (active), **Advanced Custom Fields (free) 6.8.10** (active, no Pro), **Contact Form 7 6.2.2** and **Flamingo 2.6.4** (active, free, installed in Phase 06 from wordpress.org with the owner's authorisation), Akismet / Hello Dolly (inactive) [V] |
-| MU plugins | **cic-catalog-guard 1.0.0**; **cic-local-mail 1.0.0** (local only: mail → Mailpit SMTP) [V] |
+| MU plugins | **cic-catalog-guard 1.0.0** (Phase 09: also dequeues WooCommerce front-end and order-attribution scripts in catalogue mode); **cic-local-mail 1.0.0** (local only: mail → Mailpit SMTP) [V] |
 | Not installed yet | SEO plugin [V] |
 | Permalinks | `/%postname%/`; WordPress rewrite block written to `.htaccess` [V] |
 | Timezone | `America/Los_Angeles` [V] |

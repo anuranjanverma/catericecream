@@ -1221,6 +1221,40 @@ body.cic-drawer-open {
 }
 
 /* ------------------------------------------------------------------ *
+ * 10b. Touch targets (Phase 09)
+ * Compact links and the hero search inputs get a hit area of at least 44px tall. Padding enlarges
+ * the target and the equal negative margin cancels it in layout, so the approved spacing is
+ * unchanged (inline links ignore both vertically for layout, so only the hit area grows).
+ * ------------------------------------------------------------------ */
+.cic-text-link,
+.cic-brand-links__all,
+.cic-brand-links a,
+.cic-city-nearby__all,
+.cic-city-nearby__list a,
+.cic-qs__call a,
+.cic-footer__contact a {
+	padding-block: 0.75em;
+	margin-block: -0.75em;
+}
+
+.cic-county__cities a,
+.cic-county-card__cities a {
+	padding-block: 0.75em;
+	margin-block: -0.75em;
+}
+
+/* Breadcrumbs and the hero jump link use the caption size, so a fixed extension reaches 44px. */
+.cic-breadcrumbs a,
+.cic-hero__jump a {
+	padding-block: 14px;
+	margin-block: -14px;
+}
+
+/* .cic-event-card__title a needs nothing: its ::after stretches over the whole card. */
+
+/* .cic-search__input: see home.css (its own rule sets the padding). */
+
+/* ------------------------------------------------------------------ *
  * 11. Motion preferences
  * ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {

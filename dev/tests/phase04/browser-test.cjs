@@ -75,8 +75,13 @@ let browser;
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle0' } ), page.click( '.cic-search__submit' ) ] );
 		const landed = new URL( page.url() );
 		check( 'H3 Plan My Event opens /get-a-quote/ with only validated non-personal context', '/get-a-quote/' === landed.pathname && 'anniversary' === landed.searchParams.get( 'event' ) && 'pasadena' === landed.searchParams.get( 'location' ) && date === landed.searchParams.get( 'date' ) && 3 === Array.from( landed.searchParams.keys() ).length, page.url() );
-		const summary = await page.$$eval( '[data-cic-quote-summary] div', ( rows ) => rows.map( ( r ) => r.getAttribute( 'data-field' ) + '=' + r.querySelector( 'dd' ).textContent.trim() ) );
-		check( 'H4 the quote route shows the server-validated selections (no availability claim)', summary.includes( 'event=Anniversaries' ) && summary.includes( 'location=Pasadena' ) && summary.some( ( s ) => s.startsWith( 'date=' ) ) && ! /available|reserved|confirmed for/i.test( await page.$eval( 'main', ( m ) => m.innerText ) ), summary );
+		// Since Phase 06 the quote route is the real form: the validated selections arrive prefilled.
+		const summary = await page.evaluate( () => ( {
+			event: ( document.querySelector( 'input[name=event]:checked' ) || {} ).value,
+			location: ( document.querySelector( '#cic-f-location' ) || {} ).value,
+			date: ( document.querySelector( '#cic-f-event-date' ) || {} ).value,
+		} ) );
+		check( 'H4 the quote form arrives prefilled with the server-validated selections (no availability claim)', 'anniversary' === summary.event && 'pasadena' === summary.location && date === summary.date && ! /available|reserved|confirmed for/i.test( await page.$eval( 'main', ( m ) => m.innerText ) ), summary );
 
 		console.log( '== Explicit selections persist across pages' );
 		await page.goto( BASE + '/treats/dippin-dots/', { waitUntil: 'networkidle0' } );

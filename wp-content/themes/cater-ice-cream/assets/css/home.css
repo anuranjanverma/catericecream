@@ -281,7 +281,9 @@
 .cic-search__input {
 	width: 100%;
 	min-height: 28px;
-	padding: 0;
+	/* 44px hit area (Phase 09); the negative margin keeps the approved layout. */
+	padding: 9px 0;
+	margin-block: -9px;
 	border: 0;
 	background: transparent;
 	color: var(--wp--preset--color--text-primary);

@@ -60,6 +60,12 @@ Handoff locations (verified):
   - **Access:** `manage_cic_enquiries` (administrators + the "Enquiry manager" role). Settings are `manage_options` only. Do not create Yan/Web Karma accounts until their emails are supplied. Reminders stay off until timing is configured.
   - **Mail locally:** `wp-content/mu-plugins/cic-local-mail.php` routes mail to Mailpit (local only). Tests use synthetic `@example.test` addresses and temporarily switch the operator recipient; never test with real addresses.
   - **Tests:** run `dev/tests/phase06/enquiry-test.php`, `submit-test.cjs` and `browser-test.cjs` (sequentially) after enquiry, form, quote/contact page or coverage changes.
+- Accessibility and performance (Phase 09):
+  - Text links use the `link` role (default `action_hover`, ≥4.5:1 on every surface token); never use decorative roles (e.g. Wedding gold) for reading text, only for lines, rings and icons.
+  - Interactive elements need a ≥44 px touch target; extend compact links with padding + equal negative margin (see `main.css` §10b) instead of changing approved layouts.
+  - ACF field keys are derived from names: a field name reused in several groups must have the same type everywhere (`dev/tests/phase09/review-test.php` R1).
+  - No decorative animation may run longer than 5 s; reduced motion disables motion. Keep WooCommerce front-end/gallery scripts out of catalogue mode (guard script list + theme).
+  - Run `dev/tests/phase09/review-test.php`, `interaction-test.cjs` and `audit.cjs` (one width at a time) after visual, CSS, template or asset changes. Passing automated checks is not an accessibility-compliance claim.
 - Run browser tests one at a time and make sure each closes its browser (memory).
 - Tests must restore everything they change in `finally` (settings, statuses, fields, pairings, theme, plugins, fixtures) and close any browser on failure.
 - Never print or commit credentials from `wp-config.php`.
