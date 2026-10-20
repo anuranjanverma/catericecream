@@ -31,22 +31,23 @@ Legend: **[V]** verified by command output · **[A]** assumption / not yet verif
 | Database | MySQL 8.4.3, DB `catericecream`, `utf8mb4` / `utf8mb4_0900_ai_ci`, strict `sql_mode`, prefix `wp_` [V] |
 | Mail | PHP `sendmail_path` → Mailpit 1.22.3 (SMTP 127.0.0.1:1025, UI http://localhost:8025). **Capture verified**: a `wp_mail()` to `phase01-capture-check@example.test` arrived in Mailpit only [V] |
 
-## 3 WordPress state (after Phase 04)
+## 3 WordPress state (after Phase 05)
 
 | Item | Value |
 | --- | --- |
 | WordPress | 7.1.3, `db_version` 61833 [V] |
 | Environment | `WP_ENVIRONMENT_TYPE=local`; `WP_DEBUG=true`, `WP_DEBUG_DISPLAY=false`, `display_errors=0`, log outside web root [V] |
 | Active theme | **Cater Ice Cream 0.2.0** (tokens, self-hosted fonts, header/footer components) [V] |
-| Plugins | **WooCommerce 11.2.1** (active), **Cater Ice Cream Core 0.3.0** (active), **Advanced Custom Fields (free) 6.8.10** (active, no Pro), Akismet / Hello Dolly (inactive) [V] |
+| Plugins | **WooCommerce 11.2.1** (active), **Cater Ice Cream Core 0.4.0** (active), **Advanced Custom Fields (free) 6.8.10** (active, no Pro), Akismet / Hello Dolly (inactive) [V] |
 | MU plugins | **cic-catalog-guard 1.0.0** [V] |
 | Not installed yet | Contact Form 7, Flamingo, SEO plugin [V] |
 | Permalinks | `/%postname%/`; WordPress rewrite block written to `.htaccess` [V] |
 | Timezone | `America/Los_Angeles` [V] |
 | WooCommerce | Pages created: Shop (/shop/), Cart, Checkout, My account (published; the guard redirects the last three). No payment gateways enabled. Currency USD, base US:CA. Order storage: posts authoritative (`woocommerce_custom_orders_table_enabled=no`; `wp_wc_orders` table exists). Built-in `product_brand` taxonomy present. Action Scheduler 4.1.0 bundled. Coming-soon mode **set to `no`** locally [V] |
-| Front page (Phase 04) | Static front page "Home" (`show_on_front=page`); interim quote route page "Get a Quote" at `/get-a-quote/`. 23 imported masters. REST route `POST /cic/v1/coverage` (pending repository: returns unknown/invalid only) [V] |
+| Front page (Phase 04) | Static front page "Home" (`show_on_front=page`); interim quote route page "Get a Quote" at `/get-a-quote/`. Service Areas page `/service-areas/` (Phase 05). 26 imported masters. REST `POST /cic/v1/coverage` and `GET /cic/v1/locations` through the provisional `DatabaseRepository` [V] |
+| Locations (Phase 05) | Schema v3 tables `wp_cic_cities`, `wp_cic_zips`, `wp_cic_city_zips`, `wp_cic_city_content`, `wp_cic_city_slugs`; capability `manage_locations` (administrators). Loaded data is **local fixtures only** (20 cities, 60 ZIPs, 61 mappings; `dataset=fixture`), counted because `wp_get_environment_type()` = `local`. Virtual routes `/service-areas/{state}/{city}/` (rewrite version `cic_location_routes_version=1`). `blog_public=0` locally, so core sitemaps are off unless tests switch it on temporarily [V] |
 | Catalogue (Phase 03) | Products: 4 showcase treats (no prices) at `/treats/{slug}/`; Shop page `/treats/` ("Our Treats"); `woocommerce_permalinks.product_base=/treats`. Events CPT `cic_event`: 4 seeds at `/events/{slug}/`, archive `/events/`. Table `wp_cic_product_events` (7 pairings, UNIQUE product_id+event_id). 20 media attachments imported from the WebP pack (`cic_media_map`, `_cic_asset_id`). Seed log `cic_seed_log`. WooCommerce `product_brand` terms: Dippin' Dots, DipN' Bananas [V] |
-| Core plugin data | `cic_core_schema_version=2` (Phase 03), `cic_core_activated_version=0.1.0` (activation hook not re-run on update; harmless). Options `cic_design_settings`, `cic_site_layout` and `cic_core_settings` are **absent**, so the approved defaults apply; `cic_design_version` is a cache counter [V] |
+| Core plugin data | `cic_core_schema_version=3` (Phase 05), `cic_core_activated_version=0.1.0` (activation hook not re-run on update; harmless). `cic_design_settings` holds the Phase 04 heading tuning (weight 800, tracking −0.01em, H1/H2 sizes); `cic_site_layout` and `cic_core_settings` are **absent**, so their defaults apply (header logo 190/136 px); location options `cic_location_audit`, `cic_location_imports`, `cic_locations_cache_version`; `cic_design_version` is a cache counter [V] |
 | Menus | Primary navigation (13 items), Footer navigation (4), Footer legal links (2), seeded by `wp cic seed-navigation`. Locations: primary, secondary, footer, footer_secondary, legal [V] |
 | Fonts | Fraunces (roman 600–700, italic 600) + DM Sans (400–700), latin WOFF2, OFL, self-hosted in the theme; `@font-face` printed by core from theme.json [V] |
 | Products | 0 (Phase 01 fixtures created and deleted) [V] |

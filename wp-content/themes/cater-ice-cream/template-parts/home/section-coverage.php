@@ -2,10 +2,10 @@
 /**
  * Home service-area block: intro, area check, county directory and an illustrative map.
  *
- * The owner's city code and approved ZIP data are pending, so the check goes through the location
- * repository adapter (POST /cic/v1/coverage), which currently answers "unknown — confirmed with your
- * quote" and never claims coverage. City names appear only when entered in the approved directory
- * fields; they become links once city pages exist. The map is an illustration, not a boundary.
+ * The check and the county lists go through the location repository adapter (POST /cic/v1/coverage,
+ * published cities linked to their virtual city pages). The owner's city code is pending; until it
+ * is connected the provisional repository answers from reviewed data only (local fixtures are
+ * labelled and ignored outside local/development). The map is an illustration, not a boundary.
  *
  * @package CaterIceCream
  */
@@ -39,7 +39,13 @@ echo cic_theme_section_open( 'cic-home', $args['section'], 'cic-section cic-band
 									<summary><h3 class="cic-county__name"><?php echo esc_html( $cic_county['name'] ); ?></h3></summary>
 									<ul class="cic-county__cities">
 										<?php foreach ( $cic_county['cities'] as $cic_city ) : ?>
-											<li><?php echo esc_html( $cic_city ); ?></li>
+											<li>
+												<?php if ( '' !== $cic_city['url'] ) : ?>
+													<a href="<?php echo esc_url( $cic_city['url'] ); ?>"><?php echo esc_html( $cic_city['name'] ); ?></a>
+												<?php else : ?>
+													<?php echo esc_html( $cic_city['name'] ); ?>
+												<?php endif; ?>
+											</li>
 										<?php endforeach; ?>
 									</ul>
 								</details>

@@ -76,7 +76,7 @@ try {
 	$idx = $wpdb->get_results( 'SHOW INDEX FROM ' . Pairings::table(), ARRAY_A );
 	$uniq = array_values( array_map( static fn( $i ) => $i['Column_name'], array_filter( $idx, static fn( $i ) => 'product_event' === $i['Key_name'] && '0' === (string) $i['Non_unique'] ) ) );
 	cic3_check( 'A1 pairing table has UNIQUE(product_id, event_id) and an event_id index', array( 'product_id', 'event_id' ) === $uniq && (bool) array_filter( $idx, static fn( $i ) => 'event_lookup' === $i['Key_name'] && 'event_id' === $i['Column_name'] ) );
-	cic3_check( 'A2 schema version 2', 2 === (int) get_option( 'cic_core_schema_version' ) );
+	cic3_check( 'A2 schema at the current migration target (v2 pairings included; v3 adds Phase 05 location tables)', CIC\Database\Migrations::TARGET_VERSION === (int) get_option( 'cic_core_schema_version' ) && (int) get_option( 'cic_core_schema_version' ) >= 2 );
 	cic3_check( 'A3 event capabilities granted to administrator and editor only', get_role( 'administrator' )->has_cap( 'publish_cic_events' ) && get_role( 'editor' )->has_cap( 'edit_others_cic_events' ) && ! get_role( 'author' )->has_cap( 'edit_cic_events' ) );
 	$types = array();
 	foreach ( array( Fields::treat_group(), Fields::event_group() ) as $g ) {

@@ -192,7 +192,7 @@ final class Seeder {
 	}
 
 	/**
-	 * Pages (Home, Get a Quote). The homepage becomes the static front page only while the site
+	 * Pages (Home, Get a Quote, Service Areas). The homepage becomes the static front page only while the site
 	 * still shows latest posts, so a later front-page choice is never overridden.
 	 *
 	 * @param array<string, mixed> $data Seed definition.
@@ -228,7 +228,8 @@ final class Seeder {
 			update_option( 'page_on_front', (int) $id );
 			$this->messages[] = 'Static front page set to "' . $data['title'] . '".';
 		}
-		$this->seed_meta( $id, $data['meta'], Fields::names( Fields::home_group() ) );
+		$group = 'hub' === ( $data['group'] ?? 'home' ) ? Fields::hub_group() : Fields::home_group();
+		$this->seed_meta( $id, $data['meta'], Fields::names( $group ) );
 		return (int) $id;
 	}
 

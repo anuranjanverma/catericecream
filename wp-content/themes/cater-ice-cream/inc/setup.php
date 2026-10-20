@@ -56,6 +56,10 @@ add_filter(
 		if ( str_contains( (string) $item->url, '#' ) ) {
 			$classes = array_diff( (array) $classes, array( 'current-menu-item', 'current_page_item' ) );
 		}
+		// Virtual state and city pages sit under the Service Areas hub.
+		if ( class_exists( '\CIC\Locations\Routes' ) && null !== \CIC\Locations\Routes::current() && untrailingslashit( (string) $item->url ) === untrailingslashit( \CIC\Content\ViewModel::hub_url() ) ) {
+			$classes[] = 'current-menu-ancestor';
+		}
 		return $classes;
 	},
 	10,

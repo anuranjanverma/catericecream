@@ -38,6 +38,8 @@ final class Fields {
 		'leaf'       => 'Leaf',
 		'cupcake'    => 'Cupcake',
 		'wand'       => 'Magic wand',
+		'home'       => 'House',
+		'sundae'     => 'Sundae',
 	);
 
 	public const FAQ_SLOTS = 6;
@@ -73,6 +75,59 @@ final class Fields {
 		'faq'      => 'FAQ',
 		'coverage' => 'Service areas',
 		'cta'      => 'Closing call to action',
+	);
+
+	/** Service Areas hub sections in approved order (15_service_areas.png). */
+	public const HUB_SECTIONS = array(
+		'areas_hero'      => 'Hero, search and map',
+		'areas_counties'  => 'County directory',
+		'areas_steps'     => 'What we need to check',
+		'areas_call'      => 'Call panel',
+		'areas_occasions' => 'Occasions',
+		'areas_faq'       => 'FAQ',
+		'areas_start'     => 'Quote starter',
+	);
+
+	public const CITY_FAQ_SLOTS = 4;
+
+	/**
+	 * City page fields (13_city_pasadena.png): suffix => [type, label]. Defaults live on the
+	 * Service Areas page (cic_citydef_*); city content records override them (cic_city_*).
+	 * Tokens: {city}, {state}, {state_code}, {county}.
+	 */
+	public const CITY_FIELDS = array(
+		'eyebrow'           => array( 'text', 'Hero eyebrow' ),
+		'title'             => array( 'heading', 'Hero headline' ),
+		'subtitle'          => array( 'text', 'Hero subheading' ),
+		'intro'             => array( 'area', 'Hero introduction' ),
+		'image_main'        => array( 'image', 'Hero main photo' ),
+		'image_inset_1'     => array( 'image', 'Hero inset photo 1 (top)' ),
+		'image_inset_2'     => array( 'image', 'Hero inset photo 2 (bottom)' ),
+		'search_cta'        => array( 'text', 'Hero search button' ),
+		'search_note'       => array( 'text', 'Hero search note' ),
+		'plans_heading'     => array( 'heading', 'Plans heading' ),
+		'plans_intro'       => array( 'area', 'Plans introduction' ),
+		'treats_heading'    => array( 'heading', 'Treats heading' ),
+		'call_heading'      => array( 'area', 'Call panel heading (one line per row)' ),
+		'call_text'         => array( 'area', 'Call panel text' ),
+		'call_image'        => array( 'image', 'Call panel photo' ),
+		'call_note'         => array( 'text', 'Call panel note' ),
+		'occasions_heading' => array( 'heading', 'Occasions heading' ),
+		'check_heading'     => array( 'heading', 'Location check heading' ),
+		'check_intro'       => array( 'text', 'Location check introduction' ),
+		'faq_heading'       => array( 'heading', 'FAQ heading' ),
+		'faq_1_q'           => array( 'text', 'Question 1' ),
+		'faq_1_a'           => array( 'area', 'Answer 1' ),
+		'faq_2_q'           => array( 'text', 'Question 2' ),
+		'faq_2_a'           => array( 'area', 'Answer 2' ),
+		'faq_3_q'           => array( 'text', 'Question 3' ),
+		'faq_3_a'           => array( 'area', 'Answer 3' ),
+		'faq_4_q'           => array( 'text', 'Question 4' ),
+		'faq_4_a'           => array( 'area', 'Answer 4' ),
+		'quote_heading'     => array( 'heading', 'Quote panel heading' ),
+		'quote_note'        => array( 'text', 'Quote panel note' ),
+		'seo_title'         => array( 'text', 'Search result title' ),
+		'seo_description'   => array( 'area', 'Search result description' ),
 	);
 
 	public const EVENT_LAYOUTS = array(
@@ -184,6 +239,158 @@ final class Fields {
 		acf_add_local_field_group( self::treat_group() );
 		acf_add_local_field_group( self::event_group() );
 		acf_add_local_field_group( self::home_group() );
+		acf_add_local_field_group( self::hub_group() );
+		acf_add_local_field_group( self::city_group() );
+	}
+
+	/**
+	 * City fields with a name prefix, grouped into tabs.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function city_fields( string $prefix, string $tab_prefix ): array {
+		$tabs   = array(
+			'eyebrow'           => 'Hero and search',
+			'plans_heading'     => 'Plans',
+			'treats_heading'    => 'Treats',
+			'call_heading'      => 'Call panel',
+			'occasions_heading' => 'Occasions',
+			'check_heading'     => 'Location check',
+			'faq_heading'       => 'FAQ and quote',
+			'seo_title'         => 'Search engines',
+		);
+		$fields = array();
+		foreach ( self::CITY_FIELDS as $suffix => $def ) {
+			if ( isset( $tabs[ $suffix ] ) ) {
+				$fields[] = self::tab( $tab_prefix . $suffix, $tabs[ $suffix ] );
+			}
+			$name = $prefix . $suffix;
+			switch ( $def[0] ) {
+				case 'heading':
+					$fields[] = self::heading( $name, $def[1] );
+					break;
+				case 'area':
+					$fields[] = self::area( $name, $def[1], '', 2 );
+					break;
+				case 'image':
+					$fields[] = self::image( $name, $def[1] );
+					break;
+				default:
+					$fields[] = self::text( $name, $def[1] );
+			}
+		}
+		return $fields;
+	}
+
+	/**
+	 * Service Areas hub Page (15_service_areas.png) plus the city page template every city
+	 * inherits. State hubs reuse this page's content.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function hub_group(): array {
+		$p      = 'cic_sa_';
+		$fields = array(
+			self::tab( 'sa_hero', 'Hero, search and map' ),
+			self::text( $p . 'eyebrow', 'Eyebrow' ),
+			self::area( $p . 'headline', 'Headline', 'One line per row. Wrap accent words in &lt;em&gt;…&lt;/em&gt;.', 2 ),
+			self::area( $p . 'intro', 'Introduction', '', 2 ),
+			self::text( $p . 'search_ph', 'Search placeholder' ),
+			self::text( $p . 'search_button', 'Search button label' ),
+			self::text( $p . 'search_hint', 'Hint under the search' ),
+			self::image( $p . 'image', 'Hero photo' ),
+			self::text( $p . 'map_caption', 'Map caption', 'Points are approximate ZIP centres from the reviewed location data, not service boundaries.' ),
+			self::tab( 'sa_counties', 'County directory' ),
+			self::heading( $p . 'counties_heading', 'Heading' ),
+			self::area( $p . 'counties_intro', 'Introduction', '', 2 ),
+			self::f( 'message', 'cic_sa_counties_help', 'Which cities appear', array( 'message' => 'Each county card lists published cities from the location data (Service Areas → Cities), in their directory order. The county name must match the county used in the location data.' ) ),
+		);
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::text( "{$p}county_{$i}_name", "County {$i}: name" );
+			$fields[] = self::image( "{$p}county_{$i}_image", "County {$i}: photo" );
+			$fields[] = self::text( "{$p}county_{$i}_text", "County {$i}: line under the name" );
+			$fields[] = self::text( "{$p}county_{$i}_link", "County {$i}: check link label" );
+		}
+		$fields[] = self::tab( 'sa_steps', 'What we need' );
+		$fields[] = self::heading( $p . 'steps_heading', 'Heading' );
+		$fields[] = self::text( $p . 'steps_intro', 'Introduction' );
+		for ( $i = 1; $i <= 4; $i++ ) {
+			$fields[] = self::icon( "{$p}step_{$i}_icon", "Step {$i}: icon" );
+			$fields[] = self::text( "{$p}step_{$i}_title", "Step {$i}: title" );
+			$fields[] = self::text( "{$p}step_{$i}_text", "Step {$i}: text" );
+		}
+		$fields[] = self::tab( 'sa_call', 'Call panel' );
+		$fields[] = self::heading( $p . 'call_heading', 'Heading' );
+		$fields[] = self::text( $p . 'call_text', 'Text' );
+		$fields[] = self::image( $p . 'call_image', 'Photo' );
+		$fields[] = self::text( $p . 'call_quote_label', 'Quote button label' );
+		$fields[] = self::tab( 'sa_occasions', 'Occasions' );
+		$fields[] = self::heading( $p . 'occasions_heading', 'Heading' );
+		$fields[] = self::area( $p . 'occasions_intro', 'Introduction', '', 2 );
+		$fields[] = self::tab( 'sa_faq', 'FAQ' );
+		$fields[] = self::area( $p . 'faq_heading', 'Heading', 'One line per row.', 2 );
+		for ( $i = 1; $i <= self::FAQ_SLOTS; $i++ ) {
+			$fields[] = self::text( "{$p}faq_{$i}_q", "Question {$i}" );
+			$fields[] = self::area( "{$p}faq_{$i}_a", "Answer {$i}", '', 2 );
+		}
+		$fields[] = self::tab( 'sa_start', 'Quote starter' );
+		$fields[] = self::heading( $p . 'start_heading', 'Heading' );
+		$fields[] = self::text( $p . 'start_intro', 'Introduction' );
+		$fields[] = self::text( $p . 'start_cta', 'Button label' );
+		$fields[] = self::text( $p . 'start_note', 'Note under the fields' );
+		$fields[] = self::tab( 'sa_sections', 'Sections' );
+		$fields   = array_merge( $fields, self::section_controls( self::HUB_SECTIONS ) );
+
+		$fields[] = self::tab( 'sa_citydef', 'City page template' );
+		$fields[] = self::f( 'message', 'cic_citydef_help', 'How city pages inherit', array( 'message' => 'Every city page uses these defaults. A city content record (Service Areas → City content) can override any field. Tokens: {city}, {state}, {state_code}, {county}. City pages stay out of search engines until their own content is reviewed.' ) );
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "cic_citydef_plan_{$i}_icon", "Plans card {$i}: icon" );
+			$fields[] = self::text( "cic_citydef_plan_{$i}_title", "Plans card {$i}: title" );
+			$fields[] = self::text( "cic_citydef_plan_{$i}_text", "Plans card {$i}: text" );
+		}
+		foreach ( self::city_fields( 'cic_citydef_', 'citydef_' ) as $field ) {
+			if ( 'tab' !== $field['type'] ) {
+				$fields[] = $field;
+			}
+		}
+
+		$hub = Catalog::find_by_key( 'page', 'service-areas' );
+		return array(
+			'key'                   => 'group_cic_service_areas',
+			'title'                 => 'Service Areas composition',
+			'fields'                => $fields,
+			'location'              => array( array( array( 'param' => 'page', 'operator' => '==', 'value' => (string) ( $hub ? $hub : -1 ) ) ) ),
+			'position'              => 'normal',
+			'style'                 => 'default',
+			'menu_order'            => 5,
+			'show_in_rest'          => 1,
+			'instruction_placement' => 'label',
+		);
+	}
+
+	/**
+	 * City content record (private, revisioned): optional overrides of the city template.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function city_group(): array {
+		$fields = array_merge(
+			array(
+				self::f( 'message', 'cic_city_help', 'How city content works', array( 'message' => 'Leave a field empty to inherit the city template from the Service Areas page. Write genuinely local, useful content: pages that only swap the city name stay out of search engines. Tick “Content reviewed” only after checking every fact.' ) ),
+				self::f( 'true_false', \CIC\Locations\Editorial::REVIEWED, 'Content reviewed (eligible for search engines)', array( 'default_value' => 0, 'ui' => 1 ) ),
+			),
+			self::city_fields( 'cic_city_', 'city_' )
+		);
+		return array(
+			'key'                   => 'group_cic_city',
+			'title'                 => 'City page content',
+			'fields'                => $fields,
+			'location'              => array( array( array( 'param' => 'post_type', 'operator' => '==', 'value' => \CIC\Locations\Editorial::POST_TYPE ) ) ),
+			'position'              => 'normal',
+			'style'                 => 'default',
+			'menu_order'            => 5,
+			'instruction_placement' => 'label',
+		);
 	}
 
 	/** @return array<string, mixed> */

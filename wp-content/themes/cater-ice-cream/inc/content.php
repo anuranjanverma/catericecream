@@ -29,6 +29,10 @@ function cic_theme_icon( string $name ): string {
 		'leaf'       => '<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/>',
 		'cupcake'    => '<path d="M6 12h12l-1.6 8H7.6z"/><path d="M9.5 12l.5 8M14.5 12l-.5 8"/><path d="M5.5 12a3 3 0 0 1 1.2-5.6A5.3 5.3 0 0 1 12 3.5a5.3 5.3 0 0 1 5.3 2.9 3 3 0 0 1 1.2 5.6"/><path d="M12 3.5V2"/>',
 		'wand'       => '<path d="M4 20l10-10"/><path d="M15 3v3M13.5 4.5h3M19 7v2M18 8h2M18 13v2M17 14h2M10 4v1.5M9.25 4.75h1.5"/><path d="M12.5 11.5l2 2"/>',
+		'home'       => '<path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
+		'sundae'     => '<path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M9 19l-1 2h8l-1-2"/><path d="M7 11a5 5 0 0 1 10 0"/><circle cx="12" cy="4" r="1.5"/><path d="M12 5.5V6"/>',
+		'phone'      => '<path d="M6.6 3.5h3l1.5 4-2 1.3a10 10 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/>',
+		'chevron'    => '<path d="M9 6l6 6-6 6"/>',
 		'arrow'      => '<path d="M5 12h14M13 6l6 6-6 6"/>',
 		'arrow-down' => '<path d="M12 5v14M6 13l6 6 6-6"/>',
 	);
@@ -117,12 +121,16 @@ function cic_theme_arrow_link( string $url, string $label, string $class = 'cic-
 add_action(
 	'wp_enqueue_scripts',
 	static function (): void {
-		$home = is_front_page() && 'page' === get_option( 'show_on_front' );
-		if ( $home || is_page( 'get-a-quote' ) || is_singular( array( 'product', 'cic_event' ) ) || is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) ) {
+		$home     = is_front_page() && 'page' === get_option( 'show_on_front' );
+		$location = is_page( 'service-areas' ) || ( class_exists( '\CIC\Locations\Routes' ) && null !== \CIC\Locations\Routes::current() );
+		if ( $home || $location || is_page( 'get-a-quote' ) || is_singular( array( 'product', 'cic_event' ) ) || is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) ) {
 			wp_enqueue_style( 'cic-compositions', get_template_directory_uri() . '/assets/css/compositions.css', array( 'cic-main' ), cic_theme_asset_version( 'assets/css/compositions.css' ) );
 		}
-		if ( $home || is_page( 'get-a-quote' ) ) {
+		if ( $home || $location || is_page( 'get-a-quote' ) ) {
 			wp_enqueue_style( 'cic-home', get_template_directory_uri() . '/assets/css/home.css', array( 'cic-compositions' ), cic_theme_asset_version( 'assets/css/home.css' ) );
+		}
+		if ( $location ) {
+			wp_enqueue_style( 'cic-locations', get_template_directory_uri() . '/assets/css/locations.css', array( 'cic-home' ), cic_theme_asset_version( 'assets/css/locations.css' ) );
 		}
 		// Quote context helper on every page: explicit selections travel to the quote route.
 		if ( class_exists( '\CIC\Quote\Context' ) ) {
@@ -133,7 +141,11 @@ add_action(
 				'location' => __( 'Please enter a 5-digit ZIP code or a city name.', 'cater-ice-cream' ),
 				'continue' => __( 'Continue to your quote', 'cater-ice-cream' ),
 				'offline'  => __( "We couldn't check right now. Include your ZIP code in your quote request and we'll confirm service.", 'cater-ice-cream' ),
+				'cityPage' => __( 'See the city page', 'cater-ice-cream' ),
+				'fixture'  => __( 'Local test data, not approved coverage.', 'cater-ice-cream' ),
 			);
+			$config['coverageUrl']  = rest_url( 'cic/v1/coverage' );
+			$config['locationsUrl'] = rest_url( 'cic/v1/locations' );
 			wp_add_inline_script( 'cic-context', 'window.cicContext = ' . wp_json_encode( $config ) . ';', 'before' );
 		}
 	}

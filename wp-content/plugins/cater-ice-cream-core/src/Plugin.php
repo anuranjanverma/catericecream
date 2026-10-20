@@ -40,6 +40,7 @@ final class Plugin {
 		( new Design\Service() )->register();
 		( new Content\Service() )->register();
 		( new Locations\Service() )->register();
+		( new Seo\Service() )->register();
 	}
 
 	public function load_textdomain(): void {

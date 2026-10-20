@@ -67,15 +67,16 @@ final class Context {
 	}
 
 	/**
-	 * A 5-digit ZIP, or a city key (lowercase letters, digits, hyphens; e.g. "pasadena-ca").
-	 * A typed city name is normalised to such a key; anything else is rejected.
+	 * A 5-digit ZIP (ZIP+4 is validated and shortened to 5 digits; leading zeros kept), or a city
+	 * key (lowercase letters, digits, hyphens; e.g. "pasadena-ca"). A typed city name such as
+	 * "Pasadena, CA" is normalised to such a key; anything else is rejected.
 	 */
 	public static function location( string $raw ): string {
 		$raw = trim( $raw );
-		if ( preg_match( '/^\d{5}$/', $raw ) ) {
-			return $raw;
+		if ( preg_match( '/^(\d{5})(?:-\d{4})?$/', $raw, $m ) ) {
+			return $m[1];
 		}
-		if ( strlen( $raw ) > 60 || ! preg_match( "/^[A-Za-z][A-Za-z .'\-]{1,58}[A-Za-z.]$/", $raw ) ) {
+		if ( strlen( $raw ) > 60 || ! preg_match( "/^[A-Za-z][A-Za-z .,'\-]{1,58}[A-Za-z.]$/", $raw ) ) {
 			return '';
 		}
 		return sanitize_title( $raw );

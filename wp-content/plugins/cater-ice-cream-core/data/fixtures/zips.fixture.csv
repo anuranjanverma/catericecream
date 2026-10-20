@@ -1,0 +1,61 @@
+zip,state_code,county_label,latitude,longitude,service_status
+91101,CA,Los Angeles County,34.1468,-118.1393,enabled
+91103,CA,Los Angeles County,34.1667,-118.1660,enabled
+91104,CA,Los Angeles County,34.1655,-118.1236,enabled
+91105,CA,Los Angeles County,34.1390,-118.1660,enabled
+91106,CA,Los Angeles County,34.1394,-118.1286,enabled
+91107,CA,Los Angeles County,34.1592,-118.0870,enabled
+91001,CA,Los Angeles County,34.1951,-118.1381,enabled
+91201,CA,Los Angeles County,34.1700,-118.2890,enabled
+91202,CA,Los Angeles County,34.1677,-118.2675,enabled
+91203,CA,Los Angeles County,34.1531,-118.2638,enabled
+91204,CA,Los Angeles County,34.1365,-118.2611,enabled
+91205,CA,Los Angeles County,34.1370,-118.2470,enabled
+91206,CA,Los Angeles County,34.1590,-118.2310,enabled
+91207,CA,Los Angeles County,34.1835,-118.2643,enabled
+91208,CA,Los Angeles County,34.1924,-118.2400,unreviewed
+91501,CA,Los Angeles County,34.2010,-118.2980,enabled
+91502,CA,Los Angeles County,34.1770,-118.3110,enabled
+91504,CA,Los Angeles County,34.2010,-118.3310,enabled
+91505,CA,Los Angeles County,34.1740,-118.3460,enabled
+91506,CA,Los Angeles County,34.1710,-118.3230,enabled
+90012,CA,Los Angeles County,34.0617,-118.2401,enabled
+90026,CA,Los Angeles County,34.0796,-118.2627,enabled
+90021,CA,Los Angeles County,34.0290,-118.2390,manual_review
+90401,CA,Los Angeles County,34.0157,-118.4930,enabled
+90402,CA,Los Angeles County,34.0347,-118.5032,enabled
+90403,CA,Los Angeles County,34.0315,-118.4911,enabled
+90404,CA,Los Angeles County,34.0266,-118.4733,enabled
+90405,CA,Los Angeles County,34.0115,-118.4710,enabled
+90802,CA,Los Angeles County,33.7670,-118.1890,enabled
+90803,CA,Los Angeles County,33.7610,-118.1340,enabled
+90804,CA,Los Angeles County,33.7830,-118.1480,enabled
+90805,CA,Los Angeles County,33.8650,-118.1800,enabled
+90806,CA,Los Angeles County,33.8000,-118.1870,enabled
+90807,CA,Los Angeles County,33.8300,-118.1810,enabled
+90808,CA,Los Angeles County,33.8240,-118.1110,enabled
+90810,CA,Los Angeles County,33.8190,-118.2220,manual_review
+90220,CA,Los Angeles County,33.8820,-118.2330,enabled
+90221,CA,Los Angeles County,33.8850,-118.2060,disabled
+90222,CA,Los Angeles County,33.9120,-118.2370,enabled
+90224,CA,Los Angeles County,33.8960,-118.2250,disabled
+93001,CA,Ventura County,34.2900,-119.2950,enabled
+93003,CA,Ventura County,34.2730,-119.2210,enabled
+93004,CA,Ventura County,34.2780,-119.1660,enabled
+93063,CA,Ventura County,34.2860,-118.6870,enabled
+93065,CA,Ventura County,34.2660,-118.7650,enabled
+93010,CA,Ventura County,34.2300,-119.0700,enabled
+93012,CA,Ventura County,34.2050,-118.9990,enabled
+93021,CA,Ventura County,34.2860,-118.8820,enabled
+91360,CA,Ventura County,34.2100,-118.8730,enabled
+91362,CA,Ventura County,34.1600,-118.8200,enabled
+91320,CA,Ventura County,34.1760,-118.9480,enabled
+93023,CA,Ventura County,34.4480,-119.2430,unreviewed
+93101,CA,Santa Barbara County,34.4190,-119.7080,enabled
+93103,CA,Santa Barbara County,34.4290,-119.6830,enabled
+93105,CA,Santa Barbara County,34.4440,-119.7400,enabled
+93109,CA,Santa Barbara County,34.4060,-119.7240,enabled
+93117,CA,Santa Barbara County,34.4330,-119.8800,enabled
+93013,CA,Santa Barbara County,34.3990,-119.5180,enabled
+93067,CA,Santa Barbara County,34.4210,-119.5960,enabled
+93108,CA,Santa Barbara County,34.4360,-119.6320,unreviewed

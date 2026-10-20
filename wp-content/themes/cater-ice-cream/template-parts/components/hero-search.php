@@ -5,7 +5,8 @@
  * browser helper (context.js) validates, keeps explicit selections in sessionStorage and prefills.
  * Selecting here does not reserve a date or confirm availability.
  *
- * Args: search (labels, events, action, cta, note), id (unique prefix).
+ * Args: search (labels, events, action, cta, note, optional city_key: a fixed city that a typed
+ * ZIP refines), id (unique prefix).
  *
  * @package CaterIceCream
  */
@@ -16,6 +17,9 @@ $cic_s  = $args['search'];
 $cic_id = $args['id'] ?? 'cic-search';
 ?>
 <form class="cic-search" method="get" action="<?php echo esc_url( $cic_s['action'] ); ?>" data-cic-quote-form novalidate>
+	<?php if ( '' !== ( $cic_s['city_key'] ?? '' ) ) : ?>
+		<input type="hidden" name="location" value="<?php echo esc_attr( $cic_s['city_key'] ); ?>" data-cic-context="location" data-cic-fixed>
+	<?php endif; ?>
 	<div class="cic-search__field">
 		<span class="cic-search__icon"><?php echo cic_theme_icon( 'pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 		<label class="cic-search__label" for="<?php echo esc_attr( $cic_id ); ?>-location"><?php echo esc_html( $cic_s['location_label'] ); ?></label>

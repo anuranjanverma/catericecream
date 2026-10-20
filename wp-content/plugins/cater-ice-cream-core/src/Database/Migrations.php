@@ -6,7 +6,9 @@
  * page loads. Each step is idempotent and uses dbDelta with $wpdb->prefix when tables arrive.
  *
  * v1 baseline (Phase 01). v2 (Phase 03): product-event pairing table and event capabilities.
- * Location tables wait for the owner's city template and rewrite code (see BUILD_STATUS.md).
+ * v3 (Phase 05): provisional location tables (spec §9 fallback contract) behind the location
+ * repository adapter, plus the manage_locations capability. The owner's city code is still
+ * pending; these tables are a local fallback, not the final production schema.
  *
  * @package CIC
  */
@@ -19,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Migrations {
 
-	public const TARGET_VERSION = 2;
+	public const TARGET_VERSION = 3;
 
 	private const LOCK_OPTION = 'cic_core_migration_lock';
 	private const LOCK_TTL    = 300;
@@ -60,6 +62,101 @@ final class Migrations {
 	private function migrate_to_2(): void {
 		self::create_pairings_table();
 		\CIC\Content\EventType::grant_capabilities();
+	}
+
+	/**
+	 * Location fallback tables and the location-management capability.
+	 */
+	private function migrate_to_3(): void {
+		self::create_location_tables();
+		\CIC\Locations\Tables::grant_capabilities();
+	}
+
+	/**
+	 * Cities, ZIPs, city-ZIP mappings, editorial links and slug history (aliases + old slugs).
+	 * ZIPs are CHAR(5) strings, so leading zeros survive. Prefix and reverse lookups are indexed.
+	 */
+	public static function create_location_tables(): void {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		$collate = $wpdb->get_charset_collate();
+		$t       = \CIC\Locations\Tables::all();
+		dbDelta(
+			"CREATE TABLE {$t['cities']} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				country_code char(2) NOT NULL DEFAULT 'US',
+				state_code char(2) NOT NULL,
+				county_name varchar(100) NOT NULL DEFAULT '',
+				county_slug varchar(100) NOT NULL DEFAULT '',
+				city_name varchar(120) NOT NULL,
+				city_slug varchar(140) NOT NULL,
+				name_search varchar(140) NOT NULL DEFAULT '',
+				timezone varchar(64) NOT NULL DEFAULT 'America/Los_Angeles',
+				latitude decimal(9,6) NULL DEFAULT NULL,
+				longitude decimal(9,6) NULL DEFAULT NULL,
+				publish_status varchar(20) NOT NULL DEFAULT 'draft',
+				index_status varchar(20) NOT NULL DEFAULT 'noindex',
+				display_order int(11) NOT NULL DEFAULT 0,
+				dataset varchar(20) NOT NULL DEFAULT 'production',
+				source_reference varchar(190) NOT NULL DEFAULT '',
+				updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY  (id),
+				UNIQUE KEY location_slug (country_code,state_code,city_slug),
+				KEY state_county (state_code,county_slug,display_order),
+				KEY name_prefix (state_code,name_search)
+			) {$collate};"
+		);
+		dbDelta(
+			"CREATE TABLE {$t['zips']} (
+				zip char(5) NOT NULL,
+				state_code char(2) NOT NULL DEFAULT '',
+				county_label varchar(100) NOT NULL DEFAULT '',
+				latitude decimal(9,6) NULL DEFAULT NULL,
+				longitude decimal(9,6) NULL DEFAULT NULL,
+				service_status varchar(20) NOT NULL DEFAULT 'unreviewed',
+				dataset varchar(20) NOT NULL DEFAULT 'production',
+				source_reference varchar(190) NOT NULL DEFAULT '',
+				reviewed_at datetime NULL DEFAULT NULL,
+				updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY  (zip),
+				KEY service_status (service_status)
+			) {$collate};"
+		);
+		dbDelta(
+			"CREATE TABLE {$t['city_zips']} (
+				city_id bigint(20) unsigned NOT NULL,
+				zip char(5) NOT NULL,
+				service_override varchar(20) NOT NULL DEFAULT 'inherit',
+				review_note varchar(255) NOT NULL DEFAULT '',
+				dataset varchar(20) NOT NULL DEFAULT 'production',
+				source_reference varchar(190) NOT NULL DEFAULT '',
+				updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY  (city_id,zip),
+				KEY zip (zip)
+			) {$collate};"
+		);
+		dbDelta(
+			"CREATE TABLE {$t['city_content']} (
+				city_id bigint(20) unsigned NOT NULL,
+				editorial_post_id bigint(20) unsigned NOT NULL,
+				updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY  (city_id),
+				UNIQUE KEY editorial_post_id (editorial_post_id)
+			) {$collate};"
+		);
+		dbDelta(
+			"CREATE TABLE {$t['city_slugs']} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				state_code char(2) NOT NULL,
+				slug varchar(140) NOT NULL,
+				city_id bigint(20) unsigned NOT NULL,
+				kind varchar(20) NOT NULL DEFAULT 'history',
+				created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY  (id),
+				UNIQUE KEY state_slug (state_code,slug),
+				KEY city_id (city_id)
+			) {$collate};"
+		);
 	}
 
 	public static function create_pairings_table(): void {

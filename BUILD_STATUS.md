@@ -12,9 +12,139 @@ Environment facts: see `ENVIRONMENT.md`.
 | 02 Design system and admin controls | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 03 Products, events and structured editing | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 04 Homepage and shared components | **Approved by the owner (2026-10-20)**, header logo size restored to the initial Phase 04 values (https://catericecream.test/) | 2026-10-20 |
-| 05 Locations, import, search, routes and SEO | Not started. Awaiting owner instruction (owner city code pending) | |
+| 05 Locations, import, search, routes and SEO | **Complete on local fixtures: gate passed, awaiting owner review** (owner city code + approved dataset still pending; fixtures are not approved coverage) | 2026-10-20 |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass, each committed at the owner's request after reviewing the staged set.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size. Each was committed at the owner's request after reviewing the staged set. Phase 05 is **not committed yet**.
+
+---
+
+## Phase 05 log: Locations, import, search, routes and SEO
+
+Prompt: `handoff/cater-ice-cream/prompts/05_locations_import_search_routes_and_seo.md` (spec §3, §9–11, §15, §19). References: `designs/13_city_pasadena.png`, `designs/15_service_areas.png`, the Service Areas column of `designs/20_mobile_supporting.png`.
+
+**URLs:**
+- hub: https://catericecream.test/service-areas/
+- state hub: https://catericecream.test/service-areas/california/
+- city: https://catericecream.test/service-areas/california/pasadena/
+
+Stopped here for review. Phase 06 has not started.
+
+> **Everything location-specific you see locally is FIXTURE data, not approved coverage.** `DATA_CONTRACTS.json` has `approved_production_zip_rows: []`. The owner's historical city code is still pending.
+
+### Backup and authorised changes
+- Backup before the schema change: `C:\laragon\backup\catericecream\pre-phase05-20261020-090256\` (DB dump, `wp-config.php`, `.htaccess`, SHA256SUMS).
+- Schema v3 (migration `migrate_to_3`, dbDelta, configured prefix): `wp_cic_cities`, `wp_cic_zips`, `wp_cic_city_zips`, `wp_cic_city_content`, `wp_cic_city_slugs`.
+- Capability `manage_locations` granted to administrators (editors do not have it).
+- Core plugin 0.3.0 → **0.4.0**.
+- Seed re-run (non-destructive) created the **Service Areas** page (`/service-areas/`, key `service-areas`) with its fields. It also imported 3 masters: `county-los-angeles`, `county-ventura`, `county-santa-barbara` (26 in total).
+- Local fixtures imported with `wp cic locations import-fixtures` (20 cities, 60 ZIPs, 61 mappings). A second run reported 0 created, 0 updated, everything unchanged.
+
+### Decisions
+
+| Area | Decision |
+| --- | --- |
+| Adapter boundary | `CIC\Locations\LocationRepository` now carries the spec §9 contract: `resolve_city`, `search_locations`, `list_counties`, `list_cities`, `get_city_content`, `evaluate_coverage`, `get_map_points` (+ `is_connected`). Selection order: owner adapter from the `cic_location_repository` filter → provisional `DatabaseRepository` (once v3 tables exist) → `PendingRepository`. Templates, REST and search contain no SQL or coverage rules of their own. |
+| Fallback schema | Spec §9 columns plus `dataset` (fixture/production), `source_reference`, `county_slug`, `name_search` (ASCII search key) and `cic_city_slugs` (aliases + slug history). Indexes: unique country+state+slug, `name_prefix` (state, name_search; verified by EXPLAIN), state+county+order, reverse `zip` on mappings, unique state+slug history. ZIP is `CHAR(5)`. Marked **provisional**; not a competing production schema. |
+| Coverage rules | One pure rule set, `CIC\Locations\Coverage`, shared by REST, pages and the CLI (and Phase 06 through `blocks_quote()`):<br>1. Malformed input → `invalid`; geography we don't hold → `unknown` (never `outside_area`).<br>2. Explicit reviewed exclusions win: a disabled ZIP or disabled city–ZIP mapping can't be re-enabled by another association.<br>3. A shared ZIP whose communities have different decisions → `manual_review` (asks for the venue city). With the venue city, the mapping decides.<br>4. Approved mapping or enabled unambiguous ZIP → `covered`.<br>5. A partially served city → `manual_review` asking for the event ZIP.<br>Covered means geography only, never a date. The outside-area copy is exactly: "Sorry, we do not currently serve this area. Please choose another event location." |
+| Fixture guard | Every row records its dataset. `Tables::fixtures_allowed()` counts fixture rows only when `wp_get_environment_type()` is local/development. On staging/production they are ignored (so results become unknown, with no cities) and fixture imports are refused. Fixture-backed pages and results show a visible "Local test data" note; admin rows carry a **FIXTURE** badge. |
+| Imports | `CIC\Locations\Importer`:<br>• UTF-8 only (BOM stripped), 5 MB / 20,000-row limits; dry run first.<br>• Deterministic upsert by natural key, applied in one transaction, in key order.<br>• Counts created / updated / unchanged / rejected, plus duplicates.<br>• ZIPs stay strings: ZIP+4 is validated and shortened, and 3–4 digit values are **rejected** as a probable lost leading zero (never padded).<br>• Geography never becomes coverage: statuses and overrides apply only for reviewed coverage files (`--apply-status`), and new ZIPs start `unreviewed`.<br>• City publish/index states are set only on creation (draft/noindex by default).<br>• Fixture rows can never overwrite production rows.<br>• Mappings to unknown cities or ZIPs are rejected.<br>• Every import is logged (hash, counts, mode). |
+| Fixtures | `wp-content/plugins/cater-ice-cream-core/data/fixtures/*.csv` + README. Cities follow the county lists in mockup 15; coordinates are rounded approximations. Service states are **invented test scenarios** exercising each rule:<br>• Pasadena fully served; Glendale and Los Angeles partial.<br>• 90220 shared with excluded Compton; 90221 disabled ZIP beats an enabled mapping; Compton excluded (draft, not listed).<br>• 90021/90810 manual review; 91208/93023/93108 unreviewed.<br>Source tag: `fixture:local-dev-2026-10-20`. |
+| Routes | Explicit rewrite rules `^service-areas/{state}/` and `^service-areas/{state}/{city}/`, flushed once per `ROUTE_VERSION` (never on normal requests; verified). `/service-areas/` stays a Page.<br>• Unknown state/city, unpublished cities, extra segments and city×event×treat paths → real 404.<br>• Recorded aliases, previous slugs, wrong case and missing trailing slash → **one** 301 to the canonical URL.<br>• The main posts query is skipped for virtual routes. |
+| City content | Private, revisioned `cic_city_editorial` records (ACF Free fields; not public, not queryable, not in REST/search/sitemaps; capabilities mapped to `manage_locations`), linked through `cic_city_content`.<br>• Empty fields inherit the **City page template** tab on the Service Areas page, with tokens `{city}`, `{state}`, `{state_code}`, `{county}`.<br>• **Indexable only when** the city is Published + Index **and** its content record is published and ticked "Content reviewed". Otherwise noindex (doorway safeguard).<br>• Authenticated preview at the virtual URL (nonce + capability; noindex, `X-Robots-Tag`, no-cache, preview banner). WordPress hides its own Preview button for non-public types, so the City box offers "Preview city page". |
+| SEO | No SEO plugin is installed, so `CIC\Seo\CoreAdapter` is the single adapter for location routes: title, meta description, one canonical (core `rel_canonical` removed there), robots via `wp_robots` (the site-wide "discourage search engines" still applies), Open Graph, BreadcrumbList + Service JSON-LD (provider = global business, areaServed = the city; no address, reviews or ratings).<br>• Query-string variants are noindex with the clean canonical.<br>• Core sitemap provider `wp-sitemap-locations-1.xml` lists the state hub + indexable cities only.<br>• If Yoast, Rank Math, SEOPress, AIOSEO or TSF becomes active, the core adapter stands down and Site Health asks for a plugin adapter (filter `cic_seo_adapter`). |
+| Cache | Location reads are cached by a monotonically increasing version (`cic_locations_cache_version`), bumped on every city, ZIP, mapping, slug, import or editorial save, plus an action `cic_locations_changed` for a future page cache. |
+| Public API | `GET /cic/v1/locations?q=` (2–60 chars, ≤ 10 results, rate-limited 90/min per hashed IP, no notes, reasons or ids) and `POST /cic/v1/coverage` (`location` + optional venue `city`; 30/min). Both send `Cache-Control: no-store`. |
+| Frontend | Accessible ARIA combobox autocomplete (250 ms debounce, ≥ 2 chars, ≤ 6 options, Abort on retype) on every location input, homepage included.<br>• Area checks clear stale results while checking, show status-specific messages, and link covered results to the city page and the quote.<br>• Starter forms ask the coverage service before continuing: a confirmed outside_area **blocks** with the exact error (other answers kept); unknown/manual review continue to the quote for clarification. |
+| Homepage connection | Composition unchanged (approved). The county lists now come from the repository (published cities only, linked to their pages; Compton never appears), and the hero/area inputs gained autocomplete. The editor's plain city list is used only when no location data is connected. |
+| Design | `assets/css/locations.css` uses Design System tokens and preset roles only (no hex), building on `home.css`.<br>• Call panels are plum (`action-secondary` + `on-action`), as in references 13/15.<br>• California map: the local simplified outline with real points projected from the reviewed ZIP centroids, grouped by county and labelled in a staggered row (approximate points, never boundaries).<br>• The city "location preview" is decorative and captioned "Illustrative location preview". |
+
+### Files
+- **Core plugin:**
+  - new `src/Locations/{Tables,Coverage,DatabaseRepository,CityStore,Importer,Editorial,Routes,Cli}.php`, `src/Locations/Admin/LocationsPage.php`, `src/Seo/{Adapter,CoreAdapter,LocationSitemap,Service}.php`, `data/fixtures/{cities,zips,city-zips}.fixture.csv` + `README.md`;
+  - changed `src/Locations/{LocationRepository,PendingRepository,Service}.php`, `src/Database/Migrations.php` (v3), `src/Content/{Fields,ViewModel,Seeder,SeedData}.php`, `src/Quote/Context.php` (ZIP+4, "City, ST"), `src/Plugin.php`, `cater-ice-cream-core.php` (0.4.0).
+- **Theme:**
+  - new `page-service-areas.php`, `location-hub.php`, `location-city.php`, `template-parts/location/{hub,hub-hero,hub-counties,hub-steps,hub-call,hub-occasions,hub-faq,hub-start,city-hero,city-plans,city-treats,city-call,city-occasions,city-check,city-faq,city-nearby}.php`, `template-parts/components/{area-check,ca-map,call-panel,occasion-cards}.php`, `assets/css/locations.css`;
+  - changed `assets/js/context.js`, `inc/content.php` (icons home/sundae/phone/chevron, enqueue, endpoints, messages), `inc/setup.php` (Service Areas menu state on virtual routes), `template-parts/components/hero-search.php` (optional fixed city), `template-parts/home/section-coverage.php` (linked cities).
+- **Tests:**
+  - new `dev/tests/phase05/{locations-test.php,browser-test.cjs,admin-locations-test.cjs,state.php}`;
+  - expectations updated: phase03 `catalog-test.php` A2 (schema = migration target), phase04 `home-test.php` B1/B2/C6/E2 and `browser-test.cjs` A1 (they asserted the pre-Phase-05 "pending, no cities, 23 masters" state).
+
+### Admin (Service Areas menu, `manage_locations`)
+- **Cities:** search, county/status filters, pagination, coverage and indexability per city, fixture badges.
+- **City editor:** name, slug (old slug kept as a redirect), county, publish and search-engine status (separate), order, approximate coordinates, aliases, and per-ZIP decisions (ZIP status for all cities + this city's override + internal note, shared-ZIP count). "Create city content" / "Edit city content" / "Preview city page".
+- **City content:** the private revisioned records.
+- **Import:** upload → dry-run report (counts, rejections with line numbers, planned changes) → "Apply this import".
+- **Log:** audit trail + recent imports.
+- **WP-CLI:** `wp cic locations import <file> --type --dataset --source [--apply-status] [--apply]`, `import-fixtures [--dry-run]`, `status`, `check <zip|city> [--city=]`.
+
+### Verification actually performed
+1. **`dev/tests/phase05/locations-test.php`: 55/55, run twice in a row.**
+   - Schema/indexes (incl. EXPLAIN on the prefix lookup) and a 26-case coverage matrix.
+   - Exact outside copy and actions.
+   - Import safety (dry run writes nothing; `02108` keeps its zero; ZIP+4 shortened; 4-digit rejected as a lost zero; duplicates reported; repeat import unchanged; geography never changes a reviewed status; fixture can't overwrite production; invalid UTF-8, missing columns and missing source refused; BOM and accents; referential rejections).
+   - Fixture guard; routes over HTTP (200/301/404, alias and slug-history one-hop, unpublished 404, forged preview 404).
+   - SEO (single canonical, titles, noindex until reviewed, indexable after review, JSON-LD without address or ratings, OG, query variants noindex).
+   - Sitemap (hub + reviewed city only; removed again after un-review).
+   - Cache invalidation; injection/wildcard queries return nothing; a static scan of SQL interpolation.
+   - REST field privacy and limits; homepage links (no Compton); no price/minimum copy; global tel only; rewrite rules unchanged across requests; editorial privacy/revisions/capabilities; cleanup.
+2. **`dev/tests/phase05/browser-test.cjs`: 24/24** (headless Edge, one browser, closed).
+   - No overflow at 390/768/1440 for hub/state/city.
+   - Combobox semantics and keyboard selection.
+   - Covered / outside (no quote link) / shared / unknown / partial / invalid results.
+   - Starter blocked on an excluded ZIP with answers kept; covered continues with only validated context; sessionStorage keys allow-listed.
+   - City breadcrumbs, menu state, fixture notice and section order; nearby cities.
+   - City ZIP check sends the venue city; hero starter carries the city key; the quote panel never prefills a city key into the ZIP field, carries ZIP+guests, and blocks an excluded ZIP.
+   - Mobile accordions, hidden tabs, map below the search.
+   - Homepage links, autocomplete and unchanged section order; browsing never selects a location.
+3. **`dev/tests/phase05/admin-locations-test.cjs`: 12/12.**
+   - Real screens: list with badges and search; city editor; slug change → one-hop 301 → restored.
+   - City content created; override saved; preview shows banner, override, noindex and X-Robots-Tag; the public doesn't see the override.
+   - CSV upload → dry run (writes nothing) → apply (draft/noindex city, dataset and source recorded, 404 publicly) → log entries; cleanup verified.
+4. **Regressions on the final code, one suite at a time:** Phase 01 guard **69/69** (fixtures created and deleted); Phase 02 server **51/51** and browser **58/58**; Phase 03 server **46/46** and admin browser **22/22**; Phase 04 server **25/25**, browser **22/22**, admin fields **6/6**.
+5. **CLI coverage matrix** (`wp cic locations check …`) matched the rules for every fixture scenario.
+6. **Hygiene:**
+   - No PHP notices, warnings or fatals in the debug log after the one fix below.
+   - No hex colours in new theme CSS or templates.
+   - Every test browser closed; only the owner's WordPress session remains (two test sessions leaked by early admin-test crashes were destroyed, and the test now creates its session inside `try`).
+   - Location tables restored to the fixture baseline after every test.
+7. **Evidence** (`dev/tests/output/phase05/`, git-ignored; unscaled true-width captures):
+   - full pages and first views `{hub,state,city}-{390,768,1440}[-viewport].png` (e.g. hub-390 390×6396, city-1440 1440×4307);
+   - 30 `section-{hub,city}-{390,1440}-*.png`;
+   - `autocomplete-1440.png`, `area-outside-1440.png`, `starter-blocked-1440.png`;
+   - `admin-{cities,city-edit,city-content,preview,import-dry-run,log}.png`.
+
+### Issues found and fixed during Phase 05
+- **Every page returned 500 for a few minutes:** `pre_handle_404` receives `WP_Query`, not `WP`. Fixed; the homepage and all routes were re-verified.
+- **Test helper reused cached results:** restoring the cache-version option reused version numbers and served stale cached reads. The version now only increases; the snapshot helper no longer restores it.
+- **Stale area-check answers:** a result could briefly show the previous answer. The check now clears the result and sets `aria-busy` while checking.
+- **No Preview button for city content:** WordPress hides it for non-public types, so an explicit "Preview city page" link was added.
+- **Map labels overlapped:** staggered labels with leader lines.
+- **City hero:** the intro sat under the search card. The card no longer overlaps on the city hero.
+- **Call panel colour:** it used the strawberry call-panel token; it now uses plum (`action-secondary`) as in the references.
+- **"Explore all treats" card:** it had no photo; it now uses the homepage "more treats" photo.
+
+### Remaining differences from the references (for review)
+- **Hero headline length:** the hub ("A sweet celebration, closer to home.") and city ("Ice cream catering in Pasadena.") headlines wrap onto three lines at 1440 px because they use the central Design System H1 (44→72 px, weight 800) approved with the homepage. The mockups show two lines. Not changed locally, by rule.
+- **City quote panel:** it shows only non-personal fields (event, date, guests, venue city, event ZIP) and hands off to `/get-a-quote/`. Name/email/phone wait for the shared CF7 form in Phase 06; the mockup shows them inline.
+- **Hub map:** the California outline with data-driven county points (a simplified local outline), not the mockup's zoomed decorative illustration. The city map is decorative and labelled "Illustrative location preview".
+- **County lists:** they show fixture cities matching the mockup's names, while all real coverage is pending. Nearby areas are computed from data (Pasadena shows Altadena · Glendale · Los Angeles; the mockup showed Burbank).
+- **Hub hint text:** rewritten to "Not sure if we serve your area? Start with your event location." so it doesn't name cities before coverage is approved.
+- **Not tested:** screen readers, Safari/Firefox, real touch devices, PHPCS.
+
+### Dependencies that need the owner's city code or final dataset
+| Item | Needed | Until then |
+| --- | --- | --- |
+| Historical city template + rewrite-rule function and schema | Audit, mapping report, legacy adapter implementing `LocationRepository` (via `cic_location_repository`), route compatibility decision | Provisional `DatabaseRepository` + `Routes` (`/service-areas/{state}/{city}/`) |
+| Approved production ZIP/city dataset (LA County, client Ventura and Santa Barbara lists, Compton exclusions, shared/nonresidential ZIP decisions) | Import with `--dataset=production --apply-status` after review | Fixtures, local/development only |
+| Reviewed city copy (per city) | City content records ticked "Content reviewed" | All cities noindex, inheriting the template |
+| SEO plugin choice (if any) | A plugin adapter | Core adapter |
+| Final quote form (Phase 06) | Server-side coverage validation at submission (`Coverage::blocks_quote`) | Client-side blocking + interim quote route |
+
+**Mapping report (prepared for when the owner's code arrives):** no historical code has been supplied, so nothing has been mapped and no historical schema is assumed. The audit will compare its tables, columns, slugs and rewrite rules against the adapter contract above, then either:
+- implement a legacy adapter, if the owner's schema satisfies the contract; or
+- migrate approved rows through the importer (production dataset).
+
+Any route difference will be handled with one-hop redirects recorded in `cic_city_slugs`.
 
 ---
 
@@ -451,22 +581,23 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | Treats | 4 WooCommerce products, non-purchasable | Seeded; Dippin' Dots fully composed (03) |
 | Events | `cic_event` CPT, archive `/events/` | Seeded; Birthday fully composed (03) |
 | Pairings | `cic_product_events` table: single source of pairing copy, unique + indexed | Built (03) |
-| Cities | Custom tables + virtual routes behind a location-repository adapter | **Pending owner's city code.** Adapter interface + pending repository + `/cic/v1/coverage` built (04); no city schema |
+| Cities | Custom tables + virtual routes behind a location-repository adapter | **Provisional (05):** spec §9 fallback tables (schema v3), `DatabaseRepository`, importer, virtual routes, private city content; local fixtures only. Owner's city code pending (legacy adapter via `cic_location_repository`) |
 | Enquiries | CF7 (3-step) + Flamingo as sole store | Phase 06 |
 | Scheduler | Action Scheduler (bundled, 4.1.0) | Available |
 | Mail (local) | Mailpit | Capture verified (01) |
-| SEO | One adapter; none installed | Phase 05 decision |
+| SEO | One adapter; none installed | **Core adapter (05)** for location routes + core sitemap provider; stands down if an SEO plugin is activated |
 | Design | Original raspberry Cater logo + original palette; lavender experiment not adopted | Design System built (02); defaults = spec §5 |
 
 ## Dependencies and pending inputs
 
 | Input | Status | Blocks |
 | --- | --- | --- |
-| **Owner's city template + rewrite-rule code and schema** | **Pending.** Spec §9 tables are a local fallback only; no competing production schema. Phase 05 uses a fixture until supplied | Final city schema/routes |
+| **Owner's city template + rewrite-rule code and schema** | **Pending.** Phase 05 built the provisional fallback behind the adapter (see the Phase 05 mapping notes); no historical schema assumed | Legacy adapter / final routes |
 | ACF (free) | **Installed (03)**: 6.8.10 | — |
 | Contact Form 7, Flamingo | Not installed | Phase 06 |
 | Final quote/contact form-field review | Pending | Phase 06 sign-off |
-| Approved coverage dataset (LA County, Ventura, Santa Barbara, Compton exclusion, shared ZIPs) | Pending reconciliation | Coverage go-live |
+| Approved coverage dataset (LA County, Ventura, Santa Barbara, Compton exclusion, shared ZIPs) | Pending reconciliation; import path ready (`--dataset=production --apply-status`) | Coverage go-live (fixtures are ignored outside local/dev) |
+| Reviewed per-city copy | Pending | City indexing (all cities noindex until reviewed) |
 | Reminder timing, assignee fallback | Pending; reminders stay disabled | Reminders |
 | Yan / team account emails | Pending | Enquiry-access accounts |
 | Hosting/staging, mail sender domain, deployment owner, backup destination, host PHP version | Pending | Phase 10 / launch |
@@ -495,7 +626,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 02 ✔ | Design System admin + style preview + header/footer controls | Passed 2026-10-19 |
 | 03 ✔ | Products + Events models (ACF Free install) | Passed 2026-10-19 |
 | 04 ✔ | Three-row header/footer + homepage | Approved by owner 2026-10-20 |
-| 05 | Locations adapter, importer, search, virtual routes, SEO | ZIP cases, collisions, canonicals, noindex (fixture until city code arrives) |
+| 05 ✔ | Locations adapter, importer, search, virtual routes, SEO | Passed on local fixtures 2026-10-20; awaiting owner review (city code + dataset pending) |
 | 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Save-before-notify proven in Mailpit |
 | — | Vertical-slice gate | Before Phase 07 |
 | 07 | Remaining event + treat compositions | Screenshot comparison |
@@ -505,4 +636,9 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 
 ## Next phase
 
-**Owner visual review of the homepage** (https://catericecream.test/ and `dev/tests/output/phase04/home-*.png`). After sign-off: **Phase 05: Locations, import, search, virtual routes and SEO** (`prompts/05_locations_import_search_routes_and_seo.md`). It depends on the owner's city template/rewrite code and the approved ZIP dataset; without them Phase 05 can only build against a local fixture behind the adapter.
+**Owner review of Phase 05**:
+- pages: https://catericecream.test/service-areas/, `/service-areas/california/` and `/service-areas/california/pasadena/`;
+- admin: **Service Areas** menu;
+- screenshots: `dev/tests/output/phase05/`.
+
+Then **Phase 06: Quote flow, lead management, mail and reminders** (`prompts/06_quote_flow_lead_management_mail_and_reminders.md`), when asked. It needs the owner's go-ahead to install CF7 + Flamingo.

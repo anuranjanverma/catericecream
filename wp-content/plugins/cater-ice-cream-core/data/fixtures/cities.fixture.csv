@@ -1,0 +1,21 @@
+state_code,county_name,city_name,city_slug,latitude,longitude,display_order,publish_status,index_status
+CA,Los Angeles County,Los Angeles,los-angeles,34.0522,-118.2437,10,published,noindex
+CA,Los Angeles County,Glendale,glendale,34.1425,-118.2551,20,published,noindex
+CA,Los Angeles County,Pasadena,pasadena,34.1478,-118.1445,30,published,index
+CA,Los Angeles County,Santa Monica,santa-monica,34.0195,-118.4912,40,published,noindex
+CA,Los Angeles County,Burbank,burbank,34.1808,-118.3090,50,published,noindex
+CA,Los Angeles County,Long Beach,long-beach,33.7701,-118.1937,60,published,noindex
+CA,Los Angeles County,Altadena,altadena,34.1897,-118.1312,70,published,noindex
+CA,Los Angeles County,Compton,compton,33.8958,-118.2201,900,draft,noindex
+CA,Los Angeles County,Rancho Dominguez,rancho-dominguez,33.8728,-118.2131,910,draft,noindex
+CA,Los Angeles County,East Rancho Dominguez,east-rancho-dominguez,33.8981,-118.1953,920,draft,noindex
+CA,Ventura County,Ventura,ventura,34.2746,-119.2290,110,published,noindex
+CA,Ventura County,Simi Valley,simi-valley,34.2694,-118.7815,120,published,noindex
+CA,Ventura County,Camarillo,camarillo,34.2164,-119.0376,130,published,noindex
+CA,Ventura County,Moorpark,moorpark,34.2856,-118.8820,140,published,noindex
+CA,Ventura County,Thousand Oaks,thousand-oaks,34.1706,-118.8376,150,published,noindex
+CA,Ventura County,Ojai,ojai,34.4480,-119.2429,160,published,noindex
+CA,Santa Barbara County,Santa Barbara,santa-barbara,34.4208,-119.6982,210,published,noindex
+CA,Santa Barbara County,Goleta,goleta,34.4358,-119.8276,220,published,noindex
+CA,Santa Barbara County,Carpinteria,carpinteria,34.3989,-119.5185,230,published,noindex
+CA,Santa Barbara County,Summerland,summerland,34.4214,-119.5965,240,published,noindex

@@ -42,6 +42,11 @@ Handoff locations (verified):
 - Structured fields are ACF Free local field groups (`CIC\Content\Fields`), free field types only (no Repeater/Flexible/Gallery/Options/Blocks). Templates read data through `CIC\Content\ViewModel`, never ACF functions.
 - `wp cic seed-catalog` is safe to re-run: it never overwrites edits or recreates removed records/pairings. Re-run `dev/tests/phase03/catalog-test.php` after catalogue, pairing, route or seed changes.
 - Quote context: only non-personal, validated keys travel (`CIC\Quote\Context` + `assets/js/context.js`); never put names, emails, phones, addresses, dietary notes or free text in URLs or storage. City/coverage lookups go only through `CIC\Locations\LocationRepository` (owner code pending); never claim coverage without approved data.
+- Locations (Phase 05, provisional until the owner's city code is audited):
+  - **Rules:** coverage rules live only in `CIC\Locations\Coverage` (exclusions win; shared ZIPs need the venue city; unknown is never outside_area). Location SQL lives only in `DatabaseRepository` / `CityStore` / `Importer` (prepared, configured prefix).
+  - **Fixtures:** `data/fixtures/*.csv` are test data (`dataset=fixture`), counted only on local/development. Never present them as approved coverage. Load real data only through the importer with `--dataset=production` after owner review.
+  - **Routes and cache:** virtual routes `/service-areas/{state}/{city}/`. Never add city×event×treat routes. Flush rewrites only by bumping `Routes::ROUTE_VERSION`. Every location write must call `Tables::bump_cache()`, and the cache version must never be restored or lowered.
+  - **SEO:** location metadata comes only from the SEO adapter (`CIC\Seo`). City pages stay noindex until published + Index + reviewed content. Run `dev/tests/phase05/locations-test.php` (and the phase05 browser/admin tests for UI changes) after location, route, SEO or import changes.
 - Run browser tests one at a time and make sure each closes its browser (memory).
 - Tests must restore everything they change in `finally` (settings, statuses, fields, pairings, theme, plugins, fixtures) and close any browser on failure.
 - Never print or commit credentials from `wp-config.php`.

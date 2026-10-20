@@ -94,11 +94,11 @@ let browser;
 		check( 'P4 returning home prefills the search from the explicit selections; past dates are blocked', 'pasadena' === prefill.loc && 'birthday' === prefill.ev && date === prefill.date && prefill.min === laDate( 0 ), prefill );
 
 		console.log( '== Area check (coverage adapter pending)' );
-		await page.type( '#cic-area-location', '91101' );
+		await page.type( '#cic-area-location', '94105' );
 		await page.click( '.cic-area-check .cic-button' );
 		await page.waitForFunction( () => ! document.querySelector( '.cic-area-check__result' ).hidden );
 		const area = await page.$eval( '.cic-area-check__result', ( r ) => ( { status: r.getAttribute( 'data-status' ), text: r.textContent, link: ( r.querySelector( 'a' ) || {} ).href || '' } ) );
-		check( 'A1 a valid ZIP gets an honest "confirm with your quote" answer (never "covered") and a quote link', 'unknown' === area.status && /can't confirm/i.test( area.text ) && area.link.includes( 'location=91101' ), area );
+		check( 'A1 a valid ZIP without reviewed data gets an honest "confirm with your quote" answer (never "covered") and a quote link', 'unknown' === area.status && /can.t confirm/i.test( area.text ) && area.link.includes( 'location=94105' ), area );
 		await page.evaluate( () => { document.querySelector( '#cic-area-location' ).value = '!!'; } );
 		await page.click( '.cic-area-check .cic-button' );
 		check( 'A2 malformed input asks for a ZIP or city without calling it outside the area', 'true' === await page.$eval( '#cic-area-location', ( i ) => i.getAttribute( 'aria-invalid' ) ) );
