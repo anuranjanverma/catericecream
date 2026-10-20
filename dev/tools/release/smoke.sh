@@ -54,7 +54,10 @@ c=$(code -X POST -H 'Content-Type: application/json' -d '{"id":1,"quantity":1}' 
 c=$(code -X POST -H 'Content-Type: application/json' -d '{}' "$BASE/wp-json/wc/store/v1/checkout")
 [ "$c" -ge 400 ] && pass "Store API checkout refused ($c)" || fail "Store API checkout -> $c"
 c=$(code "$BASE/wp-json/")
-if grep -qi '"flamingo' "$TMP/body"; then fail "Flamingo namespace exposed in REST index"; else pass "no Flamingo/enquiry namespace in the REST index ($c)"; fi
+# A namespace or route ("flamingo/v1", "/flamingo/..."); the "flamingo-spam" status name in schema enums is not data.
+if grep -qiE '"/?flamingo[/"]' "$TMP/body"; then fail "Flamingo namespace/route exposed in REST index"; else pass "no Flamingo/enquiry namespace or route in the REST index ($c)"; fi
+c=$(code "$BASE/wp-json/wp/v2/flamingo_inbound")
+[ "$c" = 404 ] && pass "no REST collection for Flamingo messages (404)" || fail "flamingo_inbound REST -> $c"
 
 echo "== Assets"
 c=$(code "$BASE/wp-content/themes/cater-ice-cream/assets/fonts/dm-sans/dmsans-roman-latin.woff2")

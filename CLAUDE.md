@@ -66,6 +66,10 @@ Handoff locations (verified):
   - ACF field keys are derived from names: a field name reused in several groups must have the same type everywhere (`dev/tests/phase09/review-test.php` R1).
   - No decorative animation may run longer than 5 s; reduced motion disables motion. Keep WooCommerce front-end/gallery scripts out of catalogue mode (guard script list + theme).
   - Run `dev/tests/phase09/review-test.php`, `interaction-test.cjs` and `audit.cjs` (one width at a time) after visual, CSS, template or asset changes. Passing automated checks is not an accessibility-compliance claim.
+- Release and operations (Phase 10):
+  - **Docs:** release documentation lives in `docs/release/` (release notes, package/data migration, deployment, backup/rollback, admin guide, launch checklist). Update it with each release candidate; never call the site launch-ready while `LAUNCH_CHECKLIST.md` §A items are open.
+  - **Packages and rehearsals:** build packages with `dev/tools/release/release.sh` from an exact commit (`git archive`), never from the working tree. Packages, logs and disposable installs live under `C:\laragonelease\catericecream\`, outside the web root. Restore drills and staging rehearsals run only on disposable `cic_*` databases/installs; the tools refuse otherwise. Never import a package or staging database over a site with real enquiries or edits; later releases are code-only (migrations, non-destructive seeds).
+  - **Staging mail:** `cic-staging-mail-guard.php` must stay in `mu-plugins`; staging uses `WP_ENVIRONMENT_TYPE=staging` (never `local` on a host).
 - Run browser tests one at a time and make sure each closes its browser (memory).
 - Tests must restore everything they change in `finally` (settings, statuses, fields, pairings, theme, plugins, fixtures) and close any browser on failure.
 - Never print or commit credentials from `wp-config.php`.

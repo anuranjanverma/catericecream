@@ -154,6 +154,8 @@ deploy-drill)
 	# 3. URL replacement (plain and JSON-escaped forms), rewrite rules, caches.
 	drill_wp "$DRILL_DB" search-replace 'https://catericecream.test' "$URL" --all-tables-with-prefix --precise --report-changed-only
 	drill_wp "$DRILL_DB" search-replace 'https:\/\/catericecream.test' "${URL//\//\\/}" --all-tables-with-prefix --precise --report-changed-only
+	# Bare host (CF7 form sender lines such as wordpress@catericecream.test).
+	drill_wp "$DRILL_DB" search-replace 'catericecream.test' "${URL#*://}" --all-tables-with-prefix --precise --report-changed-only
 	drill_wp "$DRILL_DB" rewrite flush
 	drill_wp "$DRILL_DB" cache flush
 	drill_wp "$DRILL_DB" cic enquiries status
@@ -177,7 +179,8 @@ restore-drill)
 	( cd "$D" && sha256sum db.sql files.tar > SHA256SUMS && sha256sum -c SHA256SUMS )
 	echo "== 3. Simulated incident: lost enquiry, deleted pairing, changed design, deleted media, broken theme"
 	drill_wp "$DRILL_DB" eval-file "$(win "$TOOLS/enquiry-drill.php")" delete
-	drill_wp "$DRILL_DB" db query "DELETE FROM wp_cic_product_events ORDER BY id LIMIT 1; UPDATE wp_options SET option_value = REPLACE(option_value, 'BC1F64', '000000') WHERE option_name = 'cic_design_settings';"
+	drill_wp "$DRILL_DB" db query "DELETE FROM wp_cic_product_events ORDER BY id LIMIT 1"
+	drill_wp "$DRILL_DB" eval '$s = (array) get_option( "cic_design_settings" ); $s["drill_incident"] = time(); update_option( "cic_design_settings", $s ); echo "design settings changed\n";' --skip-plugins
 	rm -f "$media_file"
 	echo '<?php throw new Error( "drill: broken deployment" );' > "$SITE/wp-content/themes/cater-ice-cream/functions.php"
 	drill_wp "$DRILL_DB" eval-file "$(win "$TOOLS/enquiry-drill.php")" fingerprint --skip-themes

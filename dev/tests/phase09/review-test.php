@@ -42,7 +42,8 @@ foreach ( array( 'home_group', 'hub_group', 'shop_group', 'about_group', 'contac
 }
 $conflicts = array_keys( array_filter( $types, static fn( $t ) => count( $t ) > 1 ) );
 p9_check( 'R1 no ACF field key is defined with different field types (the FAQ heading conflict is gone)', ! $conflicts, $conflicts );
-p9_check( 'R2 homepage FAQ heading keeps its line break (no glued "youmight")', str_contains( (string) get_post_meta( (int) get_option( 'page_on_front' ), 'cic_faq_heading', true ), "you\nmight" ) );
+// Browsers submit textarea line breaks as CRLF, so an admin save stores "\r\n"; both are valid.
+p9_check( 'R2 homepage FAQ heading keeps its line break (no glued "youmight")', (bool) preg_match( "/you\r?\nmight/", (string) get_post_meta( (int) get_option( 'page_on_front' ), 'cic_faq_heading', true ) ) );
 
 // R3 link colour contrast on every surface token.
 $colors  = CIC\Design\Schema::colors();

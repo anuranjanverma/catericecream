@@ -18,8 +18,55 @@ Environment facts: see `ENVIRONMENT.md`.
 | 08 Archives and supporting pages | **Built and verified, awaiting owner review.** Contact submissions + full quote flow pending Phase 06 | 2026-10-20 |
 | Service Areas admin enhancement | **Built and verified, awaiting owner review** (Add City, ZIP add/assign/remove, readable coverage controls, navigation, inheritance display, import conflict protection) | 2026-10-20 |
 | 09 Visual, accessibility and performance review | **Review done; 9 defects fixed and re-verified; awaiting owner review.** Automated + manual checks recorded below. Not an accessibility-compliance or launch-readiness claim | 2026-10-20 |
+| 10 Release candidate and operational guide | **rc1 prepared locally (release preparation only). NOT launch-ready.** Package, staging rehearsal and restore drill done on disposable copies; nothing deployed. Outstanding business inputs and host checks listed in `docs/release/LAUNCH_CHECKLIST.md` | 2026-10-20 |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. `800e07b` Service Areas admin enhancement; `1823bc2` Phase 06. Phase 09 is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. `800e07b` Service Areas admin enhancement; `1823bc2` Phase 06; `776a635` Phase 09; `23935f5` Phase 10 release candidate code (staging mail guard + release tooling, **rc1 code commit**); Phase 10 documentation commit follows it (both hashes recorded in the package `VERSION.json`). Nothing pushed.
+
+---
+
+## Phase 10 log: Release candidate and operational guide (rc1)
+
+Prompt: `prompts/10_release_candidate_and_operational_guide.md` (+ spec §18–§20A, `docs/ADMIN_ACCEPTANCE_CHECKLIST.md` "Before release"). Owner authorisation: **local release preparation only**. No deployment, DNS, indexing, policy publication, reminders or external email. Approved designs and functionality preserved: the only runtime addition is a staging-only mail guard, inactive locally.
+
+**Phase 09 commit:** reviewed (diff matched the Phase 09 log, PHP lint clean, no secrets in the new tests) and committed locally as `776a635`, excluding secrets, logs, backups and test output.
+
+**Decisions**
+- **No staging host exists**, so the staging rehearsal and restore drill ran on **disposable local copies**: a separate WordPress install at `C:\laragon\release\catericecream\work\site` (outside the web root), databases `cic_rc_build` / `cic_drill`, `WP_ENVIRONMENT_TYPE=staging`, served by PHP's built-in server at `http://127.0.0.1:8090`. The working site and database were only read. Host-dependent steps are marked **[host]** in the guides.
+- **Staging mail guard** (`wp-content/mu-plugins/cic-staging-mail-guard.php`, new): when the environment type is `staging`, `wp_mail()` is refused (optional single capture inbox via `CIC_STAGING_MAIL_TO`). Reason: spec §17/§19 require that staging sends no real messages, and a staging copy carries the live operator recipient. Inactive on local (verified: no `pre_wp_mail` filter) and production.
+- **Package database is sanitised**, not raw: Flamingo messages/contacts, coordination rows, WooCommerce sessions, finished jobs, transients, stored keys/salts and **fixture coverage** removed; the administrator email/password and the admin email in settings neutralised. Fixture data is never shipped (ignored outside local anyway).
+- **Third-party code is not redistributed:** the host installs WordPress 7.1.3 and the four plugins at pinned versions from wordpress.org.
+- **Later releases are code-only:** versioned migrations, non-destructive seeds, Design System export/import, and coverage only through the importer. A package database must never be imported over a site with real enquiries or edits.
+- The rc1 code commit is `23935f5`; the package code comes from `git archive` of that commit, never from the working tree.
+
+**Files added/changed**
+- New: `wp-content/mu-plugins/cic-staging-mail-guard.php`; `dev/tools/release/` (`release.sh` stages backup/site/build-db/assemble/deploy-drill/restore-drill/teardown/checksum-after, `make-disposable-config.php`, `sanitize.php`, `verify-deploy.php`, `smoke.sh`, `enquiry-drill.php`, `router.php`; all refuse to write unless on a disposable `cic_*` copy); `docs/release/` (`README.md`, `RELEASE_NOTES.md`, `RELEASE_PACKAGE.md`, `DEPLOYMENT.md`, `BACKUP_AND_ROLLBACK.md`, `ADMIN_GUIDE.md`, `LAUNCH_CHECKLIST.md`).
+- Changed: `.gitignore` (allows `docs/` and the staging mail guard); `dev/tests/phase09/review-test.php` (R2 accepts `\r\n`, see below); `BUILD_STATUS.md`, `ENVIRONMENT.md`, `CLAUDE.md`.
+
+**Release package (outside the web root)**
+- `C:\laragon\release\catericecream\cater-ice-cream-rc1\` + `cater-ice-cream-rc1.zip` (+ `.sha256`). Contents: theme (112 files), core plugin (76), 2 MU plugins, media (407 files, 16.3 MB: the 58 originals + generated sizes + WooCommerce placeholders), sanitised SQL (59 tables, InnoDB, `utf8mb4_unicode_520_ci` only, 0.8 MB), docs, `VERSION.json`, `INVENTORY.txt` (path, bytes, SHA-256 per file), `SHA256SUMS`.
+- Hygiene checks (automated, all PASS): no `wp-config`, logs, `.env`, keys, `cic-local-mail.php`, `node_modules`, git files, backups, `dev/`/tests/handoff, `wpcf7_uploads`/`wc-logs`, credential definitions; exactly one SQL file. Email addresses left in the SQL: `admin@example.invalid` (placeholder), the specification's operator recipient (`cic_enquiry_settings`), `wordpress@catericecream.test` (CF7 sender lines, replaced by the bare-host pass at deployment), and WordPress/CF7 sample defaults (`wapuu@wordpress.example`, `login@example.com`).
+- Build logs: `C:\laragon\release\catericecream\logs\`.
+
+**Verification (actual results)**
+
+| Check | Where | Result |
+| --- | --- | --- |
+| Backup of the working site | `C:\laragon\backup\catericecream\pre-phase10-20261020-231042\` (DB dump, `wp-config.php`, `.htaccess`, project files + uploads tar, SHA256SUMS) | Done; checksums recorded |
+| Sanitiser on the disposable build DB | `cic_rc_build` (dropped afterwards) | 2 Flamingo contacts, 33 sessions, 284 finished jobs, 195 transients, 10 stored keys/salts, 20 fixture cities / 60 ZIPs / 61 links, 2 location-history options removed; 1 account and 5 settings neutralised; 0 Flamingo / 0 fixture rows remaining |
+| Deployment rehearsal (`deploy-drill`: package code/media, DB import, 3 search-replace passes = 208 + 0 + 8 replacements, rewrite flush) | `cic_drill`, staging mode | `verify-deploy.php` **44/44** |
+| HTTP smoke checks (`smoke.sh`) | `http://127.0.0.1:8090` | **33/33** (first run 32/33: the check flagged the `"flamingo-spam"` post-status name in REST schema enums, which is not data; the check was narrowed to Flamingo namespaces/routes and a `/wp/v2/flamingo_inbound` 404 probe was added) |
+| Catalogue guard suite against the deployed copy | `guard-test.php staging-drill anon-only` | **58/58**; its fixture products removed |
+| Restore drill (`restore-drill`) | disposable copy | **PASS**: synthetic enquiry (26 meta rows incl. all `_cic_*` workflow keys + coordination row), pairings, products, design settings and a media file identical after a simulated incident (enquiry deleted, pairing deleted, design changed, media deleted, broken theme → HTTP 500) and restore (files, then DB); home 200; afterwards verify 44/44, smoke 33/33. First run: the design-change step matched 0 rows (stored settings lacked the targeted hex), so the step was rewritten and the whole drill re-run; the reported result is the second run |
+| Working DB untouched | table checksums before/after | Only `wp_options`, `wp_actionscheduler_actions`, `wp_actionscheduler_logs` changed: the site's own hourly enquiry maintenance + WooCommerce housekeeping ran at 23:14. No content, location, user or enquiry table changed |
+| Local regressions after adding the MU plugin | working site | Phase 01 guard **69/69**, Phase 06 server **49/49**, Phase 09 review **8/8** (after the R2 correction) |
+| PHP logs | local + disposable | No new local entries besides WP-CLI's own deprecations; disposable log holds only the deliberate drill fatal |
+
+- **Test correction:** Phase 09 R2 failed in the re-run because the homepage FAQ heading is now stored with `\r\n`. A browser admin save (Phase 04 admin-fields regression, after the Phase 09 repair) submits textarea line breaks as CRLF. The rendered heading is correct (two `cic-line` spans, checked in the HTML). R2 now accepts `\n` or `\r\n`. No product change.
+- **Not tested / host-dependent:** a real web server's rewrites, HTTPS, basic auth, permissions, system cron, host PHP/MySQL (or MariaDB) versions, host mail and deliverability (SPF/DKIM/DMARC), host backup tooling and a restore on the host, performance on the host, and everything in Phase 09's "not tested" list (screen readers, Safari/Firefox, real devices, forced colours, zoom/text spacing, field performance). PHPCS has not been run.
+
+**Outstanding (carried explicitly; the site is not launch-ready while any is open):** approved production ZIP coverage; final form-field review and policy wording; approved imagery and product details; production email sender and delivery verification; user access (Yan / Web Karma emails) and reminder timing; analytics/privacy configuration; hosting, scheduled jobs and backups; remaining real-device and accessibility checks. Details: `docs/release/LAUNCH_CHECKLIST.md`.
+
+**Clean state after Phase 10:** disposable install and databases `cic_drill` / `cic_rc_build` removed; PHP built-in server stopped; working site unchanged apart from the inactive MU plugin; 0 enquiries/submission rows/test users/orders; recipient, reminders (off), policies (drafts) and fixture coverage unchanged.
 
 ---
 
@@ -919,10 +966,8 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Built and verified 2026-10-20 (save-before-notify proven, Mailpit); awaiting owner review |
 | — | Vertical-slice gate (complete quote flow) | Built and tested in Phase 06; owner review pending |
 | 09 | Visual, accessibility, performance review | Done 2026-10-20: defects fixed and re-verified, remaining items recorded; owner review pending |
-| 10 | Release candidate + operational guide | Backup/rollback rehearsed on staging |
+| 10 | Release candidate + operational guide | rc1 prepared 2026-10-20: package, deployment and restore rehearsed on disposable local copies (no staging host exists yet); host rehearsal and launch inputs outstanding |
 
 ## Next phase
 
-**Owner review** of Phases 06–09 and the Service Areas admin. Phase 10 (release candidate and operational guide) only when asked.
-
-See "Remaining launch dependencies" in the Phase 09 log.
+**Owner review** of rc1 (`docs/release/`), Phases 06–09 and the Service Areas admin, and supply of the business inputs in `docs/release/LAUNCH_CHECKLIST.md` §A. Staging deployment, production deployment, DNS, indexing, policy publication, reminders and real mail each need a separate explicit instruction. No further phase starts automatically.
