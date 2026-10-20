@@ -28,9 +28,13 @@ $file    = (string) ( $args[1] ?? '' );
 
 $remove_users = static function (): void {
 	require_once ABSPATH . 'wp-admin/includes/user.php';
-	foreach ( get_users( array( 'meta_key' => '_cic_sa_test', 'fields' => 'ID' ) ) as $uid ) { // phpcs:ignore WordPress.DB.SlowDBQuery
-		WP_Session_Tokens::get_instance( (int) $uid )->destroy_all();
-		wp_delete_user( (int) $uid );
+	foreach ( get_users( array( 'meta_key' => '_cic_sa_test', 'fields' => 'all' ) ) as $user ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+		// Flamingo (Phase 06) adds an address-book contact for every new user: remove the test user's.
+		foreach ( get_posts( array( 'post_type' => 'flamingo_contact', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_email', 'meta_value' => $user->user_email ) ) as $contact ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+			wp_delete_post( (int) $contact, true );
+		}
+		WP_Session_Tokens::get_instance( (int) $user->ID )->destroy_all();
+		wp_delete_user( (int) $user->ID );
 	}
 };
 

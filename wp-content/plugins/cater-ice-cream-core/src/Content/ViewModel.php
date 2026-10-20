@@ -793,6 +793,72 @@ final class ViewModel {
 				'quote_title' => self::m( $id, $p . 'close_quote_title' ),
 				'quote_text'  => self::m( $id, $p . 'close_quote_text' ),
 			),
+			'form'    => \CIC\Enquiries\Forms::render( 'contact' ),
+			'success' => array(
+				'heading' => self::m( $id, $p . 'success_heading' ) ?: __( 'Your message is received.', 'cater-ice-cream-core' ),
+				'text'    => self::m( $id, $p . 'success_text' ),
+				'receipt' => self::receipt( 'sent', 'contact' ),
+			),
+		);
+	}
+
+	/**
+	 * Confirmation summary for a receipt in the URL (?received= / ?sent=), or null. Receipts are
+	 * random and carry only non-personal labels; they expire after a day.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private static function receipt( string $param, string $form ): ?array {
+		$raw     = isset( $_GET[ $param ] ) ? sanitize_key( wp_unslash( $_GET[ $param ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- random receipt, read-only.
+		$receipt = '' !== $raw ? \CIC\Enquiries\Store::receipt( $raw ) : null;
+		return ( $receipt && $form === ( $receipt['form'] ?? '' ) ) ? $receipt : null;
+	}
+
+	/**
+	 * Get a Quote page (17/18): hero, sidebar, what happens next, the shared CF7 form (or '' when
+	 * unavailable) and the confirmation state.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function quote( int $id ): array {
+		$p     = 'cic_quote_';
+		$items = static function ( string $set ) use ( $id, $p ): array {
+			$out = array();
+			for ( $i = 1; $i <= 3; $i++ ) {
+				$out[] = array( 'icon' => self::m( $id, "{$p}{$set}_{$i}_icon" ), 'title' => self::m( $id, "{$p}{$set}_{$i}_title" ), 'text' => self::m( $id, "{$p}{$set}_{$i}_text" ) );
+			}
+			return array_values( array_filter( $out, static fn( $x ) => '' !== $x['title'] ) );
+		};
+		return array(
+			'title'   => get_the_title( $id ),
+			'hero'    => array(
+				'eyebrow'  => self::m( $id, $p . 'eyebrow' ),
+				'headline' => self::lines( self::m( $id, $p . 'headline' ) ?: get_the_title( $id ) ),
+				'intro'    => self::rich( self::m( $id, $p . 'intro' ) ),
+			),
+			'side'    => array(
+				'heading' => self::lines( self::m( $id, $p . 'side_heading' ) ),
+				'items'   => $items( 'side' ),
+				'help'    => self::m( $id, $p . 'help_heading' ),
+				'text'    => self::m( $id, $p . 'help_text' ),
+				'link'    => self::m( $id, $p . 'help_link' ),
+				'shop'    => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/treats/' ),
+				'image'   => self::img( $id, $p . 'side_image' ),
+			),
+			'next'    => array(
+				'heading' => self::m( $id, $p . 'next_heading' ),
+				'items'   => $items( 'next' ),
+			),
+			'success' => array(
+				'heading' => self::m( $id, $p . 'success_heading' ) ?: __( 'Your quote request is received.', 'cater-ice-cream-core' ),
+				'text'    => self::m( $id, $p . 'success_text' ),
+				'note'    => self::m( $id, $p . 'success_note' ),
+				'cta'     => self::m( $id, $p . 'success_cta' ) ?: __( 'Explore more treats', 'cater-ice-cream-core' ),
+				'home'    => self::m( $id, $p . 'success_home' ) ?: __( 'Back to homepage', 'cater-ice-cream-core' ),
+				'receipt' => self::receipt( 'received', 'quote' ),
+			),
+			'unavailable' => self::m( $id, $p . 'unavailable' ) ?: __( 'Our online quote form is unavailable right now. Please call or email us and we will help you plan.', 'cater-ice-cream-core' ),
+			'form'    => \CIC\Enquiries\Forms::render( 'quote' ),
 		);
 	}
 

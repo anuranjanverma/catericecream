@@ -13,12 +13,70 @@ Environment facts: see `ENVIRONMENT.md`.
 | 03 Products, events and structured editing | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 04 Homepage and shared components | **Approved by the owner (2026-10-20)**, header logo size restored to the initial Phase 04 values (https://catericecream.test/) | 2026-10-20 |
 | 05 Locations, import, search, routes and SEO | **Permanent implementation (owner decision 2026-10-20); tested with local fixtures only, NOT launch-ready** until approved production coverage data is loaded. The historical city code is no longer a dependency | 2026-10-20 |
-| 06 Quote flow, lead management, mail and reminders | **Pending.** Deferred by owner instruction to after Phase 07; full quote-flow integration and testing outstanding | |
+| 06 Quote flow, lead management, mail and reminders | **Built and verified locally, awaiting owner review.** CF7 + Flamingo installed; quote + Contact forms, store-then-notify, lead admin, reminders (off until timing is set). Production sender, account emails, final field review pending | 2026-10-20 |
 | 07 Event and treat compositions | **Eight detail pages built and verified, awaiting owner review.** Built before Phase 06 by owner instruction; the vertical-slice/quote-flow prerequisite is **DEFERRED, not passed** | 2026-10-20 |
 | 08 Archives and supporting pages | **Built and verified, awaiting owner review.** Contact submissions + full quote flow pending Phase 06 | 2026-10-20 |
 | Service Areas admin enhancement | **Built and verified, awaiting owner review** (Add City, ZIP add/assign/remove, readable coverage controls, navigation, inheritance display, import conflict protection) | 2026-10-20 |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. The Service Areas admin enhancement is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. `800e07b` Service Areas admin enhancement. Phase 06 is **not committed yet**.
+
+---
+
+## Phase 06 log: Quote flow, lead management, mail and reminders
+
+Prompt: `prompts/06_quote_flow_lead_management_mail_and_reminders.md` (spec §12, §13, §13A, §15, §17, §19, §20A). References: `designs/17_quote_step_1.png`, `18_quote_later_steps.png`, `16_contact.png`, `21_mobile_detail_and_quote.png`.
+
+Backup: `C:\laragon\backup\catericecream\pre-phase06-20261020-155924\` (DB, `wp-config.php`, `.htaccess`). Installed with the owner's authorisation: **Contact Form 7 6.2.2** and **Flamingo 2.6.4** (free). Core plugin 0.6.0 → **0.7.0**; schema **v5**.
+
+**Why a thin adapter.** In these versions CF7 sends mail first and Flamingo stores afterwards (on `wpcf7_submit`, after the visitor's result is fixed); Flamingo also stores spam. That cannot guarantee "saved before notified" or turn a storage failure into an error. So, using supported hooks only (no vendor edits):
+
+| Step | What happens |
+| --- | --- |
+| `wpcf7_validate` | Every field validated server-side (`CIC\Enquiries\Validator`): published event/treat keys, LA-local date or "Date not set yet", guests 1–10000, contact preference, phone rule, text limits; location through the existing `LocationRepository` + `Coverage` (excluded → blocked; shared/unknown → asks for the missing venue city or event ZIP, then accepted for team review). Expired form token → "press Send again" with a fresh token. |
+| `wpcf7_spam` | Honeypot, signed render token (too fast / forged), 5 accepted per 10 minutes per hashed IP (`Guard`). Spam is never stored or acknowledged. |
+| `wpcf7_before_send_mail` | Atomic claim of the submission key (`{prefix}cic_submissions`, UNIQUE key hash): a stored key replays the same receipt; a concurrent duplicate is told to wait. Then **one** Flamingo record via CF7's own `wpcf7_flamingo_submit`, workflow meta on that Flamingo message, receipt, and only then notifications. No Flamingo id → key released, request aborted, nothing sent. |
+| Mail | CF7 mail skipped. `Notifier` is the single mail owner: operator notification (Reply-To customer) + customer acknowledgement (max 3/day per address). Each channel claimed atomically; failure keeps the enquiry, records a code only and schedules a retry (Action Scheduler); admin "Retry notifications". |
+| Response | `{cic: accepted, receipt, summary}` for the script; no-JS submissions redirect (303) to `?received=<receipt>`. Receipts are random and show only labels; they expire after a day. |
+
+**What was built**
+
+| Area | Details |
+| --- | --- |
+| Quote page (`/get-a-quote/`) | Boards 17/18: hero with the original mascot, form card, sidebar (planning steps, Need a hand? call box, photo), What happens next, confirmation state. Global header and the approved 190/136 px logo unchanged. Text editable on the page (Get a Quote composition fields). |
+| Quote form | One CF7 form in three steps. Event tiles from published events (new optional **Short label** field on events: Birthday, Wedding, Anniversary, Corporate) + Other; date + "Date not set yet"; guests; city/ZIP with autocomplete and coverage pre-check; venue, serving time and duration (optional). Treat cards from published products, multiple OR "Not sure yet" (exclusive). Flavours/theme/dietary (optional). Name, email, phone (required only for Phone preference), notes. Editable "at a glance" summary. |
+| Enhancement (`assets/js/quote.js`) | Steps with Back and browser history (#step-n); earliest incomplete step; Enter continues; inline errors + focused error summary that opens the right step (including hidden-field errors); double-submit protection; network-failure recovery; confirmation in place; analytics events with keys only. Without JavaScript the whole form works on one page. |
+| Prefill | Incoming selections from homepage, event, treat and city entry points (URL context and session context), validated on the server. First/latest source page recorded (template + key only). |
+| Contact (`/contact/`) | The CF7 Contact form (topic, name, email, phone optional, message) in the approved message panel, same foundation; confirmation state. |
+| Enquiries admin | **Enquiries** menu (`manage_cic_enquiries`): list with filters (status, type, assignee, search), notification state, CSV export (nonce, formula-protected, spam excluded); detail with request, coverage (fixture-labelled), customer, source, status (new, contacted, quote_sent, booked, lost, spam), assignee, next follow-up, private notes, notification Retry and reminder state. **Enquiries → Settings** (administrators): operator recipient (initially anuranjan.verma25@gmail.com, separate from the public email), sender (pending), acknowledgement templates, form IDs, reminders. |
+| Access | Administrators get `manage_cic_enquiries`; new **Enquiry manager** role (read + that capability only; WooCommerce's admin redirect is lifted for it). Editors have no access. Flamingo's own screens stay administrator-only. No accounts created (emails not supplied). |
+| Reminders | Internal only, one Action Scheduler job per enquiry (rescheduled safely, cancelled for booked/lost/spam, trash or delete), **off until a reminder time is set**. Hourly maintenance job: unstick, retry, retention cleanup. |
+| Privacy | Workflow data is meta on the Flamingo message (Flamingo's eraser removes it); an exporter covers enquiries + workflow. No IP or user agent stored; guard fields stripped; no personal data in URLs, analytics, logs or the coordination table. |
+| Local mail | `wp-content/mu-plugins/cic-local-mail.php`: on this Windows setup `mail()` fails inside php-cgi, so local WordPress mail goes to Mailpit over SMTP. Local environment only; Mailpit has no relay. |
+
+**Changed / new files:** `src/Enquiries/{Service, Settings, Store, Forms, Validator, Guard, Pipeline, Notifier, Workflow, Roles, Privacy, Cli}.php`, `src/Enquiries/Admin/EnquiriesPage.php`, `src/Database/Migrations.php` (v5), `src/Content/{Fields, SeedData, Seeder, ViewModel, Catalog}.php`, `src/Plugin.php`, theme `page-get-a-quote.php`, `page-contact.php`, `template-parts/components/enquiry-received.php`, `assets/css/quote.css`, `assets/js/quote.js`, `assets/js/context.js` (source attribution), `inc/content.php` (icons check/dots/clock, enqueue, source page), MU `cic-local-mail.php`, `.gitignore`, tests in `dev/tests/phase06/` (+ test-only observer fixture, copied into mu-plugins only during tests).
+
+**Verification (real runs, synthetic @example.test addresses, Mailpit capture)**
+- `dev/tests/phase06/enquiry-test.php` **49/49**: architecture (no `cic_lead`, no CIC submission route, CF7 mail skipped, one three-step form), validation incl. DST dates and malformed keys, fixture coverage (excluded / shared / unknown), atomic claims, abuse controls, settings, workflow + reminder scheduling/cancellation, roles, CSV safety, privacy surfaces.
+- `dev/tests/phase06/submit-test.cjs` **27/27** through CF7's real transport: stored once **before** every notification (observer), one operator mail + one acknowledgement, retries and 6 concurrent duplicates → one enquiry/one mail each, separate enquiries from the same email, validation, malformed ids, excluded/shared/unknown locations, spam paths, expired token, mail failure → saved + recovered by retry without duplicates, Contact, receipt refresh, no-JS redirect and re-render, rate limit, no leakage (REST/search/sitemap), Flamingo-missing fallback.
+- `dev/tests/phase06/browser-test.cjs` **35/35**: homepage/event/treat/city entry points, step validation, Other, date unknown, coverage clarification, treat exclusivity, summary, phone rule, Back + history, double-click, analytics (one `quote_submitted`, no personal data), confirmation refresh, keyboard, network failure, 390 px, no-JS, Contact, mail failure + admin Retry, workflow save, export, unauthorised access (editor, visitor) and the Enquiry manager role.
+- Regressions: Phase 01 guard **69/69**, 02 design **51/51** + browser **58/58**, 03 **46/46**, 04 **25/25**, 05 **55/55** + browser **24/24** + admin **12/12**, 07 **23/23** + browser **13/13** + admin **7/7**, 08 **24/24** + browser **11/11**, Service Areas **42/42** + browser **21/21**. Expectation updates: Phase 07 D5.2/B5/B9 and Phase 08 P5.3/B4 now assert the real Phase 06 form instead of "Phase 06 pending".
+- Clean state: 0 test enquiries, contacts, users, rows or scheduled jobs left; operator recipient restored to anuranjan.verma25@gmail.com; test mail deleted from Mailpit; no new PHP log entries (the only log lines are WordPress's own update checks, which cannot reach WordPress.org).
+- Screenshots: `dev/tests/output/phase06/p6-*.png` (git-ignored).
+
+**Found and fixed during testing:** reminder jobs could not be unscheduled (argument mismatch); Flamingo stored the guard fields; CF7's client validation cleared custom-field errors; texturized titles showed HTML entities in summaries; Enquiry managers were redirected out of wp-admin by WooCommerce; local web-request mail failed (environment, see above).
+
+**Not tested:** screen readers, Safari/Firefox, real touch devices, PHPCS, a production server cron, real mail delivery (deliberately: local capture only).
+
+**Admin instructions**
+- *Read an enquiry:* Enquiries → All enquiries → open a row. "TEST DATA" means the coverage check used local fixtures; confirm service yourself.
+- *Work it:* set Status, Assignee and Next follow-up, add a private note, Save. Notes never reach the customer.
+- *Failed email:* the enquiry is already saved. Open it and press **Retry notifications** (or run `wp cic enquiries retry <id>`). Only unsent messages go out.
+- *Export:* Enquiries → Export CSV (respects the filters; spam excluded unless filtered).
+- *Settings (administrators):* Enquiries → Settings: change the operator recipient, acknowledgement texts and, at deployment, the verified sender. To turn on reminders set a time (HH:MM) and days before, then tick Enable.
+- *Accounts for Yan / Web Karma:* when their emails are supplied, create each user with the **Enquiry manager** role.
+- *Spam:* use Status → Spam (or Flamingo's Spam action); reminders are cancelled.
+
+**Remaining launch dependencies (Phase 06):** verified production sender/domain and Reply-To setup, Yan/Web Karma account emails, reminder timing and assignee fallback, owner review of the provisional form fields and copy, approved privacy policy (the form shows its link once published), working server cron + delivery monitoring on the host, approved production coverage data (fixtures only today), analytics/privacy configuration (no analytics installed; events are ready for `dataLayer`).
 
 ---
 
@@ -193,7 +251,7 @@ Stopped after these eight pages for review. Phase 06 and Phase 08 have not start
 
 ### Pending
 - **Phase 06:** CF7 + Flamingo quote flow (contact fields, storage before notification, Mailpit). This needs the owner's go-ahead to install CF7/Flamingo. Full quote-flow integration and testing from every detail page are **pending**.
-- **Deferred gate:** vertical-slice gate (complete quote flow) recorded as **deferred** by owner instruction.
+- **Quote-flow gate:** built and tested end to end in Phase 06 (see the Phase 06 log); awaiting owner review.
 - **Coverage data:** approved production coverage data (the historical city code is no longer needed).
 - **Client review:** AI photos, product options/ingredients, and whether DipN' Bananas is a supplier brand.
 
@@ -775,12 +833,13 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | --- | --- | --- |
 | Owner's historical city template + rewrite-rule code | **No longer a dependency** (owner decision 2026-10-20) | — |
 | ACF (free) | **Installed (03)**: 6.8.10 | — |
-| Contact Form 7, Flamingo | Not installed | Phase 06 |
-| Final quote/contact form-field review | Pending | Phase 06 sign-off |
+| Contact Form 7, Flamingo | **Installed (06)**: CF7 6.2.2, Flamingo 2.6.4 (free) | — |
+| Final quote/contact form-field review | Pending (fields are implementation defaults, provisional) | Form sign-off |
 | Approved coverage dataset (LA County, Ventura, Santa Barbara, Compton exclusion, shared ZIPs) | Pending reconciliation; import path ready (`--dataset=production --apply-status`) | Coverage go-live (fixtures are ignored outside local/dev) |
 | Reviewed per-city copy | Pending | City indexing (all cities noindex until reviewed) |
-| Reminder timing, assignee fallback | Pending; reminders stay disabled | Reminders |
-| Yan / team account emails | Pending | Enquiry-access accounts |
+| Reminder timing, assignee fallback | Pending; controls built (Enquiries → Settings), reminders stay disabled | Reminders |
+| Yan / Web Karma account emails | Pending; the "Enquiry manager" role is ready, no accounts created | Enquiry-access accounts |
+| Verified production mail sender / domain | Pending; sender fields empty (WordPress default) | Live notifications |
 | Hosting/staging, mail sender domain, deployment owner, backup destination, host PHP version | Pending | Phase 10 / launch |
 | Licensed font files (Fraunces, DM Sans) + licences | **Done (02)**: OFL, self-hosted WOFF2 | — |
 | Vector logo master | Raster only | Print only |
@@ -810,15 +869,13 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 05 | Locations adapter, importer, search, virtual routes, SEO + Service Areas admin | Fixture tests passed 2026-10-20; implementation permanent; **not launch-ready** until approved coverage data is loaded |
 | 08 ✔ | Archives, hubs, About, Contact, policies, 404 | Built and verified 2026-10-20; awaiting owner review |
 | 07 ✔ (before 06) | Event + treat compositions (8 detail pages) | Built and verified 2026-10-20; awaiting owner review |
-| 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Pending: save-before-notify proven in Mailpit |
-| — | Vertical-slice gate (complete quote flow) | **Deferred by owner instruction** (not passed) until Phase 06 |
+| 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Built and verified 2026-10-20 (save-before-notify proven, Mailpit); awaiting owner review |
+| — | Vertical-slice gate (complete quote flow) | Built and tested in Phase 06; owner review pending |
 | 09 | Visual, accessibility, performance review | Differences fixed or recorded |
 | 10 | Release candidate + operational guide | Backup/rollback rehearsed on staging |
 
 ## Next phase
 
-**Owner review of the Phase 07 detail pages** (`/events/{birthday,wedding,anniversary,corporate}/`, `/treats/{dippin-dots,dipn-bananas,classic-ice-cream,frozen-yogurt}/`, screenshots in `dev/tests/output/phase07/`).
+**Owner review** of Phase 06 (quote + Contact forms, enquiry admin), Phases 07–08 and the Service Areas admin. Then, when asked, the next phase prompt.
 
-Then, when asked, **Phase 06: Quote flow, lead management, mail and reminders** (`prompts/06_quote_flow_lead_management_mail_and_reminders.md`). It needs the owner's go-ahead to install CF7 + Flamingo, and closes the deferred quote-flow gate.
-
-Location go-live waits only for approved production coverage data (import with `--dataset=production --apply-status`, or enter it in Service Areas). Owner review of the Service Areas admin enhancement is pending.
+Launch still needs: approved production coverage data, the verified mail sender, Yan/Web Karma account emails, reminder timing, final form-field review, approved policy copy, real photos and hosting details.

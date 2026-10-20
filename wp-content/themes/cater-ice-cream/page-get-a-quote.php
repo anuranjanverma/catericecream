@@ -1,8 +1,14 @@
 <?php
 /**
- * Dedicated quote route (/get-a-quote/). The three-step CF7 quote flow is built in Phase 06; until
- * then this page confirms the validated selections it received and offers the contact options.
- * Only server-validated, non-personal context is shown. Nothing here confirms availability.
+ * Get a Quote (approved references designs/17_quote_step_1.png, 18_quote_later_steps.png; mobile
+ * column of 21_mobile_detail_and_quote.png). One shared CF7 form in three steps (Your event, Your
+ * treats, Review and send), progressively enhanced by assets/js/quote.js; without JavaScript the
+ * whole form is usable on one page. Incoming selections are prefilled by the server.
+ *
+ * The confirmation state (#confirmation) is rendered by the server for a valid receipt
+ * (?received=…, no-JS submissions and refreshes) and filled in place by quote.js after an accepted
+ * submission. It says the request was received, never that anything is booked.
+ * If Contact Form 7 or Flamingo is unavailable, call/email options replace the form.
  *
  * @package CaterIceCream
  */
@@ -10,51 +16,120 @@
 defined( 'ABSPATH' ) || exit;
 
 get_header();
-$cic_context = class_exists( '\CIC\Quote\Context' ) ? \CIC\Quote\Context::from_request() : array();
+$cic_vm      = \CIC\Content\ViewModel::quote( (int) get_queried_object_id() );
 $cic_contact = cic_theme_contact();
-$cic_rows    = array();
-if ( isset( $cic_context['event'] ) ) {
-	$cic_event  = 'other' === $cic_context['event'] ? __( 'Other occasion', 'cater-ice-cream' ) : get_the_title( \CIC\Content\Catalog::find_by_key( 'cic_event', $cic_context['event'] ) );
-	$cic_rows[] = array( __( 'Event type', 'cater-ice-cream' ), $cic_event, 'event' );
-}
-if ( isset( $cic_context['treat'] ) ) {
-	$cic_titles = array_map( static fn( $k ) => get_the_title( \CIC\Content\Catalog::find_by_key( 'product', $k ) ), explode( ',', $cic_context['treat'] ) );
-	$cic_rows[] = array( __( 'Treats', 'cater-ice-cream' ), implode( ', ', $cic_titles ), 'treat' );
-}
-if ( isset( $cic_context['location'] ) ) {
-	$cic_rows[] = array( __( 'Location', 'cater-ice-cream' ), preg_match( '/^\d{5}$/', $cic_context['location'] ) ? $cic_context['location'] : ucwords( str_replace( '-', ' ', $cic_context['location'] ) ), 'location' );
-}
-if ( isset( $cic_context['date'] ) ) {
-	$cic_rows[] = array( __( 'Date', 'cater-ice-cream' ), wp_date( get_option( 'date_format' ), strtotime( $cic_context['date'] . ' 12:00:00 America/Los_Angeles' ), new DateTimeZone( 'America/Los_Angeles' ) ), 'date' );
-}
-if ( isset( $cic_context['guests'] ) ) {
-	$cic_rows[] = array( __( 'Guests', 'cater-ice-cream' ), (string) $cic_context['guests'], 'guests' );
-}
+$cic_h       = $cic_vm['hero'];
+$cic_s       = $cic_vm['side'];
+$cic_ok      = $cic_vm['success'];
+$cic_rec     = $cic_ok['receipt'];
 ?>
-<section class="cic-section cic-quote-route">
-	<div class="cic-container cic-quote-route__inner">
-		<?php echo cic_theme_breadcrumbs( array( array( __( 'Home', 'cater-ice-cream' ), home_url( '/' ) ), array( get_the_title(), '' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?>
-		<h1><?php the_title(); ?></h1>
-		<?php if ( $cic_rows ) : ?>
-			<p class="cic-lead"><?php esc_html_e( "Here's what you've chosen so far:", 'cater-ice-cream' ); ?></p>
-			<dl class="cic-quote-summary" data-cic-quote-summary>
-				<?php foreach ( $cic_rows as $cic_row ) : ?>
-					<div data-field="<?php echo esc_attr( $cic_row[2] ); ?>"><dt><?php echo esc_html( $cic_row[0] ); ?></dt><dd><?php echo esc_html( $cic_row[1] ); ?></dd></div>
-				<?php endforeach; ?>
-			</dl>
-		<?php else : ?>
-			<p class="cic-lead"><?php esc_html_e( 'Tell us about your event and the treats you have in mind.', 'cater-ice-cream' ); ?></p>
-		<?php endif; ?>
-		<p><?php echo esc_html( $cic_contact['availability_note'] ); ?></p>
-		<div class="cic-hero__actions">
-			<?php if ( '' !== $cic_contact['phone_href'] ) : ?>
-				<a class="cic-button" href="<?php echo esc_url( $cic_contact['phone_href'] ); ?>"><?php echo esc_html( $cic_contact['call_label'] . ' ' . $cic_contact['phone'] ); ?></a>
-			<?php endif; ?>
-			<?php if ( '' !== $cic_contact['email'] ) : ?>
-				<a class="cic-text-link" href="<?php echo esc_url( 'mailto:' . $cic_contact['email'] ); ?>"><?php echo esc_html( $cic_contact['email'] ); ?></a>
-			<?php endif; ?>
+<div class="cic-quote-page">
+	<section class="cic-quote-hero">
+		<div class="cic-container cic-container--wide cic-quote-hero__grid">
+			<div class="cic-quote-hero__text">
+				<?php echo cic_theme_breadcrumbs( array( array( __( 'Home', 'cater-ice-cream' ), home_url( '/' ) ), array( $cic_vm['title'], '' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?>
+				<?php if ( '' !== $cic_h['eyebrow'] ) : ?>
+					<p class="cic-eyebrow"><?php echo esc_html( $cic_h['eyebrow'] ); ?></p>
+				<?php endif; ?>
+				<h1 class="cic-quote-hero__title"><?php echo $cic_h['headline']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses-filtered. ?></h1>
+				<?php if ( '' !== $cic_h['intro'] ) : ?>
+					<p class="cic-lead"><?php echo $cic_h['intro']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses-filtered. ?></p>
+				<?php endif; ?>
+			</div>
+			<div class="cic-quote-hero__art"><?php echo cic_theme_mascot( 240, array( 'loading' => 'eager' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?></div>
 		</div>
-	</div>
-</section>
+	</section>
+
+	<section class="cic-quote-main">
+		<div class="cic-container cic-container--wide cic-quote-main__grid">
+			<div class="cic-quote-card" id="quote-form">
+				<?php
+				get_template_part(
+					'template-parts/components/enquiry-received',
+					null,
+					array(
+						'type'    => 'quote',
+						'receipt' => $cic_rec,
+						'success' => $cic_ok,
+						'next'    => $cic_vm['next'],
+					)
+				);
+				?>
+				<div class="cic-quote-card__form" data-cic-form-area<?php echo $cic_rec ? ' hidden' : ''; ?>>
+					<?php if ( '' !== $cic_vm['form'] ) : ?>
+						<?php echo $cic_vm['form']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contact Form 7 output. ?>
+					<?php else : ?>
+						<div class="cic-quote-unavailable" role="status">
+							<h2><?php esc_html_e( 'Talk to us about your event', 'cater-ice-cream' ); ?></h2>
+							<p><?php echo esc_html( $cic_vm['unavailable'] ); ?></p>
+							<div class="cic-hero__actions">
+								<?php if ( '' !== $cic_contact['phone_href'] ) : ?>
+									<a class="cic-button" href="<?php echo esc_url( $cic_contact['phone_href'] ); ?>"><?php echo cic_theme_icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><?php echo esc_html( $cic_contact['call_label'] . ' ' . $cic_contact['phone'] ); ?></a>
+								<?php endif; ?>
+								<?php if ( '' !== $cic_contact['email'] ) : ?>
+									<a class="cic-button cic-button--secondary" href="<?php echo esc_url( 'mailto:' . $cic_contact['email'] ); ?>"><?php echo esc_html( $cic_contact['email'] ); ?></a>
+								<?php endif; ?>
+							</div>
+						</div>
+					<?php endif; ?>
+				</div>
+			</div>
+
+			<aside class="cic-quote-side" aria-label="<?php esc_attr_e( 'Planning help', 'cater-ice-cream' ); ?>">
+				<?php if ( $cic_s['items'] ) : ?>
+					<div class="cic-quote-plan">
+						<div class="cic-quote-plan__head">
+							<h2 class="cic-quote-plan__title"><?php echo $cic_s['heading']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses-filtered. ?></h2>
+							<span class="cic-quote-plan__mascot"><?php echo cic_theme_mascot( 72 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?></span>
+						</div>
+						<ul class="cic-quote-plan__list">
+							<?php foreach ( $cic_s['items'] as $cic_item ) : ?>
+								<li>
+									<span class="cic-quote-plan__icon"><?php echo cic_theme_icon( $cic_item['icon'] ?: 'sparkle' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
+									<span><strong><?php echo esc_html( $cic_item['title'] ); ?></strong><?php echo esc_html( $cic_item['text'] ); ?></span>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+				<?php endif; ?>
+				<div class="cic-quote-help">
+					<?php if ( '' !== $cic_s['help'] ) : ?>
+						<h2 class="cic-quote-help__title"><?php echo esc_html( $cic_s['help'] ); ?></h2>
+					<?php endif; ?>
+					<?php if ( '' !== $cic_s['text'] ) : ?>
+						<p><?php echo esc_html( $cic_s['text'] ); ?></p>
+					<?php endif; ?>
+					<?php if ( '' !== $cic_contact['phone_href'] ) : ?>
+						<a class="cic-button cic-button--block" href="<?php echo esc_url( $cic_contact['phone_href'] ); ?>"><?php echo cic_theme_icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><?php echo esc_html( $cic_contact['call_label'] . ' ' . $cic_contact['phone'] ); ?></a>
+					<?php endif; ?>
+					<?php if ( '' !== $cic_s['link'] ) : ?>
+						<p class="cic-quote-help__link"><?php echo cic_theme_arrow_link( $cic_s['shop'], $cic_s['link'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?></p>
+					<?php endif; ?>
+				</div>
+				<?php if ( $cic_s['image'] ) : ?>
+					<div class="cic-quote-side__photo"><?php echo cic_theme_image( $cic_s['image'], '(max-width: 899px) 100vw, 360px' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core image markup. ?></div>
+				<?php endif; ?>
+			</aside>
+		</div>
+	</section>
+
+	<?php if ( $cic_vm['next']['items'] ) : ?>
+		<section class="cic-quote-next-band">
+			<div class="cic-container cic-container--wide">
+				<div class="cic-quote-next">
+					<h2 class="cic-quote-next__title"><?php echo esc_html( $cic_vm['next']['heading'] ); ?></h2>
+					<ol class="cic-quote-next__list">
+						<?php foreach ( $cic_vm['next']['items'] as $cic_item ) : ?>
+							<li>
+								<span class="cic-quote-next__icon"><?php echo cic_theme_icon( $cic_item['icon'] ?: 'sparkle' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
+								<span><strong><?php echo esc_html( $cic_item['title'] ); ?></strong><?php echo esc_html( $cic_item['text'] ); ?></span>
+							</li>
+						<?php endforeach; ?>
+					</ol>
+				</div>
+			</div>
+		</section>
+	<?php endif; ?>
+</div>
 <?php
 get_footer();

@@ -250,6 +250,7 @@ final class Seeder {
 			'shop'    => array( Fields::class, 'shop_group' ),
 			'about'   => array( Fields::class, 'about_group' ),
 			'contact' => array( Fields::class, 'contact_group' ),
+			'quote'   => array( Fields::class, 'quote_group' ),
 			'policy'  => array( Fields::class, 'policy_group' ),
 		);
 		$group = call_user_func( $groups[ $data['group'] ?? 'home' ] ?? $groups['home'] );

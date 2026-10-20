@@ -283,6 +283,7 @@ final class Fields {
 		acf_add_local_field_group( self::shop_group() );
 		acf_add_local_field_group( self::about_group() );
 		acf_add_local_field_group( self::contact_group() );
+		acf_add_local_field_group( self::quote_group() );
 		acf_add_local_field_group( self::policy_group() );
 	}
 
@@ -416,7 +417,7 @@ final class Fields {
 			self::tab( 'contact_help', 'Message panel' ),
 			self::heading( $p . 'help_heading', 'Heading' ),
 			self::text( $p . 'help_intro', 'Introduction' ),
-			self::area( $p . 'help_pending', 'Text while the message form is pending (Phase 06)', '', 2 ),
+			self::area( $p . 'help_pending', 'Text shown if the message form is unavailable', 'Only shown when Contact Form 7 or Flamingo is switched off.', 2 ),
 			self::tab( 'contact_plan', 'Planning panel' ),
 			self::heading( $p . 'plan_heading', 'Heading' ),
 			self::area( $p . 'plan_text', 'Text', '', 2 ),
@@ -441,7 +442,53 @@ final class Fields {
 		$fields[] = self::text( $p . 'close_text', 'Text' );
 		$fields[] = self::text( $p . 'close_quote_title', 'Quote card title' );
 		$fields[] = self::text( $p . 'close_quote_text', 'Quote card text' );
+		$fields[] = self::tab( 'contact_success', 'After sending' );
+		$fields[] = self::text( $p . 'success_heading', 'Confirmation heading' );
+		$fields[] = self::area( $p . 'success_text', 'Confirmation text', 'Say the message was received; never promise a reply time you cannot keep.', 2 );
 		return self::page_group( 'contact', 'Contact composition', $fields, self::page_rule( 'contact' ) );
+	}
+
+	/**
+	 * Get a Quote page (17_quote_step_1.png, 18_quote_later_steps.png): the text around the shared
+	 * CF7 quote form. The form fields themselves are defined in CIC\Enquiries\Forms (provisional).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function quote_group(): array {
+		$p      = 'cic_quote_';
+		$fields = array(
+			self::tab( 'quote_hero', 'Hero' ),
+			self::text( $p . 'eyebrow', 'Eyebrow' ),
+			self::area( $p . 'headline', 'Headline', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 ),
+			self::area( $p . 'intro', 'Introduction', '&lt;em&gt;…&lt;/em&gt; for accent words.', 2 ),
+			self::tab( 'quote_side', 'Sidebar' ),
+			self::area( $p . 'side_heading', 'Planning heading', 'One line per row.', 3 ),
+		);
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "{$p}side_{$i}_icon", "Planning step {$i}: icon" );
+			$fields[] = self::text( "{$p}side_{$i}_title", "Planning step {$i}: title" );
+			$fields[] = self::text( "{$p}side_{$i}_text", "Planning step {$i}: text" );
+		}
+		$fields[] = self::text( $p . 'help_heading', 'Help box heading' );
+		$fields[] = self::text( $p . 'help_text', 'Help box text', 'The call button uses the global phone number.' );
+		$fields[] = self::text( $p . 'help_link', 'Treats link label' );
+		$fields[] = self::image( $p . 'side_image', 'Sidebar photo' );
+		$fields[] = self::tab( 'quote_next', 'What happens next' );
+		$fields[] = self::text( $p . 'next_heading', 'Heading' );
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "{$p}next_{$i}_icon", "Item {$i}: icon" );
+			$fields[] = self::text( "{$p}next_{$i}_title", "Item {$i}: title" );
+			$fields[] = self::text( "{$p}next_{$i}_text", "Item {$i}: text" );
+		}
+		$fields[] = self::tab( 'quote_success', 'After sending' );
+		$fields[] = self::text( $p . 'success_heading', 'Confirmation heading' );
+		$fields[] = self::area( $p . 'success_text', 'Confirmation text', 'Say the request was received and will be reviewed. Never imply a booking, payment or confirmed date.', 2 );
+		$fields[] = self::text( $p . 'success_note', 'Confirmation note' );
+		$fields[] = self::text( $p . 'success_cta', 'Primary button label (treats)' );
+		$fields[] = self::text( $p . 'success_home', 'Secondary button label (homepage)' );
+		$fields[] = self::tab( 'quote_fallback', 'Form unavailable' );
+		$fields[] = self::area( $p . 'unavailable', 'Text shown if the form plugins are switched off', 'Visitors then see call and email options; nothing is accepted without being saved.', 2 );
+		return self::page_group( 'quote', 'Get a Quote composition', $fields, self::page_rule( 'get-a-quote' ) );
 	}
 
 	/**
@@ -788,6 +835,7 @@ final class Fields {
 			self::area( 'cic_hero_intro', 'Introduction', '', 2 ),
 			self::text( 'cic_hero_cta', 'Quote button label', 'Opens the shared quote flow with this occasion selected.' ),
 			self::text( 'cic_hero_link_label', 'Treats link label' ),
+			self::text( 'cic_event_short_label', 'Short label', 'Used on the quote form tiles and enquiry summaries (e.g. "Birthday"). Empty uses the title.' ),
 		);
 		for ( $i = 1; $i <= 3; $i++ ) {
 			$fields[] = self::image( "cic_hero_image_{$i}", "Hero photo {$i}", 1 === $i ? 'Birthday: left of the collage. Wedding: full-width background. Anniversary/Corporate: main photo.' : ( 2 === $i ? 'Birthday: centre (largest). Anniversary/Corporate: framed inset.' : 'Birthday: right.' ) );

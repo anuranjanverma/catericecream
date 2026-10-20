@@ -174,7 +174,7 @@ final class Catalog {
 				'fields'      => 'ids',
 			)
 		);
-		return array_map( static fn( $id ) => array( 'id' => (int) $id, 'key' => self::key( $id ), 'title' => get_the_title( $id ) ), $ids );
+		return array_map( static fn( $id ) => array( 'id' => (int) $id, 'key' => self::key( $id ), 'title' => get_the_title( $id ), 'label' => trim( (string) get_post_meta( $id, 'cic_event_short_label', true ) ) ?: get_the_title( $id ) ), $ids );
 	}
 
 	/** Unique key for a post type, derived from a base string. */

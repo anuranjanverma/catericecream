@@ -129,7 +129,7 @@ try {
 	cic8_check( 'P5.1 every tel/mailto link equals the global contact values (' . $contact['phone'] . ', ' . $contact['email'] . ')', array( $contact['phone_href'] ) === array_values( $tel ) && array( 'mailto:' . $contact['email'] ) === array_values( $mail ) && str_contains( $contact_html, esc_html( $contact['phone'] ) ) );
 	cic8_check( 'P5.2 the verified phone/email from the prompt are what is configured', 'tel:+18187269700' === $contact['phone_href'] && 'ceo.frostyyummy@gmail.com' === $contact['email'] );
 	preg_match_all( '/<form\b[^>]*>/', $contact_html, $forms );
-	cic8_check( 'P5.3 no alternative message form, personal-data fields or fake success on Contact (CF7 form pending Phase 06)', 0 === count( $forms[0] ) && ! preg_match( '/name="(your-|email|message|name)"/', $contact_html ) && ! preg_match( '/message (has been )?sent|thank you for your message|we received/i', wp_strip_all_tags( $contact_html ) ) && str_contains( $contact_html, 'cic-contact-pending' ) );
+	cic8_check( 'P5.3 Contact has exactly one form — the configured CF7 Contact form (Phase 06) — and shows no success before a message is sent', 1 === count( $forms[0] ) && str_contains( $forms[0][0], 'wpcf7-form' ) && str_contains( $contact_html, 'name="_wpcf7" value="' . \CIC\Enquiries\Forms::id( 'contact' ) . '"' ) && str_contains( $contact_html, 'data-cic-received hidden' ) && ! str_contains( $contact_html, 'cic-contact-pending' ) );
 	cic8_check( 'P5.4 Contact offers the event-quote alternative and FAQ accordions', str_contains( $contact_html, 'href="' . $contact['quote_url'] . '"' ) && substr_count( $contact_html, 'cic-accordion__item' ) >= 3 );
 
 	/* ---------------- P6 links, navigation, copy ---------------- */

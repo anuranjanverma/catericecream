@@ -94,7 +94,38 @@
 			.catch( function () { return null; } );
 	};
 
-	window.cicQuoteContext = { read: read, merge: merge, url: quoteUrl, validators: validators, check: check };
+	// Lead attribution (§17): template type + record key of the page where an explicit quote action
+	// happened. First and latest are kept for the session; never personal data.
+	var SOURCE = 'cic_quote_source';
+	var readSource = function () {
+		try {
+			return JSON.parse( window.sessionStorage.getItem( SOURCE ) ) || {};
+		} catch ( e ) {
+			return {};
+		}
+	};
+	var recordSource = function () {
+		if ( ! cfg.page || ! cfg.page.type ) {
+			return;
+		}
+		var s = readSource();
+		var here = { type: cfg.page.type, key: cfg.page.key || '' };
+		if ( ! s.first ) {
+			s.first = here;
+		}
+		s.latest = here;
+		try {
+			window.sessionStorage.setItem( SOURCE, JSON.stringify( s ) );
+		} catch ( e ) {}
+	};
+	var clear = function () {
+		try {
+			window.sessionStorage.removeItem( KEY );
+			window.sessionStorage.removeItem( SOURCE );
+		} catch ( e ) {}
+	};
+
+	window.cicQuoteContext = { read: read, merge: merge, url: quoteUrl, validators: validators, check: check, source: readSource, recordSource: recordSource, clear: clear };
 
 	// Arriving on the quote route through an explicit action: its validated parameters join the context.
 	if ( isQuote( window.location.href ) ) {
@@ -112,6 +143,7 @@
 		}
 		var selection = {};
 		target.searchParams.forEach( function ( v, k ) { selection[ k ] = v; } );
+		recordSource();
 		link.href = quoteUrl( merge( selection ) );
 	} );
 
@@ -166,6 +198,7 @@
 				error.hidden = true;
 			}
 			var go = function () {
+				recordSource();
 				window.location.assign( quoteUrl( merge( selection ) ) );
 			};
 			if ( ! selection.location || ! cfg.coverageUrl ) {
@@ -242,7 +275,7 @@
 					}
 					if ( 'outside_area' !== data.status && 'invalid' !== data.status ) {
 						var where = form.getAttribute( 'data-city' ) && /^\d{5}$/.test( data.key || '' ) ? data.key : ( data.key || input.value.trim() );
-						link( quoteUrl( Object.assign( {}, read(), { location: where } ) ), cfg.messages.continue, function () { merge( { location: where } ); } );
+						link( quoteUrl( Object.assign( {}, read(), { location: where } ) ), cfg.messages.continue, function () { recordSource(); merge( { location: where } ); } );
 					}
 					if ( data.fixture ) {
 						var note = document.createElement( 'span' );

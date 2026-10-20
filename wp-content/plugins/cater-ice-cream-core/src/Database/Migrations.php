@@ -10,6 +10,8 @@
  * the manage_locations capability. The owner adopted them as the permanent location schema.
  * v4 (Service Areas admin): nullable manual_at on ZIPs and city-ZIP mappings, recording manual
  * coverage decisions so CSV imports report conflicts instead of overwriting them.
+ * v5 (Phase 06): {prefix}cic_submissions (retry claims + notification state referencing Flamingo
+ * messages; no personal data), manage_cic_enquiries capability and the Enquiry manager role.
  *
  * @package CIC
  */
@@ -22,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Migrations {
 
-	public const TARGET_VERSION = 4;
+	public const TARGET_VERSION = 5;
 
 	private const LOCK_OPTION = 'cic_core_migration_lock';
 	private const LOCK_TTL    = 300;
@@ -78,6 +80,48 @@ final class Migrations {
 	 */
 	private function migrate_to_4(): void {
 		self::create_location_tables();
+	}
+
+	/**
+	 * Enquiry submission coordination (Phase 06) and the enquiry capability/role.
+	 */
+	private function migrate_to_5(): void {
+		self::create_submissions_table();
+		\CIC\Enquiries\Roles::install();
+	}
+
+	/**
+	 * One row per accepted submission key: the atomic retry claim, the Flamingo message it produced,
+	 * per-channel notification state and a non-personal receipt summary for the confirmation page.
+	 * No personal data is stored here; the enquiry itself lives only in Flamingo.
+	 */
+	public static function create_submissions_table(): void {
+		global $wpdb;
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		$table   = $wpdb->prefix . 'cic_submissions';
+		$collate = $wpdb->get_charset_collate();
+		dbDelta(
+			"CREATE TABLE {$table} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				form varchar(20) NOT NULL DEFAULT '',
+				key_hash char(64) NOT NULL,
+				status varchar(20) NOT NULL DEFAULT 'processing',
+				flamingo_id bigint(20) unsigned NOT NULL DEFAULT 0,
+				receipt char(32) NOT NULL DEFAULT '',
+				summary text NOT NULL,
+				operator_status varchar(20) NOT NULL DEFAULT 'pending',
+				customer_status varchar(20) NOT NULL DEFAULT 'pending',
+				attempts smallint(5) unsigned NOT NULL DEFAULT 0,
+				last_error varchar(100) NOT NULL DEFAULT '',
+				created_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+				PRIMARY KEY  (id),
+				UNIQUE KEY key_hash (key_hash),
+				KEY flamingo_id (flamingo_id),
+				KEY receipt (receipt),
+				KEY created_at (created_at)
+			) {$collate};"
+		);
 	}
 
 	/**

@@ -111,7 +111,7 @@ let browser;
 		await page.$eval( '#cic-treats-quote-location', ( el ) => { el.value = '91101'; } );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.$eval( '#cic-treats-quote-location', ( el ) => el.form.requestSubmit() ) ] );
 		const tq = new URL( page.url() );
-		const tsum = await page.$eval( 'main', ( m ) => m.textContent );
+		const tsum = await page.$eval( 'main', ( m ) => m.innerText ); // visible text only (the confirmation template stays hidden)
 		check( 'B4 valid starter hands over to the quote route with location + occasion; no success claim', '/get-a-quote/' === tq.pathname && '91101' === tq.searchParams.get( 'location' ) && 'wedding' === tq.searchParams.get( 'event' ) && ! /thank you|received|submitted/i.test( tsum ), page.url() );
 
 		// ---- Events Explore ----

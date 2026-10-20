@@ -1,9 +1,9 @@
 <?php
 /**
  * Contact (approved reference designs/16_contact.png; mobile column of 20_mobile_supporting.png).
- * Phone, email and location come from the global contact settings. The general message form is a
- * CF7 form built in Phase 06: until then the message panel offers the real call and email routes
- * and the quote route; nothing here submits, stores or claims to send a message.
+ * Phone, email and location come from the global contact settings. The message panel holds the
+ * shared CF7 Contact form (saved in Flamingo before any notification, same foundation as the quote
+ * form). If Contact Form 7 or Flamingo is unavailable it shows the call and email routes instead.
  *
  * @package CaterIceCream
  */
@@ -71,6 +71,21 @@ $cic_steps   = array(
 				<?php if ( '' !== $cic_vm['help']['intro'] ) : ?>
 					<p><?php echo esc_html( $cic_vm['help']['intro'] ); ?> <a href="<?php echo esc_url( $cic_contact['quote_url'] ); ?>"><?php esc_html_e( 'Open the quote form', 'cater-ice-cream' ); ?></a></p>
 				<?php endif; ?>
+				<?php
+				get_template_part(
+					'template-parts/components/enquiry-received',
+					null,
+					array(
+						'type'    => 'contact',
+						'receipt' => $cic_vm['success']['receipt'],
+						'success' => $cic_vm['success'],
+					)
+				);
+				?>
+				<div class="cic-contact-form" data-cic-form-area<?php echo $cic_vm['success']['receipt'] ? ' hidden' : ''; ?>>
+				<?php if ( '' !== $cic_vm['form'] ) : ?>
+					<?php echo $cic_vm['form']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Contact Form 7 output. ?>
+				<?php else : ?>
 				<div class="cic-contact-pending" role="note">
 					<span class="cic-contact-pending__icon"><?php echo cic_theme_icon( 'chat' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 					<p><?php echo esc_html( $cic_vm['help']['pending'] ); ?></p>
@@ -82,6 +97,8 @@ $cic_steps   = array(
 					<?php if ( '' !== $cic_contact['email'] ) : ?>
 						<a class="cic-button cic-button--secondary" href="<?php echo esc_url( 'mailto:' . $cic_contact['email'] ); ?>"><?php echo cic_theme_icon( 'mail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><?php echo esc_html( $cic_contact['email'] ); ?></a>
 					<?php endif; ?>
+				</div>
+				<?php endif; ?>
 				</div>
 			</div>
 			<div class="cic-contact-side">

@@ -29,6 +29,8 @@
 !/wp-content/mu-plugins/
 /wp-content/mu-plugins/*
 !/wp-content/mu-plugins/cic-catalog-guard.php
+# Local-only mail routing to Mailpit (inactive unless the environment type is "local").
+!/wp-content/mu-plugins/cic-local-mail.php
 
 # Credentials and environment files (defence in depth, even inside allowed folders)
 wp-config.php

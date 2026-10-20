@@ -195,7 +195,7 @@ foreach ( $pages as $key => $p ) {
 cic7_check( 'D5.1 every page: Plan/quote link carries its event/treat; starter forms go to the quote route with it fixed; no personal fields', ! $qa, $qa );
 $route = cic7_get( home_url( '/get-a-quote/?event=wedding&location=91101&guests=40' ) )['body'];
 $route2 = cic7_get( home_url( '/get-a-quote/?treat=frozen-yogurt&event=corporate' ) )['body'];
-cic7_check( 'D5.2 quote route shows the carried selections and claims no submission (Phase 06 pending)', str_contains( $route, 'Weddings' ) && str_contains( $route, '91101' ) && str_contains( $route2, 'Frozen Yogurt' ) && str_contains( $route2, 'Corporate Events' ) && ! preg_match( '/thank you|received|submitted|booked|confirmed your/i', wp_strip_all_tags( cic7_main( $route . $route2 ) ) ) );
+cic7_check( 'D5.2 quote route prefills the carried selections in the Phase 06 form; nothing claims a submission before sending', (bool) preg_match( '/name="event" value="wedding" checked/', $route ) && str_contains( $route, 'value="91101"' ) && str_contains( $route, 'value="40"' ) && (bool) preg_match( '/value="frozen-yogurt" checked/', $route2 ) && (bool) preg_match( '/name="event" value="corporate" checked/', $route2 ) && str_contains( $route, 'data-cic-received hidden' ) && str_contains( $route2, 'data-cic-received hidden' ) );
 cic7_check( 'D5.3 no second form system: no CF7/Flamingo or other form plugin output on detail pages', ! array_filter( $html, static fn( $h ) => preg_match( '/wpcf7|class="gform|wpforms|nf-form/', $h ) ) );
 
 /* ---------------- D6 copy rules ---------------- */

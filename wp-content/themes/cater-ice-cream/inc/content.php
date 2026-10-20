@@ -26,6 +26,9 @@ function cic_theme_icon( string $name ): string {
 		'calendar'   => '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
 		'pin'        => '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.5"/>',
 		'chat'       => '<path d="M4 5.5h16v10H9l-5 4z"/>',
+		'check'      => '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.5 9.5"/>',
+		'dots'       => '<circle cx="5.5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18.5" cy="12" r="1.4"/>',
+		'clock'      => '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
 		'leaf'       => '<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/>',
 		'cupcake'    => '<path d="M6 12h12l-1.6 8H7.6z"/><path d="M9.5 12l.5 8M14.5 12l-.5 8"/><path d="M5.5 12a3 3 0 0 1 1.2-5.6A5.3 5.3 0 0 1 12 3.5a5.3 5.3 0 0 1 5.3 2.9 3 3 0 0 1 1.2 5.6"/><path d="M12 3.5V2"/>',
 		'wand'       => '<path d="M4 20l10-10"/><path d="M15 3v3M13.5 4.5h3M19 7v2M18 8h2M18 13v2M17 14h2M10 4v1.5M9.25 4.75h1.5"/><path d="M12.5 11.5l2 2"/>',
@@ -155,6 +158,42 @@ function cic_theme_arrow_link( string $url, string $label, string $class = 'cic-
 	return '<a class="' . esc_attr( $class ) . '" href="' . esc_url( $url ) . '">' . esc_html( $label ) . ' <span aria-hidden="true">→</span></a>';
 }
 
+/**
+ * Non-personal source context of the current page for lead attribution (template type + record
+ * key), recorded by context.js only when the visitor takes an explicit quote action.
+ *
+ * @return array{type: string, key: string}
+ */
+function cic_theme_source_page(): array {
+	$key = static fn( int $id ): string => class_exists( '\CIC\Content\Catalog' ) ? \CIC\Content\Catalog::key( $id ) : '';
+	if ( is_front_page() ) {
+		return array( 'type' => 'home', 'key' => '' );
+	}
+	if ( is_singular( 'cic_event' ) ) {
+		return array( 'type' => 'event', 'key' => $key( (int) get_queried_object_id() ) );
+	}
+	if ( is_singular( 'product' ) ) {
+		return array( 'type' => 'treat', 'key' => $key( (int) get_queried_object_id() ) );
+	}
+	$route = class_exists( '\CIC\Locations\Routes' ) ? \CIC\Locations\Routes::current() : null;
+	if ( $route && 'city' === $route['type'] ) {
+		return array( 'type' => 'city', 'key' => (string) $route['city']['key'] );
+	}
+	if ( $route || is_page( 'service-areas' ) ) {
+		return array( 'type' => 'hub', 'key' => '' );
+	}
+	if ( is_page( 'contact' ) ) {
+		return array( 'type' => 'contact', 'key' => '' );
+	}
+	if ( is_page( 'get-a-quote' ) ) {
+		return array( 'type' => 'quote', 'key' => '' );
+	}
+	if ( is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) ) {
+		return array( 'type' => 'catalogue', 'key' => '' );
+	}
+	return array( 'type' => 'other', 'key' => '' );
+}
+
 add_action(
 	'wp_enqueue_scripts',
 	static function (): void {
@@ -183,6 +222,11 @@ add_action(
 		if ( $location ) {
 			wp_enqueue_style( 'cic-locations', get_template_directory_uri() . '/assets/css/locations.css', array( 'cic-home' ), cic_theme_asset_version( 'assets/css/locations.css' ) );
 		}
+		// Shared enquiry forms (quote + contact): styles and progressive enhancement.
+		$forms = is_page( array( 'get-a-quote', 'contact' ) );
+		if ( $forms ) {
+			wp_enqueue_style( 'cic-quote', get_template_directory_uri() . '/assets/css/quote.css', array( 'cic-main' ), cic_theme_asset_version( 'assets/css/quote.css' ) );
+		}
 		// Quote context helper on every page: explicit selections travel to the quote route.
 		if ( class_exists( '\CIC\Quote\Context' ) ) {
 			wp_enqueue_script( 'cic-context', get_template_directory_uri() . '/assets/js/context.js', array(), cic_theme_asset_version( 'assets/js/context.js' ), array( 'strategy' => 'defer', 'in_footer' => true ) );
@@ -195,9 +239,42 @@ add_action(
 				'cityPage' => __( 'See the city page', 'cater-ice-cream' ),
 				'fixture'  => __( 'Local test data, not approved coverage.', 'cater-ice-cream' ),
 			);
+			$config['page']         = cic_theme_source_page();
 			$config['coverageUrl']  = rest_url( 'cic/v1/coverage' );
 			$config['locationsUrl'] = rest_url( 'cic/v1/locations' );
 			wp_add_inline_script( 'cic-context', 'window.cicContext = ' . wp_json_encode( $config ) . ';', 'before' );
+			if ( $forms ) {
+				wp_enqueue_script( 'cic-quote', get_template_directory_uri() . '/assets/js/quote.js', array( 'cic-context' ), cic_theme_asset_version( 'assets/js/quote.js' ), array( 'strategy' => 'defer', 'in_footer' => true ) );
+				wp_add_inline_script(
+					'cic-quote',
+					'window.cicQuote = ' . wp_json_encode(
+						array(
+							'messages' => array(
+								'summary'   => __( 'Please check these fields:', 'cater-ice-cream' ),
+								'required'  => __( 'Please fill in this field.', 'cater-ice-cream' ),
+								'event'     => __( 'Please choose what you are celebrating.', 'cater-ice-cream' ),
+								'date'      => __( 'Please choose your event date, or tick “Date not set yet”.', 'cater-ice-cream' ),
+								'dateRange' => __( 'Please choose a date from today onward (within three years).', 'cater-ice-cream' ),
+								'guests'    => __( 'Please enter an approximate guest count (a whole number from 1).', 'cater-ice-cream' ),
+								'location'  => __( 'Please enter your event city or 5-digit ZIP code.', 'cater-ice-cream' ),
+								'treats'    => __( 'Please choose at least one treat, or “Not sure yet”.', 'cater-ice-cream' ),
+								'email'     => __( 'Please enter a valid email address, for example name@example.com.', 'cater-ice-cream' ),
+								'phone'     => __( 'Please add a phone number so we can call you, or choose email.', 'cater-ice-cream' ),
+								'needCity'  => __( 'Venue city', 'cater-ice-cream' ),
+								'needZip'   => __( 'Event ZIP code', 'cater-ice-cream' ),
+								'sending'   => __( 'Sending…', 'cater-ice-cream' ),
+								'network'   => __( 'We could not reach the server. Your answers are kept: please press Send again.', 'cater-ice-cream' ),
+								'waiting'   => __( 'We are already saving this request. Please wait a moment.', 'cater-ice-cream' ),
+								'unsureTip' => __( 'Not sure yet', 'cater-ice-cream' ),
+								'tbc'       => __( 'Date to be confirmed', 'cater-ice-cream' ),
+								'guestsFmt' => __( '%d guests', 'cater-ice-cream' ),
+								'other'     => __( 'Other occasion', 'cater-ice-cream' ),
+							),
+						)
+					) . ';',
+					'before'
+				);
+			}
 		}
 	}
 );

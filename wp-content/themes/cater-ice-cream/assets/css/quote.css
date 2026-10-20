@@ -1,0 +1,1163 @@
+/**
+ * Shared enquiry forms: Get a Quote (17_quote_step_1.png, 18_quote_later_steps.png, mobile
+ * 21_mobile_detail_and_quote.png) and the Contact message form (16_contact.png).
+ * Design-system tokens only (no page palette or hex values); visible focus; reduced motion.
+ * Without JavaScript every step is visible and the form posts normally.
+ */
+
+/* ---------------- Page ---------------- */
+.cic-quote-page {
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-quote-hero {
+	padding-block: calc(var(--cic-space) * 2) calc(var(--cic-space) * 2);
+}
+
+.cic-quote-hero__grid {
+	display: grid;
+	gap: 1.5rem;
+	align-items: center;
+}
+
+.cic-quote-hero__title {
+	margin: 0.2em 0 0.35em;
+	color: var(--cic-color-heading);
+}
+
+.cic-quote-hero__title .cic-line {
+	display: block;
+}
+
+.cic-quote-hero__text .cic-lead em {
+	font-style: italic;
+}
+
+.cic-quote-hero__art {
+	display: none;
+	justify-self: end;
+	width: min(240px, 100%);
+}
+
+.cic-quote-main {
+	padding-bottom: calc(var(--cic-space) * 2);
+}
+
+.cic-quote-main__grid {
+	display: grid;
+	gap: 1.25rem;
+	align-items: start;
+}
+
+.cic-quote-card,
+.cic-quote-plan,
+.cic-quote-help,
+.cic-quote-next {
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-quote-card {
+	padding: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+@media (min-width: 900px) {
+	.cic-quote-hero__grid {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+
+	.cic-quote-hero__art {
+		display: block;
+	}
+
+	.cic-quote-main__grid {
+		grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+	}
+}
+
+/* ---------------- Sidebar ---------------- */
+.cic-quote-side {
+	display: grid;
+	gap: 1.25rem;
+}
+
+.cic-quote-plan {
+	padding: 1.5rem;
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-quote-plan__head {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-start;
+	justify-content: space-between;
+}
+
+.cic-quote-plan__title,
+.cic-quote-help__title,
+.cic-quote-next__title {
+	margin: 0 0 0.75rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+}
+
+.cic-quote-plan__title .cic-line {
+	display: block;
+}
+
+.cic-quote-plan__mascot {
+	flex: 0 0 auto;
+	width: 64px;
+}
+
+.cic-quote-plan__list,
+.cic-quote-next__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-quote-plan__list li {
+	display: flex;
+	gap: 0.85rem;
+	align-items: flex-start;
+	padding-block: 0.65rem;
+}
+
+.cic-quote-plan__list strong,
+.cic-quote-next__list strong {
+	display: block;
+	color: var(--cic-color-heading);
+}
+
+.cic-quote-plan__icon,
+.cic-quote-next__icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+	background-color: var(--wp--preset--color--surface-base);
+	color: var(--cic-color-action);
+}
+
+.cic-quote-plan__icon svg,
+.cic-quote-next__icon svg {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+.cic-quote-help {
+	padding: 1.5rem;
+}
+
+.cic-quote-help .cic-button svg {
+	width: 1.1em;
+	height: 1.1em;
+}
+
+.cic-quote-help__link {
+	margin: 1rem 0 0;
+	padding-top: 0.85rem;
+	border-top: 1px solid var(--cic-color-border);
+}
+
+.cic-quote-side__photo img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: var(--cic-radius-card);
+}
+
+/* ---------------- What happens next ---------------- */
+.cic-quote-next-band {
+	padding-bottom: var(--cic-section-pad);
+}
+
+.cic-quote-next {
+	display: grid;
+	gap: 1rem;
+	padding: 1.5rem;
+}
+
+.cic-quote-next__list {
+	display: grid;
+	gap: 1rem;
+}
+
+.cic-quote-next__list li {
+	display: flex;
+	gap: 0.85rem;
+	align-items: flex-start;
+}
+
+.cic-quote-next__icon {
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+@media (min-width: 900px) {
+	.cic-quote-next {
+		grid-template-columns: minmax(180px, 0.6fr) minmax(0, 3fr);
+		align-items: center;
+	}
+
+	.cic-quote-next__list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-quote-next__list li + li {
+		padding-left: 1rem;
+		border-left: 1px solid var(--cic-color-border);
+	}
+}
+
+/* ---------------- Form structure ---------------- */
+.cic-form,
+.cic-received {
+	text-align: left;
+}
+
+/* The confirmation carries its own "What happens next?": hide the page band meanwhile. */
+.cic-quote-page:has([data-cic-received]:not([hidden])) .cic-quote-next-band {
+	display: none;
+}
+
+.cic-form .hidden-fields-container {
+	display: contents;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.cic-js .cic-js-only {
+	display: revert;
+}
+
+.cic-js-only {
+	display: none !important;
+}
+
+.cic-js .cic-qf__nav.cic-js-only,
+.cic-js .cic-qf__progress.cic-js-only {
+	display: flex !important;
+}
+
+.cic-js .cic-glance.cic-js-only {
+	display: block !important;
+}
+
+.cic-js button.cic-js-only {
+	display: inline-flex !important;
+}
+
+.cic-form .cic-qf__step {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.cic-form .cic-qf__step + .cic-qf__step {
+	margin-top: 2.5rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--cic-color-border);
+}
+
+.cic-qf--enhanced .cic-qf__step + .cic-qf__step {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.cic-qf__legend {
+	display: block;
+	margin-bottom: 0.4rem;
+	padding: 0;
+}
+
+.cic-qf__kicker {
+	display: block;
+	margin-bottom: 0.35rem;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+	font-weight: var(--cic-weight-ui);
+	letter-spacing: var(--cic-tracking-eyebrow);
+	text-transform: uppercase;
+}
+
+.cic-qf__title {
+	display: block;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+	font-weight: var(--cic-weight-strong);
+	line-height: 1.15;
+}
+
+.cic-qf__title:focus {
+	outline: none;
+}
+
+.cic-qf__title:focus-visible {
+	outline: 2px solid var(--cic-color-focus);
+	outline-offset: 4px;
+}
+
+.cic-qf__intro {
+	margin: 0 0 1.5rem;
+	color: var(--cic-color-muted);
+}
+
+.cic-qf__grid {
+	display: grid;
+	gap: 0 1.25rem;
+}
+
+@media (min-width: 640px) {
+	.cic-qf__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.cic-form .cic-field {
+	margin-bottom: 1.15rem;
+}
+
+.cic-form .cic-field[hidden] {
+	display: none;
+}
+
+.cic-field__label {
+	display: block;
+	margin-bottom: 0.4rem;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+}
+
+legend.cic-field__label {
+	padding: 0;
+}
+
+.cic-req {
+	color: var(--cic-color-action);
+}
+
+.cic-opt {
+	color: var(--cic-color-muted);
+	font-weight: var(--cic-weight-body);
+}
+
+.cic-field__help {
+	display: block;
+	margin-top: 0.35rem;
+	color: var(--cic-color-muted);
+	font-size: 0.875rem;
+}
+
+.cic-field__control {
+	position: relative;
+	display: block;
+}
+
+.cic-field__icon {
+	position: absolute;
+	top: 50%;
+	left: 0.85rem;
+	display: inline-flex;
+	color: var(--cic-color-muted);
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.cic-field__icon svg {
+	width: 1.2rem;
+	height: 1.2rem;
+}
+
+.cic-field__icon + .cic-input {
+	padding-left: 2.6rem;
+}
+
+.cic-form .wpcf7-form-control-wrap {
+	display: block;
+}
+
+.cic-form select.cic-input {
+	appearance: auto;
+}
+
+.cic-form .cic-input:disabled {
+	background-color: var(--wp--preset--color--surface-soft);
+	color: var(--cic-color-muted);
+}
+
+.cic-check,
+.cic-radio {
+	display: inline-flex;
+	gap: 0.55rem;
+	align-items: center;
+	min-height: 44px;
+	cursor: pointer;
+}
+
+.cic-check .wpcf7-form-control-wrap {
+	display: inline-flex;
+}
+
+.cic-check input,
+.cic-radio input {
+	width: 1.15rem;
+	height: 1.15rem;
+	accent-color: var(--cic-color-action);
+}
+
+.cic-radios {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.5rem;
+}
+
+.cic-field--radio {
+	min-width: 0;
+	margin: 0 0 1.15rem;
+	padding: 0;
+	border: 0;
+}
+
+.cic-qf__note,
+.cic-qf__privacy,
+.cic-qf__after {
+	color: var(--cic-color-muted);
+	font-size: 0.9375rem;
+}
+
+.cic-qf__note {
+	padding: 0.85rem 1rem;
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-soft);
+	font-style: italic;
+}
+
+.cic-qf__after {
+	margin-top: 0.75rem;
+	text-align: right;
+}
+
+.cic-qf__coverage {
+	display: block;
+	margin-top: 0.5rem;
+	padding: 0.6rem 0.8rem;
+	border-left: 3px solid var(--wp--preset--color--lavender);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-soft);
+	font-size: 0.9375rem;
+}
+
+.cic-qf__coverage[data-status="outside_area"] {
+	border-left-color: var(--wp--preset--color--error);
+}
+
+.cic-qf__coverage[hidden] {
+	display: none;
+}
+
+/* Honeypot: off-screen for people and assistive technology. */
+.cic-hp {
+	position: absolute !important;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+/* ---------------- Progress ---------------- */
+.cic-qf__progress ol {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	width: 100%;
+	margin: 0 0 1.75rem;
+	padding: 0;
+	list-style: none;
+	counter-reset: none;
+}
+
+.cic-qf__progress li {
+	display: flex;
+	flex: 1 1 0;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.cic-qf__progress li + li::before {
+	flex: 1 1 auto;
+	height: 2px;
+	margin-right: 0.25rem;
+	background-color: var(--cic-color-border);
+	content: "";
+}
+
+.cic-qf__progress li.is-done + li::before,
+.cic-qf__progress li.is-current::before {
+	background-color: var(--cic-color-decor);
+}
+
+.cic-qf__stepbtn {
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+	min-height: 44px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--cic-color-muted);
+	font: inherit;
+	cursor: pointer;
+}
+
+.cic-qf__num {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border: 2px solid var(--cic-color-border);
+	border-radius: 50%;
+	background-color: var(--wp--preset--color--surface-base);
+	font-weight: var(--cic-weight-ui);
+}
+
+.is-current .cic-qf__stepbtn {
+	color: var(--cic-color-action);
+	font-weight: var(--cic-weight-ui);
+}
+
+.is-current .cic-qf__num {
+	border-color: var(--cic-color-action);
+	background-color: var(--cic-color-action);
+	color: var(--cic-color-on-action);
+}
+
+.is-done .cic-qf__num {
+	border-color: var(--cic-color-decor);
+	background-color: var(--cic-color-decor);
+	color: var(--cic-color-on-action);
+}
+
+@media (max-width: 599px) {
+	.cic-qf__steplabel {
+		font-size: 0.8125rem;
+	}
+
+	.cic-qf__progress li {
+		flex-direction: column;
+	}
+
+	.cic-qf__progress li + li::before {
+		display: none;
+	}
+
+	.cic-qf__stepbtn {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+}
+
+/* ---------------- Event tiles ---------------- */
+.cic-field--tiles {
+	min-width: 0;
+	margin: 0 0 1.25rem;
+	padding: 0;
+	border: 0;
+}
+
+.cic-tiles {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+	.cic-tiles {
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+	}
+}
+
+.cic-tile {
+	position: relative;
+	display: block;
+	cursor: pointer;
+}
+
+.cic-tile:last-child:nth-child(odd) {
+	grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+	.cic-tile:last-child:nth-child(odd) {
+		grid-column: auto;
+	}
+}
+
+.cic-tile__input {
+	position: absolute;
+	opacity: 0;
+}
+
+.cic-tile__box {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	align-items: center;
+	justify-content: center;
+	min-height: 6.5rem;
+	padding: 1rem 0.5rem;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+	color: var(--cic-color-heading);
+	text-align: center;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cic-tile .cic-field__icon {
+	position: static;
+	color: var(--cic-color-secondary);
+	transform: none;
+}
+
+.cic-tile .cic-field__icon svg {
+	width: 2rem;
+	height: 2rem;
+}
+
+.cic-tile__input:checked + .cic-tile__box {
+	border: 2px solid var(--cic-color-action);
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-tile__input:focus-visible + .cic-tile__box,
+.cic-treat__input:focus-visible + .cic-treat__box,
+.cic-unsure__input:focus-visible + .cic-unsure__box {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 2px;
+}
+
+.cic-tile__check,
+.cic-treat__check {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	width: 1.4rem;
+	height: 1.4rem;
+	border-radius: 50%;
+}
+
+.cic-tile__input:checked + .cic-tile__box .cic-tile__check,
+.cic-treat__input:checked + .cic-treat__box .cic-treat__check {
+	background-color: var(--cic-color-action);
+}
+
+.cic-tile__input:checked + .cic-tile__box .cic-tile__check::after,
+.cic-treat__input:checked + .cic-treat__box .cic-treat__check::after {
+	position: absolute;
+	inset: 0;
+	color: var(--cic-color-on-action);
+	font-size: 0.85rem;
+	font-weight: var(--cic-weight-strong);
+	line-height: 1.4rem;
+	text-align: center;
+	content: "\2713";
+}
+
+.cic-tiles.wpcf7-not-valid .cic-tile__box,
+.cic-treats.wpcf7-not-valid .cic-treat__box {
+	border-color: var(--wp--preset--color--error);
+}
+
+/* ---------------- Treat cards ---------------- */
+.cic-field--treats {
+	min-width: 0;
+	margin: 0 0 1rem;
+	padding: 0;
+	border: 0;
+}
+
+.cic-treats {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.85rem;
+}
+
+.cic-treat {
+	position: relative;
+	display: block;
+	cursor: pointer;
+}
+
+.cic-treat__input {
+	position: absolute;
+	opacity: 0;
+}
+
+.cic-treat__box {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	height: 100%;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-treat__img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	height: auto;
+	object-fit: cover;
+}
+
+.cic-treat__label {
+	padding: 0.65rem 0.75rem 0.85rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: clamp(1.05rem, 2vw, 1.3rem);
+	font-weight: var(--cic-weight-strong);
+	text-align: center;
+}
+
+.cic-treat__check {
+	top: 0.65rem;
+	right: auto;
+	left: 0.65rem;
+	border: 2px solid var(--cic-color-border);
+	border-radius: 4px;
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-treat__input:checked + .cic-treat__box {
+	border: 2px solid var(--cic-color-action);
+}
+
+.cic-treat__input:checked + .cic-treat__box .cic-treat__check {
+	border-color: var(--cic-color-action);
+}
+
+.cic-unsure {
+	display: block;
+	cursor: pointer;
+}
+
+.cic-unsure__input {
+	position: absolute;
+	opacity: 0;
+}
+
+.cic-unsure__box {
+	position: relative;
+	display: block;
+	padding: 1rem 1rem 1rem 3.25rem;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-unsure__box::before {
+	position: absolute;
+	top: 1.05rem;
+	left: 1rem;
+	width: 1.4rem;
+	height: 1.4rem;
+	border: 2px solid var(--cic-color-border);
+	border-radius: 4px;
+	content: "";
+}
+
+.cic-unsure__input:checked + .cic-unsure__box {
+	border: 2px solid var(--cic-color-action);
+}
+
+.cic-unsure__input:checked + .cic-unsure__box::before {
+	border-color: var(--cic-color-action);
+	background-color: var(--cic-color-action);
+	box-shadow: inset 0 0 0 3px var(--wp--preset--color--surface-base);
+}
+
+.cic-unsure__label {
+	display: block;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-unsure__help {
+	color: var(--cic-color-muted);
+	font-size: 0.875rem;
+}
+
+.cic-field--unsure {
+	padding-bottom: 1.25rem;
+	border-bottom: 1px solid var(--cic-color-border);
+}
+
+/* ---------------- At a glance ---------------- */
+.cic-glance {
+	margin: 0.5rem 0 1.5rem;
+	padding: 1.25rem 1.5rem;
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-glance__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	align-items: baseline;
+	justify-content: space-between;
+}
+
+.cic-glance__head h3 {
+	margin: 0 0 0.75rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+}
+
+.cic-glance__edit {
+	display: inline-flex;
+	gap: 1rem;
+}
+
+.cic-glance__edit .cic-text-link {
+	min-height: 44px;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
+}
+
+.cic-glance__grid {
+	display: grid;
+	gap: 0.85rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+	.cic-glance__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.cic-glance__row {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-start;
+}
+
+.cic-glance__row .cic-field__icon {
+	position: static;
+	color: var(--cic-color-action);
+	transform: none;
+}
+
+.cic-glance__row .cic-field__icon svg {
+	width: 1.6rem;
+	height: 1.6rem;
+}
+
+.cic-glance__label {
+	display: block;
+	color: var(--cic-color-muted);
+	font-size: 0.875rem;
+}
+
+.cic-glance__value {
+	display: block;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+}
+
+/* ---------------- Navigation and send ---------------- */
+.cic-qf__nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 1.5rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--cic-color-border);
+}
+
+.cic-qf__nav--send {
+	display: flex !important;
+}
+
+.cic-qf__count {
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+	font-weight: var(--cic-weight-ui);
+	letter-spacing: var(--cic-tracking-eyebrow);
+	text-transform: uppercase;
+}
+
+.cic-qf__back {
+	min-height: 44px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--cic-color-secondary);
+	font: inherit;
+	text-decoration: underline;
+	text-underline-offset: 0.3em;
+	cursor: pointer;
+}
+
+.cic-qf__nav .cic-button,
+.cic-cf .cic-button--send {
+	min-width: min(100%, 16rem);
+}
+
+.cic-button[disabled] {
+	opacity: 0.65;
+	cursor: progress;
+}
+
+@media (max-width: 599px) {
+	.cic-qf__nav .cic-button,
+	.cic-cf .cic-button--send {
+		width: 100%;
+	}
+}
+
+.cic-cf .cic-button--send {
+	width: 100%;
+	margin-top: 0.5rem;
+}
+
+/* ---------------- Errors and CF7 output ---------------- */
+.cic-form .wpcf7-not-valid-tip {
+	display: block;
+	margin-top: 0.4rem;
+	color: var(--wp--preset--color--error);
+	font-size: 0.875rem;
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-form .cic-input.wpcf7-not-valid {
+	border-color: var(--wp--preset--color--error);
+	box-shadow: 0 0 0 1px var(--wp--preset--color--error);
+}
+
+.cic-qf__errors {
+	margin-bottom: 1.25rem;
+	padding: 1rem 1.25rem;
+	border: 2px solid var(--wp--preset--color--error);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-qf__errors p {
+	margin: 0 0 0.4rem;
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-qf__errors ul {
+	margin: 0;
+	padding-left: 1.2rem;
+}
+
+.cic-qf__errors a {
+	color: var(--wp--preset--color--error);
+}
+
+.cic-qf__errors[hidden] {
+	display: none;
+}
+
+.cic-form .wpcf7-response-output {
+	margin: 1rem 0 0;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-field);
+}
+
+.cic-form .wpcf7-response-output:empty,
+.cic-form.init .wpcf7-response-output,
+.cic-form.sent .wpcf7-response-output {
+	display: none;
+}
+
+.cic-form.invalid .wpcf7-response-output,
+.cic-form.failed .wpcf7-response-output,
+.cic-form.aborted .wpcf7-response-output,
+.cic-form.spam .wpcf7-response-output {
+	border-color: var(--wp--preset--color--error);
+}
+
+.cic-form .wpcf7-spinner {
+	display: none;
+}
+
+.cic-form .screen-reader-response,
+.wpcf7 .screen-reader-response {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
+	white-space: nowrap;
+}
+
+.cic-quote-unavailable h2 {
+	margin-top: 0;
+	color: var(--cic-color-heading);
+}
+
+/* ---------------- Confirmation ---------------- */
+.cic-received {
+	display: grid;
+	gap: 1.25rem;
+}
+
+.cic-received[hidden] {
+	display: none;
+}
+
+.cic-received:focus {
+	outline: none;
+}
+
+.cic-received__main {
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
+}
+
+.cic-received__icon {
+	flex: 0 0 auto;
+	color: var(--cic-color-action);
+}
+
+.cic-received__icon svg {
+	width: clamp(3rem, 6vw, 4.5rem);
+	height: clamp(3rem, 6vw, 4.5rem);
+}
+
+.cic-received__title {
+	margin: 0 0 0.5rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+}
+
+.cic-received__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.25rem;
+	margin: 1rem 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-received__chips li {
+	display: inline-flex;
+	gap: 0.4rem;
+	align-items: center;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-received__chips li[hidden] {
+	display: none;
+}
+
+.cic-received__chips svg,
+.cic-received__call svg,
+.cic-received__next svg {
+	width: 1.3rem;
+	height: 1.3rem;
+	color: var(--cic-color-action);
+}
+
+.cic-received__note {
+	color: var(--cic-color-muted);
+	font-size: 0.9375rem;
+}
+
+.cic-received__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+.cic-received__next {
+	padding: 1.25rem;
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-received__next h3 {
+	margin: 0 0 0.75rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+}
+
+.cic-received__next ol {
+	display: grid;
+	gap: 1rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-received__next li strong {
+	display: block;
+	margin-top: 0.35rem;
+	color: var(--cic-color-heading);
+}
+
+.cic-received__next li span {
+	color: var(--cic-color-muted);
+	font-size: 0.9375rem;
+}
+
+@media (min-width: 720px) {
+	.cic-received__next ol {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.cic-received__call {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	margin: 0;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-received__call a {
+	color: var(--cic-color-heading);
+}
+
+/* Contact page: form inside the approved message panel. */
+.cic-contact-form {
+	margin-top: 1rem;
+}
+
+.cic-contact-help .cic-received {
+	margin-top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.cic-tile__box,
+	.cic-quote-page * {
+		transition: none !important;
+	}
+}
