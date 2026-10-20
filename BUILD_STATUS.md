@@ -12,12 +12,45 @@ Environment facts: see `ENVIRONMENT.md`.
 | 02 Design system and admin controls | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 03 Products, events and structured editing | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 04 Homepage and shared components | **Approved by the owner (2026-10-20)**, header logo size restored to the initial Phase 04 values (https://catericecream.test/) | 2026-10-20 |
-| 05 Locations, import, search, routes and SEO | **Provisional: built and tested with local fixtures only; NOT launch-ready.** Production city/state integration deferred until the owner supplies the historical city code and approved coverage data | 2026-10-20 |
+| 05 Locations, import, search, routes and SEO | **Permanent implementation (owner decision 2026-10-20); tested with local fixtures only, NOT launch-ready** until approved production coverage data is loaded. The historical city code is no longer a dependency | 2026-10-20 |
 | 06 Quote flow, lead management, mail and reminders | **Pending.** Deferred by owner instruction to after Phase 07; full quote-flow integration and testing outstanding | |
 | 07 Event and treat compositions | **Eight detail pages built and verified, awaiting owner review.** Built before Phase 06 by owner instruction; the vertical-slice/quote-flow prerequisite is **DEFERRED, not passed** | 2026-10-20 |
 | 08 Archives and supporting pages | **Built and verified, awaiting owner review.** Contact submissions + full quote flow pending Phase 06 | 2026-10-20 |
+| Service Areas admin enhancement | **Built and verified, awaiting owner review** (Add City, ZIP add/assign/remove, readable coverage controls, navigation, inheritance display, import conflict protection) | 2026-10-20 |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05 (provisional). Each was committed at the owner's request after reviewing the staged set. Phase 07 is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. The Service Areas admin enhancement is **not committed yet**.
+
+---
+
+## Service Areas admin enhancement (owner request, 2026-10-20)
+
+**Owner decision:** the existing Service Areas implementation (spec §9 tables, `DatabaseRepository`, virtual routes, city content records) is **permanent**. The historical city template/rewrite code is **no longer a dependency**. The outdated admin notice about waiting for it was removed. Approved production coverage data remains a separate pending item.
+
+Backup before the schema change: `C:\laragon\backup\catericecream\pre-service-areas-20261020-151230\` (DB dump + `wp-config.php`). Core plugin 0.5.0 → **0.6.0**.
+
+**What was reused (nothing duplicated):** the same tables, `CityStore` writes (validation, audit log, `Tables::bump_cache()`), `Coverage` rules (unchanged), the importer, city content records (`cic_city_editorial`), the existing preview and the `manage_locations` capability with nonce checks on every action.
+
+| Area | What changed |
+| --- | --- |
+| Schema v4 | One nullable column `manual_at` on `wp_cic_zips` and `wp_cic_city_zips` (dbDelta, no new tables). It records when a coverage decision was made by hand. |
+| Add City | "Add City" button on Cities. Fields: city name, state, county (suggests existing counties), auto-generated editable slug, optional coordinates (both or neither), dataset (Fixture is offered on local/dev only). New cities are always **Draft + Noindex** with no ZIPs, so coverage stays "Not confirmed". Refused: duplicate name + county, a slug used by another city, a slug recorded as another city's alias or previous slug, invalid slug/state/coordinates. |
+| ZIPs in the city editor | One ZIP or a pasted list (commas, spaces, new lines). Leading zeros kept; ZIP+4 shortened; 3–4 digit values flagged as a lost leading zero; non-California prefixes refused. **Check step first (nothing saved)**: new ZIP / link existing ZIP / already linked / cannot add. Existing shared ZIPs list the other cities and their decisions and explain the scope. New ZIP records start **Not reviewed yet**; new links **Use ZIP coverage**. A production city cannot link fixture ZIPs. |
+| Remove a ZIP | "Remove from this city" deletes only that relationship, after a confirmation. The ZIP record and its links to other cities stay. The removal is remembered for imports. |
+| Readable coverage controls | `CIC\Locations\Labels` maps internal values to labels with explanations (stored values unchanged). The city editor separates four things: **ZIP coverage — affects every linked city**; **Decision for this city — this relationship only**; **Page publication**; **Search-engine indexing** (with a ✓/✗ checklist of the three requirements). A "Result here" column shows the effective outcome. Changing ZIP coverage on a shared ZIP shows an inline warning naming the other cities, and the save message states how many cities a ZIP-wide change applies to versus "this city only". Exclusion precedence and the shared-ZIP clarification are unchanged. |
+| Navigation | Cities rows: **Edit city · Edit/Create content · Preview · View**, plus ZIP count and content status. City editor: action bar with the same actions, and status cards. **Preview now works for every city**: cities without a content record get an authenticated, nonce-protected, noindex city-level preview showing the inherited template. |
+| Inherited content | In the city content editor every empty override field shows **"Inherited from the city template: …"** (tokens such as `{city}` resolved; images as thumbnails). Filled fields show the template value and a **Reset to inherited** button, which empties the field; saving then inherits again. Nothing is copied into saved overrides. |
+| Data protection | Fixture/production labels unchanged; manual entries take the city's dataset and never relabel fixture data. Imports: a manual ZIP status, a manual city decision or note, and a manually removed link are reported as **conflicts** in the dry run and the applied result (CLI too) and are **left unchanged**. Other geography changes on the same row still apply. |
+
+**Changed files:** `src/Database/Migrations.php` (v4), `src/Locations/{CityStore, Importer, Cli, Editorial, Routes, Labels (new), Tables, DatabaseRepository, LocationRepository, Service}.php`, `src/Locations/Admin/LocationsPage.php`, `src/Content/ViewModel.php` (city-level preview flag), `cater-ice-cream-core.php` (0.6.0), `data/fixtures/README.md`, theme comment in `template-parts/home/section-coverage.php`, `CLAUDE.md`, tests in `dev/tests/service-areas/`. No frontend template, CSS or design value changed.
+
+**Verification (temporary fixture cities/ZIPs; everything restored in `finally`)**
+- `dev/tests/service-areas/admin-test.php`: **42/42**. Covers creating a draft city, duplicates, slug/alias collisions, invalid input, ZIP parsing, linking a new and a shared ZIP, no duplicates, the fixture/production guard, city-only vs ZIP-wide changes, exclusion precedence, removal without damaging other cities, import conflicts, slug redirects, inheritance + reset, directory/search/sitemap cache updates, and permissions.
+- `dev/tests/service-areas/admin-browser-test.cjs`: **21/21**, through the real screens. Includes the logged-out, bad-nonce and editor-role (no `manage_locations`) requests, all rejected with nothing created or removed.
+- Regressions: Phase 01 guard **69/69**, Phase 02 design **51/51**, Phase 03 **46/46**, Phase 04 **25/25**, Phase 05 server **55/55**, browser **24/24**, admin **12/12**, Phase 07 **23/23**, Phase 08 **24/24**.
+- Clean state: 0 test cities/users/links left, 61 original fixture mappings intact, no new PHP log entries, no test browsers open.
+- Walkthrough screenshots: `dev/tests/output/service-areas/sa-*.png` (git-ignored).
+
+**Not tested:** screen readers, Safari/Firefox, PHPCS.
 
 ---
 
@@ -64,7 +97,7 @@ Prompt: `prompts/08_archives_and_supporting_pages.md`. References 03, 08, 14, 16
 
 ## Build-sequence change (owner instruction, 2026-10-20)
 
-- **Phase 05 is provisional.** It is tested with labelled local fixtures only and is **not launch-ready**. Production city/state integration is deferred until the owner supplies the historical city code and approved coverage data.
+- **Phase 05 is not launch-ready.** It is tested with labelled local fixtures only. Update (owner, later on 2026-10-20): the implementation is permanent and the historical city code is no longer needed; only approved production coverage data is outstanding.
   - The Phase 05 work is preserved unchanged.
   - Fixture rows count only on local/development sites and are visibly labelled as test data.
   - No fixture location is presented as confirmed production coverage.
@@ -161,7 +194,7 @@ Stopped after these eight pages for review. Phase 06 and Phase 08 have not start
 ### Pending
 - **Phase 06:** CF7 + Flamingo quote flow (contact fields, storage before notification, Mailpit). This needs the owner's go-ahead to install CF7/Flamingo. Full quote-flow integration and testing from every detail page are **pending**.
 - **Deferred gate:** vertical-slice gate (complete quote flow) recorded as **deferred** by owner instruction.
-- **City code:** owner's city code + approved coverage data (Phase 05 production integration).
+- **Coverage data:** approved production coverage data (the historical city code is no longer needed).
 - **Client review:** AI photos, product options/ingredients, and whether DipN' Bananas is a supplier brand.
 
 ---
@@ -282,13 +315,13 @@ Stopped here for review. Phase 06 has not started.
 ### Dependencies that need the owner's city code or final dataset
 | Item | Needed | Until then |
 | --- | --- | --- |
-| Historical city template + rewrite-rule function and schema | Audit, mapping report, legacy adapter implementing `LocationRepository` (via `cic_location_repository`), route compatibility decision | Provisional `DatabaseRepository` + `Routes` (`/service-areas/{state}/{city}/`) |
+| ~~Historical city template + rewrite-rule function and schema~~ | **No longer needed** (owner decision 2026-10-20: the current implementation is permanent) | — |
 | Approved production ZIP/city dataset (LA County, client Ventura and Santa Barbara lists, Compton exclusions, shared/nonresidential ZIP decisions) | Import with `--dataset=production --apply-status` after review | Fixtures, local/development only |
 | Reviewed city copy (per city) | City content records ticked "Content reviewed" | All cities noindex, inheriting the template |
 | SEO plugin choice (if any) | A plugin adapter | Core adapter |
 | Final quote form (Phase 06) | Server-side coverage validation at submission (`Coverage::blocks_quote`) | Client-side blocking + interim quote route |
 
-**Mapping report (prepared for when the owner's code arrives):** no historical code has been supplied, so nothing has been mapped and no historical schema is assumed. The audit will compare its tables, columns, slugs and rewrite rules against the adapter contract above, then either:
+**Mapping report (superseded 2026-10-20; kept for the record):** no historical code has been supplied, so nothing has been mapped and no historical schema is assumed. The audit will compare its tables, columns, slugs and rewrite rules against the adapter contract above, then either:
 - implement a legacy adapter, if the owner's schema satisfies the contract; or
 - migrate approved rows through the importer (production dataset).
 
@@ -729,7 +762,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | Treats | 4 WooCommerce products, non-purchasable | Seeded; Dippin' Dots fully composed (03) |
 | Events | `cic_event` CPT, archive `/events/` | Seeded; Birthday fully composed (03) |
 | Pairings | `cic_product_events` table: single source of pairing copy, unique + indexed | Built (03) |
-| Cities | Custom tables + virtual routes behind a location-repository adapter | **Provisional (05):** spec §9 fallback tables (schema v3), `DatabaseRepository`, importer, virtual routes, private city content; local fixtures only. Owner's city code pending (legacy adapter via `cic_location_repository`) |
+| Cities | Custom tables + virtual routes behind a location-repository adapter | **Permanent (05 + Service Areas admin):** spec §9 tables (schema v4), `DatabaseRepository`, importer with manual-edit conflict protection, Service Areas admin (Add City, ZIP management), virtual routes, private city content; local fixtures only until approved coverage data arrives |
 | Enquiries | CF7 (3-step) + Flamingo as sole store | Phase 06 |
 | Scheduler | Action Scheduler (bundled, 4.1.0) | Available |
 | Mail (local) | Mailpit | Capture verified (01) |
@@ -740,7 +773,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 
 | Input | Status | Blocks |
 | --- | --- | --- |
-| **Owner's city template + rewrite-rule code and schema** | **Pending.** Phase 05 built the provisional fallback behind the adapter (see the Phase 05 mapping notes); no historical schema assumed | Legacy adapter / final routes |
+| Owner's historical city template + rewrite-rule code | **No longer a dependency** (owner decision 2026-10-20) | — |
 | ACF (free) | **Installed (03)**: 6.8.10 | — |
 | Contact Form 7, Flamingo | Not installed | Phase 06 |
 | Final quote/contact form-field review | Pending | Phase 06 sign-off |
@@ -762,7 +795,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 3. PHP 8.5.1 is bleeding-edge; host PHP unknown.
 4. WP 7.1 core batch/`rest_post_dispatch` type issue (worked around in guard; could affect other plugins).
 5. Any new WooCommerce extension or gateway may add purchase paths: re-run the guard suite and extend it.
-6. City implementation arrives later; keep the repository adapter boundary strict.
+6. Keep the location repository adapter boundary strict (all location reads through `LocationRepository`, writes through `CityStore`/`Importer`).
 7. Mockups contain obsolete minimum-order copy, typos and invented marks; follow DESIGN_REFERENCE_INDEX.
 8. AI-recreated photos must not be presented as real clients, staff or inventory.
 
@@ -774,11 +807,11 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 02 ✔ | Design System admin + style preview + header/footer controls | Passed 2026-10-19 |
 | 03 ✔ | Products + Events models (ACF Free install) | Passed 2026-10-19 |
 | 04 ✔ | Three-row header/footer + homepage | Approved by owner 2026-10-20 |
-| 05 (provisional) | Locations adapter, importer, search, virtual routes, SEO | Fixture tests passed 2026-10-20; **not launch-ready**: production integration deferred (city code + approved data) |
+| 05 | Locations adapter, importer, search, virtual routes, SEO + Service Areas admin | Fixture tests passed 2026-10-20; implementation permanent; **not launch-ready** until approved coverage data is loaded |
+| 08 ✔ | Archives, hubs, About, Contact, policies, 404 | Built and verified 2026-10-20; awaiting owner review |
 | 07 ✔ (before 06) | Event + treat compositions (8 detail pages) | Built and verified 2026-10-20; awaiting owner review |
 | 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Pending: save-before-notify proven in Mailpit |
 | — | Vertical-slice gate (complete quote flow) | **Deferred by owner instruction** (not passed) until Phase 06 |
-| 08 | Archives, hubs, About, Contact, policies, 404 | Navigation and forms complete |
 | 09 | Visual, accessibility, performance review | Differences fixed or recorded |
 | 10 | Release candidate + operational guide | Backup/rollback rehearsed on staging |
 
@@ -788,4 +821,4 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 
 Then, when asked, **Phase 06: Quote flow, lead management, mail and reminders** (`prompts/06_quote_flow_lead_management_mail_and_reminders.md`). It needs the owner's go-ahead to install CF7 + Flamingo, and closes the deferred quote-flow gate.
 
-Phase 05 production integration waits for the owner's city code and approved coverage data.
+Location go-live waits only for approved production coverage data (import with `--dataset=production --apply-status`, or enter it in Service Areas). Owner review of the Service Areas admin enhancement is pending.

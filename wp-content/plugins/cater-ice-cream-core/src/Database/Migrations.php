@@ -6,9 +6,10 @@
  * page loads. Each step is idempotent and uses dbDelta with $wpdb->prefix when tables arrive.
  *
  * v1 baseline (Phase 01). v2 (Phase 03): product-event pairing table and event capabilities.
- * v3 (Phase 05): provisional location tables (spec §9 fallback contract) behind the location
- * repository adapter, plus the manage_locations capability. The owner's city code is still
- * pending; these tables are a local fallback, not the final production schema.
+ * v3 (Phase 05): location tables (spec §9 contract) behind the location repository adapter, plus
+ * the manage_locations capability. The owner adopted them as the permanent location schema.
+ * v4 (Service Areas admin): nullable manual_at on ZIPs and city-ZIP mappings, recording manual
+ * coverage decisions so CSV imports report conflicts instead of overwriting them.
  *
  * @package CIC
  */
@@ -21,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Migrations {
 
-	public const TARGET_VERSION = 3;
+	public const TARGET_VERSION = 4;
 
 	private const LOCK_OPTION = 'cic_core_migration_lock';
 	private const LOCK_TTL    = 300;
@@ -65,11 +66,18 @@ final class Migrations {
 	}
 
 	/**
-	 * Location fallback tables and the location-management capability.
+	 * Location tables and the location-management capability.
 	 */
 	private function migrate_to_3(): void {
 		self::create_location_tables();
 		\CIC\Locations\Tables::grant_capabilities();
+	}
+
+	/**
+	 * Manual coverage decision timestamps (dbDelta adds the new nullable columns in place).
+	 */
+	private function migrate_to_4(): void {
+		self::create_location_tables();
 	}
 
 	/**
@@ -117,6 +125,7 @@ final class Migrations {
 				dataset varchar(20) NOT NULL DEFAULT 'production',
 				source_reference varchar(190) NOT NULL DEFAULT '',
 				reviewed_at datetime NULL DEFAULT NULL,
+				manual_at datetime NULL DEFAULT NULL,
 				updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 				PRIMARY KEY  (zip),
 				KEY service_status (service_status)
@@ -130,6 +139,7 @@ final class Migrations {
 				review_note varchar(255) NOT NULL DEFAULT '',
 				dataset varchar(20) NOT NULL DEFAULT 'production',
 				source_reference varchar(190) NOT NULL DEFAULT '',
+				manual_at datetime NULL DEFAULT NULL,
 				updated_at datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 				PRIMARY KEY  (city_id,zip),
 				KEY zip (zip)

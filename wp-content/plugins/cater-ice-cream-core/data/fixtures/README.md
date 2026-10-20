@@ -1,7 +1,7 @@
 # Location fixtures (LOCAL TEST DATA, NOT APPROVED COVERAGE)
 
 These CSVs exist only to develop and test the location features before the owner supplies the
-historical city code and the reviewed production dataset. `DATA_CONTRACTS.json` lists
+reviewed production coverage dataset. `DATA_CONTRACTS.json` lists
 `approved_production_zip_rows: []`, so no row here is an approved service decision.
 
 - Every row is imported with `dataset = fixture` and `source_reference = fixture:local-dev-2026-10-20`.

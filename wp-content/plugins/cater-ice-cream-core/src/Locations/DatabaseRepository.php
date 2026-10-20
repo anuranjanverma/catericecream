@@ -1,10 +1,8 @@
 <?php
 /**
- * Provisional location repository over the spec §9 fallback tables ({prefix}cic_cities, cic_zips,
- * cic_city_zips, cic_city_content, cic_city_slugs). All SQL is prepared; prefix lookups use
- * indexed columns with esc_like. Fixture rows count only where Tables::fixtures_allowed().
- *
- * Replaceable by the owner's legacy adapter (same interface) once that code is supplied.
+ * Location repository over the spec §9 tables ({prefix}cic_cities, cic_zips, cic_city_zips,
+ * cic_city_content, cic_city_slugs), the permanent implementation. All SQL is prepared; prefix
+ * lookups use indexed columns with esc_like. Fixture rows count only where Tables::fixtures_allowed().
  *
  * @package CIC
  */

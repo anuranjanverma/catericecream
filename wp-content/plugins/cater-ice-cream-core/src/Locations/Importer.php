@@ -1,6 +1,6 @@
 <?php
 /**
- * Safe CSV import for the provisional location tables (BUILD_SPECIFICATION §9).
+ * Safe CSV import for the location tables (BUILD_SPECIFICATION §9).
  *
  * - UTF-8 only (BOM stripped; invalid encoding rejects the file). Size and row limits.
  * - Dry run plans every row without writing; apply re-plans and writes in one transaction.
@@ -15,6 +15,8 @@
  * - Source tracking: every row stores its dataset (fixture|production) and source reference.
  *   Fixture data cannot overwrite production rows, and fixture imports are refused where
  *   fixtures are not allowed (staging/production).
+ * - Manual edits win: a coverage decision made in the Service Areas admin (manual_at) or a
+ *   relationship removed there is reported as a conflict and left untouched, never overwritten.
  *
  * @package CIC
  */
@@ -162,9 +164,11 @@ final class Importer {
 	 * @return array<string, mixed>
 	 */
 	private function plan( array $rows ): array {
-		$counts     = array( 'created' => 0, 'updated' => 0, 'unchanged' => 0, 'rejected' => 0, 'duplicates' => 0 );
+		$counts     = array( 'created' => 0, 'updated' => 0, 'unchanged' => 0, 'rejected' => 0, 'duplicates' => 0, 'conflicts' => 0 );
 		$actions    = array();
 		$rejections = array();
+		$conflicts  = array();
+		$unlinks    = 'city_zips' === $this->type ? (array) get_option( CityStore::UNLINK_OPTION, array() ) : array();
 		$seen       = array();
 		$valid      = array();
 
@@ -189,6 +193,12 @@ final class Importer {
 		usort( $valid, static fn( $a, $b ) => strcmp( $a['_key'], $b['_key'] ) );
 		foreach ( $valid as $record ) {
 			$existing = $this->existing( $record );
+			if ( null === $existing && isset( $unlinks[ $record['_key'] ] ) ) {
+				$counts['conflicts']++;
+				/* translators: 1: ZIP, 2: date. */
+				$conflicts[] = array( 'line' => $record['_line'], 'key' => $record['_key'], 'reason' => sprintf( __( 'ZIP %1$s was removed from this city by hand on %2$s. Not re-linked; add it again in the city editor if intended.', 'cater-ice-cream-core' ), $record['zip'], $unlinks[ $record['_key'] ] ) );
+				continue;
+			}
 			if ( null === $existing ) {
 				$counts['created']++;
 				$actions[] = array( 'action' => 'create', 'key' => $record['_key'], 'line' => $record['_line'], 'data' => $record );
@@ -205,10 +215,26 @@ final class Importer {
 					$diff[ $col ] = $value;
 				}
 			}
+			// Manual coverage decisions win over the file: report them, never overwrite.
+			$protected = array( 'zips' => array( 'service_status' ), 'city_zips' => array( 'service_override', 'review_note' ) )[ $this->type ] ?? array();
+			$clash     = ! empty( $existing['manual_at'] ) ? array_intersect( array_keys( $diff ), $protected ) : array();
+			if ( $clash ) {
+				$counts['conflicts']++;
+				$conflicts[] = array(
+					'line'   => $record['_line'],
+					'key'    => $record['_key'],
+					/* translators: 1: fields, 2: date. */
+					'reason' => sprintf( __( 'File changes %1$s, but this was decided by hand on %2$s. Kept the manual decision.', 'cater-ice-cream-core' ), implode( ', ', array_map( static fn( $c ) => $c . ' → ' . $diff[ $c ], $clash ) ), $existing['manual_at'] ),
+				);
+				$diff = array_diff_key( $diff, array_flip( $clash ) );
+				if ( ! array_diff( array_keys( $diff ), array( 'source_reference', 'dataset' ) ) ) {
+					$diff = array(); // Only provenance left: keep the row's own source.
+				}
+			}
 			if ( $diff ) {
 				$counts['updated']++;
 				$actions[] = array( 'action' => 'update', 'key' => $record['_key'], 'line' => $record['_line'], 'data' => $record, 'diff' => $diff, 'existing' => $existing );
-			} else {
+			} elseif ( ! $clash ) {
 				$counts['unchanged']++;
 			}
 		}
@@ -217,6 +243,7 @@ final class Importer {
 			'counts'     => $counts,
 			'actions'    => $actions,
 			'rejections' => $rejections,
+			'conflicts'  => $conflicts,
 		);
 	}
 

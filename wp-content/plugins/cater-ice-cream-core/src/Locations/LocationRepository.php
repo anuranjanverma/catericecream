@@ -3,10 +3,9 @@
  * Location repository adapter boundary (BUILD_SPECIFICATION §9–10).
  *
  * Every city, directory, map and coverage read goes through this contract, so the renderer, the
- * search, the REST API and the quote flow never carry their own SQL or coverage rules. The owner's
- * city template and rewrite-rule code is pending: when it arrives, a legacy adapter implementing
- * this interface plugs in through the cic_location_repository filter (see BUILD_STATUS.md mapping
- * notes). DatabaseRepository is the provisional local fallback over the spec §9 tables.
+ * search, the REST API and the quote flow never carry their own SQL or coverage rules.
+ * DatabaseRepository over the spec §9 tables is the permanent implementation (owner decision,
+ * 2026-10-20); the cic_location_repository filter remains only as an extension point.
  *
  * City arrays: id, name, slug, state_code, county_name, county_slug, key ("pasadena-ca"), url
  * (canonical, '' when not public), publish_status, index_status, latitude, longitude, fixture.

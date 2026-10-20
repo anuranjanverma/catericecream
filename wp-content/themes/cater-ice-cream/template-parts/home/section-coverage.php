@@ -3,9 +3,9 @@
  * Home service-area block: intro, area check, county directory and an illustrative map.
  *
  * The check and the county lists go through the location repository adapter (POST /cic/v1/coverage,
- * published cities linked to their virtual city pages). The owner's city code is pending; until it
- * is connected the provisional repository answers from reviewed data only (local fixtures are
- * labelled and ignored outside local/development). The map is an illustration, not a boundary.
+ * published cities linked to their virtual city pages). The repository answers from reviewed data
+ * only (local fixtures are labelled and ignored outside local/development). The map is an
+ * illustration, not a boundary.
  *
  * @package CaterIceCream
  */

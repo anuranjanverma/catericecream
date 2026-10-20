@@ -120,6 +120,9 @@ final class Cli {
 		foreach ( $report['rejections'] as $r ) {
 			\WP_CLI::warning( sprintf( 'line %d: %s', $r['line'], $r['reason'] ) );
 		}
+		foreach ( $report['conflicts'] as $r ) {
+			\WP_CLI::warning( sprintf( 'conflict, line %d (%s): %s', $r['line'], $r['key'], $r['reason'] ) );
+		}
 		if ( $verbose ) {
 			foreach ( array_slice( $report['actions'], 0, 50 ) as $a ) {
 				\WP_CLI::log( sprintf( '%-7s %s%s', $a['action'], $a['key'], isset( $a['diff'] ) ? ' (' . implode( ', ', array_keys( $a['diff'] ) ) . ')' : '' ) );
@@ -128,6 +131,6 @@ final class Cli {
 		if ( $report['ignored_columns'] ) {
 			\WP_CLI::log( 'Ignored columns: ' . implode( ', ', $report['ignored_columns'] ) );
 		}
-		\WP_CLI::success( sprintf( '%s: %d created, %d updated, %d unchanged, %d rejected (%d duplicates).', $report['dry_run'] ? 'Dry run' : 'Applied', $c['created'], $c['updated'], $c['unchanged'], $c['rejected'], $c['duplicates'] ) );
+		\WP_CLI::success( sprintf( '%s: %d created, %d updated, %d unchanged, %d rejected (%d duplicates), %d conflicts with manual edits (kept).', $report['dry_run'] ? 'Dry run' : 'Applied', $c['created'], $c['updated'], $c['unchanged'], $c['rejected'], $c['duplicates'], $c['conflicts'] ) );
 	}
 }

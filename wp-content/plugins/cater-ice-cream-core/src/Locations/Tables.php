@@ -1,10 +1,10 @@
 <?php
 /**
- * Location fallback schema constants: table names (configured prefix), allowed statuses, the
- * management capability, the fixture guard and the cache version used for invalidation.
+ * Location schema constants: table names (configured prefix), allowed statuses, the management
+ * capability, the fixture guard and the cache version used for invalidation.
  *
- * Provisional: the owner's city template and rewrite-rule code is still pending. These tables
- * satisfy the spec §9 fallback contract behind the LocationRepository adapter only.
+ * These spec §9 tables are the permanent location schema (owner decision, 2026-10-20), read
+ * through the LocationRepository adapter. Approved production coverage data is still pending.
  *
  * @package CIC
  */

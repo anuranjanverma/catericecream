@@ -393,7 +393,8 @@ final class ViewModel {
 		$repo      = \CIC\Locations\Service::repository();
 		$contact   = Contact::get();
 		$hub       = Catalog::find_by_key( 'page', 'service-areas' );
-		$editorial = $preview ? \CIC\Locations\Editorial::preview_source( $preview ) : (int) $repo->get_city_content( (int) $city['id'] )['editorial_id'];
+		// $preview > 0: content record preview; -1: city-level preview without a record (template only).
+		$editorial = $preview > 0 ? \CIC\Locations\Editorial::preview_source( $preview ) : ( $preview < 0 ? 0 : (int) $repo->get_city_content( (int) $city['id'] )['editorial_id'] );
 		if ( ! $preview && $editorial && 'publish' !== get_post_status( $editorial ) ) {
 			$editorial = 0; // Unpublished overrides are visible only in preview.
 		}

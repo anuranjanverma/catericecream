@@ -114,7 +114,9 @@ final class Routes {
 
 		$preview = Editorial::preview_request();
 		$slug    = strtolower( rawurldecode( $city_slug ) );
-		$city    = $repo->resolve_city( $lower, $slug, $preview > 0 );
+		// City-level preview (no content record yet) is flagged as -1: preview banner + noindex, template content only.
+		$city_preview = $preview ? 0 : Editorial::preview_city_request();
+		$city         = $repo->resolve_city( $lower, $slug, $preview > 0 || $city_preview > 0 );
 		if ( ! $city ) {
 			$this->not_found();
 			return;
@@ -122,6 +124,14 @@ final class Routes {
 		if ( $preview && CityStore::city_for_editorial( $preview ) !== (int) $city['id'] ) {
 			$preview = 0;
 			if ( 'published' !== $city['publish_status'] ) {
+				$this->not_found();
+				return;
+			}
+		}
+		if ( $city_preview ) {
+			if ( $city_preview === (int) $city['id'] ) {
+				$preview = -1;
+			} elseif ( 'published' !== $city['publish_status'] ) {
 				$this->not_found();
 				return;
 			}

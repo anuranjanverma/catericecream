@@ -6,8 +6,8 @@
  *   POST /cic/v1/coverage       ZIP/city check: status + explanation, never a date reservation
  * Both are rate limited per hashed IP and sent with Cache-Control: no-store.
  *
- * Repository order: an owner/legacy adapter from the cic_location_repository filter, else the
- * provisional DatabaseRepository once the v3 tables exist, else PendingRepository.
+ * Repository order: an adapter from the cic_location_repository filter (extension point), else
+ * DatabaseRepository once the location tables exist, else PendingRepository.
  *
  * @package CIC
  */
