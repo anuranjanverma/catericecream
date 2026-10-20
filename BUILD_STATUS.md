@@ -11,9 +11,145 @@ Environment facts: see `ENVIRONMENT.md`.
 | 01 Foundation and catalogue protection | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 02 Design system and admin controls | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 03 Products, events and structured editing | **Complete: gate passed** (see verification) | 2026-10-19 |
-| 04 Homepage and shared components | Not started. Awaiting owner instruction | |
+| 04 Homepage and shared components | **Complete + visual correction pass (2026-10-20): awaiting owner review** (https://catericecream.test/) | 2026-10-20 |
+| 05 Locations, import, search, routes and SEO | Not started. Awaiting owner instruction (owner city code pending) | |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02, committed at the owner's request after reviewing the staged set. Phase 03 work is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03, each committed at the owner's request after reviewing the staged set. Phase 04 work is **not committed yet**.
+
+---
+
+## Phase 04 log: Homepage and shared components
+
+Prompt: `handoff/cater-ice-cream/prompts/04_homepage_and_shared_components.md`. **Homepage URL: https://catericecream.test/** (static front page "Home"). Stopped here for the owner's visual review.
+
+### Changes
+
+- Phase 03 committed first: `d055da2` (local only, staged set reviewed; no secrets, logs, backups, fixtures, uploads or third-party plugins).
+- Seeder (non-destructive, re-runnable) created the **Home** page (set as the static front page only because the site still showed latest posts) and the **Get a Quote** page, filled the homepage fields, card taglines and the missing event featured images, and imported **3 more masters** for the `home` manifest page (`wedding-couple`, `corporate-friends`, `anniversary-couple`). Total imported masters: 23, each once.
+- No new plugins. Logo, palette and Design System defaults unchanged.
+
+### Decisions
+
+| Concern | Implementation |
+| --- | --- |
+| Homepage composition | `front-page.php` renders, in approved order: hero (eyebrow, two-line headline, main photo + two insets on a lavender swoosh) with the overlapping hero search; value points; treats (two large brand cards + compact cards + More Frozen Treats); events band (wave); How It Works process strip (anchor `#how-it-works`); FAQ split; service-area block with illustrative map; closing call panel; then the shared footer. Mobile follows reference 02 (text, search card, photo, values …). Corrections applied: **Anniversary added** as a fourth event card, **no minimum-order or price copy** (search note and FAQ rewritten), global menu used as-is (includes About per spec). |
+| Editing | ACF Free field group "Homepage composition" (front page only, fixed slots, show/order/preset per section): hero copy and three photos, search labels/CTA/note, value points, treats/events headings, process steps + CTA, 6 FAQ slots, coverage copy/counties/cities/caption, closing CTA (+ optional phone). Treat and event cards come from published records (menu order); treats gained "Catalogue card tagline" and "link label" fields. |
+| Shared components | Reusable partials: `components/hero-search.php` (quote starter), `components/process.php`; existing call panel, FAQ accordion, cards and header/footer reused. Header three rows, mobile drawer and footer from Phase 02 apply to every template (verified). |
+| Quote context (central helper) | `CIC\Quote\Context` (server) + `assets/js/context.js` (browser). Only non-personal fields: event key (published events or `other`), treat keys (published, active), location (5-digit ZIP or city key), date (Los Angeles calendar date, today to +3 years, no UTC conversion), guests. Invalid values are dropped. Explicit actions (search submit, quote links) merge into sessionStorage; the newest explicit value wins per field, and viewing pages never changes it. The search prefills from stored choices. No personal fields are accepted. |
+| Quote route | `/get-a-quote/` (interim template `page-get-a-quote.php`) shows the server-validated selections and the call/email options plus the availability note. It does not claim availability. Phase 06 replaces it with the CF7 three-step flow. |
+| Location dependency (isolated) | `CIC\Locations\LocationRepository` interface + `PendingRepository`, selectable through the `cic_location_repository` filter for the owner's code. `POST /cic/v1/coverage` (validated, rate-limited, `no-store`) returns `unknown` ("we'll confirm with your quote") for valid input and `invalid` for malformed input, and **never `covered` or `outside_area`** until real data is connected. The handoff's approved ZIP list is empty, so the homepage directory shows only the spec-confirmed counties. City lists are editable fields left empty, and become accordions on mobile and links once city pages exist. The California map is a simplified outline labelled "Illustrative service-area preview", not a boundary. No competing city schema. |
+| Images | All homepage photos are imported attachments (manifest slots) rendered with `wp_get_attachment_image` (width/height, srcset, sizes). Only the hero photo is `fetchpriority="high"` + eager (the header logo no longer claims high priority); the insets are eager; everything below the fold lazy-loads. |
+| Fixes to shared parts | In-page anchor menu items (How It Works) are no longer marked as the current page; header logo no longer competes for high fetch priority. |
+
+### Verification actually performed
+
+1. `wp eval-file dev/tests/phase04/home-test.php`: **25/25**:
+   - context validation (valid kept, bogus/past/personal dropped, LA dates, ZIP leading zeros, draft events rejected, URL builder);
+   - coverage adapter (unknown/invalid, POST-only, not connected);
+   - homepage data (front page, section order, Anniversary, search fields, all images resolved, no served cities);
+   - rendered rules (no minimum/price text, one `h1`, every image with width/height/srcset/sizes, single high-priority image, tel links, anchor not "current", search GET carries only location/event/date);
+   - seed re-run changes nothing; 23 masters, each once.
+2. `node dev/tests/phase04/browser-test.cjs` (one headless Edge, sequential, closed in `finally`): **22/22**:
+   - hero handoff: invalid input stays with an announced error and focus; a valid search lands on `/get-a-quote/?event=anniversary&location=pasadena&date=…` with only those 3 params, and the page shows the validated summary;
+   - viewing pages doesn't change the context; a treat quote action adds the treat and keeps the rest; a newer event choice wins; returning home prefills the search, and past dates are blocked;
+   - area check gives the honest "can't confirm online yet" answer with a quote link; malformed input is flagged;
+   - menu items; How It Works lands below the sticky header;
+   - first Tab reaches the skip link; keyboard reaches the search and shows a 3 px focus ring; every tel link matches the displayed number; mobile drawer opens with focus on Close and Escape returns focus;
+   - one top-row edit appeared on home, treat, event, quote and catalogue pages;
+   - a homepage field edited in the block editor appeared publicly;
+   - no horizontal overflow at 390/768/1440; approved section order.
+
+   Edited state restored; no browser processes left.
+3. Regression on the final code, run one suite at a time: Phase 01 guard **69/69**; Phase 02 server **51/51** and browser **58/58**; Phase 03 server **46/46** (one media-count assertion updated from "exactly 20" to "no duplicates" because Phase 04 legitimately added 3 masters) and browser **22/22** (high-priority image expectation updated to 1). No PHP notices/warnings in the debug log during the final runs.
+4. Visual comparison with 01/02 at 1440, 768 and 390 px. Corrected along the way:
+   - lazy-image capture timing (screenshots now wait for decode);
+   - "How It Works" wrongly highlighted;
+   - mobile hero order (search card before the photo, as in 02);
+   - DipN' Bananas title overflowing at 390 and 768 (brand cards stack until 1000 px);
+   - oversized coverage map;
+   - two high-priority images.
+5. Screenshots (git-ignored) in `dev/tests/output/phase04/`: `home-{390,768,1440}.png` (full page), `home-{390,768,1440}-viewport.png` (first view), `admin-home-fields.png`.
+
+### Phase 04 visual correction pass (2026-10-20)
+
+Requested by the owner after the first review. Sections, order, navigation, the Anniversary card and the removal of minimum-order wording are unchanged. Logo artwork unchanged (size only).
+
+**1. Typography**
+- **Loaded file, checked directly** (WOFF2 tables decoded with Node's built-in Brotli):
+  - `fraunces-roman-latin.woff2` is variable with a **single `wght` axis, 100–900**, and no `opsz`/`SOFT`/`WONK` axes (Google strips unrequested axes; the outlines are Fraunces's default display master).
+  - `fraunces-italic-latin.woff2` is static (600).
+  - `dmsans-roman-latin.woff2` is variable, `wght` 100–1000.
+- **Defect found and fixed:** `@font-face` declared Fraunces as `600 700`, so 800/900 silently rendered as 700. Now declared `100 900` (same file, no new download) in `theme.json`. The Design System allowlist accepts Fraunces 600/700/800/900. Fraunces is still the heading font; nothing was replaced or transformed.
+- **Comparison:** `dev/tests/output/phase04/typography-comparison.png` (reference crop beside Fraunces 700/800/900, tracking 0 and −0.02 em).
+  - The reference's stroke weight sits between 800 and 900.
+  - **Remaining discrepancy (cannot be fixed within the rules):** the reference glyphs are noticeably **condensed**, with narrow letters and a taller x-height (≈1.3–1.4× the height for the same line width). Fraunces has no width axis, and the shipped file has no optical-size/soft axes. Matching that character would need CSS distortion or a different font, neither of which is allowed. The reference's condensed headings cannot be reproduced with the specified Fraunces.
+- **Central tuning, saved in the Design System** (owner-level setting, resettable to the spec defaults with the Reset buttons):
+  - heading weight **800** (spec default 700; the Wedding preset keeps 600);
+  - heading letter-spacing **−0.01 em**;
+  - H1 **44/46 px mobile → 72/76 px desktop** (spec 40/44 → 64/70);
+  - H2 desktop **44 px** (spec 42).
+
+  The homepage's local H1 size override was removed, so sizes come only from the Design System.
+
+**2. Header and hero**
+- **Logo:** default width 190 → **250 px desktop**, 136 → **168 px mobile** (Header settings defaults; still editable 120–320 / 96–220).
+- **Desktop hero:**
+  - larger main photo with a more organic silhouette;
+  - framed insets overlapping its right edge;
+  - an asymmetric lavender blob, a soft lavender ring and a raspberry spark (decorative, `aria-hidden`).
+- **Mobile order** kept: headline, intro, search form, main photo.
+
+**3. Treat cards**
+- **Brand cards are one composition:** each photo fills the right of the card and dissolves into the card tint through a mask gradient, so the text sits on the same surface (no rectangular halves).
+- **Small screens:** the photo is narrower, so link text stays on the tint.
+- **Small cards on mobile:** label left, arrow aligned right; the whole card is the link target (≥ 44 px).
+
+**4. Section rhythm**
+- Less empty space around the event cards.
+- Waves are now asymmetric and differ per band (events top/bottom, service areas, closing CTA) instead of one symmetric curve.
+- The mobile process steps have their subtle connecting line again.
+
+**5. Pending (unchanged, not invented)**
+- Footer white/reversed logo: still pending; the original logo sits on a light plate. No replacement was drawn.
+- County city lists and coverage integration: still pending the owner's city code and approved ZIP data.
+
+**6. Admin editing verification** (`dev/tests/phase04/admin-fields-test.cjs`, **6/6**)
+- The expanded "Homepage composition" panel shows nine section tabs (capture: `admin-fields-hero-tab.png`, `admin-fields-treats-tab.png`).
+- Through that panel, the test changed:
+  - the **Treats heading** (with accent markup);
+  - the **hero main photo**, picked in the real Media Library modal (`admin-media-modal.png`);
+  - the **search CTA label**.
+- Each change was saved in the block editor and confirmed on the public homepage, then the originals were restored and re-confirmed.
+- The empty Gutenberg canvas was not used as evidence; homepage content lives in the field panel.
+- Fixed while checking: field help text showed "Wrap accent words in …." because ACF rendered the `<em>` example as markup. The tags are now shown literally.
+
+**7. Evidence and checks actually performed**
+- Unscaled screenshots at true CSS widths: `home-390.png` (390×6960), `home-768.png` (768×5597), `home-1440.png` (1440×3903), the matching `-viewport.png` first views, and 16 readable section captures (`section-{390,1440}-{section}.png`).
+- Phase 04 browser **22/22**, admin fields **6/6**, server **25/25**.
+- Regressions: Phase 01 guard **69/69**; Phase 02 server **51/51**, browser **58/58**; Phase 03 server **46/46**, browser **22/22**.
+- Three test expectations were updated because they hardcoded values this pass deliberately changed: weight 900 is now bundled; the logo default is 250; the H2/H1 scale is read from the saved Design System. No product defects.
+- Browser checks ran one at a time, each closing its browser (no Edge processes left). Fixtures cleaned up, only the owner's session remains, and no PHP notices/warnings were logged.
+
+**Remaining differences for review**
+- Condensed heading character (font limitation above).
+- Heading weight/size tuned above the written spec defaults (owner may reset).
+- Placeholders as listed in the Phase 04 log (city lists, illustrative map, top-row text, footer logo plate, AI photos).
+
+### Remaining differences from the references (for the owner's visual review)
+
+- Layout matches; differences that remain are deliberate corrections or placeholders:
+  - Four event cards instead of three (Anniversary correction).
+  - FAQ and search note rewritten without minimum-order text.
+  - The main menu includes About (spec), which the mockup omits.
+  - The mobile eyebrow uses the same editable text as desktop ("For the moments worth celebrating"; the mobile mockup shows "Southern California catering").
+- **Placeholder content (not layout defects):**
+  - County city lists are empty until the approved ZIP/city data and the owner's city code arrive.
+  - The map is illustrative.
+  - Top-row text is a placeholder.
+  - The footer shows the original logo on a light plate (approved reversed logo pending).
+  - Photos are AI recreations awaiting client review.
+- **Menu destinations still missing:** `/about/`, `/service-areas/` and the policy pages (later phases). `/get-a-quote/` now exists as the interim route.
+- **Not tested:** screen readers, Safari/Firefox, real touch devices; PHPCS (not installed).
 
 ---
 
@@ -304,7 +440,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | Treats | 4 WooCommerce products, non-purchasable | Seeded; Dippin' Dots fully composed (03) |
 | Events | `cic_event` CPT, archive `/events/` | Seeded; Birthday fully composed (03) |
 | Pairings | `cic_product_events` table: single source of pairing copy, unique + indexed | Built (03) |
-| Cities | Custom tables + virtual routes behind a location-repository adapter | **Pending owner's city code** |
+| Cities | Custom tables + virtual routes behind a location-repository adapter | **Pending owner's city code.** Adapter interface + pending repository + `/cic/v1/coverage` built (04); no city schema |
 | Enquiries | CF7 (3-step) + Flamingo as sole store | Phase 06 |
 | Scheduler | Action Scheduler (bundled, 4.1.0) | Available |
 | Mail (local) | Mailpit | Capture verified (01) |
@@ -347,7 +483,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 01 ✔ | Theme shell, core plugin, MU guard | Passed 2026-10-19 |
 | 02 ✔ | Design System admin + style preview + header/footer controls | Passed 2026-10-19 |
 | 03 ✔ | Products + Events models (ACF Free install) | Passed 2026-10-19 |
-| 04 | Three-row header/footer + homepage | Approved structure; screenshots 390/768/1440 |
+| 04 ✔ | Three-row header/footer + homepage | Built 2026-10-19; awaiting owner visual review |
 | 05 | Locations adapter, importer, search, virtual routes, SEO | ZIP cases, collisions, canonicals, noindex (fixture until city code arrives) |
 | 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Save-before-notify proven in Mailpit |
 | — | Vertical-slice gate | Before Phase 07 |
@@ -358,4 +494,4 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 
 ## Next phase
 
-**Phase 04: Homepage and shared components** (`prompts/04_homepage_and_shared_components.md`), only when the owner asks. It should include the visual comparison of the shared header/footer and resolve or confirm the pending footer logo treatment and menu destinations. Phase 03 can be committed first if the owner wants a checkpoint.
+**Owner visual review of the homepage** (https://catericecream.test/ and `dev/tests/output/phase04/home-*.png`). After sign-off: **Phase 05: Locations, import, search, virtual routes and SEO** (`prompts/05_locations_import_search_routes_and_seo.md`). It depends on the owner's city template/rewrite code and the approved ZIP dataset; without them Phase 05 can only build against a local fixture behind the adapter.

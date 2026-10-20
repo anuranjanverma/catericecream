@@ -19,7 +19,7 @@ final class SeedData {
 	public const VERSION = 1;
 
 	/** Manifest pages whose masters this phase imports. */
-	public const MEDIA_PAGES = array( 'dippin-dots', 'birthday' );
+	public const MEDIA_PAGES = array( 'dippin-dots', 'birthday', 'home' );
 
 	/**
 	 * @return array<string, array<string, mixed>>
@@ -41,6 +41,8 @@ final class SeedData {
 					'cic_hero_eyebrow'      => "Dippin' Dots event catering",
 					'cic_hero_headline'     => "Little dots.\nBig <em>party energy.</em>",
 					'cic_hero_intro'        => "A little colour, a little curiosity and, for some guests, a happy memory. Dippin' Dots brings an unexpected twist to the dessert moment.",
+					'cic_card_tagline'      => 'Little beads. Big smiles.',
+					'cic_card_link'         => "Explore Dippin' Dots",
 					'cic_hero_cta'          => "Bring Dippin' Dots to my event",
 					'cic_hero_jump'         => 'Find your occasion',
 					'cic_hero_image'        => 'asset:dots-hero',
@@ -109,6 +111,8 @@ final class SeedData {
 				'preset'     => 'banana',
 				'meta'       => array(
 					'cic_hero_headline' => "A little indulgence.\n<em>A delicious twist.</em>",
+					'cic_card_tagline'  => 'A delicious twist on dessert.',
+					'cic_card_link'     => "Explore DipN' Bananas",
 				),
 				'pairings'   => array(
 					'birthday' => array( 'headline' => 'A playful twist on a birthday favourite.', 'description' => 'The familiar fruit and chocolate combination adds discovery without needing an elaborate dessert ritual.', 'link_label' => 'Explore birthdays', 'product_sort' => 10, 'event_sort' => 20 ),
@@ -141,6 +145,80 @@ final class SeedData {
 				'pairings'   => array(
 					'birthday' => array( 'headline' => 'A bright change of pace.', 'description' => 'For a birthday host who loves frozen yogurt, its distinctive taste can make the dessert choice feel personal and a little different.', 'link_label' => 'Explore birthdays', 'product_sort' => 10, 'event_sort' => 40 ),
 				),
+			),
+		);
+	}
+
+	/**
+	 * Pages the catalogue needs. The homepage is composed from the approved home references
+	 * (01, 02) with the documented corrections: Anniversary added, no minimum-order or price copy.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	public static function pages(): array {
+		return array(
+			'home'        => array(
+				'title' => 'Home',
+				'slug'  => 'home',
+				'front' => true,
+				'meta'  => array(
+					'cic_home_eyebrow'          => 'For the moments worth celebrating',
+					'cic_home_headline'         => "Good company.\n<em>Great ice cream.</em>",
+					'cic_home_intro'            => 'Staffed ice cream catering for birthdays, weddings, anniversaries and corporate events.',
+					'cic_home_image_main'       => 'asset:service-garden',
+					'cic_home_image_inset_1'    => 'asset:wedding-couple',
+					'cic_home_image_inset_2'    => 'asset:corporate-friends',
+					'cic_search_location_label' => 'Location',
+					'cic_search_location_ph'    => 'City or ZIP code',
+					'cic_search_event_label'    => 'Event type',
+					'cic_search_event_ph'       => 'Select event',
+					'cic_search_date_label'     => 'Date',
+					'cic_search_cta'            => 'Plan My Event',
+					'cic_search_note'           => 'Date and service availability confirmed with your quote.',
+					'cic_value_1_icon'          => 'cupcake',
+					'cic_value_1_label'         => 'Your favourite treats',
+					'cic_value_2_icon'          => 'people',
+					'cic_value_2_label'         => 'A team to serve',
+					'cic_value_3_icon'          => 'wand',
+					'cic_value_3_label'         => 'An event made yours',
+					'cic_treats_heading'        => 'Big-name favourites. <em>Your kind of celebration.</em>',
+					'cic_treats_intro'          => 'Choose a brand you love, or explore something new.',
+					'cic_treats_more_label'     => 'More Frozen Treats',
+					'cic_treats_more_image'     => 'asset:treat-more-frozen',
+					'cic_events_heading'        => "Whatever you're celebrating, <em>make it sweeter.</em>",
+					'cic_process_heading'       => 'You bring the occasion. <em>We bring the smiles.</em>',
+					'cic_step_1_title'          => 'Share your plans',
+					'cic_step_1_text'           => 'Date, location and guest count.',
+					'cic_step_2_title'          => 'Choose your treats',
+					'cic_step_2_text'           => "We'll help shape your quote.",
+					'cic_step_3_title'          => 'Enjoy your event',
+					'cic_step_3_text'           => 'Our team serves your guests.',
+					'cic_process_cta'           => 'Get My Quote',
+					'cic_faq_heading'           => "A few things you\nmight be wondering.",
+					'cic_faq_1_q'               => 'How does a quote work?',
+					'cic_faq_1_a'               => "Tell us your date, location, guest count and the treats you're interested in. We'll review the details and confirm availability and serving arrangements with you.",
+					'cic_faq_2_q'               => 'Can I choose more than one type of treat?',
+					'cic_faq_2_a'               => "Yes. Choose as many treats as you like, or pick Not sure yet and we'll talk through the options together.",
+					'cic_faq_3_q'               => 'How do I check my event location?',
+					'cic_faq_3_a'               => "We serve selected ZIP codes across Los Angeles, Ventura and Santa Barbara counties. Include your event ZIP code and we'll confirm service for your location.",
+					'cic_cov_heading'           => "A sweeter celebration,\ncloser to home.",
+					'cic_cov_intro'             => 'Serving selected ZIP codes across Los Angeles, Ventura and Santa Barbara counties.',
+					'cic_cov_placeholder'       => 'Enter city or ZIP code',
+					'cic_cov_button'            => 'Check Area',
+					'cic_cov_county_1_name'     => 'Los Angeles County',
+					'cic_cov_county_2_name'     => 'Ventura County',
+					'cic_cov_county_3_name'     => 'Santa Barbara County',
+					'cic_cov_note'              => 'Service depends on your exact ZIP code.',
+					'cic_cov_map_caption'       => 'Illustrative service-area preview',
+					'cic_cta_heading'           => "Let's make it a sweet occasion.",
+					'cic_cta_label'             => 'Get a Quote',
+				),
+			),
+			'get-a-quote' => array(
+				'title' => 'Get a Quote',
+				'slug'  => 'get-a-quote',
+				'front' => false,
+				'meta'  => array(),
 			),
 		);
 	}
@@ -208,6 +286,7 @@ final class SeedData {
 				'slug'    => 'wedding',
 				'order'   => 20,
 				'excerpt' => 'A memorable treat for your big day.',
+				'image'   => 'asset:wedding-couple',
 				'preset'  => 'wedding',
 				'meta'    => array(
 					'cic_layout'        => 'wedding',
@@ -220,6 +299,7 @@ final class SeedData {
 				'slug'    => 'corporate',
 				'order'   => 30,
 				'excerpt' => 'A refreshing way to bring people together.',
+				'image'   => 'asset:corporate-friends',
 				'preset'  => 'corporate',
 				'meta'    => array(
 					'cic_layout'        => 'corporate',
@@ -232,6 +312,7 @@ final class SeedData {
 				'slug'    => 'anniversary',
 				'order'   => 40,
 				'excerpt' => 'Celebrate your story with favourite frozen treats.',
+				'image'   => 'asset:anniversary-couple',
 				'preset'  => 'anniversary',
 				'meta'    => array(
 					'cic_layout'        => 'anniversary',

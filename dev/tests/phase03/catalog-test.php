@@ -244,7 +244,8 @@ try {
 	WP_CLI::log( '== K. Media importer' );
 	$assets = Media::assets_for_pages( array( 'dippin-dots', 'birthday' ) );
 	$ids    = array_map( array( Media::class, 'id' ), $assets );
-	cic3_check( 'K1 exactly the 20 slice masters are imported, each once', 20 === count( $assets ) && ! in_array( 0, $ids, true ) && 20 === count( array_unique( $ids ) ) && 20 === count( get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => Media::META, 'numberposts' => -1, 'fields' => 'ids' ) ) ) ); // phpcs:ignore
+	$all_assets = array_map( static fn( $id ) => get_post_meta( $id, Media::META, true ), get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => Media::META, 'numberposts' => -1, 'fields' => 'ids' ) ) ); // phpcs:ignore
+	cic3_check( 'K1 the 20 slice masters are imported, and no asset is imported twice', 20 === count( $assets ) && ! in_array( 0, $ids, true ) && 20 === count( array_unique( $ids ) ) && count( $all_assets ) === count( array_unique( $all_assets ) ) );
 	update_post_meta( Media::id( 'dots-hero' ), '_wp_attachment_image_alt', 'Editor alt text' );
 	$again = array_map( array( Media::class, 'import' ), $assets );
 	cic3_check( 'K2 re-import reuses attachments and keeps attachment edits', $again === $ids && 'Editor alt text' === get_post_meta( Media::id( 'dots-hero' ), '_wp_attachment_image_alt', true ) );

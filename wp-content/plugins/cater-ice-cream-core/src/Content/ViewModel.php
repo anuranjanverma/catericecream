@@ -205,6 +205,132 @@ final class ViewModel {
 	}
 
 	/**
+	 * Homepage (static front page) composition. Treats and events come from published records.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function home( int $id ): array {
+		$contact = Contact::get();
+		$values  = $steps = $counties = array();
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$values[]   = array( 'icon' => self::m( $id, "cic_value_{$i}_icon" ), 'label' => self::m( $id, "cic_value_{$i}_label" ) );
+			$steps[]    = array( 'title' => self::m( $id, "cic_step_{$i}_title" ), 'text' => self::m( $id, "cic_step_{$i}_text" ) );
+			$counties[] = array(
+				'name'   => self::m( $id, "cic_cov_county_{$i}_name" ),
+				'cities' => array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', self::m( $id, "cic_cov_county_{$i}_cities" ) ) ) ) ),
+			);
+		}
+
+		$treats = array();
+		foreach ( Catalog::selectable_products() as $item ) {
+			$product  = wc_get_product( $item['id'] );
+			$treats[] = array(
+				'id'      => $item['id'],
+				'key'     => $item['key'],
+				'title'   => $item['title'],
+				'url'     => get_permalink( $item['id'] ),
+				'image'   => $product ? (int) $product->get_image_id() : 0,
+				'tagline' => self::m( $item['id'], 'cic_card_tagline' ),
+				'link'    => self::m( $item['id'], 'cic_card_link' ) ?: sprintf( __( 'Explore %s', 'cater-ice-cream-core' ), $item['title'] ),
+			);
+		}
+		$events = array();
+		foreach ( Catalog::selectable_events() as $item ) {
+			$events[] = array(
+				'id'      => $item['id'],
+				'key'     => $item['key'],
+				'title'   => $item['title'],
+				'url'     => get_permalink( $item['id'] ),
+				'image'   => (int) get_post_thumbnail_id( $item['id'] ),
+				'excerpt' => wp_strip_all_tags( get_the_excerpt( $item['id'] ) ),
+			);
+		}
+
+		$event_options = array();
+		foreach ( Catalog::selectable_events() as $item ) {
+			$event_options[ $item['key'] ] = $item['title'];
+		}
+		$event_options['other'] = __( 'Other occasion', 'cater-ice-cream-core' );
+
+		$vm = array(
+			'id'       => $id,
+			'hero'     => array(
+				'eyebrow'  => self::m( $id, 'cic_home_eyebrow' ),
+				'headline' => self::lines( self::m( $id, 'cic_home_headline' ) ?: get_bloginfo( 'name' ) ),
+				'intro'    => self::m( $id, 'cic_home_intro' ),
+				'images'   => array( self::img( $id, 'cic_home_image_main' ), self::img( $id, 'cic_home_image_inset_1' ), self::img( $id, 'cic_home_image_inset_2' ) ),
+			),
+			'search'   => array(
+				'location_label' => self::m( $id, 'cic_search_location_label' ) ?: __( 'Location', 'cater-ice-cream-core' ),
+				'location_ph'    => self::m( $id, 'cic_search_location_ph' ),
+				'event_label'    => self::m( $id, 'cic_search_event_label' ) ?: __( 'Event type', 'cater-ice-cream-core' ),
+				'event_ph'       => self::m( $id, 'cic_search_event_ph' ) ?: __( 'Select event', 'cater-ice-cream-core' ),
+				'date_label'     => self::m( $id, 'cic_search_date_label' ) ?: __( 'Date', 'cater-ice-cream-core' ),
+				'cta'            => self::m( $id, 'cic_search_cta' ) ?: $contact['quote_label'],
+				'note'           => self::m( $id, 'cic_search_note' ) ?: $contact['availability_note'],
+				'events'         => $event_options,
+				'action'         => $contact['quote_url'],
+			),
+			'values'   => self::filled( $values, 'label' ),
+			'treats'   => array(
+				'heading'    => self::rich( self::m( $id, 'cic_treats_heading' ) ),
+				'intro'      => self::m( $id, 'cic_treats_intro' ),
+				'items'      => $treats,
+				'more_label' => self::m( $id, 'cic_treats_more_label' ),
+				'more_image' => self::img( $id, 'cic_treats_more_image' ),
+				'more_url'   => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/treats/' ),
+			),
+			'events'   => array(
+				'heading' => self::rich( self::m( $id, 'cic_events_heading' ) ),
+				'items'   => $events,
+			),
+			'process'  => array(
+				'heading' => self::rich( self::m( $id, 'cic_process_heading' ) ),
+				'steps'   => self::filled( $steps, 'title' ),
+				'cta'     => self::m( $id, 'cic_process_cta' ) ?: $contact['quote_label'],
+				'url'     => $contact['quote_url'],
+			),
+			'faq'      => array(
+				'heading' => self::lines( self::m( $id, 'cic_faq_heading' ) ),
+				'items'   => self::faqs( $id ),
+			),
+			'coverage' => array(
+				'heading'     => self::lines( self::m( $id, 'cic_cov_heading' ) ),
+				'intro'       => self::m( $id, 'cic_cov_intro' ),
+				'placeholder' => self::m( $id, 'cic_cov_placeholder' ),
+				'button'      => self::m( $id, 'cic_cov_button' ) ?: __( 'Check Area', 'cater-ice-cream-core' ),
+				'counties'    => self::filled( $counties, 'name' ),
+				'note'        => self::m( $id, 'cic_cov_note' ),
+				'caption'     => self::m( $id, 'cic_cov_map_caption' ),
+				'connected'   => \CIC\Locations\Service::repository()->is_connected(),
+				'endpoint'    => rest_url( 'cic/v1/coverage' ),
+			),
+			'cta'      => array(
+				'heading' => self::rich( self::m( $id, 'cic_cta_heading' ) ),
+				'label'   => self::m( $id, 'cic_cta_label' ) ?: $contact['quote_label'],
+				'url'     => $contact['quote_url'],
+				'phone'   => '1' === self::m( $id, 'cic_cta_phone' ),
+			),
+		);
+
+		$vm['sections'] = self::sections(
+			$id,
+			Fields::HOME_SECTIONS,
+			array(
+				'hero'     => true,
+				'values'   => (bool) $vm['values'],
+				'treats'   => (bool) $treats,
+				'events'   => (bool) $events,
+				'process'  => (bool) $vm['process']['steps'],
+				'faq'      => (bool) $vm['faq']['items'],
+				'coverage' => '' !== $vm['coverage']['heading'],
+				'cta'      => '' !== $vm['cta']['heading'],
+			)
+		);
+		return $vm;
+	}
+
+	/**
 	 * @return array<string, mixed>
 	 */
 	public static function event( int $id ): array {

@@ -181,9 +181,13 @@ async function shot( page, name, fullPage ) {
 				bodylh: await css( page, '[data-cic-sample="body"]', 'line-height' ),
 			};
 		}
-		check( 'T2.1 390px: H1 40/44, H2 32, body 16/26', '40px' === sizes[ 390 ].h1 && '44px' === sizes[ 390 ].h1lh && '32px' === sizes[ 390 ].h2 && '16px' === sizes[ 390 ].body && '26px' === sizes[ 390 ].bodylh, sizes[ 390 ] );
-		check( 'T2.2 1440px: H1 64/70, H2 42, body 18/28', '64px' === sizes[ 1440 ].h1 && '70px' === sizes[ 1440 ].h1lh && '42px' === sizes[ 1440 ].h2 && '18px' === sizes[ 1440 ].body && '28px' === sizes[ 1440 ].bodylh, sizes[ 1440 ] );
-		check( 'T2.3 768px interpolates fluidly (H1 ≈ 48.64px)', Math.abs( parseFloat( sizes[ 768 ].h1 ) - 48.64 ) < 0.1, sizes[ 768 ] );
+		// Expected sizes come from the saved Design System (the owner may tune the scale centrally).
+		const ty = JSON.parse( wp( 'eval', 'echo wp_json_encode( CIC\\Design\\Settings::resolved()["type"] );' ).trim().split( '\n' ).pop() );
+		const px = ( n ) => n + 'px';
+		check( 'T2.1 390px: H1, H2 and body use the saved mobile scale', px( ty.h1.min ) === sizes[ 390 ].h1 && px( ty.h1.lh_min ) === sizes[ 390 ].h1lh && px( ty.h2.min ) === sizes[ 390 ].h2 && px( ty.body.min ) === sizes[ 390 ].body && px( ty.body.lh_min ) === sizes[ 390 ].bodylh, { sizes: sizes[ 390 ], ty } );
+		check( 'T2.2 1440px: H1, H2 and body use the saved desktop scale', px( ty.h1.max ) === sizes[ 1440 ].h1 && px( ty.h1.lh_max ) === sizes[ 1440 ].h1lh && px( ty.h2.max ) === sizes[ 1440 ].h2 && px( ty.body.max ) === sizes[ 1440 ].body && px( ty.body.lh_max ) === sizes[ 1440 ].bodylh, { sizes: sizes[ 1440 ], ty } );
+		const mid = ty.h1.min + ( ty.h1.max - ty.h1.min ) * ( 768 - 390 ) / 1050;
+		check( 'T2.3 768px interpolates fluidly between the saved H1 sizes', Math.abs( parseFloat( sizes[ 768 ].h1 ) - mid ) < 0.1, { got: sizes[ 768 ].h1, mid } );
 
 		/* ---------- T3 global action colour change through the admin form ---------- */
 		console.log( '== T3 global action colour change propagates; local override stays local' );
@@ -294,7 +298,7 @@ async function shot( page, name, fullPage ) {
 		await go( page, fixtures.urlA, 1440 );
 		const d = { h1: await css( page, '.fx-h1', 'font-size' ), ov: await css( page, '.fx-override-heading', 'font-size' ), nb: await css( page, '.fx-neighbour-heading', 'font-size' ) };
 		check( 'T8.1 new global H1 sizes apply: 36px mobile, 72px desktop', '36px' === m.h1 && '72px' === d.h1, { m, d } );
-		check( 'T8.2 local heading size override stays 30px/50px; neighbour H2 stays 32px/42px', '30px' === m.ov && '50px' === d.ov && '32px' === m.nb && '42px' === d.nb, { m, d } );
+		check( 'T8.2 local heading size override stays 30px/50px; neighbour H2 keeps the saved H2 scale', '30px' === m.ov && '50px' === d.ov && px( ty.h2.min ) === m.nb && px( ty.h2.max ) === d.nb, { m, d } );
 		await go( page, fixtures.urlB, 390 );
 		const pb = { size: await css( page, '.fx-h1', 'font-size' ), accent: await css( page, '.fx-h1 em', 'color' ) };
 		await go( page, fixtures.urlA, 390 );

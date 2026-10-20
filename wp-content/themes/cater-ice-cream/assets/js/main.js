@@ -122,6 +122,19 @@
 		} );
 	}
 
+	/* County directories: accordions on mobile, always open on wider screens. */
+	var counties = document.querySelectorAll( '[data-cic-county]' );
+	if ( counties.length ) {
+		var wide = window.matchMedia( '(min-width: 640px)' );
+		var syncCounties = function () {
+			Array.prototype.forEach.call( counties, function ( d, i ) {
+				d.open = wide.matches || 0 === i;
+			} );
+		};
+		syncCounties();
+		wide.addEventListener( 'change', syncCounties );
+	}
+
 	/* Sticky header offset so anchors and focused fields are not hidden underneath it. */
 	if ( header && header.classList.contains( 'is-sticky' ) ) {
 		var setOffset = function () {

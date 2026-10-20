@@ -60,7 +60,7 @@ final class Schema {
 	 */
 	public static function fonts(): array {
 		return array(
-			'fraunces'     => array( 'label' => 'Fraunces (approved heading font)', 'slug' => 'fraunces', 'weights' => array( 600, 700 ) ),
+			'fraunces'     => array( 'label' => 'Fraunces (approved heading font)', 'slug' => 'fraunces', 'weights' => array( 600, 700, 800, 900 ) ),
 			'dm-sans'      => array( 'label' => 'DM Sans (approved body font)', 'slug' => 'dm-sans', 'weights' => array( 400, 500, 600, 700 ) ),
 			'system-serif' => array( 'label' => 'System serif fallback', 'slug' => 'system-serif', 'weights' => array( 400, 600, 700 ) ),
 			'system-sans'  => array( 'label' => 'System sans-serif fallback', 'slug' => 'system-sans', 'weights' => array( 400, 500, 600, 700 ) ),

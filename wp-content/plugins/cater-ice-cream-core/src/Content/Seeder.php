@@ -60,6 +60,9 @@ final class Seeder {
 		foreach ( SeedData::events() as $key => $data ) {
 			$events[ $key ] = $this->seed_event( $key, $data );
 		}
+		foreach ( SeedData::pages() as $key => $data ) {
+			$this->seed_page( $key, $data );
+		}
 		foreach ( SeedData::products() as $key => $data ) {
 			$product_id = $this->seed_product( $key, $data );
 			foreach ( $data['pairings'] ?? array() as $event_key => $pair ) {
@@ -98,7 +101,7 @@ final class Seeder {
 
 	private function import_media(): void {
 		$assets = Media::assets_for_pages( SeedData::MEDIA_PAGES );
-		foreach ( array( SeedData::products(), SeedData::events() ) as $set ) {
+		foreach ( array( SeedData::products(), SeedData::events(), SeedData::pages() ) as $set ) {
 			array_walk_recursive(
 				$set,
 				static function ( $value ) use ( &$assets ) {
@@ -186,6 +189,47 @@ final class Seeder {
 				}
 			);
 		}
+	}
+
+	/**
+	 * Pages (Home, Get a Quote). The homepage becomes the static front page only while the site
+	 * still shows latest posts, so a later front-page choice is never overridden.
+	 *
+	 * @param array<string, mixed> $data Seed definition.
+	 */
+	private function seed_page( string $key, array $data ): int {
+		$id = Catalog::find_by_key( 'page', $key );
+		if ( ! $id && $this->was_seeded( 'page:' . $key ) ) {
+			return 0;
+		}
+		if ( ! $id ) {
+			$existing = get_page_by_path( $data['slug'], OBJECT, 'page' );
+			$id       = $existing ? $existing->ID : (int) wp_insert_post(
+				array(
+					'post_type'   => 'page',
+					'post_status' => 'publish',
+					'post_title'  => $data['title'],
+					'post_name'   => $data['slug'],
+				),
+				true
+			);
+			if ( ! $id || is_wp_error( $id ) ) {
+				$this->messages[] = 'Could not create page ' . $key;
+				return 0;
+			}
+			update_post_meta( $id, 'cic_key', $key );
+			if ( ! $existing ) {
+				$this->report['created']++;
+			}
+		}
+		$this->log['records'][ 'page:' . $key ] = (int) $id;
+		if ( ! empty( $data['front'] ) && 'posts' === get_option( 'show_on_front' ) && ! (int) get_option( 'page_on_front' ) ) {
+			update_option( 'show_on_front', 'page' );
+			update_option( 'page_on_front', (int) $id );
+			$this->messages[] = 'Static front page set to "' . $data['title'] . '".';
+		}
+		$this->seed_meta( $id, $data['meta'], Fields::names( Fields::home_group() ) );
+		return (int) $id;
 	}
 
 	/**

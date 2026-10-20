@@ -22,8 +22,8 @@ function cic_theme_layout(): array {
 		'main'   => array(
 			'logo_id'           => 0,
 			'logo_mobile_id'    => 0,
-			'logo_width'        => 190,
-			'logo_width_mobile' => 136,
+			'logo_width'        => 250,
+			'logo_width_mobile' => 168,
 			'show_call'         => false,
 			'show_quote'        => true,
 			'sticky'            => true,
@@ -144,18 +144,14 @@ function cic_theme_header_logo( array $main ): string {
 			false,
 			array(
 				'alt'           => $name,
-				'sizes'         => $width . 'px',
-				'fetchpriority' => 'high',
-				'loading'       => 'eager',
+				'sizes'   => $width . 'px',
+				'loading' => 'eager',
 			)
 		);
 	} else {
 		$img = cic_theme_bundled_logo(
 			$width,
-			array(
-				'fetchpriority' => 'high',
-				'loading'       => 'eager',
-			)
+			array( 'loading' => 'eager' )
 		);
 	}
 	if ( $mobile && wp_attachment_is_image( $mobile ) ) {

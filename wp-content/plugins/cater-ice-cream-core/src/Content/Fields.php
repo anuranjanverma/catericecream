@@ -36,6 +36,8 @@ final class Fields {
 		'pin'        => 'Location pin',
 		'chat'       => 'Conversation',
 		'leaf'       => 'Leaf',
+		'cupcake'    => 'Cupcake',
+		'wand'       => 'Magic wand',
 	);
 
 	public const FAQ_SLOTS = 6;
@@ -59,6 +61,18 @@ final class Fields {
 		'stories'  => 'Occasion stories',
 		'planning' => 'Planning prompts',
 		'quote'    => 'Quote and FAQ',
+	);
+
+	/** Homepage sections in approved order (01/02 home references). */
+	public const HOME_SECTIONS = array(
+		'hero'     => 'Hero and search',
+		'values'   => 'Value points',
+		'treats'   => 'Treats',
+		'events'   => 'Events',
+		'process'  => 'How it works',
+		'faq'      => 'FAQ',
+		'coverage' => 'Service areas',
+		'cta'      => 'Closing call to action',
 	);
 
 	public const EVENT_LAYOUTS = array(
@@ -132,7 +146,7 @@ final class Fields {
 
 	/** @return array<string, mixed> */
 	private static function heading( string $name, string $label ): array {
-		return self::text( $name, $label, 'Wrap accent words in <em>…</em> (for example: More than dessert. <em>A little shared delight.</em>).' );
+		return self::text( $name, $label, 'Wrap accent words in &lt;em&gt;…&lt;/em&gt; (for example: More than dessert. &lt;em&gt;A little shared delight.&lt;/em&gt;).' );
 	}
 
 	/**
@@ -141,7 +155,7 @@ final class Fields {
 	 * @param array<string, string> $sections Section key => label.
 	 * @return array<int, array<string, mixed>>
 	 */
-	private static function section_controls( array $sections ): array {
+	public static function section_controls( array $sections ): array {
 		$contexts = array( '' => 'Inherit page preset' );
 		foreach ( Schema::contexts() as $key => $def ) {
 			$contexts[ $key ] = $def['label'];
@@ -169,6 +183,83 @@ final class Fields {
 		}
 		acf_add_local_field_group( self::treat_group() );
 		acf_add_local_field_group( self::event_group() );
+		acf_add_local_field_group( self::home_group() );
+	}
+
+	/** @return array<string, mixed> */
+	public static function home_group(): array {
+		$fields = array(
+			self::tab( 'home_hero', 'Hero and search' ),
+			self::text( 'cic_home_eyebrow', 'Eyebrow' ),
+			self::area( 'cic_home_headline', 'Headline', 'One line per row. Wrap accent words in &lt;em&gt;…&lt;/em&gt;.', 2 ),
+			self::area( 'cic_home_intro', 'Introduction', '', 2 ),
+			self::image( 'cic_home_image_main', 'Main photo', 'Large rounded photo.' ),
+			self::image( 'cic_home_image_inset_1', 'Inset photo 1', 'Top right.' ),
+			self::image( 'cic_home_image_inset_2', 'Inset photo 2', 'Bottom right.' ),
+			self::text( 'cic_search_location_label', 'Search: location label' ),
+			self::text( 'cic_search_location_ph', 'Search: location placeholder' ),
+			self::text( 'cic_search_event_label', 'Search: event type label' ),
+			self::text( 'cic_search_event_ph', 'Search: event type placeholder' ),
+			self::text( 'cic_search_date_label', 'Search: date label' ),
+			self::text( 'cic_search_cta', 'Search: button label' ),
+			self::text( 'cic_search_note', 'Search: note under the fields', 'Never mention prices or minimum orders. Leave empty to use the global availability note.' ),
+			self::tab( 'home_values', 'Value points' ),
+		);
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "cic_value_{$i}_icon", "Value {$i}: icon" );
+			$fields[] = self::text( "cic_value_{$i}_label", "Value {$i}: label" );
+		}
+		$fields[] = self::tab( 'home_treats', 'Treats' );
+		$fields[] = self::heading( 'cic_treats_heading', 'Section heading' );
+		$fields[] = self::text( 'cic_treats_intro', 'Introduction' );
+		$fields[] = self::f( 'message', 'cic_home_treats_help', 'Which treats appear', array( 'message' => 'Published, active treats appear in their menu order: the first two as large brand cards (with their catalogue card tagline), the rest as small cards.' ) );
+		$fields[] = self::text( 'cic_treats_more_label', 'More treats card label' );
+		$fields[] = self::image( 'cic_treats_more_image', 'More treats card photo' );
+		$fields[] = self::tab( 'home_events', 'Events' );
+		$fields[] = self::heading( 'cic_events_heading', 'Section heading' );
+		$fields[] = self::f( 'message', 'cic_home_events_help', 'Which events appear', array( 'message' => 'Published events appear in their menu order with their featured image and excerpt.' ) );
+		$fields[] = self::tab( 'home_process', 'How it works' );
+		$fields[] = self::heading( 'cic_process_heading', 'Section heading' );
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::text( "cic_step_{$i}_title", "Step {$i}: title" );
+			$fields[] = self::text( "cic_step_{$i}_text", "Step {$i}: text" );
+		}
+		$fields[] = self::text( 'cic_process_cta', 'Button label' );
+		$fields[] = self::tab( 'home_faq', 'FAQ' );
+		$fields[] = self::area( 'cic_faq_heading', 'Heading', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 );
+		for ( $i = 1; $i <= self::FAQ_SLOTS; $i++ ) {
+			$fields[] = self::text( "cic_faq_{$i}_q", "Question {$i}" );
+			$fields[] = self::area( "cic_faq_{$i}_a", "Answer {$i}", 'No prices or minimum-order amounts.', 2 );
+		}
+		$fields[] = self::tab( 'home_coverage', 'Service areas' );
+		$fields[] = self::area( 'cic_cov_heading', 'Heading', 'One line per row.', 2 );
+		$fields[] = self::area( 'cic_cov_intro', 'Introduction', '', 2 );
+		$fields[] = self::text( 'cic_cov_placeholder', 'Search placeholder' );
+		$fields[] = self::text( 'cic_cov_button', 'Search button label' );
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::text( "cic_cov_county_{$i}_name", "County {$i}: name" );
+			$fields[] = self::area( "cic_cov_county_{$i}_cities", "County {$i}: cities", 'One city per line. Only list cities confirmed in the approved service-area data. They link to city pages once those exist.', 3 );
+		}
+		$fields[] = self::text( 'cic_cov_note', 'Note under the directory' );
+		$fields[] = self::text( 'cic_cov_map_caption', 'Map caption', 'The map is an illustration, not a coverage boundary.' );
+		$fields[] = self::tab( 'home_cta', 'Closing call to action' );
+		$fields[] = self::heading( 'cic_cta_heading', 'Heading' );
+		$fields[] = self::text( 'cic_cta_label', 'Button label' );
+		$fields[] = self::f( 'true_false', 'cic_cta_phone', 'Also show the phone number', array( 'default_value' => 0, 'ui' => 1 ) );
+		$fields[] = self::tab( 'home_sections', 'Sections' );
+		$fields   = array_merge( $fields, self::section_controls( self::HOME_SECTIONS ) );
+
+		return array(
+			'key'                   => 'group_cic_home',
+			'title'                 => 'Homepage composition',
+			'fields'                => $fields,
+			'location'              => array( array( array( 'param' => 'page_type', 'operator' => '==', 'value' => 'front_page' ) ) ),
+			'position'              => 'normal',
+			'style'                 => 'default',
+			'menu_order'            => 5,
+			'show_in_rest'          => 1,
+			'instruction_placement' => 'label',
+		);
 	}
 
 	/** @return array<string, mixed> */
@@ -181,11 +272,13 @@ final class Fields {
 			self::tab( 'treat_hero', 'Hero' ),
 			self::f( 'message', 'cic_treat_reuse_help', 'Standard WooCommerce fields', array( 'message' => 'Title, short description (catalogue card text), long description (shown as "what it is" in Product detail), featured image and the product gallery stay in the normal WooCommerce fields.' ) ),
 			self::text( 'cic_hero_eyebrow', 'Eyebrow', 'Small capitals line above the headline.' ),
-			self::area( 'cic_hero_headline', 'Emotional headline', 'One line per row. Wrap accent words in <em>…</em>.', 2 ),
+			self::area( 'cic_hero_headline', 'Emotional headline', 'One line per row. Wrap accent words in &lt;em&gt;…&lt;/em&gt;.', 2 ),
 			self::area( 'cic_hero_intro', 'Introduction' ),
 			self::text( 'cic_hero_cta', 'Quote button label', 'Opens the shared quote flow with this treat selected.' ),
 			self::text( 'cic_hero_jump', 'Jump link label', 'Scrolls to the occasion pairings, e.g. "Find your occasion".' ),
 			self::image( 'cic_hero_image', 'Hero photo', 'Large photo on the right.' ),
+			self::text( 'cic_card_tagline', 'Catalogue card tagline', 'Short line on homepage and catalogue cards, e.g. Little beads. Big smiles.' ),
+			self::text( 'cic_card_link', 'Catalogue card link label', 'e.g. Explore Dippin Dots.' ),
 		);
 		for ( $i = 1; $i <= 3; $i++ ) {
 			$fields[] = self::icon( "cic_chip_{$i}_icon", "Feeling chip {$i}: icon" );
@@ -257,7 +350,7 @@ final class Fields {
 			self::tab( 'event_hero', 'Hero' ),
 			self::f( 'select', 'cic_layout', 'Composition', array( 'choices' => self::EVENT_LAYOUTS, 'default_value' => 'standard', 'instructions' => 'Approved page composition. Birthday is built in Phase 03; the others use the standard composition until Phase 07.' ) ),
 			self::text( 'cic_hero_eyebrow', 'Eyebrow' ),
-			self::area( 'cic_hero_headline', 'Headline', 'One line per row. <em>…</em> uses the accent colour; <strong>…</strong> uses the second accent.', 3 ),
+			self::area( 'cic_hero_headline', 'Headline', 'One line per row. &lt;em&gt;…&lt;/em&gt; uses the accent colour; &lt;strong&gt;…&lt;/strong&gt; uses the second accent.', 3 ),
 			self::area( 'cic_hero_intro', 'Introduction', '', 2 ),
 			self::text( 'cic_hero_cta', 'Quote button label', 'Opens the shared quote flow with this occasion selected.' ),
 			self::text( 'cic_hero_link_label', 'Treats link label' ),
@@ -279,12 +372,12 @@ final class Fields {
 		$fields[] = self::tab( 'event_stories', 'Occasion stories' );
 		$fields[] = self::heading( 'cic_story_heading', 'Section heading' );
 		for ( $i = 1; $i <= 2; $i++ ) {
-			$fields[] = self::area( "cic_story_{$i}_title", "Story {$i}: title", 'One line per row; <em>…</em> for accent words.', 2 );
+			$fields[] = self::area( "cic_story_{$i}_title", "Story {$i}: title", 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 );
 			$fields[] = self::area( "cic_story_{$i}_text", "Story {$i}: text", '', 3 );
 			$fields[] = self::image( "cic_story_{$i}_image", "Story {$i}: photo" );
 		}
 		$fields[] = self::tab( 'event_planning', 'Planning prompts' );
-		$fields[] = self::area( 'cic_plan_heading', 'Heading', 'One line per row; <em>…</em> for accent words.', 2 );
+		$fields[] = self::area( 'cic_plan_heading', 'Heading', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 );
 		$fields[] = self::area( 'cic_plan_intro', 'Introduction', '', 2 );
 		$fields[] = self::image( 'cic_plan_image', 'Photo' );
 		for ( $i = 1; $i <= 3; $i++ ) {

@@ -45,3 +45,30 @@ add_filter(
 	10,
 	3
 );
+
+/**
+ * In-page anchor links (e.g. "How It Works" → /#how-it-works) are not the current page, even
+ * though WordPress ignores the fragment when it compares menu URLs.
+ */
+add_filter(
+	'nav_menu_css_class',
+	static function ( $classes, $item ) {
+		if ( str_contains( (string) $item->url, '#' ) ) {
+			$classes = array_diff( (array) $classes, array( 'current-menu-item', 'current_page_item' ) );
+		}
+		return $classes;
+	},
+	10,
+	2
+);
+add_filter(
+	'nav_menu_link_attributes',
+	static function ( $atts, $item ) {
+		if ( str_contains( (string) $item->url, '#' ) ) {
+			unset( $atts['aria-current'] );
+		}
+		return $atts;
+	},
+	10,
+	2
+);

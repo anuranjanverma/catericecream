@@ -137,7 +137,7 @@ async function scrollAll( page ) {
 	const order = await p.$$eval( '.cic-treat > section', ( s ) => s.map( ( x ) => x.id ) );
 	check( 'S1 treat sections in the approved order', 'hero,feelings,occasions,themes,detail,quote' === order.join( ',' ), order );
 	const lcp = await p.$$eval( 'img[fetchpriority="high"]', ( i ) => i.length );
-	check( 'S2 exactly one high-priority image per page besides the logo (hero photo)', 2 === lcp, lcp );
+	check( 'S2 exactly one high-priority image per page (the hero photo)', 1 === lcp, lcp );
 	await p.goto( BASE + '/events/birthday/', { waitUntil: 'networkidle0' } );
 	const evOrder = await p.$$eval( '.cic-event > section', ( s ) => s.map( ( x ) => x.id ) );
 	check( 'S3 Birthday sections in the approved order', 'hero,starter,treats,stories,planning,quote' === evOrder.join( ',' ), evOrder );

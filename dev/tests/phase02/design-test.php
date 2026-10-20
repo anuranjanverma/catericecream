@@ -103,7 +103,7 @@ try {
 	cic_check( 'C9 line height below font size rejected', ! isset( $c['type']['h2'] ) );
 	cic_check( 'C10 type size outside 10–120 rejected', ! isset( $c['type']['h3'] ) && 3 === count( $e ) );
 	$e = array();
-	$c = Settings::sanitize( array( 'contexts' => array( 'birthday' => array( 'roles' => array( 'accent' => 'lavender', 'decor' => 'brand', 'action' => 'custom', 'link' => 'javascript:alert(1)' ), 'custom' => array( 'action' => '#2a9d8f' ) ), 'wedding' => array( 'heading_weight' => '900' ) ) ), array(), $e );
+	$c = Settings::sanitize( array( 'contexts' => array( 'birthday' => array( 'roles' => array( 'accent' => 'lavender', 'decor' => 'brand', 'action' => 'custom', 'link' => 'javascript:alert(1)' ), 'custom' => array( 'action' => '#2a9d8f' ) ), 'wedding' => array( 'heading_weight' => '500' ) ) ), array(), $e );
 	cic_check( 'C11 preset roles accept token, "brand" and custom hex', 'lavender' === $c['contexts']['birthday']['roles']['accent'] && 'brand' === $c['contexts']['birthday']['roles']['decor'] && '#2A9D8F' === $c['contexts']['birthday']['roles']['action'] );
 	cic_check( 'C12 preset junk values and unbundled weights rejected', ! isset( $c['contexts']['birthday']['roles']['link'] ) && ! isset( $c['contexts']['wedding']['heading_weight'] ) && 2 === count( $e ) );
 
@@ -182,7 +182,7 @@ try {
 	cic_check( 'H3 private operator recipient is preserved untouched', ( $snapshot[ CIC\Config::OPTION_SETTINGS ]['operator_recipient'] ?? CIC\Config::defaults()['operator_recipient'] ) === ( $cc['operator_recipient'] ?? CIC\Config::defaults()['operator_recipient'] ) );
 	$e = array();
 	$l = Layout::sanitize( array( 'main' => array( 'logo_width' => '999', 'logo_id' => '999999', 'sticky' => '' ), 'top' => array( 'surface' => 'not-a-token', 'text' => '<script>x</script>Hi' ), 'footer' => array( 'layout' => 'evil' ) ), $e );
-	cic_check( 'H4 layout: bounded widths, real images only, allowlisted tokens/layouts, plain text', 190 === $l['main']['logo_width'] && 0 === $l['main']['logo_id'] && false === $l['main']['sticky'] && 'text_primary' === $l['top']['surface'] && 'Hi' === $l['top']['text'] && 'brand-menu-contact' === $l['footer']['layout'] && 3 === count( $e ), implode( ' | ', $e ) );
+	cic_check( 'H4 layout: bounded widths, real images only, allowlisted tokens/layouts, plain text', Layout::defaults()['main']['logo_width'] === $l['main']['logo_width'] && 0 === $l['main']['logo_id'] && false === $l['main']['sticky'] && 'text_primary' === $l['top']['surface'] && 'Hi' === $l['top']['text'] && 'brand-menu-contact' === $l['footer']['layout'] && 3 === count( $e ), implode( ' | ', $e ) );
 } finally {
 	foreach ( $snapshot as $opt => $value ) {
 		if ( null === $value ) {

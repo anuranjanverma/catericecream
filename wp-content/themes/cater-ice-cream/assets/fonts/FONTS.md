@@ -6,9 +6,9 @@ Only the families, styles and weights used by the approved designs are bundled, 
 
 | File | Family | Style | Weights covered | Used for |
 | --- | --- | --- | --- | --- |
-| `fraunces/fraunces-roman-latin.woff2` | Fraunces (variable, wght) | normal | 600–700 | Headings (700 base, 600 Wedding) |
-| `fraunces/fraunces-italic-latin.woff2` | Fraunces (variable, wght) | italic | 600 | Wedding italic heading emphasis |
-| `dm-sans/dmsans-roman-latin.woff2` | DM Sans (variable, wght) | normal | 400–700 | Body 400, interface 500, strong 700 |
+| `fraunces/fraunces-roman-latin.woff2` | Fraunces (variable, wght only; no opsz/SOFT/WONK axes) | normal | 100–900 (declared in theme.json) | Headings (Design System weight; 600 Wedding) |
+| `fraunces/fraunces-italic-latin.woff2` | Fraunces (static instance) | italic | 600 | Wedding italic heading emphasis |
+| `dm-sans/dmsans-roman-latin.woff2` | DM Sans (variable, wght 100–1000; declared 400–700) | normal | 400–700 | Body 400, interface 500, strong 700 |
 
 ## Source
 
@@ -40,3 +40,9 @@ the fonts must not be sold on their own.
   print the `@font-face` rules on the frontend and in the editor.
 - The Design System screen only offers the families declared there (plus system fallbacks). There is no font upload path.
 - The WordPress Font Library is disabled in `theme.json` so it cannot become a second source of fonts.
+
+## Axes (verified 2026-10-20)
+
+Decoded from the WOFF2 files: Fraunces roman has a single `wght` axis (100–900); the optical-size,
+SOFT and WONK axes are not present (Google omits unrequested axes), so headings use the default
+display master. Fraunces italic is a static 600 instance. DM Sans roman has `wght` 100–1000.

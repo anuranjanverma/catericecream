@@ -39,6 +39,7 @@ final class Plugin {
 
 		( new Design\Service() )->register();
 		( new Content\Service() )->register();
+		( new Locations\Service() )->register();
 	}
 
 	public function load_textdomain(): void {

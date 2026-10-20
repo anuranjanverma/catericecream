@@ -27,6 +27,8 @@ function cic_theme_icon( string $name ): string {
 		'pin'        => '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.5"/>',
 		'chat'       => '<path d="M4 5.5h16v10H9l-5 4z"/>',
 		'leaf'       => '<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/>',
+		'cupcake'    => '<path d="M6 12h12l-1.6 8H7.6z"/><path d="M9.5 12l.5 8M14.5 12l-.5 8"/><path d="M5.5 12a3 3 0 0 1 1.2-5.6A5.3 5.3 0 0 1 12 3.5a5.3 5.3 0 0 1 5.3 2.9 3 3 0 0 1 1.2 5.6"/><path d="M12 3.5V2"/>',
+		'wand'       => '<path d="M4 20l10-10"/><path d="M15 3v3M13.5 4.5h3M19 7v2M18 8h2M18 13v2M17 14h2M10 4v1.5M9.25 4.75h1.5"/><path d="M12.5 11.5l2 2"/>',
 		'arrow'      => '<path d="M5 12h14M13 6l6 6-6 6"/>',
 		'arrow-down' => '<path d="M12 5v14M6 13l6 6 6-6"/>',
 	);
@@ -115,8 +117,24 @@ function cic_theme_arrow_link( string $url, string $label, string $class = 'cic-
 add_action(
 	'wp_enqueue_scripts',
 	static function (): void {
-		if ( is_singular( array( 'product', 'cic_event' ) ) || is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) ) {
+		$home = is_front_page() && 'page' === get_option( 'show_on_front' );
+		if ( $home || is_page( 'get-a-quote' ) || is_singular( array( 'product', 'cic_event' ) ) || is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) ) {
 			wp_enqueue_style( 'cic-compositions', get_template_directory_uri() . '/assets/css/compositions.css', array( 'cic-main' ), cic_theme_asset_version( 'assets/css/compositions.css' ) );
+		}
+		if ( $home || is_page( 'get-a-quote' ) ) {
+			wp_enqueue_style( 'cic-home', get_template_directory_uri() . '/assets/css/home.css', array( 'cic-compositions' ), cic_theme_asset_version( 'assets/css/home.css' ) );
+		}
+		// Quote context helper on every page: explicit selections travel to the quote route.
+		if ( class_exists( '\CIC\Quote\Context' ) ) {
+			wp_enqueue_script( 'cic-context', get_template_directory_uri() . '/assets/js/context.js', array(), cic_theme_asset_version( 'assets/js/context.js' ), array( 'strategy' => 'defer', 'in_footer' => true ) );
+			$config             = \CIC\Quote\Context::client_config();
+			$config['messages'] = array(
+				'invalid'  => __( 'Please check the highlighted field: use a 5-digit ZIP code or a city name, and a date from today onward.', 'cater-ice-cream' ),
+				'location' => __( 'Please enter a 5-digit ZIP code or a city name.', 'cater-ice-cream' ),
+				'continue' => __( 'Continue to your quote', 'cater-ice-cream' ),
+				'offline'  => __( "We couldn't check right now. Include your ZIP code in your quote request and we'll confirm service.", 'cater-ice-cream' ),
+			);
+			wp_add_inline_script( 'cic-context', 'window.cicContext = ' . wp_json_encode( $config ) . ';', 'before' );
 		}
 	}
 );

@@ -40,6 +40,8 @@ Handoff locations (verified):
 - Treats are WooCommerce products; events are `cic_event`. Pairing copy lives ONLY in `{prefix}cic_product_events` and is written ONLY through `CIC\Content\Pairings`. Never duplicate pairing text in post meta.
 - Structured fields are ACF Free local field groups (`CIC\Content\Fields`), free field types only (no Repeater/Flexible/Gallery/Options/Blocks). Templates read data through `CIC\Content\ViewModel`, never ACF functions.
 - `wp cic seed-catalog` is safe to re-run: it never overwrites edits or recreates removed records/pairings. Re-run `dev/tests/phase03/catalog-test.php` after catalogue, pairing, route or seed changes.
+- Quote context: only non-personal, validated keys travel (`CIC\Quote\Context` + `assets/js/context.js`); never put names, emails, phones, addresses, dietary notes or free text in URLs or storage. City/coverage lookups go only through `CIC\Locations\LocationRepository` (owner code pending); never claim coverage without approved data.
+- Run browser tests one at a time and make sure each closes its browser (memory).
 - Tests must restore everything they change in `finally` (settings, statuses, fields, pairings, theme, plugins, fixtures) and close any browser on failure.
 - Never print or commit credentials from `wp-config.php`.
 
