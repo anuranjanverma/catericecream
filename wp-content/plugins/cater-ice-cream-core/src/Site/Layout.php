@@ -37,8 +37,8 @@ final class Layout {
 			'main'   => array(
 				'logo_id'           => array( 'type' => 'image', 'default' => 0, 'label' => 'Desktop logo', 'help' => 'Leave empty to use the approved original logo bundled with the theme.' ),
 				'logo_mobile_id'    => array( 'type' => 'image', 'default' => 0, 'label' => 'Mobile logo', 'help' => 'Optional; falls back to the desktop logo.' ),
-				'logo_width'        => array( 'type' => 'int', 'default' => 250, 'min' => 120, 'max' => 320, 'label' => 'Desktop logo width (px)' ),
-				'logo_width_mobile' => array( 'type' => 'int', 'default' => 168, 'min' => 96, 'max' => 220, 'label' => 'Mobile logo width (px)' ),
+				'logo_width'        => array( 'type' => 'int', 'default' => 190, 'min' => 120, 'max' => 320, 'label' => 'Desktop logo width (px)' ),
+				'logo_width_mobile' => array( 'type' => 'int', 'default' => 136, 'min' => 96, 'max' => 220, 'label' => 'Mobile logo width (px)' ),
 				'show_call'         => array( 'type' => 'bool', 'default' => false, 'label' => 'Show call action' ),
 				'show_quote'        => array( 'type' => 'bool', 'default' => true, 'label' => 'Show quote button' ),
 				'sticky'            => array( 'type' => 'bool', 'default' => true, 'label' => 'Sticky header while scrolling' ),

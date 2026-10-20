@@ -22,8 +22,8 @@ function cic_theme_layout(): array {
 		'main'   => array(
 			'logo_id'           => 0,
 			'logo_mobile_id'    => 0,
-			'logo_width'        => 250,
-			'logo_width_mobile' => 168,
+			'logo_width'        => 190,
+			'logo_width_mobile' => 136,
 			'show_call'         => false,
 			'show_quote'        => true,
 			'sticky'            => true,

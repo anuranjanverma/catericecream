@@ -22,6 +22,7 @@ Handoff locations (verified):
 - Work one phase prompt at a time and only when asked. Do not start the next phase automatically.
 - Do not install plugins, activate themes, or change the database or `wp-config.php` without the owner's go-ahead for that phase.
 - The owner is learning Claude Code: explain each meaningful step briefly while working.
+- Homepage APPROVED by the owner (2026-10-20, commit `70479ad` plus the logo adjustment). Do not change its sections, typography, colours or layout without a new owner request. The header logo defaults are 190 px desktop / 136 px mobile (initial Phase 04 values, editable in Header settings); the footer logo is separate.
 
 ## Local environment (details in ENVIRONMENT.md)
 

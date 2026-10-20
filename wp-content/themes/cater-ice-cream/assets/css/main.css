@@ -724,7 +724,7 @@ textarea.cic-input {
 .cic-logo {
 	display: block;
 	flex: none;
-	width: var(--cic-logo-w-mobile, 168px);
+	width: var(--cic-logo-w-mobile, 136px);
 	line-height: 0;
 }
 
@@ -849,7 +849,7 @@ textarea.cic-input {
 
 @media (min-width: 1024px) {
 	.cic-logo {
-		width: var(--cic-logo-w, 250px);
+		width: var(--cic-logo-w, 190px);
 	}
 
 	.cic-nav--primary {

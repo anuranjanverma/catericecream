@@ -11,10 +11,10 @@ Environment facts: see `ENVIRONMENT.md`.
 | 01 Foundation and catalogue protection | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 02 Design system and admin controls | **Complete: gate passed** (see verification) | 2026-10-19 |
 | 03 Products, events and structured editing | **Complete: gate passed** (see verification) | 2026-10-19 |
-| 04 Homepage and shared components | **Complete + visual correction pass (2026-10-20): awaiting owner review** (https://catericecream.test/) | 2026-10-20 |
+| 04 Homepage and shared components | **Approved by the owner (2026-10-20)**, header logo size restored to the initial Phase 04 values (https://catericecream.test/) | 2026-10-20 |
 | 05 Locations, import, search, routes and SEO | Not started. Awaiting owner instruction (owner city code pending) | |
 
-Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03, each committed at the owner's request after reviewing the staged set. Phase 04 work is **not committed yet**.
+Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass, each committed at the owner's request after reviewing the staged set.
 
 ---
 
@@ -134,6 +134,17 @@ Requested by the owner after the first review. Sections, order, navigation, the 
 - Condensed heading character (font limitation above).
 - Heading weight/size tuned above the written spec defaults (owner may reset).
 - Placeholders as listed in the Phase 04 log (city lists, illustrative map, top-row text, footer logo plate, AI photos).
+
+### Owner approval and header logo adjustment (2026-10-20)
+
+- **The owner approved the homepage** as built after the visual correction pass. Its sections, order, typography (Design System tuning included), colours and layout are frozen; no further visual correction pass.
+- **One adjustment:** the HEADER logo returns to its initial Phase 04 size. From Git history (`git diff d055da2 70479ad`), the values before the correction pass were **190 px desktop / 136 px mobile**; the pass had raised them to 250 / 168. Only those values were restored, in the three places that hold them:
+  - `src/Site/Layout.php` (admin control defaults);
+  - `inc/template-tags.php` (theme fallbacks);
+  - `assets/css/main.css` (CSS variable fallbacks).
+
+  Nothing else from the correction pass was reverted. The size stays editable under Header settings (desktop 120–320, mobile 96–220). No saved `cic_site_layout` option exists, so the defaults apply. The footer logo (its own `logo_width` 168, rendered at 144 px) is unchanged.
+- **Verified:** headless Edge, one browser, closed afterwards. The header logo measured **136 px at 390 and 768 px** and **190 px at 1440 px**, the footer logo was unchanged and there was no horizontal overflow. Captures: `dev/tests/output/phase04/header-logo-{390,768,1440}.png`. Phase 02 server **51/51** and browser **58/58**, Phase 04 server **25/25**.
 
 ### Remaining differences from the references (for the owner's visual review)
 
@@ -483,7 +494,7 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 | 01 ✔ | Theme shell, core plugin, MU guard | Passed 2026-10-19 |
 | 02 ✔ | Design System admin + style preview + header/footer controls | Passed 2026-10-19 |
 | 03 ✔ | Products + Events models (ACF Free install) | Passed 2026-10-19 |
-| 04 ✔ | Three-row header/footer + homepage | Built 2026-10-19; awaiting owner visual review |
+| 04 ✔ | Three-row header/footer + homepage | Approved by owner 2026-10-20 |
 | 05 | Locations adapter, importer, search, virtual routes, SEO | ZIP cases, collisions, canonicals, noindex (fixture until city code arrives) |
 | 06 | CF7/Flamingo quote wizard, lead admin, mail, reminders | Save-before-notify proven in Mailpit |
 | — | Vertical-slice gate | Before Phase 07 |
