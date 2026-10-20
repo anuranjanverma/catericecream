@@ -31,6 +31,11 @@
 !/wp-content/mu-plugins/cic-catalog-guard.php
 # Local-only mail routing to Mailpit (inactive unless the environment type is "local").
 !/wp-content/mu-plugins/cic-local-mail.php
+# Staging-only mail block (inactive unless the environment type is "staging").
+!/wp-content/mu-plugins/cic-staging-mail-guard.php
+
+# Release and operations documentation (Phase 10)
+!/docs/
 
 # Credentials and environment files (defence in depth, even inside allowed folders)
 wp-config.php
