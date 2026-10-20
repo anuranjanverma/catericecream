@@ -15,10 +15,52 @@ Environment facts: see `ENVIRONMENT.md`.
 | 05 Locations, import, search, routes and SEO | **Provisional: built and tested with local fixtures only; NOT launch-ready.** Production city/state integration deferred until the owner supplies the historical city code and approved coverage data | 2026-10-20 |
 | 06 Quote flow, lead management, mail and reminders | **Pending.** Deferred by owner instruction to after Phase 07; full quote-flow integration and testing outstanding | |
 | 07 Event and treat compositions | **Eight detail pages built and verified, awaiting owner review.** Built before Phase 06 by owner instruction; the vertical-slice/quote-flow prerequisite is **DEFERRED, not passed** | 2026-10-20 |
+| 08 Archives and supporting pages | **Built and verified, awaiting owner review.** Contact submissions + full quote flow pending Phase 06 | 2026-10-20 |
 
 Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05 (provisional). Each was committed at the owner's request after reviewing the staged set. Phase 07 is **not committed yet**.
 
 ---
+
+## Phase 08 log: Archives and supporting pages
+
+Prompt: `prompts/08_archives_and_supporting_pages.md`. References 03, 08, 14, 16, 19, 20 and their asset-map rows. Backup: `C:\laragonackup\catericecream\pre-phase08-*`.
+
+**Pages**
+
+| Page | URL | What was built |
+| --- | --- | --- |
+| Our Treats | https://catericecream.test/treats/ | Hero, sticky jump links, one detailed row per published treat (live product query; product "Our Treats row" fields), "Not sure" panel, non-personal quote starter |
+| Events overview | https://catericecream.test/events/ | All four occasions from the live event query, "something else" link (quote with Other occasion), featured treats, steps, starter. Text editable at Events → Overview page (Settings API; the archive has no duplicate Page) |
+| About | https://catericecream.test/about/ | Verified facts only; business details come from the contact settings; "YK" placeholder graphic until a real portrait is supplied |
+| Contact | https://catericecream.test/contact/ | Call and email cards (configured values), quote alternative, FAQ. The message form is **pending Phase 06**: no alternative form and no success message |
+| Policies | `/privacy-policy/`, `/website-terms/` | Policy template (headings outline, "Content pending approval" label, contact from settings). Both pages stay **drafts** (real 404 publicly); menu links to unpublished pages are hidden |
+| 404 | any unknown URL | Branded template; real 404 status; noindex |
+
+**Other changes**
+- WordPress's default "Sample Page" set to draft.
+- About and Contact added to the footer menu.
+- Core plugin: new fields; `EventsOverview`; `ViewModel` methods for catalogue, events overview, about, contact and policy; seeder now supports draft status and page template.
+- Theme: `pages.css`, page/archive/policy/404 templates, icons and county motifs.
+
+**Verification**
+- `dev/tests/phase08/pages-test.php`: **24/24**. Covers statuses, dynamic queries (temporary records), jump links, quote links, configured tel/mailto, no form or fake success, verified facts, 20 links, menus, copy rules, editability, policy outline, seeder idempotence and cleanup.
+- `dev/tests/phase08/browser-test.cjs`: **11/11**. Covers no overflow at 390/768/1440, jump links, starter blocking and handoff, Explore, FAQ by keyboard, the mobile menu, admin edits (Overview page and product row), and the policy draft preview while still publicly 404.
+- Screenshots: `dev/tests/output/phase08/`.
+
+**Regressions after Phase 08** (one suite at a time):
+
+| Phase | Server | Browser / admin |
+| --- | --- | --- |
+| 01 guard | **69/69** | — |
+| 02 | **51/51** | **58/58** |
+| 03 | **46/46** | **22/22** |
+| 04 | **25/25** | **22/22**, admin fields **6/6** |
+| 05 | **55/55** | **24/24**, admin **12/12** |
+| 07 | **23/23** | **13/13**, admin **7/7** |
+
+- **Expectation update:** Phase 04 E2 now expects 57 masters (Phase 08 imported the events hero photo).
+- **Test residue found and removed:** an empty draft city-content record for Los Angeles (post 295, no field values) left by an earlier test run. The snapshot/restore had preserved it because it predated the snapshot.
+- **Clean state:** no new PHP notices; no test browsers left; only the owner's session remains.
 
 ## Build-sequence change (owner instruction, 2026-10-20)
 

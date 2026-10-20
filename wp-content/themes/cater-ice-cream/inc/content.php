@@ -41,6 +41,8 @@ function cic_theme_icon( string $name ): string {
 		'rings'      => '<circle cx="9" cy="14" r="5"/><circle cx="15" cy="14" r="5"/><path d="M10.5 6.5L12 4l1.5 2.5"/>',
 		'briefcase'  => '<rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V5.5h6v2"/><path d="M3.5 12.5h17M11 12.5v2h2v-2"/>',
 		'cake'       => '<path d="M4.5 20.5h15V13a2 2 0 0 0-2-2h-11a2 2 0 0 0-2 2z"/><path d="M4.5 15.5c1.5 1.3 3 1.3 4.5 0s3-1.3 4.5 0 3 1.3 4.5 0"/><path d="M8 11V8.5M12 11V8.5M16 11V8.5"/><path d="M8 6.5v-1M12 6.5v-1M16 6.5v-1"/>',
+		'clipboard'  => '<rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 4.5V3h6v1.5"/><path d="M8.5 13l2.5 2.5 4.5-5"/>',
+		'mail'       => '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/>',
 		'gift-cups'  => '<path d="M3.5 10.5h8L10 20H5z"/><path d="M12.5 10.5h8L19 20h-5z"/><path d="M4.5 10.5a3 3 0 0 1 6 0M13.5 10.5a3 3 0 0 1 6 0"/><path d="M8 5l1 -2M16 5l-1-2M12 6V3.5"/>',
 		'arrow'      => '<path d="M5 12h14M13 6l6 6-6 6"/>',
 		'arrow-down' => '<path d="M12 5v14M6 13l6 6 6-6"/>',
@@ -137,6 +139,9 @@ function cic_theme_motif( string $name, string $class = '' ): string {
 		'hearts'      => array( '0 0 120 70', '<path d="M30 58C12 46 6 34 10 24c4-10 18-10 22 0 4-10 18-10 22 0 4 12-6 24-24 34z"/><path d="M70 50c-14-9-18-18-15-26 3-7 13-7 16 0 3-7 13-7 16 0 3 9-4 18-17 26z"/><path d="M86 30c10-6 20-6 30 2" class="cic-motif__trail"/>' ),
 		'sparkle'     => array( '0 0 48 48', '<path d="M24 6l3 12 12 3-12 3-3 12-3-12-12-3 12-3z"/><path d="M40 6l1 4 4 1-4 1-1 4-1-4-4-1 4-1z"/>' ),
 		'strokes'     => array( '0 0 48 48', '<path d="M10 40l8-10M20 44l4-14M30 42l-2-12"/>' ),
+		'skyline'     => array( '0 0 120 48', '<path d="M2 44h116M10 44V30h8v14M22 44V22h10v22M36 44V12h8v32M48 44V26h12v18M64 44V18h9v26M78 44V30h8v14M92 44V24h10v20"/><path d="M106 44V30M106 30c-3-4-7-5-10-4M106 30c3-4 7-5 10-4M106 30c-1-5 0-9 3-11"/>' ),
+		'coast'       => array( '0 0 120 48', '<path d="M2 44h116"/><path d="M4 34l18-14 14 10 16-16 20 18 14-8 18 10 12-6"/><path d="M14 44c6-4 12-4 18 0s12 4 18 0 12-4 18 0"/><path d="M98 34V20M98 20c-3-4-7-4-10-2M98 20c3-4 7-4 10-2"/>' ),
+		'mission'     => array( '0 0 120 48', '<path d="M2 44h116"/><path d="M40 44V26h40v18M48 26v-8h24v8M56 18v-8l4-4 4 4v8"/><path d="M54 44V34a6 6 0 0 1 12 0v10M60 10V4"/><path d="M14 44V30M14 30c-3-4-7-4-10-2M14 30c3-4 7-4 10-2M102 44V30M102 30c-3-4-7-4-10-2M102 30c3-4 7-4 10-2"/>' ),
 		'people-line' => array( '0 0 96 64', '<circle cx="30" cy="22" r="8"/><circle cx="66" cy="22" r="8"/><circle cx="48" cy="16" r="9"/><path d="M14 56c0-10 8-18 16-18M82 56c0-10-8-18-16-18M30 58c0-12 8-22 18-22s18 10 18 22"/>' ),
 	);
 	if ( ! isset( $motifs[ $name ] ) ) {
@@ -158,8 +163,19 @@ add_action(
 		if ( $home || $location || is_page( 'get-a-quote' ) || is_singular( array( 'product', 'cic_event' ) ) || is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) ) {
 			wp_enqueue_style( 'cic-compositions', get_template_directory_uri() . '/assets/css/compositions.css', array( 'cic-main' ), cic_theme_asset_version( 'assets/css/compositions.css' ) );
 		}
-		if ( is_singular( array( 'product', 'cic_event' ) ) ) {
+		$pages = is_post_type_archive( array( 'product', 'cic_event' ) ) || ( function_exists( 'is_shop' ) && is_shop() ) || is_page( array( 'about', 'contact' ) ) || is_page_template( 'template-policy.php' ) || is_404();
+		if ( $pages ) {
+			wp_enqueue_style( 'cic-compositions', get_template_directory_uri() . '/assets/css/compositions.css', array( 'cic-main' ), cic_theme_asset_version( 'assets/css/compositions.css' ) );
+			wp_enqueue_style( 'cic-home', get_template_directory_uri() . '/assets/css/home.css', array( 'cic-compositions' ), cic_theme_asset_version( 'assets/css/home.css' ) );
+		}
+		if ( $pages || is_page( array( 'about', 'contact' ) ) ) {
+			wp_enqueue_style( 'cic-locations', get_template_directory_uri() . '/assets/css/locations.css', array( 'cic-home' ), cic_theme_asset_version( 'assets/css/locations.css' ) );
+		}
+		if ( is_singular( array( 'product', 'cic_event' ) ) || $pages ) {
 			wp_enqueue_style( 'cic-details', get_template_directory_uri() . '/assets/css/details.css', array( 'cic-compositions' ), cic_theme_asset_version( 'assets/css/details.css' ) );
+		}
+		if ( $pages ) {
+			wp_enqueue_style( 'cic-pages', get_template_directory_uri() . '/assets/css/pages.css', array( 'cic-details' ), cic_theme_asset_version( 'assets/css/pages.css' ) );
 		}
 		if ( $home || $location || is_page( 'get-a-quote' ) ) {
 			wp_enqueue_style( 'cic-home', get_template_directory_uri() . '/assets/css/home.css', array( 'cic-compositions' ), cic_theme_asset_version( 'assets/css/home.css' ) );

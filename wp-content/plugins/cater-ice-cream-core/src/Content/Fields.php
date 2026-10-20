@@ -49,6 +49,9 @@ final class Fields {
 		'briefcase'  => 'Briefcase',
 		'cake'       => 'Birthday cake',
 		'gift-cups'  => 'Two dessert cups',
+		'clipboard'  => 'Checklist',
+		'mail'       => 'Envelope',
+		'phone'      => 'Phone',
 	);
 
 	public const FAQ_SLOTS = 6;
@@ -277,6 +280,183 @@ final class Fields {
 		acf_add_local_field_group( self::home_group() );
 		acf_add_local_field_group( self::hub_group() );
 		acf_add_local_field_group( self::city_group() );
+		acf_add_local_field_group( self::shop_group() );
+		acf_add_local_field_group( self::about_group() );
+		acf_add_local_field_group( self::contact_group() );
+		acf_add_local_field_group( self::policy_group() );
+	}
+
+	/**
+	 * Location rule for one Page found by its stable key (or a value that never matches).
+	 *
+	 * @return array<int, array<int, array<string, string>>>
+	 */
+	private static function page_rule( string $key ): array {
+		$id = 'shop' === $key && function_exists( 'wc_get_page_id' ) ? (int) wc_get_page_id( 'shop' ) : Catalog::find_by_key( 'page', $key );
+		return array( array( array( 'param' => 'page', 'operator' => '==', 'value' => (string) ( $id > 0 ? $id : -1 ) ) ) );
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $fields Fields.
+	 * @return array<string, mixed>
+	 */
+	private static function page_group( string $key, string $title, array $fields, array $location ): array {
+		return array(
+			'key'                   => 'group_cic_' . $key,
+			'title'                 => $title,
+			'fields'                => $fields,
+			'location'              => $location,
+			'position'              => 'normal',
+			'style'                 => 'default',
+			'menu_order'            => 5,
+			'show_in_rest'          => 1,
+			'instruction_placement' => 'label',
+		);
+	}
+
+	/**
+	 * Our Treats page (the WooCommerce shop page, 08_treats_catalogue.png). Rows come from the
+	 * published treats; each treat's row text is on the product ("Our Treats row" tab).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function shop_group(): array {
+		$p      = 'cic_shop_';
+		$fields = array(
+			self::tab( 'shop_hero', 'Hero' ),
+			self::text( $p . 'eyebrow', 'Eyebrow' ),
+			self::area( $p . 'headline', 'Headline', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 ),
+			self::area( $p . 'intro', 'Introduction', '', 2 ),
+			self::image( $p . 'image', 'Hero photo' ),
+			self::text( $p . 'jump_label', 'Jump links label', 'e.g. Jump to a treat:' ),
+			self::text( $p . 'note', 'Note under the treats', 'No stock, flavour or dietary promises.' ),
+			self::tab( 'shop_help', '"Not sure" panel' ),
+			self::heading( $p . 'help_heading', 'Heading' ),
+			self::area( $p . 'help_text', 'Text', '', 2 ),
+		);
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "{$p}help_{$i}_icon", "Item {$i}: icon" );
+			$fields[] = self::text( "{$p}help_{$i}_title", "Item {$i}: title" );
+			$fields[] = self::text( "{$p}help_{$i}_text", "Item {$i}: text" );
+		}
+		$fields[] = self::text( $p . 'help_cta', 'Button label' );
+		$fields[] = self::tab( 'shop_start', 'Quote starter' );
+		$fields[] = self::heading( $p . 'start_heading', 'Heading' );
+		$fields[] = self::text( $p . 'start_subheading', 'Subheading' );
+		$fields[] = self::text( $p . 'start_cta', 'Button label' );
+		$fields[] = self::text( $p . 'start_note', 'Note under the fields' );
+		return self::page_group( 'shop', 'Our Treats composition', $fields, self::page_rule( 'shop' ) );
+	}
+
+	/**
+	 * About page (14_about.png). Verified facts only; the initials graphic is a placeholder until a
+	 * real portrait is supplied.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function about_group(): array {
+		$p      = 'cic_about_';
+		$fields = array(
+			self::tab( 'about_hero', 'Hero' ),
+			self::text( $p . 'eyebrow', 'Eyebrow' ),
+			self::area( $p . 'headline', 'Headline', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 3 ),
+			self::area( $p . 'intro', 'Introduction', '', 2 ),
+			self::image( $p . 'image', 'Main photo' ),
+			self::image( $p . 'inset_1', 'Inset photo 1' ),
+			self::image( $p . 'inset_2', 'Inset photo 2' ),
+			self::tab( 'about_story', 'Story' ),
+			self::heading( $p . 'story_heading', 'Heading' ),
+			self::area( $p . 'story_text', 'Text', 'Blank line between paragraphs. Verified facts only: no invented history or claims.', 5 ),
+			self::image( $p . 'story_image', 'Photo' ),
+			self::area( $p . 'quote', 'Highlighted line', 'One line per row.', 2 ),
+			self::tab( 'about_brands', 'Treats' ),
+			self::heading( $p . 'brands_heading', 'Heading' ),
+			self::text( $p . 'brands_line', 'Line under the treats' ),
+			self::text( $p . 'brands_link', 'Link label' ),
+			self::tab( 'about_approach', 'Approach' ),
+			self::heading( $p . 'approach_heading', 'Heading' ),
+		);
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$fields[] = self::icon( "{$p}step_{$i}_icon", "Step {$i}: icon" );
+			$fields[] = self::text( "{$p}step_{$i}_title", "Step {$i}: title" );
+			$fields[] = self::text( "{$p}step_{$i}_text", "Step {$i}: text" );
+		}
+		$fields[] = self::tab( 'about_meet', 'Meet' );
+		$fields[] = self::heading( $p . 'meet_heading', 'Heading' );
+		$fields[] = self::area( $p . 'meet_text', 'Text', 'Verified role only. Business name, location, phone and email come from the global contact settings.', 2 );
+		$fields[] = self::text( $p . 'meet_initials', 'Initials (placeholder graphic)', 'Shown until a real portrait is supplied.' );
+		$fields[] = self::image( $p . 'meet_portrait', 'Portrait (optional)', 'Only a real, approved portrait. Replaces the initials.' );
+		$fields[] = self::image( $p . 'meet_image', 'Service photo' );
+		$fields[] = self::tab( 'about_areas', 'Service areas' );
+		$fields[] = self::heading( $p . 'areas_heading', 'Heading' );
+		$fields[] = self::text( $p . 'areas_intro', 'Introduction' );
+		$fields[] = self::text( $p . 'areas_note_title', 'Map note title' );
+		$fields[] = self::text( $p . 'areas_note', 'Map note text' );
+		$fields[] = self::text( $p . 'areas_link', 'Link label' );
+		$fields[] = self::tab( 'about_cta', 'Closing call to action' );
+		$fields[] = self::heading( $p . 'cta_heading', 'Heading' );
+		return self::page_group( 'about', 'About composition', $fields, self::page_rule( 'about' ) );
+	}
+
+	/**
+	 * Contact page (16_contact.png). The general message form is Phase 06 (CF7); until then the
+	 * page offers the configured call/email routes and the quote route.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function contact_group(): array {
+		$p      = 'cic_contact_';
+		$fields = array(
+			self::tab( 'contact_hero', 'Hero' ),
+			self::area( $p . 'headline', 'Headline', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 ),
+			self::area( $p . 'intro', 'Introduction', '', 2 ),
+			self::image( $p . 'image', 'Photo' ),
+			self::text( $p . 'call_title', 'Call card title', 'Phone number comes from the global contact settings.' ),
+			self::text( $p . 'email_title', 'Email card title', 'Email address comes from the global contact settings.' ),
+			self::tab( 'contact_help', 'Message panel' ),
+			self::heading( $p . 'help_heading', 'Heading' ),
+			self::text( $p . 'help_intro', 'Introduction' ),
+			self::area( $p . 'help_pending', 'Text while the message form is pending (Phase 06)', '', 2 ),
+			self::tab( 'contact_plan', 'Planning panel' ),
+			self::heading( $p . 'plan_heading', 'Heading' ),
+			self::area( $p . 'plan_text', 'Text', '', 2 ),
+			self::image( $p . 'plan_image_1', 'Photo 1 (large)' ),
+			self::image( $p . 'plan_image_2', 'Photo 2' ),
+			self::image( $p . 'plan_image_3', 'Photo 3' ),
+			self::text( $p . 'plan_cta', 'Button label' ),
+			self::text( $p . 'plan_link', 'Treats link label' ),
+			self::tab( 'contact_where', 'Where we cater' ),
+			self::heading( $p . 'where_heading', 'Heading' ),
+			self::text( $p . 'where_text', 'Text' ),
+			self::text( $p . 'where_link', 'Button label' ),
+			self::tab( 'contact_faq', 'FAQ' ),
+			self::heading( $p . 'faq_heading', 'Heading' ),
+		);
+		for ( $i = 1; $i <= self::FAQ_SLOTS; $i++ ) {
+			$fields[] = self::text( "{$p}faq_{$i}_q", "Question {$i}" );
+			$fields[] = self::area( "{$p}faq_{$i}_a", "Answer {$i}", '', 2 );
+		}
+		$fields[] = self::tab( 'contact_close', 'Closing band' );
+		$fields[] = self::area( $p . 'close_heading', 'Heading', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 );
+		$fields[] = self::text( $p . 'close_text', 'Text' );
+		$fields[] = self::text( $p . 'close_quote_title', 'Quote card title' );
+		$fields[] = self::text( $p . 'close_quote_text', 'Quote card text' );
+		return self::page_group( 'contact', 'Contact composition', $fields, self::page_rule( 'contact' ) );
+	}
+
+	/**
+	 * Policy pages (19_policy_and_404.png, template "Policy"). Approval is explicit: until it is
+	 * ticked the page shows "Content pending approval" and should stay a draft.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function policy_group(): array {
+		$fields = array(
+			self::f( 'message', 'cic_policy_help', 'Policy pages', array( 'message' => 'Write the policy in the editor using one heading per section; the "On this page" list is built from those headings. Keep the page as a Draft until the legal wording is approved. Never publish placeholder text as a final policy.' ) ),
+			self::f( 'true_false', 'cic_policy_approved', 'Legal wording approved', array( 'default_value' => 0, 'ui' => 1, 'instructions' => 'Removes the "Content pending approval" label.' ) ),
+			self::text( 'cic_policy_updated', 'Last updated (optional)', 'e.g. 1 November 2026.' ),
+		);
+		return self::page_group( 'policy', 'Policy page', $fields, array( array( array( 'param' => 'page_template', 'operator' => '==', 'value' => 'template-policy.php' ) ) ) );
 	}
 
 	/**
@@ -530,6 +710,12 @@ final class Fields {
 			$fields[] = self::icon( "cic_chip_{$i}_icon", "Feeling chip {$i}: icon" );
 			$fields[] = self::text( "cic_chip_{$i}_label", "Feeling chip {$i}: label" );
 		}
+		$fields[] = self::tab( 'treat_catalogue', 'Our Treats row' );
+		$fields[] = self::f( 'message', 'cic_arch_help', 'Catalogue row', array( 'message' => 'How this treat appears on the Our Treats page. The description is the product\'s long description; the photo is its product image.' ) );
+		$fields[] = self::text( 'cic_arch_badge', 'Badge', 'e.g. Brand favourite / Frozen favourite.' );
+		$fields[] = self::text( 'cic_arch_subtitle', 'Subtitle', 'One line under the name, e.g. Tiny beads. A different kind of ice cream.' );
+		$fields[] = self::text( 'cic_arch_experience', '"The experience" line' );
+		$fields[] = self::text( 'cic_arch_discuss', '"Let\'s discuss" line', 'What is confirmed with the quote; no stock or flavour promise.' );
 		$fields[] = self::tab( 'treat_feelings', 'Feelings' );
 		$fields[] = self::heading( 'cic_feel_heading', 'Section heading' );
 		for ( $i = 1; $i <= 4; $i++ ) {
@@ -606,6 +792,7 @@ final class Fields {
 		for ( $i = 1; $i <= 3; $i++ ) {
 			$fields[] = self::image( "cic_hero_image_{$i}", "Hero photo {$i}", 1 === $i ? 'Birthday: left of the collage. Wedding: full-width background. Anniversary/Corporate: main photo.' : ( 2 === $i ? 'Birthday: centre (largest). Anniversary/Corporate: framed inset.' : 'Birthday: right.' ) );
 		}
+		$fields[] = self::image( 'cic_ev_card_image', 'Events overview card photo (optional)', 'Shown on /events/. Leave empty to use the featured image.' );
 		$fields[] = self::tab( 'event_ribbon', 'Ribbon and values' );
 		$fields[] = self::area( 'cic_ev_ribbon', 'Ribbon phrases (Wedding)', 'One phrase per line, e.g. Favourite treats / Thoughtful service / A moment to savour.', 3 );
 		for ( $i = 1; $i <= 3; $i++ ) {

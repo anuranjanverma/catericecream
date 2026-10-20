@@ -16,6 +16,7 @@ final class Service {
 		( new Catalog() )->register();
 		( new Pairings() )->register();
 		( new Fields() )->register();
+		( new EventsOverview() )->register();
 		( new Admin\PairingsBox() )->register();
 		add_action( 'init', array( $this, 'register_patterns' ) );
 

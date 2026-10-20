@@ -65,6 +65,37 @@ add_filter(
 	10,
 	2
 );
+/**
+ * Menu links to Pages that are not published (e.g. unapproved policy drafts, or a page an editor
+ * unpublished) are left out, so menus never point at a 404. They reappear once published.
+ */
+add_filter(
+	'wp_nav_menu_objects',
+	static function ( $items ) {
+		$home = wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+		return array_values(
+			array_filter(
+				(array) $items,
+				static function ( $item ) use ( $home ) {
+					if ( 'post_type' === $item->type ) {
+						return 'publish' === get_post_status( (int) $item->object_id );
+					}
+					$url = (string) $item->url;
+					if ( '' === $url || str_contains( $url, '#' ) || wp_parse_url( $url, PHP_URL_HOST ) !== $home ) {
+						return true;
+					}
+					$path = trim( (string) wp_parse_url( $url, PHP_URL_PATH ), '/' );
+					if ( '' === $path ) {
+						return true;
+					}
+					$page = get_page_by_path( $path );
+					return ! $page || 'publish' === $page->post_status;
+				}
+			)
+		);
+	},
+	20
+);
 add_filter(
 	'nav_menu_link_attributes',
 	static function ( $atts, $item ) {

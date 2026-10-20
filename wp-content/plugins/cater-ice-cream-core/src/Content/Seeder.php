@@ -210,13 +210,19 @@ final class Seeder {
 			return 0;
 		}
 		if ( ! $id ) {
-			$existing = get_page_by_path( $data['slug'], OBJECT, 'page' );
-			$id       = $existing ? $existing->ID : (int) wp_insert_post(
+			$existing = 'shop' === $key && function_exists( 'wc_get_page_id' ) && wc_get_page_id( 'shop' ) > 0 ? get_post( wc_get_page_id( 'shop' ) ) : get_page_by_path( $data['slug'], OBJECT, 'page' );
+			if ( ! $existing && ! empty( $data['slug'] ) ) {
+				$drafts   = get_posts( array( 'post_type' => 'page', 'name' => $data['slug'], 'post_status' => array( 'draft', 'pending', 'private' ), 'numberposts' => 1 ) );
+				$existing = $drafts ? $drafts[0] : null;
+			}
+			$id = $existing ? $existing->ID : (int) wp_insert_post(
 				array(
-					'post_type'   => 'page',
-					'post_status' => 'publish',
-					'post_title'  => $data['title'],
-					'post_name'   => $data['slug'],
+					'post_type'    => 'page',
+					// Unapproved pages (policies) are created as drafts and never published by the seeder.
+					'post_status'  => $data['status'] ?? 'publish',
+					'post_title'   => $data['title'],
+					'post_name'    => $data['slug'],
+					'post_content' => $data['content'] ?? '',
 				),
 				true
 			);
@@ -235,7 +241,18 @@ final class Seeder {
 			update_option( 'page_on_front', (int) $id );
 			$this->messages[] = 'Static front page set to "' . $data['title'] . '".';
 		}
-		$group = 'hub' === ( $data['group'] ?? 'home' ) ? Fields::hub_group() : Fields::home_group();
+		if ( ! empty( $data['template'] ) && in_array( (string) get_post_meta( $id, '_wp_page_template', true ), array( '', 'default' ), true ) ) {
+			update_post_meta( $id, '_wp_page_template', $data['template'] );
+		}
+		$groups = array(
+			'home'    => array( Fields::class, 'home_group' ),
+			'hub'     => array( Fields::class, 'hub_group' ),
+			'shop'    => array( Fields::class, 'shop_group' ),
+			'about'   => array( Fields::class, 'about_group' ),
+			'contact' => array( Fields::class, 'contact_group' ),
+			'policy'  => array( Fields::class, 'policy_group' ),
+		);
+		$group = call_user_func( $groups[ $data['group'] ?? 'home' ] ?? $groups['home'] );
 		$this->seed_meta( $id, $data['meta'], Fields::names( $group ) );
 		return (int) $id;
 	}

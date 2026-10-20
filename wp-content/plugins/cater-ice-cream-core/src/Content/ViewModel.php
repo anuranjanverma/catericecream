@@ -539,6 +539,299 @@ final class ViewModel {
 	}
 
 	/**
+	 * Paragraphs from a textarea (blank line between paragraphs).
+	 *
+	 * @return string[]
+	 */
+	private static function paragraphs( string $text ): array {
+		return array_values( array_filter( array_map( 'trim', preg_split( '/\R\s*\R/', $text ) ) ) );
+	}
+
+	/**
+	 * Our Treats page (08): one row per published treat from the live product query.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function catalogue( int $page_id ): array {
+		$p       = 'cic_shop_';
+		$contact = Contact::get();
+		$rows    = array();
+		foreach ( Catalog::selectable_products() as $item ) {
+			$product = wc_get_product( $item['id'] );
+			$rows[]  = array(
+				'id'         => $item['id'],
+				'key'        => $item['key'],
+				'title'      => $item['title'],
+				'anchor'     => 'treat-' . $item['key'],
+				'context'    => isset( Schema::contexts()[ (string) get_post_meta( $item['id'], 'cic_preset', true ) ] ) ? (string) get_post_meta( $item['id'], 'cic_preset', true ) : 'brand',
+				'url'        => get_permalink( $item['id'] ),
+				'quote_url'  => self::quote_url( 'treat', $item['key'] ),
+				'image'      => $product ? (int) $product->get_image_id() : 0,
+				'badge'      => self::m( $item['id'], 'cic_arch_badge' ),
+				'subtitle'   => self::m( $item['id'], 'cic_arch_subtitle' ) ?: self::m( $item['id'], 'cic_card_tagline' ),
+				'text'       => $product ? wp_strip_all_tags( (string) $product->get_description() ) : '',
+				'experience' => self::m( $item['id'], 'cic_arch_experience' ),
+				'discuss'    => self::m( $item['id'], 'cic_arch_discuss' ),
+				/* translators: %s: treat name. */
+				'cta'        => sprintf( __( 'Explore %s', 'cater-ice-cream-core' ), $item['title'] ),
+			);
+		}
+		$help = array();
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$help[] = array( 'icon' => self::m( $page_id, "{$p}help_{$i}_icon" ), 'title' => self::m( $page_id, "{$p}help_{$i}_title" ), 'text' => self::m( $page_id, "{$p}help_{$i}_text" ) );
+		}
+		return array(
+			'title'  => get_the_title( $page_id ),
+			'hero'   => array(
+				'eyebrow'  => self::m( $page_id, $p . 'eyebrow' ),
+				'headline' => self::lines( self::m( $page_id, $p . 'headline' ) ?: get_the_title( $page_id ) ),
+				'intro'    => self::m( $page_id, $p . 'intro' ),
+				'image'    => self::img( $page_id, $p . 'image' ),
+			),
+			'jump'   => self::m( $page_id, $p . 'jump_label' ) ?: __( 'Jump to a treat:', 'cater-ice-cream-core' ),
+			'rows'   => $rows,
+			'note'   => self::m( $page_id, $p . 'note' ),
+			'help'   => array(
+				'heading' => self::rich( self::m( $page_id, $p . 'help_heading' ) ),
+				'text'    => self::m( $page_id, $p . 'help_text' ),
+				'items'   => self::filled( $help, 'title' ),
+				'cta'     => self::m( $page_id, $p . 'help_cta' ) ?: $contact['quote_label'],
+				'url'     => $contact['quote_url'],
+			),
+			'start'  => array(
+				'heading'    => self::rich( self::m( $page_id, $p . 'start_heading' ) ),
+				'subheading' => self::m( $page_id, $p . 'start_subheading' ),
+				'cta'        => self::m( $page_id, $p . 'start_cta' ) ?: $contact['quote_label'],
+				'note'       => self::m( $page_id, $p . 'start_note' ) ?: $contact['availability_note'],
+				'events'     => self::event_options(),
+			),
+		);
+	}
+
+	/**
+	 * Events overview (03): editable text (EventsOverview option) + live event and treat queries.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function events_overview(): array {
+		$o       = EventsOverview::get();
+		$contact = Contact::get();
+		$cards   = array();
+		foreach ( self::event_cards() as $card ) {
+			$custom        = self::img( $card['id'], 'cic_ev_card_image' );
+			$card['image'] = $custom ?: $card['image'];
+			$cards[]       = $card;
+		}
+		$treats = self::treat_cards();
+		$steps  = array();
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$steps[] = array( 'title' => (string) $o[ "step_{$i}_title" ], 'text' => (string) $o[ "step_{$i}_text" ] );
+		}
+		return array(
+			'hero'   => array(
+				'eyebrow'  => (string) $o['eyebrow'],
+				'headline' => self::lines( (string) $o['headline'] ),
+				'intro'    => (string) $o['intro'],
+				'image'    => (int) $o['image'],
+			),
+			'cards'  => array(
+				'heading'    => self::rich( (string) $o['cards_heading'] ),
+				'intro'      => (string) $o['cards_intro'],
+				'items'      => $cards,
+				'other_text' => (string) $o['other_text'],
+				'other_link' => (string) $o['other_link'],
+				'other_url'  => self::quote_url( 'event', 'other' ),
+			),
+			'treats' => array(
+				'heading'    => self::rich( (string) $o['treats_heading'] ),
+				'intro'      => (string) $o['treats_intro'],
+				'large'      => array_slice( $treats, 0, 2 ),
+				'small'      => array_slice( $treats, 2 ),
+				'more_url'   => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/treats/' ),
+			),
+			'steps'  => array(
+				'heading' => self::rich( (string) $o['steps_heading'] ),
+				'items'   => self::filled( $steps, 'title' ),
+			),
+			'start'  => array(
+				'heading' => self::rich( (string) $o['start_heading'] ),
+				'cta'     => (string) $o['start_cta'] ?: $contact['quote_label'],
+				'note'    => (string) $o['start_note'] ?: $contact['availability_note'],
+				'events'  => self::event_options(),
+			),
+		);
+	}
+
+	/**
+	 * About page (14). Business facts come from the global contact settings.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function about( int $id ): array {
+		$p       = 'cic_about_';
+		$contact = Contact::get();
+		$steps   = array();
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$steps[] = array( 'icon' => self::m( $id, "{$p}step_{$i}_icon" ), 'title' => self::m( $id, "{$p}step_{$i}_title" ), 'text' => self::m( $id, "{$p}step_{$i}_text" ) );
+		}
+		$repo     = \CIC\Locations\Service::repository();
+		$counties = array();
+		$hub      = Catalog::find_by_key( 'page', 'service-areas' );
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$name = $hub ? self::m( $hub, "cic_sa_county_{$i}_name" ) : '';
+			if ( '' !== $name ) {
+				$counties[] = array( 'name' => $name, 'slug' => sanitize_title( $name ) );
+			}
+		}
+		$points = array();
+		foreach ( $repo->get_map_points( 'CA' ) as $point ) {
+			$points[] = array_merge( $point, self::map_xy( $point['latitude'], $point['longitude'] ) );
+		}
+		return array(
+			'title'    => get_the_title( $id ),
+			'hero'     => array(
+				'eyebrow'  => self::m( $id, $p . 'eyebrow' ),
+				'headline' => self::lines( self::m( $id, $p . 'headline' ) ?: get_the_title( $id ) ),
+				'intro'    => self::m( $id, $p . 'intro' ),
+				'images'   => array( self::img( $id, $p . 'image' ), self::img( $id, $p . 'inset_1' ), self::img( $id, $p . 'inset_2' ) ),
+			),
+			'story'    => array(
+				'heading'    => self::rich( self::m( $id, $p . 'story_heading' ) ),
+				'paragraphs' => self::paragraphs( self::m( $id, $p . 'story_text' ) ),
+				'image'      => self::img( $id, $p . 'story_image' ),
+				'quote'      => self::lines( self::m( $id, $p . 'quote' ) ),
+			),
+			'brands'   => array(
+				'heading' => self::rich( self::m( $id, $p . 'brands_heading' ) ),
+				'items'   => array_slice( self::treat_cards(), 0, 2 ),
+				'line'    => self::m( $id, $p . 'brands_line' ),
+				'link'    => self::m( $id, $p . 'brands_link' ) ?: __( 'Explore our treats', 'cater-ice-cream-core' ),
+				'url'     => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/treats/' ),
+			),
+			'approach' => array(
+				'heading' => self::rich( self::m( $id, $p . 'approach_heading' ) ),
+				'items'   => self::filled( $steps, 'title' ),
+			),
+			'meet'     => array(
+				'heading'  => self::rich( self::m( $id, $p . 'meet_heading' ) ),
+				'byline'   => trim( $contact['legal_entity'] . ( '' !== $contact['legal_entity'] && '' !== $contact['location'] ? ' · ' : '' ) . $contact['location'] ),
+				'text'     => self::m( $id, $p . 'meet_text' ),
+				'initials' => self::m( $id, $p . 'meet_initials' ),
+				'portrait' => self::img( $id, $p . 'meet_portrait' ),
+				'image'    => self::img( $id, $p . 'meet_image' ),
+			),
+			'areas'    => array(
+				'heading'    => self::rich( self::m( $id, $p . 'areas_heading' ) ),
+				'intro'      => self::m( $id, $p . 'areas_intro' ),
+				'counties'   => $counties,
+				'points'     => $points,
+				'note_title' => self::m( $id, $p . 'areas_note_title' ),
+				'note'       => self::m( $id, $p . 'areas_note' ),
+				'link'       => self::m( $id, $p . 'areas_link' ) ?: __( 'Explore service areas', 'cater-ice-cream-core' ),
+				'url'        => self::hub_url(),
+			),
+			'cta'      => array(
+				'heading' => self::rich( self::m( $id, $p . 'cta_heading' ) ),
+			),
+		);
+	}
+
+	/**
+	 * Contact page (16). Phone, email and location come from the global contact settings; the
+	 * message form itself is Phase 06.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function contact( int $id ): array {
+		$p     = 'cic_contact_';
+		$faqs  = array();
+		for ( $i = 1; $i <= Fields::FAQ_SLOTS; $i++ ) {
+			$faqs[] = array( 'q' => self::m( $id, "{$p}faq_{$i}_q" ), 'a' => self::m( $id, "{$p}faq_{$i}_a" ) );
+		}
+		$repo   = \CIC\Locations\Service::repository();
+		$points = array();
+		foreach ( $repo->get_map_points( 'CA' ) as $point ) {
+			$points[] = array_merge( $point, self::map_xy( $point['latitude'], $point['longitude'] ) );
+		}
+		return array(
+			'title' => get_the_title( $id ),
+			'hero'  => array(
+				'headline'    => self::lines( self::m( $id, $p . 'headline' ) ?: get_the_title( $id ) ),
+				'intro'       => self::m( $id, $p . 'intro' ),
+				'image'       => self::img( $id, $p . 'image' ),
+				'call_title'  => self::m( $id, $p . 'call_title' ),
+				'email_title' => self::m( $id, $p . 'email_title' ),
+			),
+			'help'  => array(
+				'heading' => self::rich( self::m( $id, $p . 'help_heading' ) ),
+				'intro'   => self::m( $id, $p . 'help_intro' ),
+				'pending' => self::m( $id, $p . 'help_pending' ),
+			),
+			'plan'  => array(
+				'heading' => self::rich( self::m( $id, $p . 'plan_heading' ) ),
+				'text'    => self::m( $id, $p . 'plan_text' ),
+				'images'  => array_values( array_filter( array( self::img( $id, $p . 'plan_image_1' ), self::img( $id, $p . 'plan_image_2' ), self::img( $id, $p . 'plan_image_3' ) ) ) ),
+				'cta'     => self::m( $id, $p . 'plan_cta' ) ?: Contact::get()['quote_label'],
+				'link'    => self::m( $id, $p . 'plan_link' ),
+				'shop'    => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/treats/' ),
+			),
+			'where' => array(
+				'heading' => self::rich( self::m( $id, $p . 'where_heading' ) ),
+				'text'    => self::m( $id, $p . 'where_text' ),
+				'link'    => self::m( $id, $p . 'where_link' ) ?: __( 'Check your area', 'cater-ice-cream-core' ),
+				'url'     => self::hub_url(),
+				'points'  => $points,
+			),
+			'faq'   => array(
+				'heading' => self::rich( self::m( $id, $p . 'faq_heading' ) ),
+				'items'   => array_values( array_filter( $faqs, static fn( $f ) => '' !== $f['q'] && '' !== $f['a'] ) ),
+			),
+			'close' => array(
+				'heading'     => self::lines( self::m( $id, $p . 'close_heading' ) ),
+				'text'        => self::m( $id, $p . 'close_text' ),
+				'quote_title' => self::m( $id, $p . 'close_quote_title' ),
+				'quote_text'  => self::m( $id, $p . 'close_quote_text' ),
+			),
+		);
+	}
+
+	/**
+	 * Policy page (19): approval state and an "On this page" list built from the content's H2s
+	 * (ids are added to those headings by the theme).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function policy( int $id ): array {
+		$content  = (string) apply_filters( 'the_content', (string) get_post_field( 'post_content', $id ) );
+		$sections = array();
+		$used     = array();
+		$content  = preg_replace_callback(
+			'#<h2([^>]*)>(.*?)</h2>#s',
+			static function ( $m ) use ( &$sections, &$used ) {
+				$label = trim( wp_strip_all_tags( $m[2] ) );
+				$slug  = sanitize_title( $label ) ?: 'section';
+				$base  = $slug;
+				$n     = 2;
+				while ( isset( $used[ $slug ] ) ) {
+					$slug = $base . '-' . $n++;
+				}
+				$used[ $slug ] = true;
+				$sections[]    = array( 'id' => $slug, 'label' => $label );
+				$attrs         = preg_replace( '/\sid="[^"]*"/', '', $m[1] );
+				return '<h2' . $attrs . ' id="' . esc_attr( $slug ) . '">' . $m[2] . '</h2>';
+			},
+			$content
+		);
+		return array(
+			'title'    => get_the_title( $id ),
+			'approved' => '1' === (string) get_post_meta( $id, 'cic_policy_approved', true ),
+			'updated'  => self::m( $id, 'cic_policy_updated' ),
+			'content'  => (string) $content,
+			'sections' => $sections,
+		);
+	}
+
+	/**
 	 * @return array<string, mixed>
 	 */
 	public static function treat( int $id ): array {
