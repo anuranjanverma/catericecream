@@ -71,32 +71,39 @@ let browser;
 		await page.evaluate( () => { document.querySelector( '#cic-home-search-location' ).value = ''; } );
 		await page.type( '#cic-home-search-location', 'Pasadena' );
 		await page.select( '#cic-home-search-event', 'anniversary' );
-		await page.evaluate( ( d ) => { document.querySelector( '#cic-home-search-date' ).value = d; }, date );
+		// Since the 2026-10-21 refinements the date field is the MM/DD/YYYY picker (canonical value hidden).
+		const mdy = ( d ) => d.slice( 5, 7 ) + '/' + d.slice( 8, 10 ) + '/' + d.slice( 0, 4 );
+		await page.focus( '#cic-home-search-date' );
+		await page.keyboard.type( mdy( date ) );
+		await page.keyboard.press( 'Tab' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle0' } ), page.click( '.cic-search__submit' ) ] );
-		const landed = new URL( page.url() );
-		check( 'H3 Plan My Event opens /get-a-quote/ with only validated non-personal context', '/get-a-quote/' === landed.pathname && 'anniversary' === landed.searchParams.get( 'event' ) && 'pasadena' === landed.searchParams.get( 'location' ) && date === landed.searchParams.get( 'date' ) && 3 === Array.from( landed.searchParams.keys() ).length, page.url() );
+		// The context parameters are read, then removed from the address bar: check the URL that was opened.
+		const opened = () => page.evaluate( () => performance.getEntriesByType( 'navigation' )[ 0 ].name );
+		const landed = new URL( await opened() );
+		check( 'H3 Plan My Event opens /get-a-quote/ with only validated non-personal context', '/get-a-quote/' === landed.pathname && 'anniversary' === landed.searchParams.get( 'event' ) && 'pasadena-ca' === landed.searchParams.get( 'location' ) && date === landed.searchParams.get( 'date' ) && 3 === Array.from( landed.searchParams.keys() ).length, page.url() );
 		// Since Phase 06 the quote route is the real form: the validated selections arrive prefilled.
 		const summary = await page.evaluate( () => ( {
 			event: ( document.querySelector( 'input[name=event]:checked' ) || {} ).value,
 			location: ( document.querySelector( '#cic-f-location' ) || {} ).value,
-			date: ( document.querySelector( '#cic-f-event-date' ) || {} ).value,
+			date: ( document.querySelector( '[name=event_date]' ) || {} ).value,
+			shown: ( document.querySelector( '#cic-f-event-date' ) || {} ).value,
 		} ) );
-		check( 'H4 the quote form arrives prefilled with the server-validated selections (no availability claim)', 'anniversary' === summary.event && 'pasadena' === summary.location && date === summary.date && ! /available|reserved|confirmed for/i.test( await page.$eval( 'main', ( m ) => m.innerText ) ), summary );
+		check( 'H4 the quote form arrives prefilled with the server-validated selections (no availability claim)', 'anniversary' === summary.event && 'Pasadena, CA' === summary.location && date === summary.date && mdy( date ) === summary.shown && ! /available|reserved|confirmed for/i.test( await page.$eval( 'main', ( m ) => m.innerText ) ), summary );
 
 		console.log( '== Explicit selections persist across pages' );
 		await page.goto( BASE + '/treats/dippin-dots/', { waitUntil: 'networkidle0' } );
 		const afterView = JSON.parse( await page.evaluate( () => window.sessionStorage.getItem( 'cic_quote_context' ) ) );
 		check( 'P1 viewing a treat page does not change the stored selection', 'anniversary' === afterView.event && ! afterView.treat, afterView );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle0' } ), page.click( '.cic-treat__hero .cic-button' ) ] );
-		const t = new URL( page.url() );
-		check( 'P2 treat quote action adds the treat and keeps event, location and date', 'dippin-dots' === t.searchParams.get( 'treat' ) && 'anniversary' === t.searchParams.get( 'event' ) && 'pasadena' === t.searchParams.get( 'location' ) && date === t.searchParams.get( 'date' ), page.url() );
+		const t = new URL( await opened() );
+		check( 'P2 treat quote action adds the treat and keeps event, location and date', 'dippin-dots' === t.searchParams.get( 'treat' ) && 'anniversary' === t.searchParams.get( 'event' ) && 'pasadena-ca' === t.searchParams.get( 'location' ) && date === t.searchParams.get( 'date' ), page.url() );
 		await page.goto( BASE + '/events/birthday/', { waitUntil: 'networkidle0' } );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle0' } ), page.click( '.cic-event__hero .cic-button' ) ] );
-		const e = new URL( page.url() );
-		check( 'P3 a newer explicit event choice wins; unrelated choices are kept', 'birthday' === e.searchParams.get( 'event' ) && 'dippin-dots' === e.searchParams.get( 'treat' ) && 'pasadena' === e.searchParams.get( 'location' ), page.url() );
+		const e = new URL( await opened() );
+		check( 'P3 a newer explicit event choice wins; unrelated choices are kept', 'birthday' === e.searchParams.get( 'event' ) && 'dippin-dots' === e.searchParams.get( 'treat' ) && 'pasadena-ca' === e.searchParams.get( 'location' ), page.url() );
 		await page.goto( BASE + '/', { waitUntil: 'networkidle0' } );
-		const prefill = await page.evaluate( () => ( { loc: document.querySelector( '#cic-home-search-location' ).value, ev: document.querySelector( '#cic-home-search-event' ).value, date: document.querySelector( '#cic-home-search-date' ).value, min: document.querySelector( '#cic-home-search-date' ).min } ) );
-		check( 'P4 returning home prefills the search from the explicit selections; past dates are blocked', 'pasadena' === prefill.loc && 'birthday' === prefill.ev && date === prefill.date && prefill.min === laDate( 0 ), prefill );
+		const prefill = await page.evaluate( () => ( { loc: document.querySelector( '#cic-home-search-location' ).value, ev: document.querySelector( '#cic-home-search-event' ).value, date: document.querySelector( '.cic-search [name=date]' ).value, shown: document.querySelector( '#cic-home-search-date' ).value, min: document.querySelector( '.cic-search [name=date]' ).min } ) );
+		check( 'P4 returning home prefills the search from the explicit selections; past dates are blocked', 'Pasadena, CA' === prefill.loc && 'birthday' === prefill.ev && date === prefill.date && mdy( date ) === prefill.shown && prefill.min === laDate( 0 ), prefill );
 
 		console.log( '== Area check (coverage adapter pending)' );
 		await page.type( '#cic-area-location', '94105' );

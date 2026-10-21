@@ -570,8 +570,8 @@ final class Fields {
 		);
 		for ( $i = 1; $i <= 3; $i++ ) {
 			$fields[] = self::text( "{$p}county_{$i}_name", "County {$i}: name" );
-			$fields[] = self::image( "{$p}county_{$i}_image", "County {$i}: photo" );
-			$fields[] = self::text( "{$p}county_{$i}_text", "County {$i}: line under the name" );
+			$fields[] = self::image( "{$p}county_{$i}_image", "County {$i}: photo", 'Also shown in the California map preview for this county. Use a photo of this county only; leave empty for a text-only preview.' );
+			$fields[] = self::text( "{$p}county_{$i}_text", "County {$i}: line under the name", 'Also the short description in the California map preview (About, Contact and Service Areas maps).' );
 			$fields[] = self::text( "{$p}county_{$i}_link", "County {$i}: check link label" );
 		}
 		$fields[] = self::tab( 'sa_steps', 'What we need' );

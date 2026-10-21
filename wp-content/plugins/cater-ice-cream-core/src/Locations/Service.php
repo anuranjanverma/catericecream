@@ -4,6 +4,7 @@
  * endpoints (BUILD_SPECIFICATION §15):
  *   GET  /cic/v1/locations?q=   limited autocomplete (validated query, no personal data or notes)
  *   POST /cic/v1/coverage       ZIP/city check: status + explanation, never a date reservation
+ *   GET  /cic/v1/location?key=  visible label for a stored city key or ZIP ('' when unknown)
  * Both are rate limited per hashed IP and sent with Cache-Control: no-store.
  *
  * Repository order: an adapter from the cic_location_repository filter (extension point), else
@@ -45,7 +46,41 @@ final class Service {
 		return $repo;
 	}
 
+	/**
+	 * Visible label for a canonical location value: a ZIP stays the ZIP; a city key ("los-angeles-ca")
+	 * becomes the repository label ("Los Angeles, CA"). Unknown keys return '' — a label is never
+	 * guessed from a slug, so callers leave the field empty instead of showing the key.
+	 */
+	public static function display_label( string $key ): string {
+		$key = trim( $key );
+		if ( preg_match( '/^\d{5}$/', $key ) ) {
+			return $key;
+		}
+		if ( '' === $key || ! preg_match( '/^[a-z0-9-]{1,80}$/', $key ) ) {
+			return '';
+		}
+		$repo = self::repository();
+		$city = method_exists( $repo, 'find_city' ) ? $repo->find_city( $key ) : null;
+		return ( $city && 'published' === ( $city['publish_status'] ?? '' ) ) ? (string) $city['label'] : '';
+	}
+
 	public function routes(): void {
+		register_rest_route(
+			'cic/v1',
+			'/location',
+			array(
+				'methods'             => 'GET',
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'key' => array(
+						'type'      => 'string',
+						'required'  => true,
+						'maxLength' => 80,
+					),
+				),
+				'callback'            => array( $this, 'location' ),
+			)
+		);
 		register_rest_route(
 			'cic/v1',
 			'/coverage',
@@ -100,6 +135,15 @@ final class Service {
 		$result['connected'] = self::repository()->is_connected();
 		unset( $result['reason'] );
 		return $this->response( $result );
+	}
+
+	/** Label lookup for a stored canonical key (ZIP or city key); '' when unknown. */
+	public function location( \WP_REST_Request $request ): \WP_REST_Response {
+		if ( $this->rate_limited( 'loc', 90 ) ) {
+			return $this->limited();
+		}
+		$key = (string) $request->get_param( 'key' );
+		return $this->response( array( 'key' => $key, 'label' => self::display_label( $key ) ) );
 	}
 
 	public function locations( \WP_REST_Request $request ): \WP_REST_Response {

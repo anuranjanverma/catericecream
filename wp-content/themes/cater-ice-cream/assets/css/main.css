@@ -963,6 +963,75 @@ textarea.cic-input {
 	}
 }
 
+/* 8b. Desktop compact sticky header (assets/js/main.js; Header settings → "compact").
+   Desktop only: nothing here applies below 1024px, and the script removes its class and variables
+   when the window narrows. The header box keeps its measured full height in the page flow in both
+   states (so the content never jumps, also while it re-expands) and only its rows are painted, so
+   the band freed while compact shows the page underneath. Rows hidden in the admin keep their
+   display:none (cic-hide-desktop), so restoring cannot reveal them. */
+@media (min-width: 1024px) {
+	.cic-header[data-cic-compact] {
+		height: var(--cic-header-full, auto);
+		background-color: transparent;
+		pointer-events: none;
+	}
+
+	.cic-header[data-cic-compact] > * {
+		pointer-events: auto;
+	}
+
+	.cic-header[data-cic-compact] .cic-header__main {
+		background-color: var(--wp--custom--cic--component--header-surface);
+	}
+
+	.cic-header[data-cic-compact] .cic-header__top {
+		overflow: hidden;
+		max-height: var(--cic-top-h, 6rem);
+	}
+
+	.cic-header.is-compact {
+		box-shadow: none;
+	}
+
+	.cic-header.is-compact .cic-header__main {
+		box-shadow: 0 1px 0 var(--cic-color-border);
+	}
+
+	/* visibility:hidden also takes the collapsed top-row links out of the keyboard order. */
+	.cic-header.is-compact .cic-header__top {
+		max-height: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.cic-header.is-compact .cic-header__main-inner {
+		min-height: 56px;
+		padding-block: 4px;
+	}
+
+	.cic-header.is-compact .cic-logo {
+		width: var(--cic-logo-w-compact, 140px);
+	}
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+	.cic-header[data-cic-compact] .cic-header__top {
+		transition: max-height 0.25s ease, opacity 0.2s ease, visibility 0s linear 0s;
+	}
+
+	.cic-header.is-compact .cic-header__top {
+		transition: max-height 0.25s ease, opacity 0.2s ease, visibility 0s linear 0.25s;
+	}
+
+	.cic-header[data-cic-compact] .cic-header__main-inner {
+		transition: min-height 0.25s ease, padding 0.25s ease;
+	}
+
+	.cic-header[data-cic-compact] .cic-logo {
+		transition: width 0.25s ease;
+	}
+}
+
 .cic-header__bottom-inner {
 	display: flex;
 	justify-content: center;
@@ -1253,6 +1322,152 @@ body.cic-drawer-open {
 /* .cic-event-card__title a needs nothing: its ::after stretches over the whole card. */
 
 /* .cic-search__input: see home.css (its own rule sets the padding). */
+
+/* ------------------------------------------------------------------ *
+ * 10c. Date picker (assets/js/datepicker.js)
+ * One calendar for every event-date field. Design System tokens only; 44px day targets.
+ * ------------------------------------------------------------------ */
+.cic-dp-host {
+	cursor: pointer;
+}
+
+.cic-dp-host input {
+	cursor: text;
+}
+
+.cic-dp {
+	position: absolute;
+	z-index: 1000;
+	width: min(22rem, calc(100vw - 24px));
+	padding: 0.75rem;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--cic-color-surface);
+	box-shadow: 0 14px 40px color-mix(in srgb, var(--cic-color-text) 16%, transparent);
+	color: var(--cic-color-text);
+	font-family: var(--cic-font-body);
+}
+
+.cic-dp__head {
+	display: flex;
+	align-items: center;
+	gap: 0.15rem;
+	margin-bottom: 0.4rem;
+}
+
+.cic-dp__title {
+	flex: 1;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-weight: var(--cic-heading-weight);
+	font-size: 1.05rem;
+	text-align: center;
+}
+
+.cic-dp__nav,
+.cic-dp__close,
+.cic-dp__day {
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.cic-dp__nav {
+	display: inline-grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	color: var(--cic-color-action);
+}
+
+.cic-dp__nav:hover:not(:disabled),
+.cic-dp__day:hover:not([aria-disabled="true"]) {
+	background-color: var(--cic-color-surface-alt);
+}
+
+.cic-dp__nav:disabled {
+	color: var(--cic-color-muted);
+	opacity: 0.45;
+	cursor: default;
+}
+
+.cic-dp__grid {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+.cic-dp__grid th {
+	padding: 0.25rem 0;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+	font-weight: var(--cic-weight-strong);
+	text-align: center;
+}
+
+.cic-dp__grid td {
+	padding: 1px;
+	text-align: center;
+}
+
+.cic-dp__day {
+	width: 100%;
+	min-width: 2.5rem;
+	height: 44px;
+	border-radius: var(--cic-radius-field);
+	font-variant-numeric: tabular-nums;
+}
+
+.cic-dp__day[aria-current="date"] {
+	box-shadow: inset 0 0 0 1px var(--cic-color-action);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-dp__grid td[aria-selected="true"] .cic-dp__day {
+	background-color: var(--cic-color-action);
+	color: var(--cic-color-on-action);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-dp__day[aria-disabled="true"] {
+	color: var(--cic-color-muted);
+	text-decoration: line-through;
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.cic-dp__nav:focus-visible,
+.cic-dp__day:focus-visible,
+.cic-dp__close:focus-visible {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 1px;
+}
+
+.cic-dp__note {
+	margin: 0.5rem 0 0;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+	line-height: 1.4;
+}
+
+.cic-dp__foot {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 0.25rem;
+}
+
+.cic-dp__close {
+	min-height: 44px;
+	padding: 0 0.75rem;
+	border-radius: var(--cic-radius-button);
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-strong);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
 
 /* ------------------------------------------------------------------ *
  * 11. Motion preferences

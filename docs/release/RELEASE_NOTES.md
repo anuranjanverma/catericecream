@@ -1,5 +1,8 @@
 # Release notes: Cater Ice Cream rc1
 
+> **OUTDATED (2026-10-21):** the rc1 package (code commit `23935f5`) predates the refinements made on 2026-10-21 (location labels, MM/DD/YYYY date picker, Site Icon, event-field icon, California map previews, desktop compact sticky header). Do not deploy it; regenerate the release candidate with `dev/tools/release/release.sh` once the refinements are reviewed and committed. A notice file sits beside and inside the package (`OUTDATED-rc1.txt`, `OUTDATED.txt`).
+
+
 **Status:** release candidate for **staging review**. **Not launch-ready**: the outstanding items below must be resolved and the hosting checks must run on the real host first.
 
 Prepared 2026-10-20 on the local Laragon build. Nothing has been deployed. DNS, payments, indexing, policies, reminders and production mail are untouched.

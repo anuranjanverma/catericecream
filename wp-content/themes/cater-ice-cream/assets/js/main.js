@@ -135,17 +135,172 @@
 		wide.addEventListener( 'change', syncCounties );
 	}
 
-	/* Sticky header offset so anchors and focused fields are not hidden underneath it. */
+	/* Sticky header offsets.
+	   --cic-header-offset: the full header height (+ admin toolbar). Anchors, scroll padding and
+	   focused fields use it, so nothing lands under the header even when it re-expands.
+	   --cic-header-visible: the height actually painted right now (smaller while the desktop header
+	   is compact). Sticky sub-navigation follows it so it stays snug under the header. */
 	if ( header && header.classList.contains( 'is-sticky' ) ) {
 		var setOffset = function () {
 			var bar = document.getElementById( 'wpadminbar' );
 			var barHeight = bar && 'fixed' === window.getComputedStyle( bar ).position ? bar.offsetHeight : 0;
+			var top = header.getBoundingClientRect().top;
+			var visible = 0;
+			Array.prototype.forEach.call( header.children, function ( row ) {
+				var r = row.getBoundingClientRect();
+				if ( r.height ) {
+					visible = Math.max( visible, r.bottom - top );
+				}
+			} );
 			document.documentElement.style.setProperty( '--cic-header-offset', ( header.offsetHeight + barHeight ) + 'px' );
+			document.documentElement.style.setProperty( '--cic-header-visible', ( Math.round( visible || header.offsetHeight ) + barHeight ) + 'px' );
 		};
 		setOffset();
 		if ( 'ResizeObserver' in window ) {
-			new ResizeObserver( setOffset ).observe( header );
+			var ro = new ResizeObserver( setOffset );
+			ro.observe( header );
+			Array.prototype.forEach.call( header.children, function ( row ) {
+				ro.observe( row );
+			} );
 		}
 		window.addEventListener( 'resize', setOffset );
+	}
+
+	/* Desktop compact header (Header settings → "compact"; only rendered with a sticky header).
+	   At the top: the full header. Scrolling down past a small threshold collapses the top row and
+	   shortens the main row; scrolling up, or reaching the top, restores it. A direction tolerance
+	   ignores tiny movements (no flicker). It stays expanded while a dropdown is open or keyboard
+	   focus is inside the header. Desktop breakpoint only: crossing it resets every class and inline
+	   variable, so mobile and tablet headers are untouched. Motion lives in CSS (reduced-motion aware). */
+	if ( header && header.classList.contains( 'is-sticky' ) && header.hasAttribute( 'data-cic-compact' ) ) {
+		var desktop = window.matchMedia( '(min-width: 1024px)' );
+		var topRow = header.querySelector( '.cic-header__top' );
+		var THRESHOLD = 80; // px from the top before the header may compact.
+		var TOLERANCE = 12; // px of travel in one direction before the state changes.
+		var compact = false;
+		var lastY = Math.max( 0, window.scrollY );
+		var travel = 0;
+		var ticking = false;
+		// Full height = the rows' natural heights (the header box itself is held at this height).
+		var measure = function () {
+			if ( compact || ! desktop.matches ) {
+				return;
+			}
+			var full = 0;
+			Array.prototype.forEach.call( header.children, function ( row ) {
+				full += row.offsetHeight;
+			} );
+			header.style.setProperty( '--cic-header-full', full + 'px' );
+			if ( topRow ) {
+				header.style.setProperty( '--cic-top-h', topRow.scrollHeight + 'px' );
+			}
+		};
+		var settleTimer = null;
+		// Measure once the rows have settled (after a restore, a resize or a breakpoint change).
+		// Until then the header has no fixed height, so nothing can be clipped.
+		var measureLater = function () {
+			window.clearTimeout( settleTimer );
+			settleTimer = window.setTimeout( measure, 400 );
+		};
+		var setCompact = function ( on ) {
+			if ( on === compact ) {
+				return;
+			}
+			if ( on && ! header.style.getPropertyValue( '--cic-header-full' ) ) {
+				measure();
+			}
+			compact = on;
+			header.classList.toggle( 'is-compact', on );
+			if ( on ) {
+				window.clearTimeout( settleTimer );
+			} else {
+				measureLater();
+			}
+		};
+		var keyboardInside = function () {
+			var a = document.activeElement;
+			return !! a && header.contains( a ) && a.matches( ':focus-visible' );
+		};
+		var dropdownOpen = function () {
+			return Array.prototype.some.call( header.querySelectorAll( '.cic-nav--primary .sub-menu' ), function ( menu ) {
+				return 'none' !== window.getComputedStyle( menu ).display;
+			} );
+		};
+		var update = function () {
+			ticking = false;
+			if ( ! desktop.matches ) {
+				return;
+			}
+			var y = Math.max( 0, window.scrollY );
+			var dy = y - lastY;
+			lastY = y;
+			if ( y <= THRESHOLD ) {
+				travel = 0;
+				setCompact( false );
+				return;
+			}
+			if ( ! dy ) {
+				return;
+			}
+			if ( ( dy > 0 ) !== ( travel > 0 ) ) {
+				travel = 0; // Direction changed: start counting again.
+			}
+			travel += dy;
+			if ( keyboardInside() || dropdownOpen() ) {
+				setCompact( false );
+			} else if ( travel > TOLERANCE ) {
+				setCompact( true );
+			} else if ( travel < -TOLERANCE ) {
+				setCompact( false );
+			}
+		};
+		var reset = function () {
+			compact = false;
+			travel = 0;
+			lastY = Math.max( 0, window.scrollY );
+			header.classList.remove( 'is-compact' );
+			header.style.removeProperty( '--cic-header-full' );
+			header.style.removeProperty( '--cic-top-h' );
+		};
+		window.addEventListener( 'scroll', function () {
+			if ( ! ticking ) {
+				ticking = true;
+				window.requestAnimationFrame( update );
+			}
+		}, { passive: true } );
+		// Keyboard focus entering the header (for example Shift+Tab back up) shows the full header.
+		header.addEventListener( 'focusin', function () {
+			if ( keyboardInside() ) {
+				setCompact( false );
+			}
+		} );
+		// Opening a dropdown with its toggle button also restores the full header.
+		header.addEventListener( 'click', function ( event ) {
+			if ( event.target.closest( '.cic-submenu-toggle' ) ) {
+				setCompact( false );
+			}
+		} );
+		desktop.addEventListener( 'change', function () {
+			reset();
+			measureLater();
+		} );
+		window.addEventListener( 'resize', function () {
+			if ( ! compact ) {
+				header.style.removeProperty( '--cic-header-full' );
+				measureLater();
+			}
+		} );
+		// Late fonts or wrapping rows: re-measure while expanded.
+		if ( 'ResizeObserver' in window ) {
+			var rowWatch = new ResizeObserver( function () {
+				if ( ! compact ) {
+					measureLater();
+				}
+			} );
+			Array.prototype.forEach.call( header.children, function ( row ) {
+				rowWatch.observe( row );
+			} );
+		}
+		measure();
 	}
 }() );

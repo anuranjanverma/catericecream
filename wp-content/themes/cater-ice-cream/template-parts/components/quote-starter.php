@@ -25,7 +25,7 @@ $cic_labels  = array_merge(
 	),
 	(array) ( $args['labels'] ?? array() )
 );
-$cic_icons   = array( 'location' => 'pin', 'date' => 'calendar', 'guests' => 'people', 'event' => 'sparkle' );
+$cic_icons   = array( 'location' => 'pin', 'date' => 'calendar', 'guests' => 'people', 'event' => 'party' );
 $cic_contact = cic_theme_contact();
 ?>
 <form class="cic-qs <?php echo esc_attr( $args['class'] ?? '' ); ?>" method="get" action="<?php echo esc_url( $cic_contact['quote_url'] ); ?>" data-cic-quote-form novalidate>

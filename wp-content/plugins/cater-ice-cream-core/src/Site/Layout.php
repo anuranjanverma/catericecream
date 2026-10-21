@@ -42,6 +42,8 @@ final class Layout {
 				'show_call'         => array( 'type' => 'bool', 'default' => false, 'label' => 'Show call action' ),
 				'show_quote'        => array( 'type' => 'bool', 'default' => true, 'label' => 'Show quote button' ),
 				'sticky'            => array( 'type' => 'bool', 'default' => true, 'label' => 'Sticky header while scrolling' ),
+				'compact'           => array( 'type' => 'bool', 'default' => true, 'label' => 'Desktop: compact the sticky header while scrolling down', 'help' => 'Desktop only (1024 px and wider) and only when the header is sticky. Scrolling down hides the top row and shortens the main row; scrolling up or returning to the top restores the full header. Mobile and tablet headers never change.' ),
+				'logo_width_compact' => array( 'type' => 'int', 'default' => 140, 'min' => 96, 'max' => 260, 'label' => 'Desktop logo width while compact (px)', 'help' => 'Used only while the desktop header is compact. The full header keeps the desktop logo width above.' ),
 			),
 			'bottom' => array(
 				'enabled'      => array( 'type' => 'bool', 'default' => false, 'label' => 'Show the bottom row', 'help' => 'Shows the "Header bottom row" menu (Appearance → Menus).' ),

@@ -108,7 +108,8 @@
  * ------------------------------------------------------------------ */
 .cic-jump {
 	position: sticky;
-	top: var(--cic-header-offset, 0px);
+	/* Follows the visible header height (smaller while the desktop header is compact). */
+	top: var(--cic-header-visible, var(--cic-header-offset, 0px));
 	z-index: 5;
 	padding-block: 0.75rem;
 	border-bottom: 1px solid var(--cic-color-border);
@@ -1201,7 +1202,7 @@
 
 	.cic-policy-toc {
 		position: sticky;
-		top: calc(var(--cic-header-offset, 0px) + 1rem);
+		top: calc(var(--cic-header-visible, var(--cic-header-offset, 0px)) + 1rem);
 	}
 }
 

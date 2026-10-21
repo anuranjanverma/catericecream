@@ -27,6 +27,8 @@ function cic_theme_layout(): array {
 			'show_call'         => false,
 			'show_quote'        => true,
 			'sticky'            => true,
+			'compact'           => true,
+			'logo_width_compact' => 140,
 		),
 		'bottom' => array( 'enabled' => false ),
 		'mobile' => array(

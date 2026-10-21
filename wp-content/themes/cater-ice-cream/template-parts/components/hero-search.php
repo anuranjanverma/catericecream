@@ -26,7 +26,7 @@ $cic_id = $args['id'] ?? 'cic-search';
 		<input class="cic-search__input" id="<?php echo esc_attr( $cic_id ); ?>-location" name="location" type="text" inputmode="text" autocomplete="postal-code" maxlength="60" placeholder="<?php echo esc_attr( $cic_s['location_ph'] ); ?>" aria-describedby="<?php echo esc_attr( $cic_id ); ?>-error" data-cic-context="location">
 	</div>
 	<div class="cic-search__field">
-		<span class="cic-search__icon"><?php echo cic_theme_icon( 'calendar' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
+		<span class="cic-search__icon"><?php echo cic_theme_icon( 'party' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 		<label class="cic-search__label" for="<?php echo esc_attr( $cic_id ); ?>-event"><?php echo esc_html( $cic_s['event_label'] ); ?></label>
 		<select class="cic-search__input cic-search__select" id="<?php echo esc_attr( $cic_id ); ?>-event" name="event" data-cic-context="event">
 			<option value=""><?php echo esc_html( $cic_s['event_ph'] ); ?></option>

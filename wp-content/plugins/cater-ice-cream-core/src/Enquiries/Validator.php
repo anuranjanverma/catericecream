@@ -256,10 +256,10 @@ final class Validator {
 		return html_entity_decode( wp_strip_all_tags( $title ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 	}
 
+	/** User-facing date: MM/DD/YYYY, built from the calendar date itself (no timezone conversion). */
 	public static function date_label( string $date ): string {
-		$tz = new \DateTimeZone( Context::TIMEZONE );
-		$dt = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, $tz );
-		return $dt ? wp_date( 'F j, Y', $dt->setTime( 12, 0 )->getTimestamp(), $tz ) : $date;
+		$dt = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, new \DateTimeZone( Context::TIMEZONE ) );
+		return $dt ? $dt->format( 'm/d/Y' ) : $date;
 	}
 
 	/**
@@ -298,7 +298,9 @@ final class Validator {
 		}
 		$status = (string) ( $result['status'] ?? 'unknown' );
 		$city   = $is_zip ? null : $repo->find_city( $key );
-		$label  = $is_zip ? $key : ( $city ? (string) $city['label'] : ucwords( str_replace( '-', ' ', $key ) ) );
+		// Known cities use the repository label; an unknown city keeps the visitor's own wording (never a
+		// label rebuilt from the slug).
+		$label = $is_zip ? $key : ( $city ? (string) $city['label'] : sanitize_text_field( $raw ) );
 		if ( '' !== $detail ) {
 			$label = $is_zip ? $detail . ' ' . $key : $label . ' ' . $detail;
 		}

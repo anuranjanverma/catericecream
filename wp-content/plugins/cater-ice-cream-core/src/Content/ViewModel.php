@@ -194,6 +194,47 @@ final class ViewModel {
 	}
 
 	/**
+	 * Map points for the California map: one approximate reference point per county (from the
+	 * location repository), plus that county's preview from the Service Areas page county slots
+	 * (name match): the line under the name and the approved county photo. Counties without a slot
+	 * get a text-only preview. A point is never a service boundary; the count is the county's ZIP
+	 * codes marked as served in the location data.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function map_points( string $state ): array {
+		$hub   = Catalog::find_by_key( 'page', 'service-areas' );
+		$slots = array();
+		for ( $i = 1; $hub && $i <= 3; $i++ ) {
+			$name = self::m( $hub, "cic_sa_county_{$i}_name" );
+			if ( '' !== $name ) {
+				$slots[ sanitize_title( $name ) ] = array(
+					'text'  => self::m( $hub, "cic_sa_county_{$i}_text" ),
+					'image' => self::img( $hub, "cic_sa_county_{$i}_image" ),
+				);
+			}
+		}
+		$state_slug = \CIC\Locations\Tables::state_slug( $state );
+		$state_url  = '' !== $state_slug ? home_url( user_trailingslashit( 'service-areas/' . $state_slug ) ) : self::hub_url();
+		$points     = array();
+		foreach ( \CIC\Locations\Service::repository()->get_map_points( $state ) as $point ) {
+			$slug     = sanitize_title( (string) $point['label'] );
+			$slot     = $slots[ $slug ] ?? null;
+			$points[] = array_merge(
+				$point,
+				self::map_xy( $point['latitude'], $point['longitude'] ),
+				array(
+					'slug'  => $slug,
+					'text'  => $slot ? $slot['text'] : '',
+					'image' => $slot ? $slot['image'] : 0,
+					'url'   => $slot ? add_query_arg( 'county', $slug, $state_url ) : $state_url,
+				)
+			);
+		}
+		return $points;
+	}
+
+	/**
 	 * Replace city tokens ({city}, {state}, {state_code}, {county}) with plain-text values.
 	 * Callers escape (plain fields) or kses-filter (headings) the result afterwards.
 	 *
@@ -251,10 +292,7 @@ final class ViewModel {
 			$counties[]    = $data;
 		}
 
-		$points = array();
-		foreach ( $repo->get_map_points( $state ) as $point ) {
-			$points[] = array_merge( $point, self::map_xy( $point['latitude'], $point['longitude'] ) );
-		}
+		$points = self::map_points( $state );
 
 		$steps = array();
 		for ( $i = 1; $i <= 4; $i++ ) {
@@ -684,10 +722,7 @@ final class ViewModel {
 				$counties[] = array( 'name' => $name, 'slug' => sanitize_title( $name ) );
 			}
 		}
-		$points = array();
-		foreach ( $repo->get_map_points( 'CA' ) as $point ) {
-			$points[] = array_merge( $point, self::map_xy( $point['latitude'], $point['longitude'] ) );
-		}
+		$points = self::map_points( 'CA' );
 		return array(
 			'title'    => get_the_title( $id ),
 			'hero'     => array(
@@ -750,10 +785,7 @@ final class ViewModel {
 			$faqs[] = array( 'q' => self::m( $id, "{$p}faq_{$i}_q" ), 'a' => self::m( $id, "{$p}faq_{$i}_a" ) );
 		}
 		$repo   = \CIC\Locations\Service::repository();
-		$points = array();
-		foreach ( $repo->get_map_points( 'CA' ) as $point ) {
-			$points[] = array_merge( $point, self::map_xy( $point['latitude'], $point['longitude'] ) );
-		}
+		$points = self::map_points( 'CA' );
 		return array(
 			'title' => get_the_title( $id ),
 			'hero'  => array(

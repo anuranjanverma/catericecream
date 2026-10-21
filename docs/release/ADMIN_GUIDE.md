@@ -100,16 +100,24 @@ Use these sparingly. Most changes belong in the Design System.
 
 | Tab / section | Controls |
 | --- | --- |
-| Header | Top row (enable, content), main row (logo, size: 190 px desktop / 136 px mobile approved), optional bottom row (uses the "Header bottom row" menu) |
+| Header | Top row (enable, content), main row (logo, size: 190 px desktop / 136 px mobile approved; sticky header; **desktop compact header** and its compact logo width, default 140 px), optional bottom row (uses the "Header bottom row" menu) |
 | Mobile navigation | Drawer options |
 | Footer | Columns, footer logo, text, menus, legal line |
 | Contact & calls to action | Public business name, legal entity, **public phone**, public email, location, quote button label/link, call label, availability note, website label, social profile URLs (empty profiles are never shown) |
 
 The public phone is used everywhere: header, footer, contact page and every `tel:` link. Change it once here.
 
+**Desktop compact header** (main row settings, on by default): on screens 1024 px and wider, scrolling down hides the top row and shortens the main row, and the logo shrinks to the compact width. Scrolling up, or returning to the top, restores the full header. The header stays full while a dropdown is open or someone is using the keyboard inside it. It works only when "Sticky header while scrolling" is on. Phones and tablets are never affected, and rows you hide in these settings stay hidden.
+
 The menus themselves are edited in **Appearance → Menus** (locations: Primary navigation, Header bottom row, Footer navigation, Footer second menu, Footer legal links).
 
 The public business email is **not** where enquiries are sent. The notification recipient is set separately in Enquiry settings (section 7).
+
+### Site Icon (favicon)
+
+The browser-tab and home-screen icon is WordPress's own **Site Icon**: **Settings → General → Site Icon**. The current icon is a crop of the approved mascot (the smiling dome and tray; no wordmark, which is unreadable at 16–32 px). Its source file is `cater-site-icon.png` in the Media Library, and the theme keeps a copy at `assets/brand/site-icon-512.png`.
+
+To replace it, choose another square image of at least 512 × 512 px (PNG or JPG; WebP photos are not suitable for icons) and crop it in the dialog. WordPress creates the 32, 180, 192 and 270 px versions and the page links itself; do not add icon links anywhere else. A developer can rebuild the current icon with `wp eval-file dev/tools/site-icon.php --force`.
 
 ## 6. Service Areas (cities, ZIP codes and coverage)
 
@@ -140,6 +148,20 @@ Key ideas:
 - City pages use the **default city content** from the Service Areas page. A city's own content record overrides only the fields you fill; empty fields keep inheriting (the editor shows the inherited text).
 - **Edit content** opens the private city record (revisioned, never public by itself). Tick **reviewed** only when the owner has approved the text. **Preview** shows the real city page to signed-in managers.
 
+### California map previews
+
+The California map (Service Areas hub, About and Contact pages) shows one pin per county: an **approximate reference point**, never a service boundary. Visitors can hover, tab to or tap a county to see a short preview. The preview always says that the exact ZIP code is confirmed with the quote, and gives the number of ZIP codes marked as served in the location data.
+
+The preview content comes from the existing county fields on the **Service Areas** page (**Pages → Service Areas → County directory** tab):
+
+| Field | Used for |
+| --- | --- |
+| County N: name | Must match the county name in the location data (for example "Los Angeles County") |
+| County N: line under the name | The short description in the hub card **and** the map preview |
+| County N: photo | The hub card **and** the map preview. Use a photo of that county only. Leave it empty for a text-only preview; never use a generic event photo |
+
+There are three slots (currently Los Angeles, Ventura and Santa Barbara, each with its approved county photo from the image pack). A county on the map without a slot shows a text-only preview with no link. Pins appear only for counties with ZIP codes marked as served, so staging shows no pins until approved coverage is imported.
+
 ### Importing coverage (CSV)
 
 **Service Areas → Import**:
@@ -152,6 +174,8 @@ Key ideas:
 4. Only for a reviewed coverage dataset, tick **Reviewed coverage**, which applies the `service_status` / `service_override` columns. Otherwise imports change geography only.
 5. **Apply.** ZIP leading zeros are kept, ZIP+4 is shortened to 5 digits, and 3–4 digit values are rejected rather than guessed. Re-importing the same file creates no duplicates.
 
+Include reviewed `latitude`/`longitude` for ZIPs: the map uses them for the county reference points.
+
 The same import exists for developers: `wp cic locations import file.csv --type=zips --dataset=production --source="…"` (dry run), then add `--apply`.
 
 **Service Areas → Log** shows who changed what and recent imports. The bundled *fixture* files are local test data: the importer refuses them on staging and production.
@@ -159,6 +183,8 @@ The same import exists for developers: `wp cic locations import file.csv --type=
 ## 7. Enquiries
 
 Quote requests and contact messages arrive through the two Contact Form 7 forms and are stored once in Flamingo. **Enquiries** in the menu is the place to work them.
+
+Visitors always see place names the way the location data spells them (for example "Los Angeles, CA", or a ZIP code such as "91101"). Internally the site uses keys such as `los-angeles-ca`, so a city's display name changes in **Service Areas → Edit city**. Dates appear as MM/DD/YYYY everywhere visitors see them, including emails. Visitors type or choose dates from a calendar; choosing a date never reserves it.
 
 ### Daily work
 

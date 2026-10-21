@@ -51,13 +51,16 @@
 		} catch ( e ) {}
 		return false;
 	};
-	// Date-only label without UTC shifting: the date is built and formatted in UTC on purpose.
+	// User-facing date MM/DD/YYYY, rearranged from the canonical Y-m-d text (no Date object, so no
+	// timezone can shift the day).
 	var dateLabel = function ( ymd ) {
 		var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec( ymd || '' );
-		if ( ! m ) {
-			return '';
+		return m ? m[ 2 ] + '/' + m[ 3 ] + '/' + m[ 1 ] : '';
+	};
+	var syncPicker = function ( input ) {
+		if ( input && window.cicDatepicker ) {
+			window.cicDatepicker.sync( input );
 		}
-		return new Intl.DateTimeFormat( 'en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' } ).format( new Date( Date.UTC( +m[ 1 ], +m[ 2 ] - 1, +m[ 3 ], 12 ) ) );
 	};
 
 	Array.prototype.forEach.call( roots, function ( root ) {
@@ -222,6 +225,7 @@
 					date.value = '';
 					clearError( 'event_date' );
 				}
+				syncPicker( date );
 			}
 		};
 		var syncPhone = function () {
@@ -260,7 +264,7 @@
 			if ( 'contact_pref' === t.name ) {
 				syncPhone();
 			}
-			if ( 'location' === t.name ) {
+			if ( 'location' === t.name || 'location_detail' === t.name ) {
 				if ( coverageBox ) {
 					coverageBox.hidden = true;
 				}
@@ -406,6 +410,39 @@
 			set( 'date', el( 'date_unknown' ) && el( 'date_unknown' ).checked ? M.tbc : dateLabel( val( 'event_date' ) ) );
 			set( 'guests', val( 'guests' ) ? M.guestsFmt.replace( '%d', val( 'guests' ) ) : '' );
 		};
+		// Step 1 answers are explicit choices: once validated they join the session context (with the
+		// visible location label), so reload and Back/Forward show them again.
+		var remember = function ( data ) {
+			if ( ! ctx ) {
+				return;
+			}
+			var loc = val( 'location' );
+			var key = ( data && data.key && ! /^\d{5}$/.test( ctx.validators.location( loc ) ) && ! val( 'location_detail' ) ) ? data.key : ctx.validators.location( loc );
+			var ev = checked( 'event' )[ 0 ];
+			var unknown = el( 'date_unknown' ) && el( 'date_unknown' ).checked;
+			var sel = { location: key, guests: val( 'guests' ) };
+			if ( ev ) {
+				sel.event = ev.value;
+			}
+			if ( ! unknown && val( 'event_date' ) ) {
+				sel.date = val( 'event_date' );
+			}
+			var now = ctx.merge( sel );
+			// Keep the address bar in step with the validated choices (keys only), so a reload or
+			// Back/Forward shows these selections rather than the original link's.
+			try {
+				var u = new URL( ctx.url( now ) );
+				u.hash = window.location.hash;
+				window.history.replaceState( window.history.state, '', u.toString() );
+			} catch ( e ) {}
+			if ( key ) {
+				ctx.setLabel( key, data && data.key === key && data.label && ! /^\d{5}$/.test( key ) ? data.label : loc );
+				var input = el( 'location' );
+				if ( input ) {
+					ctx.markLocation( input, key, loc );
+				}
+			}
+		};
 		var coverageCheck = function () {
 			var loc = val( 'location' );
 			var key = ctx ? ctx.validators.location( loc ) : '';
@@ -434,6 +471,7 @@
 					report( [ { field: 'location_detail', message: data.message } ], true );
 					return false;
 				}
+				remember( data );
 				return true;
 			} );
 		};
@@ -500,12 +538,21 @@
 					r.checked = true;
 				}
 			}
-			[ [ 'location', 'location' ], [ 'event_date', 'date' ], [ 'guests', 'guests' ] ].forEach( function ( p ) {
+			[ [ 'event_date', 'date' ], [ 'guests', 'guests' ] ].forEach( function ( p ) {
 				var x = el( p[ 0 ] );
 				if ( x && ! x.value && stored[ p[ 1 ] ] ) {
 					x.value = stored[ p[ 1 ] ];
 				}
 			} );
+			// Location: the visible label for the stored key (the server prefill already shows a label).
+			var locInput = el( 'location' );
+			if ( locInput && stored.location ) {
+				if ( ! locInput.value ) {
+					ctx.fillLocation( locInput, stored.location );
+				} else if ( locInput.value === ctx.labelFor( stored.location ) ) {
+					ctx.markLocation( locInput, stored.location, locInput.value );
+				}
+			}
 			if ( stored.treat && ! checked( 'treats[]' ).length && ! checked( 'treats_unsure' ).length ) {
 				stored.treat.split( ',' ).forEach( function ( k ) {
 					var c = form.querySelector( 'input[name="treats[]"][value="' + k + '"]' );

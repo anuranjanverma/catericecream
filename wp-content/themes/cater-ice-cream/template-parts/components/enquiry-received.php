@@ -18,7 +18,7 @@ $cic_ok      = (array) ( $args['success'] ?? array() );
 $cic_next    = (array) ( $args['next']['items'] ?? array() );
 $cic_contact = cic_theme_contact();
 $cic_chips   = array(
-	'event'    => array( 'calendar', (string) ( $cic_receipt['event'] ?? '' ) ),
+	'event'    => array( 'party', (string) ( $cic_receipt['event'] ?? '' ) ),
 	'location' => array( 'pin', (string) ( $cic_receipt['location'] ?? '' ) ),
 	'treats'   => array( 'sundae', implode( ', ', (array) ( $cic_receipt['treats'] ?? array() ) ) ),
 );

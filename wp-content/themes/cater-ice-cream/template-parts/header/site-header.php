@@ -40,7 +40,7 @@ $cic_primary    = cic_theme_menu(
 	)
 );
 ?>
-<header class="cic-header<?php echo ! empty( $cic_main['sticky'] ) ? ' is-sticky' : ''; ?>" data-cic-header style="<?php echo esc_attr( '--cic-logo-w:' . (int) $cic_main['logo_width'] . 'px;--cic-logo-w-mobile:' . (int) $cic_main['logo_width_mobile'] . 'px' ); ?>">
+<header class="cic-header<?php echo ! empty( $cic_main['sticky'] ) ? ' is-sticky' : ''; ?>" data-cic-header<?php echo ! empty( $cic_main['sticky'] ) && ! empty( $cic_main['compact'] ) ? ' data-cic-compact' : ''; ?> style="<?php echo esc_attr( '--cic-logo-w:' . (int) $cic_main['logo_width'] . 'px;--cic-logo-w-mobile:' . (int) $cic_main['logo_width_mobile'] . 'px;--cic-logo-w-compact:' . (int) ( $cic_main['logo_width_compact'] ?? 140 ) . 'px' ); ?>">
 	<?php if ( $cic_has_top ) : ?>
 		<div class="cic-header__row cic-header__top <?php echo esc_attr( cic_theme_row_classes( $cic_top ) ); ?>" style="<?php echo esc_attr( '--cic-row-bg:' . cic_theme_color( $cic_top['surface'] ) . ';--cic-row-fg:' . cic_theme_color( $cic_top['text_color'] ) ); ?>">
 			<div class="cic-container cic-header__top-inner">

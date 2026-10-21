@@ -59,8 +59,8 @@ try {
 	p6_check( 'A1 CF7 + Flamingo active and both forms configured (IDs from settings)', defined( 'WPCF7_VERSION' ) && defined( 'FLAMINGO_VERSION' ) && Forms::id( 'quote' ) > 0 && Forms::id( 'contact' ) > 0 && Forms::available() );
 	p6_check( 'A2 no cic_lead post type', ! post_type_exists( 'cic_lead' ) );
 	$routes = array_keys( rest_get_server()->get_routes() );
-	$extra  = array_values( array_filter( $routes, static fn( $r ) => str_starts_with( $r, '/cic/' ) && ! in_array( $r, array( '/cic/v1', '/cic/v1/coverage', '/cic/v1/locations' ), true ) ) );
-	p6_check( 'A3 no CIC submission endpoint (only the existing coverage/locations routes)', ! $extra, $extra );
+	$extra  = array_values( array_filter( $routes, static fn( $r ) => str_starts_with( $r, '/cic/' ) && ! in_array( $r, array( '/cic/v1', '/cic/v1/coverage', '/cic/v1/locations', '/cic/v1/location' ), true ) ) );
+	p6_check( 'A3 no CIC submission endpoint (only the coverage/locations routes and the read-only location label lookup)', ! $extra, $extra );
 	p6_check( 'A4 CF7 mail is skipped for our forms (core plugin is the single mail owner)', true === apply_filters( 'wpcf7_skip_mail', false, wpcf7_contact_form( Forms::id( 'quote' ) ) ) && true === apply_filters( 'wpcf7_skip_mail', false, wpcf7_contact_form( Forms::id( 'contact' ) ) ) );
 	$markup = wpcf7_contact_form( Forms::id( 'quote' ) )->prop( 'form' );
 	p6_check( 'A5 one CF7 form holds all three steps (code-owned markup)', 3 === substr_count( $markup, 'class="cic-qf__step"' ) && str_contains( $markup, '[cic_field treats_unsure]' ) && str_contains( $markup, '[cic_guard cic_guard]' ) );
@@ -93,7 +93,8 @@ try {
 	$r2        = Validator::quote( array_merge( $base, array( 'event_date' => $today ) ) );
 	$r3        = Validator::quote( array_merge( $base, array( 'event_date' => '2027-02-30' ) ) );
 	p6_check( 'B4 LA-local dates: today accepted, yesterday and impossible dates rejected', isset( $r1['errors']['event_date'] ) && ! isset( $r2['errors']['event_date'] ) && isset( $r3['errors']['event_date'] ) );
-	p6_check( 'B5 a DST-boundary date keeps its calendar day (no UTC shift)', 'March 14, 2027' === Validator::date_label( '2027-03-14' ) && 'November 7, 2027' === Validator::date_label( '2027-11-07' ) );
+	// User-facing dates are MM/DD/YYYY (refinements, 2026-10-21).
+	p6_check( 'B5 a DST-boundary date keeps its calendar day (no UTC shift)', '03/14/2027' === Validator::date_label( '2027-03-14' ) && '11/07/2027' === Validator::date_label( '2027-11-07' ) );
 	$r = Validator::quote( array_merge( $base, array( 'event' => 'other', 'event_other' => 'Graduation party' ) ) );
 	p6_check( 'B6 Other occasion works and keeps the description', ! $r['errors'] && 'other' === $r['data']['event'] && 'Graduation party' === $r['data']['event_label'] );
 	$r = Validator::quote( array_merge( $base, array( 'event' => 'not-an-event' ) ) );

@@ -109,9 +109,12 @@ let browser;
 		await go( '/' );
 		await type( '#cic-home-search-location', info.covered );
 		await page.select( '#cic-home-search-event', 'wedding' );
-		await page.$eval( '#cic-home-search-date', ( e, d ) => { e.value = d; }, info.future );
+		// Date picker (2026-10-21): typed as MM/DD/YYYY; the canonical Y-m-d value is the hidden field.
+		await page.focus( '#cic-home-search-date' );
+		await page.keyboard.type( info.future.slice( 5, 7 ) + '/' + info.future.slice( 8, 10 ) + '/' + info.future.slice( 0, 4 ) );
+		await page.keyboard.press( 'Tab' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.click( '.cic-search__submit' ) ] );
-		const home = { url: page.url(), event: await page.$eval( 'input[name=event]:checked', ( e ) => e.value ).catch( () => '' ), loc: await v( '#cic-f-location' ), date: await v( '#cic-f-event-date' ) };
+		const home = { url: page.url(), event: await page.$eval( 'input[name=event]:checked', ( e ) => e.value ).catch( () => '' ), loc: await v( '#cic-f-location' ), date: await v( '[name=event_date]' ) };
 		check( 'E1 homepage search → quote form with location, event and date preselected', 'wedding' === home.event && info.covered === home.loc && info.future === home.date && 1 === await step(), home );
 
 		await page.evaluate( () => window.sessionStorage.clear() );
@@ -128,7 +131,7 @@ let browser;
 		await go( '/service-areas/california/pasadena/' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.$eval( 'a[href*="get-a-quote/?location=pasadena-ca"]', ( a ) => a.click() ) ] );
 		const src = await page.evaluate( () => JSON.parse( window.sessionStorage.getItem( 'cic_quote_source' ) || '{}' ) );
-		check( 'E4 city page action → Pasadena prefilled; source attributed to the city page (template + key only)', 'pasadena-ca' === await v( '#cic-f-location' ) && 'city' === ( src.latest || {} ).type && 'pasadena-ca' === ( src.latest || {} ).key, src );
+		check( 'E4 city page action → Pasadena prefilled (visible label "Pasadena, CA"); source attributed to the city page (template + key only)', 'Pasadena, CA' === await v( '#cic-f-location' ) && 'city' === ( src.latest || {} ).type && 'pasadena-ca' === ( src.latest || {} ).key, src );
 
 		// ---------------- Step 1 ----------------
 		await page.evaluate( () => window.sessionStorage.clear() );

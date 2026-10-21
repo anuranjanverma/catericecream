@@ -9,6 +9,13 @@
  * outside_area result blocks continuing (other answers are kept); unknown/manual_review ask for
  * the ZIP and venue city; covered confirms geography only, never a date. Location inputs offer a
  * limited, debounced autocomplete (GET /cic/v1/locations) as an accessible combobox.
+ *
+ * Location display: the context keeps the canonical value (city key such as "los-angeles-ca", or a
+ * ZIP). Fields always show the visible label: the repository label ("Los Angeles, CA") from a chosen
+ * suggestion, a coverage answer or GET /cic/v1/location, or the visitor's own validated wording for a
+ * city we do not know. Labels live in sessionStorage only (never in URLs) and are never rebuilt from
+ * a slug. Editing a field after choosing a suggestion drops the chosen key until the new text is
+ * checked again.
  */
 ( function () {
 	'use strict';
@@ -67,6 +74,83 @@
 		write( c );
 		return c;
 	};
+	// Visible location labels (session only). A ZIP is shown as the ZIP itself.
+	var isZip = function ( x ) {
+		return /^\d{5}$/.test( x || '' );
+	};
+	var labelFor = function ( key ) {
+		if ( isZip( key ) ) {
+			return key;
+		}
+		var c = read();
+		return key && c.locationLabels && c.locationLabels[ key ] ? c.locationLabels[ key ] : '';
+	};
+	var setLabel = function ( key, label ) {
+		label = ( label || '' ).trim();
+		if ( ! key || isZip( key ) || ! label || label.length > 60 ) {
+			return;
+		}
+		var c = read();
+		var labels = {};
+		labels[ key ] = label; // Only the latest location's label is kept.
+		c.locationLabels = labels;
+		write( c );
+	};
+	var resolveLabel = function ( key ) {
+		var known = labelFor( key );
+		if ( known || ! key || ! cfg.locationUrl ) {
+			return Promise.resolve( known );
+		}
+		var u = new URL( cfg.locationUrl, window.location.href );
+		u.searchParams.set( 'key', key );
+		return window.fetch( u.toString(), { credentials: 'same-origin' } )
+			.then( function ( r ) { return r.ok ? r.json() : {}; } )
+			.then( function ( data ) {
+				if ( data && data.label ) {
+					setLabel( key, data.label );
+					return data.label;
+				}
+				return '';
+			} )
+			.catch( function () { return ''; } );
+	};
+	// Remember which canonical value a field's visible text stands for.
+	var markLocation = function ( el, key, label ) {
+		el.setAttribute( 'data-cic-location-key', key );
+		el.cicLocationLabel = label;
+	};
+	var chosenKey = function ( el ) {
+		var key = el.getAttribute( 'data-cic-location-key' );
+		return key && el.value.trim() === el.cicLocationLabel ? key : '';
+	};
+	// Show the label for a stored key; an unknown key leaves the field empty rather than showing it.
+	var fillLocation = function ( el, key ) {
+		var show = function ( label ) {
+			if ( label && ! el.value ) {
+				el.value = label;
+				markLocation( el, key, label );
+			}
+		};
+		var known = labelFor( key );
+		if ( known ) {
+			show( known );
+		} else {
+			resolveLabel( key ).then( show );
+		}
+	};
+	// Typing after a choice clears the stale key until the new text is validated.
+	document.addEventListener( 'input', function ( event ) {
+		var el = event.target;
+		if ( el && el.hasAttribute && el.hasAttribute( 'data-cic-location-key' ) ) {
+			el.removeAttribute( 'data-cic-location-key' );
+			el.cicLocationLabel = '';
+		}
+	} );
+	// The field people see for a value (enhanced date fields keep the canonical value hidden).
+	var shown = function ( el ) {
+		return el.cicVisible || el;
+	};
+
 	var quoteUrl = function ( c ) {
 		var u = new URL( cfg.quoteUrl, window.location.href );
 		Object.keys( c ).forEach( function ( k ) {
@@ -125,9 +209,11 @@
 		} catch ( e ) {}
 	};
 
-	window.cicQuoteContext = { read: read, merge: merge, url: quoteUrl, validators: validators, check: check, source: readSource, recordSource: recordSource, clear: clear };
+	window.cicQuoteContext = { read: read, merge: merge, url: quoteUrl, validators: validators, check: check, source: readSource, recordSource: recordSource, clear: clear, labelFor: labelFor, setLabel: setLabel, resolveLabel: resolveLabel, fillLocation: fillLocation, markLocation: markLocation, chosenKey: chosenKey, shown: shown };
 
 	// Arriving on the quote route through an explicit action: its validated parameters join the context.
+	// (The quote form keeps the address bar in step with later validated choices, so a reload or
+	// Back/Forward re-applies the latest selection.)
 	if ( isQuote( window.location.href ) ) {
 		var arrived = {};
 		new URL( window.location.href ).searchParams.forEach( function ( v, k ) { arrived[ k ] = v; } );
@@ -163,6 +249,10 @@
 			if ( el.hasAttribute( 'data-cic-zip' ) && ! /^\d{5}$/.test( stored[ k ] || '' ) ) {
 				return;
 			}
+			if ( 'location' === k && stored.location && ! el.value ) {
+				fillLocation( el, stored.location );
+				return;
+			}
 			if ( stored[ k ] && ! el.value ) {
 				el.value = stored[ k ];
 			}
@@ -171,18 +261,27 @@
 			event.preventDefault();
 			var selection = {};
 			var invalid = [];
+			var typedLabel = '';
 			Array.prototype.forEach.call( fields, function ( el ) {
 				var k = el.getAttribute( 'data-cic-context' );
 				var raw = el.value.trim();
 				el.removeAttribute( 'aria-invalid' );
+				shown( el ).removeAttribute( 'aria-invalid' );
 				if ( ! raw ) {
 					return;
 				}
-				if ( validators[ k ]( raw ) ) {
+				if ( 'location' === k && chosenKey( el ) ) {
+					selection.location = chosenKey( el );
+					typedLabel = raw;
+				} else if ( validators[ k ]( raw ) ) {
 					selection[ k ] = raw;
+					if ( 'location' === k && ! el.hasAttribute( 'data-cic-fixed' ) ) {
+						typedLabel = raw;
+					}
 				} else {
 					invalid.push( el );
 					el.setAttribute( 'aria-invalid', 'true' );
+					shown( el ).setAttribute( 'aria-invalid', 'true' );
 				}
 			} );
 			var error = form.querySelector( '.cic-search__error' );
@@ -191,7 +290,7 @@
 					error.textContent = cfg.messages.invalid;
 					error.hidden = false;
 				}
-				invalid[ 0 ].focus();
+				shown( invalid[ 0 ] ).focus();
 				return;
 			}
 			if ( error ) {
@@ -211,6 +310,13 @@
 				return 'location' === el.getAttribute( 'data-cic-context' ) && ! el.hasAttribute( 'data-cic-fixed' ) && el.value.trim();
 			} )[ 0 ];
 			check( selection.location, fixed && typed ? fixed.value : '' ).then( function ( data ) {
+				// A typed city resolved by the repository travels as its canonical key + label.
+				if ( data && typed && ! fixed && data.key && ! isZip( selection.location ) && 'block' !== data.action ) {
+					selection.location = data.key;
+					setLabel( data.key, data.label || typedLabel );
+				} else if ( typedLabel && ! isZip( selection.location ) ) {
+					setLabel( validators.location( selection.location ), typedLabel );
+				}
 				if ( data && 'block' === data.action ) {
 					if ( error ) {
 						error.textContent = data.message;
@@ -275,7 +381,8 @@
 					}
 					if ( 'outside_area' !== data.status && 'invalid' !== data.status ) {
 						var where = form.getAttribute( 'data-city' ) && /^\d{5}$/.test( data.key || '' ) ? data.key : ( data.key || input.value.trim() );
-						link( quoteUrl( Object.assign( {}, read(), { location: where } ) ), cfg.messages.continue, function () { recordSource(); merge( { location: where } ); } );
+						var whereLabel = isZip( where ) ? where : ( data.key === where && data.label ? data.label : '' );
+						link( quoteUrl( Object.assign( {}, read(), { location: where } ) ), cfg.messages.continue, function () { recordSource(); merge( { location: where } ); setLabel( where, whereLabel ); } );
 					}
 					if ( data.fixture ) {
 						var note = document.createElement( 'span' );
@@ -334,7 +441,10 @@
 			};
 			var choose = function ( i ) {
 				if ( items[ i ] ) {
-					input.value = 'zip' === items[ i ].type ? items[ i ].key : items[ i ].label;
+					var shownText = 'zip' === items[ i ].type ? items[ i ].key : items[ i ].label;
+					input.value = shownText;
+					markLocation( input, items[ i ].key, shownText );
+					input.dispatchEvent( new window.Event( 'change', { bubbles: true } ) );
 				}
 				close();
 			};

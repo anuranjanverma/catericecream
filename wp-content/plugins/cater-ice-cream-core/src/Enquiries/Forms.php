@@ -278,6 +278,10 @@ final class Forms {
 		$default = $spec['default'] ?? '';
 		if ( isset( $map[ $name ], $context[ $map[ $name ] ] ) ) {
 			$default = 'treats' === $name ? explode( ',', (string) $context['treat'] ) : (string) $context[ $map[ $name ] ];
+			if ( 'location' === $name ) {
+				// The context carries the canonical key; visitors see the repository label (never the slug).
+				$default = \CIC\Locations\Service::display_label( $default );
+			}
 		}
 		return function_exists( 'wpcf7_get_hangover' ) ? wpcf7_get_hangover( $name, $default ) : $default;
 	}
@@ -393,7 +397,7 @@ final class Forms {
 	public function summary_tag( $tag ): string {
 		$row = static fn( string $key, string $icon, string $label ): string => '<div class="cic-glance__row" data-cic-glance="' . esc_attr( $key ) . '">' . self::icon( $icon ) . '<span><span class="cic-glance__label">' . esc_html( $label ) . '</span><span class="cic-glance__value" data-cic-glance-value></span></span></div>';
 		return '<section class="cic-glance cic-js-only" aria-labelledby="cic-glance-title"><div class="cic-glance__head"><h3 id="cic-glance-title">' . esc_html__( 'Your event at a glance', 'cater-ice-cream-core' ) . '</h3><span class="cic-glance__edit"><button type="button" class="cic-text-link" data-cic-goto="1">' . esc_html__( 'Edit event', 'cater-ice-cream-core' ) . '</button> <button type="button" class="cic-text-link" data-cic-goto="2">' . esc_html__( 'Edit treats', 'cater-ice-cream-core' ) . '</button></span></div><div class="cic-glance__grid">'
-			. $row( 'event', 'calendar', __( 'Event type', 'cater-ice-cream-core' ) )
+			. $row( 'event', 'party', __( 'Event type', 'cater-ice-cream-core' ) )
 			. $row( 'treats', 'sundae', __( 'Selected treats', 'cater-ice-cream-core' ) )
 			. $row( 'location', 'pin', __( 'Location', 'cater-ice-cream-core' ) )
 			. $row( 'date', 'calendar', __( 'Date', 'cater-ice-cream-core' ) )

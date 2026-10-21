@@ -19,8 +19,126 @@ Environment facts: see `ENVIRONMENT.md`.
 | Service Areas admin enhancement | **Built and verified, awaiting owner review** (Add City, ZIP add/assign/remove, readable coverage controls, navigation, inheritance display, import conflict protection) | 2026-10-20 |
 | 09 Visual, accessibility and performance review | **Review done; 9 defects fixed and re-verified; awaiting owner review.** Automated + manual checks recorded below. Not an accessibility-compliance or launch-readiness claim | 2026-10-20 |
 | 10 Release candidate and operational guide | **rc1 prepared locally (release preparation only). NOT launch-ready.** Package, staging rehearsal and restore drill done on disposable copies; nothing deployed. Outstanding business inputs and host checks listed in `docs/release/LAUNCH_CHECKLIST.md` | 2026-10-20 |
+| Refinements (owner request) | **Built and verified locally, awaiting owner review; committed locally (2026-10-21, not pushed).** Location labels, MM/DD/YYYY date picker, Site Icon, event-field icon, California map previews. The rc1 package is **outdated** until regenerated | 2026-10-21 |
+| Desktop compact sticky header (owner request) | **Built and verified locally, awaiting owner review; committed locally (2026-10-21, not pushed).** Desktop (≥1024 px) only; mobile/tablet unchanged. rc1 package still outdated | 2026-10-21 |
 
 Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. `800e07b` Service Areas admin enhancement; `1823bc2` Phase 06; `776a635` Phase 09; `23935f5` Phase 10 release candidate code (staging mail guard + release tooling, **rc1 code commit**); Phase 10 documentation commit follows it (both hashes recorded in the package `VERSION.json`). Nothing pushed.
+
+---
+
+## Desktop compact sticky header log (owner request, 2026-10-21)
+
+Desktop only, at the existing 1024 px navigation breakpoint. Mobile and tablet headers, the drawer and their transitions are unchanged. No page-specific reduced header exists in the codebase (the quote page uses the shared header via `get_header()`), so the behaviour applies consistently on every page, quote included. Committed locally on 2026-10-21 (not pushed).
+
+**What changed**
+- Settings: the central header configuration (`CIC\Site\Layout`, Cater Ice Cream → Header, Footer & Contact → Main row) gains `compact` ("Desktop: compact the sticky header while scrolling down", default on) and `logo_width_compact` (96–260 px, default 140). Both are rendered automatically by the existing settings screen; the theme fallback was updated too. `site-header.php` outputs `data-cic-compact` only when the header is sticky and compact is on, plus `--cic-logo-w-compact`.
+- Behaviour (`assets/js/main.js`):
+  - At the top: the full header, unchanged (145 px; top row 34 px; logo 190×95).
+  - Scrolling down past 80 px with at least 12 px of travel in one direction: class `is-compact`. The top row collapses (max-height/opacity, then `visibility:hidden`, which also takes its links out of the keyboard order), the main row goes to min-height 56 px with 4 px padding, and the logo shrinks to the compact width (header ≈ 78 px).
+  - Scrolling up 12 px, or reaching the top, restores it. Direction changes restart the travel count (no flicker).
+  - It stays expanded while any primary dropdown is shown (hover, focus or toggle) or `:focus-visible` focus is inside the header. Keyboard focus entering the header, or a dropdown toggle, restores it.
+- No content jump: on desktop the header box keeps its measured full height in both states and only its rows are painted. The freed band shows the page, and pointer events pass through it.
+  - The first version let the box shrink. Re-expanding then shifted the page, browser scroll anchoring re-compacted the header and a wrong height was stored. Found by test D5 and fixed by holding the height.
+  - The height is measured from the rows' natural heights after they settle (400 ms after a restore, resize or breakpoint change; ResizeObserver for late fonts and wrapping). Until then no fixed height applies, so nothing is clipped. Test R2 found a measurement taken mid-transition after widening; fixed.
+- Offsets:
+  - `--cic-header-offset` stays the full header height plus the admin toolbar. Anchors, scroll padding and focused fields use it, so a target is never hidden when the header re-expands on an upward jump.
+  - New `--cic-header-visible` is the painted height. `.cic-jump` (Our Treats) and `.cic-policy-toc` use it, so they sit snugly under the compact header. On mobile and tablet both values are equal, so nothing changes there.
+- Motion: 0.25 s transitions only under `prefers-reduced-motion: no-preference`; with reduced motion the state changes instantly.
+- Breakpoint: crossing 1024 px removes `is-compact`, `--cic-header-full` and `--cic-top-h`. Rows hidden in the admin keep `display:none` (`cic-hide-desktop`), so restoring cannot reveal them. With the sticky setting off, the attribute is not rendered and scrolling is normal.
+
+**Verification (actual results)**
+
+| Check | Result |
+| --- | --- |
+| `dev/tests/header/browser-test.cjs` (new; settings changes restored, admin session destroyed) | **30/30**: top unchanged (D1); compact on scroll down with links and CTA ≥44 px (D2); no content jump, no overflow (D3); offsets (D4); restore on scroll up and at the top (D5–D6); ±6 px jitter never toggles, rapid changes do not oscillate (F1–F2); open dropdown holds, closing allows compacting (K1–K2); keyboard focus restores and holds, visible focus (K3–K5); collapsed top-row link cannot be focused (A1); anchor jumps down and up never hidden, jump bar snug (N1–N3); admin toolbar (W1); reduced motion instant (M1); resize across 1024 px resets and restores (R1–R2); 390 and 768 px headers identical to the baseline at the top, scrolling down and up, drawer open/Escape unchanged (U1–U2); sticky off, compact off and a desktop-hidden top row all honoured (S1–S3); quote page at 1024 px (Q1); no JS errors |
+| Geometry before/after (390, 768, 1440 px × home, quote, Our Treats; top and scrolled) | 390/768: identical in every state. 1440: identical at the top; scrolled = intended compact state (top 34→0 px, main row 111→78 px, logo 190×95→140×70) |
+| Regressions | Phase 02 design 51/51 + browser 58/58; Phase 04 server 25/25, browser **21/22** (see below), admin fields 6/6; Phase 08 24/24 + browser 11/11; Phase 09 review 8/8, interaction 7/7 |
+| Phase 09 audit at 1440 px (not run in the previous task) | 18 pages: axe-core 0 violations, no horizontal overflow, CLS ≤ 0.055 (including scrolling), no commerce scripts, 45 links (only the deliberate 404). Local LCP was slower this run (1.3–2.6 s vs 0.6–1.2 s in Phase 09); not investigated, local and indicative only |
+
+- **Open, not caused by this change:** Phase 04 browser E1 failed twice. In the block editor, the homepage field save did not persist during the test, and the test restored the value afterwards. The header script and markup do not load in wp-admin. **UpdraftPlus 2.23.14.1** was installed and activated by the owner at 02:24 (confirmed by the owner); since then the admin bar shows a "Live" badge and UpdraftPlus produces "textdomain loaded too early" notices in the debug log. Not investigated further; it needs a look before relying on editor saves.
+- Not tested: real browsers other than headless Edge (Safari/Firefox), trackpad momentum scrolling and real touch-and-mouse hybrids, screen readers.
+
+Docs: admin guide (Header settings: compact header), `CLAUDE.md` (rules), rc1 outdated notices updated.
+
+---
+
+## Refinements log (owner request, 2026-10-21): location labels, date picker, Site Icon, event icon, map previews
+
+Approved layouts, palette, typography, the 190/136 px header logo and the form/business logic were preserved. Existing components were extended, not replaced. Checkpoint before changes: database + `wp-config.php` + `.htaccess` backup `C:\laragon\backup\catericecream\pre-refinements-20261021-000014\` (SHA256SUMS) and git tag `checkpoint-pre-refinements` (= `9d00fd3`). Committed locally on 2026-10-21 at the owner's request (not pushed). Nothing deployed.
+
+**1. Consistent location display**
+- Cause: starters, the quote form and the server prefill wrote the canonical key (`los-angeles-ca`) into visible fields.
+- Contexts, URLs and storage still carry only canonical keys (city key or ZIP). Fields and summaries show the repository label:
+  - Server: `CIC\Locations\Service::display_label()` is used by `Forms::value()` for the quote-form prefill.
+  - New read-only `GET /cic/v1/location?key=` returns the label for a stored key (rate-limited; '' when unknown).
+  - Client (`context.js`): `fillLocation()`, `labelFor()` and `setLabel()`. Labels are kept in sessionStorage only, never in URLs.
+- Unknown keys leave the field empty; no label is ever rebuilt from a slug. The validator's fallback for unknown cities now uses the visitor's own wording instead of title-casing the slug.
+- A chosen suggestion marks the field with its key. Editing the text clears the key until the starter's coverage check (or the quote form's step-1 check) validates the new text. Shared-ZIP clarification and exclusions are unchanged.
+- The quote form writes validated step-1 choices to the context and keeps the address bar in step (`history.replaceState` with keys only), so reload, Back/Forward and direct links show the current choice.
+- ZIPs display as the ZIP. A city plus event ZIP displays as "Los Angeles, CA · 90012" in the summary and "Los Angeles, CA 90012" on the confirmation and in the saved enquiry.
+
+**2. Date picker** (native `type=date` cannot guarantee MM/DD/YYYY: its display follows the browser locale)
+- New theme-owned `assets/js/datepicker.js` (no third-party code, so no licence to retain) plus `main.css` §10c, using Design System tokens only. It applies to every event-date field: the quote form and all starters.
+- The original input keeps its name and the canonical Y-m-d value (hidden); a visible text field shows MM/DD/YYYY.
+- Calendar dates use year/month/day parts and UTC arithmetic only; "today" and the latest date come from the server (America/Los_Angeles).
+- Opening and keys:
+  - It opens on a click or tap anywhere in the date control (label and icon included), or with Down arrow / Alt+Down. Typing never opens it.
+  - Manual entry accepts MM/DD/YYYY, M/D/YYYY or MMDDYYYY.
+  - Labelled previous/next month and year buttons; arrows, Home/End, PageUp/PageDown (Shift for years), Enter/Space; Escape returns focus to the field.
+  - Out-of-range days are announced as unavailable; day targets are 44 px; a touch tap moves focus into the calendar.
+  - A note states that choosing a date does not reserve it.
+- Without JavaScript the native field remains (Phase 06 no-JS check passes). "Date not set yet", context persistence, CF7 submission and server validation are unchanged.
+- User-facing date labels are now MM/DD/YYYY: review summary, confirmation, saved `date_label`, emails (`Validator::date_label`).
+
+**3. Site Icon:** WordPress core Site Icon from a crop of the installed approved mascot.
+- Crop: dome, face and tray (x 70–570, y 14–364); no wordmark or hand. Placed on a white 512 px square and saved as `assets/brand/site-icon-512.png` (PNG; the WebP rule covers photographs).
+- Registered by `dev/tools/site-icon.php` exactly as Settings → General does: source attachment #645 plus site-icon attachment #646, with sizes 32/180/192/270. Both are tagged `_cic_brand_asset`, not the image-pack `_cic_asset_id`.
+- Output: one `icon` 32, one `icon` 192, one `apple-touch-icon` 180 and one TileImage 270; no other declarations. `/favicon.ico` → 302 to the 32 px PNG.
+- Replaceable in Settings → General → Site Icon.
+
+**4. Event field icon:** new `party` (party-popper) line icon for event-type fields: homepage hero search, quote starters, the review "Event type" row and the confirmation chip. Date fields keep `calendar`. Icons stay `aria-hidden` and the labels remain.
+
+**5. California map**
+- `ca-map.php` + new `assets/js/map.js` (enqueued on Service Areas, About and Contact) + `locations.css`. Layout, outline and point positions are unchanged.
+- Pins drop/fade once, staggered (110 ms), when the map first enters the viewport. The classes are removed afterwards, so nothing keeps running; there is no animation with reduced motion or without IntersectionObserver.
+- Each county (pin + label) becomes a button (JS only) with invisible hit areas.
+- Hover (mouse) or focus shows a compact preview. Click, tap, Enter or Space keep it open, and keyboard activation moves focus into it.
+- Escape, the close button, a tap outside, leaving the county, or Tab out of the card closes it, with focus returned to the county.
+- The card is appended to the page end (so later sections cannot cover it), placed inside the viewport and below the sticky header.
+- Preview content:
+  - county name;
+  - the existing **Service Areas page county slot** fields: "line under the name" and "photo" (approved county photos `county-los-angeles`, `county-ventura`, `county-santa-barbara`; alt "" because the name is shown);
+  - "Approximate county reference point, not a service boundary. N ZIP codes here are marked as served…";
+  - a link to that county's directory.
+- The photo loads only when the card opens, in a fixed 16:9 box. A county without a slot or photo gets a text-only card. **No missing county asset:** all three mapped counties have approved photos.
+- `ViewModel::map_points()` replaces three duplicated loops. Field instructions now mention the map preview.
+
+**Verification (actual results)**
+
+| Check | Result |
+| --- | --- |
+| `dev/tests/refinements/browser-test.cjs` (new, sequential, synthetic data, restored) | **46/46**. Location labels, edits after a choice, Compton exclusion, shared-ZIP and partly served clarification, a changed location kept after reload, direct links and an older stored key (L1–L12); calendar at 390/768/1440 via the icon area, Escape/focus return, keyboard, manual entry, invalid date, date-not-set, touch, starter → quote (D1–D9); icons (I1–I3); favicon (F1–F2); map at 390/768/1440: entrance once, hover/tap, keyboard, touch dismissal, reduced motion, text-only card (M1–M6); one complete quote submission saved **once** in Flamingo (also after refreshing the confirmation) with label "Los Angeles, CA 90012", key `los-angeles-ca`, date label MM/DD/YYYY, and one operator + one customer message in Mailpit (Q0–Q4); no JS errors |
+| Server suites | Phase 01 guard **69/69**, 02 design **51/51**, 03 **46/46**, 04 **25/25**, 05 **55/55**, 06 **49/49**, 07 **23/23**, 08 **24/24**, 09 review **8/8**, Service Areas **42/42** |
+| Browser suites | 02 **58/58**, 03 admin **22/22**, 04 **22/22** + admin fields **6/6**, 05 **24/24** + admin **12/12**, 06 browser **35/35** + submissions **27/27**, 07 **13/13** + admin **7/7**, 08 **11/11**, 09 interaction **7/7**, Service Areas browser **21/21** |
+| Phase 09 audit | **390 px and 768 px only** (18 pages each): axe-core 0 violations, no horizontal overflow, CLS ≤ 0.080 / 0.024, no commerce scripts, 45 links (only the deliberate 404 fails). **1440 px was not run**: Claude Code stopped the background job because the machine ran low on memory, and it was not restarted |
+| Touch targets | At 390 px the audit flagged the new map counties on the small About (260 px) and Contact (200 px) maps: 68×43, 58×40 and 52×33 px bounding boxes. The label hit areas were then made taller (20 → 44 map units, extending into the empty ocean). **That change has not been re-measured** (the audit was stopped). Even enlarged, the real tap area on the Contact map is about 39×29 px, because the approved 200 px map leaves only about 41 px between labels. It meets the WCAG 2.5.8 24 px minimum but not this project's 44 px rule. Owner decision needed: accept, or enlarge those two maps |
+
+Test-expectation updates (behaviour intentionally changed):
+- Phase 04 H3/H4/P2–P4 and Phase 06 E1/E4: the visible location label, the hidden canonical date, the typed MM/DD/YYYY and the canonical city key in URLs.
+- Phase 06 A3: allows the read-only label route.
+- Phase 06 B5: expects MM/DD/YYYY.
+
+Not tested:
+- the 1440 px audit;
+- re-measuring the enlarged map targets;
+- screen readers, Safari/Firefox, real devices;
+- the email body layout (only delivery counts were checked).
+
+**State:** test enquiries, contacts, rows and Mailpit messages removed by the test helpers; county photo meta restored; recipient unchanged; reminders off; policies drafts; fixtures unchanged. One enquiry (#644, 2026-10-20 23:34 local, the owner's own address) was submitted through the site outside these tests and was **left untouched**.
+
+**Release package:** rc1 (`23935f5`) is **outdated**: notices `C:\laragon\release\catericecream\OUTDATED-rc1.txt` and `cater-ice-cream-rc1\OUTDATED.txt`, plus banners in `docs/release/README.md` and `RELEASE_NOTES.md`. Regenerate after review and commit.
+
+**Docs:** `docs/release/ADMIN_GUIDE.md` (Site Icon, map previews and county fields, location/date display) and `CLAUDE.md` (refinement rules).
 
 ---
 
@@ -970,4 +1088,4 @@ Read-only inspection of the environment and handoff. Created `ENVIRONMENT.md`, `
 
 ## Next phase
 
-**Owner review** of rc1 (`docs/release/`), Phases 06–09 and the Service Areas admin, and supply of the business inputs in `docs/release/LAUNCH_CHECKLIST.md` §A. Staging deployment, production deployment, DNS, indexing, policy publication, reminders and real mail each need a separate explicit instruction. No further phase starts automatically.
+**Owner review** of the 2026-10-21 refinements (uncommitted), rc1 (`docs/release/`, now outdated), Phases 06–09 and the Service Areas admin; supply of the business inputs in `docs/release/LAUNCH_CHECKLIST.md` §A. After the refinements are approved and committed, regenerate the release candidate. Staging deployment, production deployment, DNS, indexing, policy publication, reminders and real mail each need a separate explicit instruction.

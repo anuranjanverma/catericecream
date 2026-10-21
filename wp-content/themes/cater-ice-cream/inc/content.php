@@ -24,6 +24,8 @@ function cic_theme_icon( string $name ): string {
 		'gift'       => '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11"/><path d="M12 9c-1.5-3-5-3.5-5-1s3.5 1 5 1c1.5 0 5 1.5 5-1s-3.5-2-5 1"/>',
 		'hand-heart' => '<path d="M3 15h3l4 2h4.5a1.5 1.5 0 0 0 0-3H11"/><path d="M6 15l4.5-3.5c1-.7 2.2-.6 3 .2L18 15l3-1.5"/><path d="M15 3.5c1-1 2.6-.9 3.4.1.9 1 .7 2.5-.3 3.4L15 9.8 11.9 7c-1-.9-1.2-2.4-.3-3.4.8-1 2.4-1.1 3.4-.1z"/>',
 		'calendar'   => '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+		// Party popper for event-type (occasion) fields; date fields keep the calendar.
+		'party'      => '<path d="M4 20.5l3.7-11 7.3 7.3z"/><path d="M6.1 14.2l3.7 3.7"/><path d="M12.6 8.6c1.1-1.7.8-3.4-.4-4.6"/><path d="M15.4 11.4c1.7-1.1 3.4-.8 4.6.4"/><path d="M14.6 5.6l1.6-1.6"/><circle cx="18.6" cy="6.9" r=".6"/><circle cx="11.3" cy="2.9" r=".6"/><circle cx="21" cy="14.6" r=".6"/>',
 		'pin'        => '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.5"/>',
 		'chat'       => '<path d="M4 5.5h16v10H9l-5 4z"/>',
 		'check'      => '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.5 9.5"/>',
@@ -222,6 +224,10 @@ add_action(
 		if ( $location ) {
 			wp_enqueue_style( 'cic-locations', get_template_directory_uri() . '/assets/css/locations.css', array( 'cic-home' ), cic_theme_asset_version( 'assets/css/locations.css' ) );
 		}
+		// California map interactions (Service Areas hub/state, About, Contact).
+		if ( is_page( array( 'service-areas', 'about', 'contact' ) ) || ( class_exists( '\CIC\Locations\Routes' ) && null !== \CIC\Locations\Routes::current() ) ) {
+			wp_enqueue_script( 'cic-map', get_template_directory_uri() . '/assets/js/map.js', array(), cic_theme_asset_version( 'assets/js/map.js' ), array( 'strategy' => 'defer', 'in_footer' => true ) );
+		}
 		// Shared enquiry forms (quote + contact): styles and progressive enhancement.
 		$forms = is_page( array( 'get-a-quote', 'contact' ) );
 		if ( $forms ) {
@@ -242,6 +248,20 @@ add_action(
 			$config['page']         = cic_theme_source_page();
 			$config['coverageUrl']  = rest_url( 'cic/v1/coverage' );
 			$config['locationsUrl'] = rest_url( 'cic/v1/locations' );
+			$config['locationUrl']  = rest_url( 'cic/v1/location' );
+			$config['datepicker']   = array(
+				'placeholder' => __( 'MM/DD/YYYY', 'cater-ice-cream' ),
+				'hint'        => __( 'Format MM/DD/YYYY. Press the Down arrow key to choose from a calendar.', 'cater-ice-cream' ),
+				'dialog'      => __( 'Choose an event date', 'cater-ice-cream' ),
+				'prevMonth'   => __( 'Previous month', 'cater-ice-cream' ),
+				'nextMonth'   => __( 'Next month', 'cater-ice-cream' ),
+				'prevYear'    => __( 'Previous year', 'cater-ice-cream' ),
+				'nextYear'    => __( 'Next year', 'cater-ice-cream' ),
+				'close'       => __( 'Close calendar', 'cater-ice-cream' ),
+				'unavailable' => __( 'not available to choose', 'cater-ice-cream' ),
+				'selected'    => __( 'selected', 'cater-ice-cream' ),
+				'note'        => __( 'Choosing a date does not reserve it. Availability is confirmed with your quote.', 'cater-ice-cream' ),
+			);
 			wp_add_inline_script( 'cic-context', 'window.cicContext = ' . wp_json_encode( $config ) . ';', 'before' );
 			if ( $forms ) {
 				wp_enqueue_script( 'cic-quote', get_template_directory_uri() . '/assets/js/quote.js', array( 'cic-context' ), cic_theme_asset_version( 'assets/js/quote.js' ), array( 'strategy' => 'defer', 'in_footer' => true ) );
@@ -275,6 +295,8 @@ add_action(
 					'before'
 				);
 			}
+			// Date picker for every event-date field; runs after the context/quote prefills.
+			wp_enqueue_script( 'cic-datepicker', get_template_directory_uri() . '/assets/js/datepicker.js', $forms ? array( 'cic-context', 'cic-quote' ) : array( 'cic-context' ), cic_theme_asset_version( 'assets/js/datepicker.js' ), array( 'strategy' => 'defer', 'in_footer' => true ) );
 		}
 	}
 );
