@@ -158,7 +158,7 @@ async function shot( page, name, fullPage ) {
 		// The only expected outside host for a logged-in admin is the admin-bar avatar (Gravatar, WordPress core).
 		check( 'T1.3 no external font/style/script requests (only the core admin-bar avatar for logged-in admins)', external.every( ( h ) => 'secure.gravatar.com' === h ), external );
 		const buttons = await cssAll( page, '[data-cic-sample="button"], [data-cic-sample="brand-button"]', 'background-color' );
-		check( 'T1.4 brand + all 8 preset buttons use the approved action pink', 9 === buttons.length && allEqual( buttons, RGB.pink ), buttons );
+		check( 'T1.4 brand + all 10 preset buttons (Graduation and Prom added 2026-10-22) use the approved action pink', 11 === buttons.length && allEqual( buttons, RGB.pink ), buttons );
 		check( 'T1.5 Wedding preset: heading weight 600, italic accent words', '600' === await css( page, '[data-cic-preview="wedding"] h2', 'font-weight' ) && 'italic' === await css( page, '[data-cic-preview="wedding"] h2 .cic-accent', 'font-style' ) );
 		check( 'T1.6 Birthday accents: sky and mint from central tokens', RGB.sky === await css( page, '[data-cic-preview="birthday"] .cic-decor-dot', 'background-color' ) && RGB.mint === await css( page, '[data-cic-preview="birthday"] .cic-decor-dot--2', 'background-color' ) );
 		check( 'T1.7 Brand heading accent is raspberry', RGB.raspberry === await css( page, '.cic-h1 .cic-accent', 'color' ) );
@@ -276,7 +276,7 @@ async function shot( page, name, fullPage ) {
 		const bodies = await cssAll( page, '.cic-preview-strip p:not(.cic-eyebrow), [data-cic-sample="body"]', 'font-family' );
 		check( 'T6.1 body text in every preset switches to the new global body font', bodies.length > 8 && bodies.every( ( f ) => f.startsWith( 'system-ui' ) ), bodies.slice( 0, 3 ) );
 		const heads = await cssAll( page, '.cic-preview-strip h2, .cic-h1', 'font-family' );
-		check( 'T6.2 headings keep Fraunces (heading font unchanged)', 9 === heads.length && heads.every( ( f ) => f.startsWith( 'Fraunces' ) ), heads );
+		check( 'T6.2 headings keep Fraunces (heading font unchanged)', 11 === heads.length && heads.every( ( f ) => f.startsWith( 'Fraunces' ) ), heads );
 		check( 'T6.3 navigation and buttons follow the body/interface font', ( await css( page, '.cic-nav--primary a', 'font-family' ) ).startsWith( 'system-ui' ) && ( await css( page, '.cic-header__quote', 'font-family' ) ).startsWith( 'system-ui' ) );
 
 		/* ---------- T7 reset globals through the Reset buttons ---------- */
@@ -419,6 +419,9 @@ async function shot( page, name, fullPage ) {
 			await page.keyboard.press( 'Tab' );
 		}
 		check( 'T14.4 focus stays trapped inside the drawer while tabbing', await page.evaluate( () => document.querySelector( '#cic-drawer' ).contains( document.activeElement ) ) );
+		// Escape from a drawer control (where 40 Tabs end depends on the menu length; inside an open
+		// submenu, Escape first closes that submenu by design).
+		await page.focus( '#cic-drawer .cic-drawer__close' );
 		await page.keyboard.press( 'Escape' );
 		const closed = await page.evaluate( () => ( { hidden: document.querySelector( '#cic-drawer' ).hidden, focus: document.activeElement.className, expanded: document.querySelector( '.cic-menu-toggle' ).getAttribute( 'aria-expanded' ), locked: document.body.classList.contains( 'cic-drawer-open' ) } ) );
 		check( 'T14.5 Escape closes the drawer and returns focus to the menu button', closed.hidden && closed.focus.includes( 'cic-menu-toggle' ) && 'false' === closed.expanded && ! closed.locked, closed );

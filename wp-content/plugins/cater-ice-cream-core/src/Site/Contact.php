@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 final class Contact {
 
 	/** Public keys edited on the Header, Footer & Contact screen. */
-	public const PUBLIC_KEYS = array( 'business_name', 'legal_entity', 'business_phone', 'business_email', 'business_location', 'quote_label', 'quote_url', 'call_label', 'availability_note', 'website_label', 'social_instagram', 'social_facebook', 'social_tiktok', 'social_yelp' );
+	public const PUBLIC_KEYS = array( 'business_name', 'legal_entity', 'business_contact', 'business_phone', 'business_email', 'business_location', 'quote_label', 'quote_url', 'call_label', 'availability_note', 'website_label', 'social_instagram', 'social_facebook', 'social_tiktok', 'social_yelp' );
 
 	public const SOCIAL = array(
 		'social_instagram' => 'Instagram',
@@ -41,6 +41,7 @@ final class Contact {
 		return array(
 			'business_name'     => (string) $c['business_name'],
 			'legal_entity'      => (string) $c['legal_entity'],
+			'contact_name'      => (string) $c['business_contact'],
 			'location'          => (string) $c['business_location'],
 			'phone'             => (string) $c['business_phone'],
 			'phone_href'        => self::tel_href( (string) $c['business_phone'] ),

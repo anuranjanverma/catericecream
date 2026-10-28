@@ -246,10 +246,6 @@
 	display: flex !important;
 }
 
-.cic-js .cic-glance.cic-js-only {
-	display: block !important;
-}
-
 .cic-js button.cic-js-only {
 	display: inline-flex !important;
 }
@@ -273,10 +269,17 @@
 	border-top: 0;
 }
 
+/* Step heading → first label: 16 px on phones, 20 px from 640 px (QA 2026-10-26; was 6 px). */
 .cic-qf__legend {
 	display: block;
-	margin-bottom: 0.4rem;
+	margin-bottom: calc(var(--cic-space) * 2);
 	padding: 0;
+}
+
+@media (min-width: 640px) {
+	.cic-qf__legend {
+		margin-bottom: calc(var(--cic-space) * 2.5);
+	}
 }
 
 .cic-qf__kicker {
@@ -474,10 +477,15 @@ legend.cic-field__label {
 	overflow: hidden;
 }
 
-/* ---------------- Progress ---------------- */
+/* ---------------- Progress ----------------
+   [Step 1] — flexible connector — [Step 2]: Step 1 keeps its natural width, Step 2 takes the rest
+   and draws the connector before its button, so the line always starts right after Step 1 and the
+   gaps on both sides of it are the same (--cic-qf-step-gap). Circles, labels and the line share one
+   centre line; long labels wrap instead of overflowing. */
 .cic-qf__progress ol {
+	--cic-qf-step-gap: 0.75rem;
 	display: flex;
-	gap: 0.5rem;
+	gap: var(--cic-qf-step-gap);
 	align-items: center;
 	width: 100%;
 	margin: 0 0 1.75rem;
@@ -488,15 +496,21 @@ legend.cic-field__label {
 
 .cic-qf__progress li {
 	display: flex;
-	flex: 1 1 0;
-	gap: 0.5rem;
+	flex: 0 1 auto;
+	gap: var(--cic-qf-step-gap);
 	align-items: center;
+	min-width: 0;
+}
+
+.cic-qf__progress li + li {
+	flex: 1 1 auto;
 }
 
 .cic-qf__progress li + li::before {
-	flex: 1 1 auto;
+	flex: 1 1 0;
+	min-width: 1.5rem;
 	height: 2px;
-	margin-right: 0.25rem;
+	border-radius: 1px;
 	background-color: var(--cic-color-border);
 	content: "";
 }
@@ -508,19 +522,24 @@ legend.cic-field__label {
 
 .cic-qf__stepbtn {
 	display: inline-flex;
+	flex: 0 1 auto;
 	gap: 0.5rem;
 	align-items: center;
+	min-width: 0;
 	min-height: 44px;
 	padding: 0;
 	border: 0;
 	background: none;
 	color: var(--cic-color-muted);
 	font: inherit;
+	line-height: 1.25;
+	text-align: left;
 	cursor: pointer;
 }
 
 .cic-qf__num {
 	display: inline-flex;
+	flex: 0 0 auto;
 	align-items: center;
 	justify-content: center;
 	width: 2.25rem;
@@ -529,6 +548,11 @@ legend.cic-field__label {
 	border-radius: 50%;
 	background-color: var(--wp--preset--color--surface-base);
 	font-weight: var(--cic-weight-ui);
+}
+
+.cic-qf__steplabel {
+	min-width: 0;
+	overflow-wrap: anywhere;
 }
 
 .is-current .cic-qf__stepbtn {
@@ -542,6 +566,10 @@ legend.cic-field__label {
 	color: var(--cic-color-on-action);
 }
 
+.is-done .cic-qf__stepbtn {
+	color: var(--cic-color-heading);
+}
+
 .is-done .cic-qf__num {
 	border-color: var(--cic-color-decor);
 	background-color: var(--cic-color-decor);
@@ -549,21 +577,18 @@ legend.cic-field__label {
 }
 
 @media (max-width: 599px) {
+	.cic-qf__progress ol {
+		--cic-qf-step-gap: 0.5rem;
+	}
+
 	.cic-qf__steplabel {
+		max-width: 7.5rem;
 		font-size: 0.8125rem;
 	}
 
-	.cic-qf__progress li {
-		flex-direction: column;
-	}
-
-	.cic-qf__progress li + li::before {
-		display: none;
-	}
-
-	.cic-qf__stepbtn {
-		flex-direction: column;
-		gap: 0.25rem;
+	.cic-qf__num {
+		width: 2rem;
+		height: 2rem;
 	}
 }
 
@@ -780,14 +805,32 @@ legend.cic-field__label {
 	content: "";
 }
 
+/* Selected (also the default while no specific treat is chosen): same language as the tiles,
+   a soft surface and a filled box with a check mark; the 1px padding change keeps the text still. */
 .cic-unsure__input:checked + .cic-unsure__box {
+	padding: calc(1rem - 1px) calc(1rem - 1px) calc(1rem - 1px) calc(3.25rem - 1px);
 	border: 2px solid var(--cic-color-action);
+	background-color: var(--wp--preset--color--surface-soft);
 }
 
 .cic-unsure__input:checked + .cic-unsure__box::before {
+	top: calc(1.05rem - 1px);
+	left: calc(1rem - 1px);
 	border-color: var(--cic-color-action);
 	background-color: var(--cic-color-action);
-	box-shadow: inset 0 0 0 3px var(--wp--preset--color--surface-base);
+}
+
+.cic-unsure__input:checked + .cic-unsure__box::after {
+	position: absolute;
+	top: calc(1.05rem - 1px);
+	left: calc(1rem - 1px);
+	width: 1.4rem;
+	color: var(--cic-color-on-action);
+	font-size: 0.85rem;
+	font-weight: var(--cic-weight-strong);
+	line-height: 1.4rem;
+	text-align: center;
+	content: "\2713";
 }
 
 .cic-unsure__label {
@@ -804,83 +847,6 @@ legend.cic-field__label {
 .cic-field--unsure {
 	padding-bottom: 1.25rem;
 	border-bottom: 1px solid var(--cic-color-border);
-}
-
-/* ---------------- At a glance ---------------- */
-.cic-glance {
-	margin: 0.5rem 0 1.5rem;
-	padding: 1.25rem 1.5rem;
-	border-radius: var(--cic-radius-card);
-	background-color: var(--wp--preset--color--surface-soft);
-}
-
-.cic-glance__head {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem 1rem;
-	align-items: baseline;
-	justify-content: space-between;
-}
-
-.cic-glance__head h3 {
-	margin: 0 0 0.75rem;
-	color: var(--cic-color-heading);
-	font-family: var(--cic-font-heading);
-}
-
-.cic-glance__edit {
-	display: inline-flex;
-	gap: 1rem;
-}
-
-.cic-glance__edit .cic-text-link {
-	min-height: 44px;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: none;
-	font: inherit;
-	cursor: pointer;
-}
-
-.cic-glance__grid {
-	display: grid;
-	gap: 0.85rem 1.5rem;
-}
-
-@media (min-width: 640px) {
-	.cic-glance__grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
-
-.cic-glance__row {
-	display: flex;
-	gap: 0.75rem;
-	align-items: flex-start;
-}
-
-.cic-glance__row .cic-field__icon {
-	position: static;
-	color: var(--cic-color-action);
-	transform: none;
-}
-
-.cic-glance__row .cic-field__icon svg {
-	width: 1.6rem;
-	height: 1.6rem;
-}
-
-.cic-glance__label {
-	display: block;
-	color: var(--cic-color-muted);
-	font-size: 0.875rem;
-}
-
-.cic-glance__value {
-	display: block;
-	color: var(--cic-color-heading);
-	font-weight: var(--cic-weight-ui);
 }
 
 /* ---------------- Navigation and send ---------------- */
@@ -1161,4 +1127,251 @@ legend.cic-field__label {
 	.cic-quote-page * {
 		transition: none !important;
 	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Two-step quote form (2026-10-23): compact choices, secondary event
+ * details, consent line, confirmation summary and optional details.
+ * ------------------------------------------------------------------ */
+.cic-qf__subhead {
+	margin: 1.5rem 0 0.75rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: 1.15rem;
+}
+
+/* Event choices: six on one row from 640 px (three per row below); "Something else" is a small
+   secondary chip on its own row. */
+.cic-tiles {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.5rem;
+}
+
+.cic-tiles .cic-tile.cic-tile--other {
+	grid-column: 1 / -1;
+	justify-self: start;
+}
+
+.cic-tile--other .cic-tile__box {
+	flex-direction: row;
+	gap: 0.5rem;
+	min-height: 44px;
+	padding: 0.35rem 0.9rem;
+}
+
+.cic-tile--other .cic-field__icon svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+.cic-tile__box {
+	min-height: 5.25rem;
+	padding: 0.75rem 0.35rem;
+	gap: 0.4rem;
+}
+
+.cic-tile__label {
+	font-size: 0.9375rem;
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+}
+
+.cic-tile .cic-field__icon svg {
+	width: 1.6rem;
+	height: 1.6rem;
+}
+
+@media (min-width: 640px) {
+	.cic-tiles {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+	}
+
+	.cic-tiles .cic-tile.cic-tile--other {
+		grid-column: 1 / -1;
+	}
+}
+
+/* Treats: compact tiles, four per row from 640 px (two below). */
+.cic-treats {
+	gap: 0.6rem;
+}
+
+@media (min-width: 640px) {
+	.cic-treats {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+
+.cic-treat__img {
+	aspect-ratio: 3 / 2;
+}
+
+.cic-treat__label {
+	padding: 0.45rem 0.5rem 0.6rem;
+	font-size: 1rem;
+	line-height: 1.25;
+}
+
+/* Venue, serving start time and duration: optional, visually secondary and compact. */
+.cic-qf__secondary {
+	display: grid;
+	gap: 0.25rem 1rem;
+	margin-top: 0.25rem;
+	padding: 0.75rem 1rem 0.25rem;
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-qf__secondary .cic-field__label {
+	font-size: 0.8125rem;
+	white-space: nowrap;
+}
+
+/* Step 1 ends with the Continue row's own divider (no second line under "Not sure yet"). */
+.cic-qf__step[data-step="1"] .cic-field--unsure {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+
+@media (min-width: 640px) {
+	.cic-qf__secondary {
+		grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr) minmax(0, 1.1fr);
+		padding-bottom: 0;
+	}
+}
+
+/* Continue: consent line beside the button; a failure (with retry) below. */
+.cic-qf__nav--continue {
+	justify-content: flex-end;
+}
+
+.cic-qf__consent {
+	flex: 1 1 18rem;
+	margin: 0;
+	color: var(--cic-color-muted);
+	font-size: 0.875rem;
+}
+
+.cic-qf__consent a {
+	color: var(--cic-color-link);
+}
+
+.cic-qf__failure {
+	flex-basis: 100%;
+	margin: 0;
+	color: var(--wp--preset--color--error);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-qf__failure .cic-text-link {
+	min-height: 44px;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
+}
+
+/* Confirmation: "Your event at a glance". */
+.cic-glance-box {
+	margin: 1.25rem 0 0;
+	padding: 1.25rem 1.5rem;
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-glance-box__title {
+	margin: 0 0 0.75rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+}
+
+.cic-glance-box__grid {
+	display: grid;
+	gap: 0.75rem 2rem;
+}
+
+@media (min-width: 640px) {
+	.cic-glance-box__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.cic-glance-box__group {
+	margin: 0;
+}
+
+.cic-glance-box__group > div {
+	display: grid;
+	grid-template-columns: minmax(6.5rem, auto) 1fr;
+	gap: 0.75rem;
+	padding: 0.35rem 0;
+	border-bottom: 1px solid var(--cic-color-border);
+}
+
+.cic-glance-box__group > div[hidden] {
+	display: none;
+}
+
+.cic-glance-box__group dt {
+	color: var(--cic-color-muted);
+	font-size: 0.875rem;
+}
+
+.cic-glance-box__group dd {
+	margin: 0;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+	overflow-wrap: anywhere;
+}
+
+/* Confirmation: optional details (autosaved). */
+.cic-more {
+	margin: 1.25rem 0 0;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--cic-color-border);
+}
+
+.cic-more__title {
+	margin: 0 0 0.25rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+}
+
+.cic-more__title .cic-opt {
+	font-family: var(--cic-font-body);
+	font-size: 0.875rem;
+	font-weight: var(--cic-weight-body);
+}
+
+.cic-more__intro {
+	margin: 0 0 0.75rem;
+	color: var(--cic-color-muted);
+}
+
+.cic-more__fields {
+	display: grid;
+	gap: 0 1rem;
+}
+
+@media (min-width: 768px) {
+	.cic-more__fields {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.cic-more__status {
+	min-height: 1.5em;
+	margin: 0.25rem 0 0;
+	color: var(--cic-color-muted);
+	font-size: 0.875rem;
+}
+
+.cic-more__retry {
+	min-height: 44px;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
 }

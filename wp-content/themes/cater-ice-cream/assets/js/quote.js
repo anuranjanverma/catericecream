@@ -2,11 +2,23 @@
  * Progressive enhancement for the shared CF7 enquiry forms (BUILD_SPECIFICATION §12, §13A, §17).
  * Without this script the whole form works on one page and the server validates everything.
  *
- * Quote form: three steps (Your event, Your treats, Review and send) with Back, browser history
- * (#step-n) and "earliest incomplete step" rules; per-step checks mirroring the server (the server
- * stays authoritative); a coverage pre-check that blocks confirmed outside areas and asks for the
- * missing venue city / event ZIP; Other occasion; "Date not set yet"; treats OR "Not sure yet";
- * phone required when Phone is preferred; an editable "at a glance" summary.
+ * Quote form (2026-10-23): two steps (Your details & favorites, Your event) with Back, browser
+ * history (#step-n), per-step checks mirroring the server (the server stays authoritative), a
+ * coverage pre-check before sending that blocks confirmed outside areas and asks for the missing
+ * venue city / event ZIP; Other occasion; "Date not set yet"; treats OR "Not sure yet"; phone
+ * required when Phone is preferred.
+ *
+ * Saved progress (CIC\Enquiries\Drafts): nothing is sent while the visitor types Step 1. Continue
+ * sends the Step 1 values once; the server creates the draft only if they are valid. After that,
+ * changes are autosaved to the same draft (text fields when they lose focus, selections shortly
+ * after a change), one request at a time, each a full snapshot with a strictly increasing revision
+ * so an older request can never win. No saving messages appear during the steps; only a failure
+ * that blocks Continue shows an error with a retry. Access uses an HttpOnly cookie set by the
+ * server; the Step 1 client key stays in this page's memory (never in storage or URLs) and goes
+ * with the final CF7 submission so the server completes the same inquiry.
+ *
+ * After the confirmed submission: "Your event at a glance" and optional details (notes, theme,
+ * dietary) autosaved to the same inquiry with discreet saving / saved / retry feedback.
  *
  * Both forms: a fresh submission key per request (retries reuse it, so the server stores one
  * enquiry), double-submit protection, network-failure recovery (CF7 otherwise stays "submitting"),
@@ -15,7 +27,7 @@
  *
  * Analytics: pushed to window.dataLayer only if an approved analytics install defines it, with
  * event keys, treat keys, step numbers, field names and coverage status. Never names, emails,
- * phones, addresses, free text or dietary details. quote_submitted fires once per receipt.
+ * phones, addresses, free text, dietary details or draft keys. quote_submitted fires once per receipt.
  */
 ( function () {
 	'use strict';
@@ -51,11 +63,33 @@
 		} catch ( e ) {}
 		return false;
 	};
-	// User-facing date MM/DD/YYYY, rearranged from the canonical Y-m-d text (no Date object, so no
-	// timezone can shift the day).
-	var dateLabel = function ( ymd ) {
-		var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec( ymd || '' );
-		return m ? m[ 2 ] + '/' + m[ 3 ] + '/' + m[ 1 ] : '';
+	// Strictly increasing revision (microseconds since the page's time origin, never repeating).
+	var lastRev = 0;
+	var nextRev = function () {
+		var now = Math.floor( ( window.performance.timeOrigin + window.performance.now() ) * 1000 );
+		lastRev = Math.max( lastRev + 1, now );
+		return String( lastRev );
+	};
+	// JSON POST to a draft route. Resolves { status, body }; status 0 = network failure/timeout.
+	var post = function ( url, data ) {
+		var ctrl = 'AbortController' in window ? new window.AbortController() : null;
+		var timer = ctrl ? window.setTimeout( function () { ctrl.abort(); }, 20000 ) : null;
+		return window.fetch( url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json', 'X-CIC-Draft': '1' },
+			body: JSON.stringify( data ),
+			signal: ctrl ? ctrl.signal : undefined,
+		} ).then( function ( r ) {
+			return r.json().catch( function () { return {}; } ).then( function ( body ) {
+				return { status: r.status, body: body };
+			} );
+		}, function () {
+			return { status: 0, body: {} };
+		} ).then( function ( res ) {
+			window.clearTimeout( timer );
+			return res;
+		} );
 	};
 	var syncPicker = function ( input ) {
 		if ( input && window.cicDatepicker ) {
@@ -77,11 +111,17 @@
 		var keyInput = form.querySelector( '[data-cic-key]' );
 		var tsInput = form.querySelector( '[data-cic-ts]' );
 		var sourceInput = form.querySelector( '[data-cic-source]' );
+		var draftInput = form.querySelector( '[data-cic-draft-key]' );
 		var submitBtn = form.querySelector( '.cic-button--send' );
 		var steps = quote ? Array.prototype.slice.call( root.querySelectorAll( '.cic-qf__step' ) ) : [];
+		var STEPS = 2;
 		var current = 1;
 		var busy = false;
 		var watchdog = null;
+		var draftKey = quote ? newKey() : '';
+		var draftReady = false;
+		var submitting = false;
+		var coverageOk = false;
 		if ( keyInput ) {
 			keyInput.value = newKey();
 		}
@@ -240,6 +280,16 @@
 				opt.hidden = need;
 			}
 		};
+		// Treats: one or more specific treats OR "Not sure yet", never both and never neither. "Not
+		// sure yet" is the default only while no valid treat is chosen (a fresh form, or after the
+		// last treat is removed); incoming treat preselection and restored choices are kept. This is
+		// page state only: nothing is sent until Step 1 Continue.
+		var ensureTreatChoice = function () {
+			var u = form.querySelector( '[data-cic-unsure]' );
+			if ( u && ! u.checked && ! form.querySelector( '[data-cic-treat]:checked' ) ) {
+				u.checked = true;
+			}
+		};
 		form.addEventListener( 'change', function ( e ) {
 			var t = e.target;
 			if ( t.matches( '[data-cic-unsure]' ) && t.checked ) {
@@ -250,6 +300,9 @@
 				if ( u ) {
 					u.checked = false;
 				}
+			}
+			if ( t.matches( '[data-cic-treat],[data-cic-unsure]' ) && ! t.checked ) {
+				ensureTreatChoice();
 			}
 			if ( t.matches( '[data-cic-treat],[data-cic-unsure]' ) ) {
 				clearError( 'treats' );
@@ -265,6 +318,7 @@
 				syncPhone();
 			}
 			if ( 'location' === t.name || 'location_detail' === t.name ) {
+				coverageOk = false;
 				if ( coverageBox ) {
 					coverageBox.hidden = true;
 				}
@@ -274,11 +328,35 @@
 			if ( e.target.name ) {
 				clearError( e.target.name.replace( '[]', '' ) );
 			}
+			if ( 'location' === e.target.name || 'location_detail' === e.target.name ) {
+				coverageOk = false;
+			}
 		} );
 
 		/* ---------------- Client checks (mirror the server) ---------------- */
+		var contactErrors = function () {
+			var errs = [];
+			if ( ! val( 'your_name' ) ) {
+				errs.push( { field: 'your_name', message: M.required } );
+			}
+			if ( ! /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test( val( 'your_email' ) ) ) {
+				errs.push( { field: 'your_email', message: M.email } );
+			}
+			var pref = checked( 'contact_pref' )[ 0 ];
+			if ( pref && 'phone' === pref.value && val( 'phone' ).replace( /\D/g, '' ).length < 10 ) {
+				errs.push( { field: 'phone', message: M.phone } );
+			}
+			return errs;
+		};
 		var rules = {
 			1: function () {
+				var errs = contactErrors();
+				if ( ! checked( 'treats[]' ).length && ! checked( 'treats_unsure' ).length ) {
+					errs.push( { field: 'treats', message: M.treats } );
+				}
+				return errs;
+			},
+			2: function () {
 				var errs = [];
 				if ( ! checked( 'event' ).length ) {
 					errs.push( { field: 'event', message: M.event } );
@@ -298,23 +376,6 @@
 				}
 				if ( ! ctx || ! ctx.validators.location( val( 'location' ) ) ) {
 					errs.push( { field: 'location', message: M.location } );
-				}
-				return errs;
-			},
-			2: function () {
-				return ( checked( 'treats[]' ).length || checked( 'treats_unsure' ).length ) ? [] : [ { field: 'treats', message: M.treats } ];
-			},
-			3: function () {
-				var errs = [];
-				if ( ! val( 'your_name' ) ) {
-					errs.push( { field: 'your_name', message: M.required } );
-				}
-				if ( ! /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test( val( 'your_email' ) ) ) {
-					errs.push( { field: 'your_email', message: M.email } );
-				}
-				var pref = checked( 'contact_pref' )[ 0 ];
-				if ( pref && 'phone' === pref.value && val( 'phone' ).replace( /\D/g, '' ).length < 10 ) {
-					errs.push( { field: 'phone', message: M.phone } );
 				}
 				return errs;
 			},
@@ -349,13 +410,158 @@
 			return ! errs.length;
 		};
 
+		/* ---------------- Saved progress (drafts) ---------------- */
+		// Snapshot of every field the draft may hold (the server allowlists and limits them again).
+		var snapshot = function () {
+			var one = function ( name ) {
+				var c = checked( name )[ 0 ];
+				return c ? c.value : '';
+			};
+			var flag = function ( name ) {
+				var x = el( name );
+				return x && x.checked ? '1' : '';
+			};
+			return {
+				your_name: val( 'your_name' ),
+				your_email: val( 'your_email' ),
+				phone: val( 'phone' ),
+				contact_pref: one( 'contact_pref' ),
+				treats: checked( 'treats[]' ).map( function ( c ) { return c.value; } ),
+				treats_unsure: flag( 'treats_unsure' ),
+				event: one( 'event' ),
+				event_other: val( 'event_other' ),
+				event_date: val( 'event_date' ),
+				date_unknown: flag( 'date_unknown' ),
+				guests: val( 'guests' ),
+				location: val( 'location' ),
+				location_detail: val( 'location_detail' ),
+				venue: val( 'venue' ),
+				serve_time: val( 'serve_time' ),
+				serve_duration: val( 'serve_duration' ),
+			};
+		};
+		var lastSent = '';
+		var inFlight = false;
+		var pending = false;
+		var saveTimer = null;
+		var failures = 0;
+		// One request at a time; changes made meanwhile are sent next, as one newer snapshot.
+		var autosave = function () {
+			window.clearTimeout( saveTimer );
+			if ( ! draftReady || submitting ) {
+				return;
+			}
+			var snap = snapshot();
+			var json = JSON.stringify( snap );
+			if ( json === lastSent ) {
+				return;
+			}
+			if ( inFlight ) {
+				pending = true;
+				return;
+			}
+			inFlight = true;
+			post( cfg.save, { key: draftKey, rev: nextRev(), fields: snap } ).then( function ( res ) {
+				inFlight = false;
+				if ( 200 === res.status && res.body.ok ) {
+					lastSent = json;
+					failures = 0;
+				} else if ( failures < 3 && 403 !== res.status && 410 !== res.status ) {
+					// Quiet retry; the final submission carries every value anyway.
+					failures++;
+					saveTimer = window.setTimeout( autosave, 1500 * failures );
+				}
+				if ( pending ) {
+					pending = false;
+					autosave();
+				}
+			} );
+		};
+		var schedule = function ( ms ) {
+			window.clearTimeout( saveTimer );
+			saveTimer = window.setTimeout( autosave, ms );
+		};
+		if ( quote ) {
+			// Text fields: when they lose focus. Selections: shortly after a change.
+			root.addEventListener( 'focusout', function ( e ) {
+				if ( draftReady && e.target.matches( 'input[type=text],input[type=email],input[type=tel],input[type=number],input[type=time],input[type=hidden],input:not([type])' ) ) {
+					schedule( 0 );
+				}
+			} );
+			root.addEventListener( 'change', function ( e ) {
+				if ( draftReady && e.target.matches( 'input[type=radio],input[type=checkbox],select,input[type=hidden]' ) ) {
+					schedule( 400 );
+				}
+			} );
+			// The date picker writes the hidden canonical value programmatically.
+			var dateInput = el( 'event_date' );
+			if ( dateInput ) {
+				dateInput.addEventListener( 'change', function () {
+					if ( draftReady ) {
+						schedule( 400 );
+					}
+				} );
+			}
+		}
+		var failureBox = root.querySelector( '[data-cic-failure]' );
+		var showFailure = function ( message, retry ) {
+			if ( ! failureBox ) {
+				return;
+			}
+			failureBox.textContent = message + ' ';
+			if ( retry ) {
+				var b = document.createElement( 'button' );
+				b.type = 'button';
+				b.className = 'cic-text-link';
+				b.textContent = M.retry;
+				b.addEventListener( 'click', retry );
+				failureBox.appendChild( b );
+			}
+			failureBox.hidden = false;
+		};
+		var hideFailure = function () {
+			if ( failureBox ) {
+				failureBox.hidden = true;
+				failureBox.textContent = '';
+			}
+		};
+		// Step 1 "Continue": the only moment a draft can be created. Retries reuse the same key, so
+		// a slow or repeated request never creates a second inquiry.
+		var continuing = false;
+		var saveStep1 = function ( attempt ) {
+			var src = '';
+			if ( ctx ) {
+				var s = ctx.source();
+				if ( ! s.first ) {
+					ctx.recordSource();
+					s = ctx.source();
+				}
+				src = JSON.stringify( s );
+			}
+			var hp = form.querySelector( '[name="cic_website"]' );
+			var snap = snapshot();
+			return post( cfg.draft, { key: draftKey, rev: nextRev(), fields: snap, source: src, cic_ts: tsInput ? tsInput.value : '', cic_website: hp ? hp.value : '' } ).then( function ( res ) {
+				if ( 409 === res.status && attempt < 3 ) {
+					return new Promise( function ( r ) { window.setTimeout( r, 800 * ( attempt + 1 ) ); } ).then( function () { return saveStep1( attempt + 1 ); } );
+				}
+				if ( ( 200 === res.status || 201 === res.status ) && res.body.ok ) {
+					lastSent = JSON.stringify( snap );
+				}
+				return res;
+			} );
+		};
+
 		/* ---------------- Steps ---------------- */
 		var progress = root.querySelector( '.cic-qf__progress' );
 		var show = function ( n, push ) {
 			if ( ! quote ) {
 				return;
 			}
-			current = Math.max( 1, Math.min( 3, n ) );
+			// Step 2 needs the saved Step 1 (the server accepted the details).
+			current = Math.max( 1, Math.min( STEPS, n ) );
+			if ( current > 1 && ! draftReady ) {
+				current = 1;
+			}
 			steps.forEach( function ( s ) {
 				s.hidden = +s.getAttribute( 'data-step' ) !== current;
 			} );
@@ -365,11 +571,13 @@
 					li.classList.toggle( 'is-done', k < current );
 					li.classList.toggle( 'is-current', k === current );
 					var b = li.querySelector( 'button' );
+					var note = li.querySelector( '[data-cic-stepstate]' );
 					k === current ? b.setAttribute( 'aria-current', 'step' ) : b.removeAttribute( 'aria-current' );
+					// aria-current announces the current step; finished steps say so too.
+					if ( note ) {
+						note.textContent = k < current ? ' ' + ( M.stepDone || '(completed)' ) : '';
+					}
 				} );
-			}
-			if ( 3 === current ) {
-				fillGlance();
 			}
 			if ( push ) {
 				window.history.pushState( { cicStep: current }, '', '#step-' + current );
@@ -383,35 +591,8 @@
 				t.focus();
 			}
 		};
-		var earliestIncomplete = function ( upto ) {
-			for ( var i = 1; i < upto; i++ ) {
-				if ( rules[ i ]().length ) {
-					return i;
-				}
-			}
-			return upto;
-		};
-		var fillGlance = function () {
-			var set = function ( key, text ) {
-				var row = root.querySelector( '[data-cic-glance="' + key + '"] [data-cic-glance-value]' );
-				if ( row ) {
-					row.textContent = text || '—';
-				}
-			};
-			var ev = checked( 'event' )[ 0 ];
-			var evText = ev ? ev.closest( 'label' ).querySelector( '.cic-tile__label' ).textContent : '';
-			if ( ev && 'other' === ev.value ) {
-				evText = val( 'event_other' ) || M.other;
-			}
-			set( 'event', evText );
-			var treats = checked( 'treats[]' ).map( function ( c ) { return c.closest( 'label' ).querySelector( '.cic-treat__label' ).textContent; } );
-			set( 'treats', checked( 'treats_unsure' ).length ? M.unsureTip : treats.join( ', ' ) );
-			set( 'location', [ val( 'location' ), val( 'location_detail' ) ].filter( Boolean ).join( ' · ' ) );
-			set( 'date', el( 'date_unknown' ) && el( 'date_unknown' ).checked ? M.tbc : dateLabel( val( 'event_date' ) ) );
-			set( 'guests', val( 'guests' ) ? M.guestsFmt.replace( '%d', val( 'guests' ) ) : '' );
-		};
-		// Step 1 answers are explicit choices: once validated they join the session context (with the
-		// visible location label), so reload and Back/Forward show them again.
+		// Step 1 answers that are explicit choices join the session context (keys only), so a
+		// reload shows them again; the event selections live in Step 2.
 		var remember = function ( data ) {
 			if ( ! ctx ) {
 				return;
@@ -428,8 +609,6 @@
 				sel.date = val( 'event_date' );
 			}
 			var now = ctx.merge( sel );
-			// Keep the address bar in step with the validated choices (keys only), so a reload or
-			// Back/Forward shows these selections rather than the original link's.
 			try {
 				var u = new URL( ctx.url( now ) );
 				u.hash = window.location.hash;
@@ -476,28 +655,39 @@
 			} );
 		};
 		var next = function () {
-			var errs = rules[ current ]();
-			if ( ! report( errs, true ) ) {
+			if ( 1 !== current || continuing ) {
 				return;
 			}
-			var proceed = function () {
-				showSummary( [] );
-				track( 'quote_step_completed', { step: current } );
-				show( current + 1, true );
-				focusStep();
-			};
-			if ( 1 === current ) {
-				var btn = steps[ 0 ].querySelector( '[data-cic-next]' );
-				btn.disabled = true;
-				coverageCheck().then( function ( ok ) {
-					btn.disabled = false;
-					if ( ok ) {
-						proceed();
-					}
-				} );
+			hideFailure();
+			if ( ! report( rules[ 1 ](), true ) ) {
 				return;
 			}
-			proceed();
+			var btn = steps[ 0 ].querySelector( '[data-cic-next]' );
+			continuing = true;
+			btn.disabled = true;
+			btn.setAttribute( 'aria-busy', 'true' );
+			saveStep1( 0 ).then( function ( res ) {
+				continuing = false;
+				btn.disabled = false;
+				btn.removeAttribute( 'aria-busy' );
+				if ( ( 200 === res.status || 201 === res.status ) && res.body.ok ) {
+					draftReady = true;
+					showSummary( [] );
+					track( 'quote_step_completed', { step: 1 } );
+					show( 2, true );
+					focusStep();
+					return;
+				}
+				if ( 422 === res.status && res.body.errors ) {
+					report( Object.keys( res.body.errors ).map( function ( f ) { return { field: f, message: res.body.errors[ f ] }; } ), true );
+					return;
+				}
+				showFailure( 409 === res.status ? M.continueBusy : M.continueFail, next );
+				if ( failureBox ) {
+					failureBox.setAttribute( 'tabindex', '-1' );
+					failureBox.focus();
+				}
+			} );
 		};
 		if ( quote ) {
 			root.classList.add( 'cic-qf--enhanced' );
@@ -514,23 +704,27 @@
 					focusStep();
 				} else {
 					var want = +t.getAttribute( 'data-cic-goto' );
-					show( want > current ? earliestIncomplete( want ) : want, true );
-					focusStep();
+					if ( want > current ) {
+						next();
+					} else {
+						show( want, true );
+						focusStep();
+					}
 				}
 			} );
-			// Enter in a single-line field moves on instead of submitting from steps 1 and 2.
+			// Enter in a single-line Step 1 field continues instead of submitting.
 			root.addEventListener( 'keydown', function ( e ) {
-				if ( 'Enter' === e.key && current < 3 && e.target.matches( 'input:not([type=checkbox]):not([type=radio])' ) && ! e.target.getAttribute( 'aria-activedescendant' ) ) {
+				if ( 'Enter' === e.key && 1 === current && e.target.matches( 'input:not([type=checkbox]):not([type=radio])' ) && ! e.target.getAttribute( 'aria-activedescendant' ) ) {
 					e.preventDefault();
 					next();
 				}
 			} );
 			window.addEventListener( 'popstate', function ( e ) {
-				var n = e.state && e.state.cicStep ? e.state.cicStep : ( /^#step-([123])$/.exec( window.location.hash ) || [ 0, 1 ] )[ 1 ];
-				show( earliestIncomplete( +n ), false );
+				var n = e.state && e.state.cicStep ? e.state.cicStep : ( /^#step-([12])$/.exec( window.location.hash ) || [ 0, 1 ] )[ 1 ];
+				show( +n, false );
 			} );
 
-			// Selections stored in this session fill fields that are still empty.
+			// Selections from hero search, event pages or this session fill fields that are still empty.
 			var stored = ctx ? ctx.read() : {};
 			if ( stored.event && ! checked( 'event' ).length ) {
 				var r = form.querySelector( 'input[name="event"][value="' + stored.event + '"]' );
@@ -542,9 +736,9 @@
 				var x = el( p[ 0 ] );
 				if ( x && ! x.value && stored[ p[ 1 ] ] ) {
 					x.value = stored[ p[ 1 ] ];
+					syncPicker( x );
 				}
 			} );
-			// Location: the visible label for the stored key (the server prefill already shows a label).
 			var locInput = el( 'location' );
 			if ( locInput && stored.location ) {
 				if ( ! locInput.value ) {
@@ -561,16 +755,14 @@
 					}
 				} );
 			}
+			ensureTreatChoice();
 			var hasDetailError = detailWrap && detailWrap.querySelector( '.wpcf7-not-valid' );
 			revealDetail( !! ( val( 'location_detail' ) || hasDetailError ) );
 			syncOther();
 			syncDate();
 			syncPhone();
-			var serverError = root.querySelector( '.wpcf7-not-valid' );
-			var hash = /^#step-([123])$/.exec( window.location.hash );
-			var start = serverError ? stepOf( serverError.closest( '.wpcf7-form-control-wrap' ).getAttribute( 'data-name' ) ) : earliestIncomplete( hash ? +hash[ 1 ] : 1 );
-			show( start, false );
-			window.history.replaceState( { cicStep: current }, '', window.location.pathname + window.location.search + ( current > 1 ? '#step-' + current : '' ) );
+			show( 1, false );
+			window.history.replaceState( { cicStep: 1 }, '', window.location.pathname + window.location.search );
 		}
 
 		/* ---------------- Submission ---------------- */
@@ -588,19 +780,22 @@
 			}
 			window.clearTimeout( watchdog );
 		};
-		var recover = function () {
-			// Network failure: CF7 would stay "submitting" and refuse a retry. Answers and the
-			// submission key are kept, so pressing Send again cannot create a second enquiry.
+		var recover = function ( kind ) {
+			// Failed request: CF7 would stay "submitting" and refuse a retry. Answers and the
+			// submission key are kept, so pressing the button again cannot create a second enquiry
+			// (a request that timed out but was saved is answered with the same receipt).
+			var message = 'server' === kind && M.server ? M.server : M.network;
 			if ( form.wpcf7 ) {
 				form.wpcf7.status = 'init';
 			}
 			form.setAttribute( 'data-status', 'init' );
 			form.classList.remove( 'submitting' );
+			submitting = false;
 			setBusy( false );
-			showSummary( [ { field: 'cic_guard', message: M.network } ] );
+			showSummary( [ { field: 'cic_guard', message: message } ] );
 			var out = form.querySelector( '.wpcf7-response-output' );
 			if ( out ) {
-				out.textContent = M.network;
+				out.textContent = message;
 			}
 			if ( summaryBox ) {
 				summaryBox.focus();
@@ -615,11 +810,35 @@
 				e.stopImmediatePropagation();
 				return;
 			}
-			var errs = quote ? rules[ 1 ]().concat( rules[ 2 ](), rules[ 3 ]() ) : rules.contact();
+			if ( quote && 1 === current && steps.length ) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				next();
+				return;
+			}
+			var errs = quote ? rules[ 1 ]().concat( rules[ 2 ]() ) : rules.contact();
 			if ( errs.length ) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				report( errs, true );
+				return;
+			}
+			if ( quote && ! coverageOk ) {
+				// Coverage pre-check first (blocks confirmed outside areas, asks for clarification).
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				setBusy( true );
+				coverageCheck().then( function ( ok ) {
+					setBusy( false );
+					if ( ok ) {
+						coverageOk = true;
+						if ( form.requestSubmit ) {
+							form.requestSubmit( submitBtn || undefined );
+						} else if ( submitBtn ) {
+							submitBtn.click();
+						}
+					}
+				} );
 				return;
 			}
 			if ( sourceInput && ctx ) {
@@ -630,13 +849,36 @@
 				}
 				sourceInput.value = JSON.stringify( src );
 			}
+			if ( draftInput ) {
+				draftInput.value = draftReady ? draftKey : '';
+			}
+			// The final submission carries every value; no autosave may run alongside or after it.
+			submitting = true;
+			window.clearTimeout( saveTimer );
 			showSummary( [] );
 			setBusy( true );
-			watchdog = window.setTimeout( recover, 30000 );
+			watchdog = window.setTimeout( function () { recover( 'timeout' ); }, 30000 );
 		}, true );
-		window.addEventListener( 'unhandledrejection', function () {
-			if ( busy ) {
-				recover();
+		// CF7 leaves its own submit promise unhandled when the feedback request fails: it rejects with
+		// the Response (non-2xx status) or { code: 'fetch_error' | 'invalid_json' }. Only those mean this
+		// form's request failed; rejections from other scripts on the page are ignored.
+		var cf7Failure = function ( reason ) {
+			if ( ! reason ) {
+				return '';
+			}
+			if ( window.Response && reason instanceof window.Response ) {
+				return /\/contact-form-7\/v1\/contact-forms\/\d+\/feedback(?:[?#]|$)/.test( reason.url || '' ) ? 'server' : '';
+			}
+			if ( 'invalid_json' === reason.code ) {
+				return 'server';
+			}
+			return 'fetch_error' === reason.code ? 'network' : '';
+		};
+		window.addEventListener( 'unhandledrejection', function ( e ) {
+			var kind = busy ? cf7Failure( e.reason ) : '';
+			if ( kind ) {
+				e.preventDefault(); // Handled here: shown to the visitor, not an uncaught error.
+				recover( kind );
 			}
 		} );
 		form.addEventListener( 'wpcf7submit', function ( e ) {
@@ -653,6 +895,8 @@
 				showConfirmation( c );
 				return;
 			}
+			submitting = false;
+			coverageOk = false;
 			if ( c.pending ) {
 				showSummary( [ { field: 'cic_guard', message: M.waiting } ] );
 				return;
@@ -668,6 +912,20 @@
 			}
 		} );
 
+		/* ---------------- Confirmation ---------------- */
+		var fillGlance = function ( g ) {
+			var box = received ? received.querySelector( '[data-cic-glance-box]' ) : null;
+			if ( ! box || ! g || ! Object.keys( g ).length ) {
+				return false;
+			}
+			box.querySelectorAll( '[data-g]' ).forEach( function ( row ) {
+				var v = g[ row.getAttribute( 'data-g' ) ] || '';
+				row.querySelector( '[data-g-value]' ).textContent = v;
+				row.hidden = ! v;
+			} );
+			box.hidden = false;
+			return true;
+		};
 		var showConfirmation = function ( c ) {
 			var s = c.summary || {};
 			if ( received ) {
@@ -678,6 +936,14 @@
 						li.hidden = ! p[ 1 ];
 					}
 				} );
+				var chips = received.querySelector( '[data-cic-chips]' );
+				if ( quote && fillGlance( c.glance ) && chips ) {
+					chips.hidden = true;
+				}
+				var more = received.querySelector( '[data-cic-more]' );
+				if ( more ) {
+					more.hidden = ! ( quote && c.optional );
+				}
 				received.hidden = false;
 			}
 			if ( area ) {
@@ -690,7 +956,9 @@
 				u.searchParams.set( quote ? 'received' : 'sent', c.receipt );
 				window.history.replaceState( {}, '', u.toString() + '#confirmation' );
 			}
-			if ( quote && c.receipt && ! c.duplicate && ! fired( c.receipt ) ) {
+			// Once per receipt (session list), only after the server confirmed the saved inquiry. A
+			// replayed receipt counts too: the first response may have been lost (timeout) after saving.
+			if ( quote && c.receipt && ! fired( c.receipt ) ) {
 				var keys = s.keys || {};
 				track( 'quote_submitted', { event_key: keys.event || '', treat_keys: keys.treat || '', coverage_status: keys.cov || '', template: ( ( ctx && ctx.source().latest ) || {} ).type || '' } );
 			}
@@ -701,5 +969,70 @@
 				received.focus();
 			}
 		};
+
+		/* ---------------- Optional details after submission ---------------- */
+		var more = quote && received ? received.querySelector( '[data-cic-more]' ) : null;
+		if ( more ) {
+			var status = more.querySelector( '[data-cic-more-status]' );
+			var retryBtn = more.querySelector( '[data-cic-more-retry]' );
+			var moreFields = more.querySelectorAll( '[data-cic-more-field]' );
+			var moreTimer = null;
+			var moreBusy = false;
+			var moreAgain = false;
+			var moreSent = '';
+			var moreSnap = function () {
+				var o = {};
+				moreFields.forEach( function ( f ) { o[ f.name ] = f.value; } );
+				return o;
+			};
+			moreSent = JSON.stringify( moreSnap() );
+			var say = function ( text, retry ) {
+				status.textContent = text;
+				retryBtn.hidden = ! retry;
+			};
+			var saveMore = function () {
+				window.clearTimeout( moreTimer );
+				var snap = moreSnap();
+				var json = JSON.stringify( snap );
+				if ( json === moreSent ) {
+					return;
+				}
+				if ( moreBusy ) {
+					moreAgain = true;
+					return;
+				}
+				moreBusy = true;
+				say( M.optSaving, false );
+				post( cfg.save, { key: draftKey, rev: nextRev(), fields: snap } ).then( function ( res ) {
+					moreBusy = false;
+					if ( 200 === res.status && res.body.ok ) {
+						moreSent = json;
+						say( M.optSaved, false );
+					} else if ( 410 === res.status || 403 === res.status ) {
+						say( M.optClosed, false );
+						moreFields.forEach( function ( f ) { f.disabled = true; } );
+						return;
+					} else {
+						say( M.optFailed, true );
+					}
+					if ( moreAgain ) {
+						moreAgain = false;
+						saveMore();
+					}
+				} );
+			};
+			more.addEventListener( 'input', function ( e ) {
+				if ( e.target.matches( '[data-cic-more-field]' ) ) {
+					window.clearTimeout( moreTimer );
+					moreTimer = window.setTimeout( saveMore, 1200 );
+				}
+			} );
+			more.addEventListener( 'focusout', function ( e ) {
+				if ( e.target.matches( '[data-cic-more-field]' ) ) {
+					saveMore();
+				}
+			} );
+			retryBtn.addEventListener( 'click', saveMore );
+		}
 	} );
 }() );

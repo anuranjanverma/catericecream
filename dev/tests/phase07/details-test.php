@@ -60,8 +60,9 @@ $expected = array(
 	'wedding'           => 'hero,ribbon,feature,treats,gallery,planning,quote',
 	'anniversary'       => 'hero,values,treats,feature,planning,quote',
 	'corporate'         => 'hero,values,treats,feature,planning,quote',
-	'dippin-dots'       => 'hero,feelings,occasions,themes,detail,quote',
-	'dipn-bananas'      => 'hero,feelings,occasions,themes,detail,faq,quote',
+	// "media" (authentic photos and videos, 2026-10-24) renders after detail when filled in.
+	'dippin-dots'       => 'hero,feelings,occasions,themes,detail,media,quote',
+	'dipn-bananas'      => 'hero,feelings,occasions,themes,detail,media,faq,quote',
 	'classic-ice-cream' => 'hero,feelings,occasions,themes,detail,quote',
 	'frozen-yogurt'     => 'hero,feelings,themes,occasions,detail,quote',
 );
@@ -222,7 +223,7 @@ $counts = array();
 foreach ( $treats as $t ) {
 	$counts[ $t ] = count( Pairings::for_product( $pages[ $t ]['id'], true ) );
 }
-cic7_check( 'D7.1 every treat has four occasion pairings (16 total)', array( 4, 4, 4, 4 ) === array_values( $counts ), $counts );
+cic7_check( 'D7.1 every treat has six occasion pairings (24 total; Graduation Parties and Proms added 2026-10-22)', array( 6, 6, 6, 6 ) === array_values( $counts ), $counts );
 $shared = array();
 // Event pages carry the pairing copy of their two featured (large) treats.
 foreach ( array( array( 'dipn-bananas', 'wedding' ), array( 'dippin-dots', 'anniversary' ), array( 'dipn-bananas', 'corporate' ) ) as $pair ) {

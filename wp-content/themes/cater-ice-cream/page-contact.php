@@ -17,10 +17,10 @@ $cic_h       = $cic_vm['hero'];
 $cic_p       = $cic_vm['plan'];
 $cic_w       = $cic_vm['where'];
 $cic_c       = $cic_vm['close'];
+// The two steps of the quote form (CIC\Enquiries\Forms): titles match the form's step headings.
 $cic_steps   = array(
-	array( __( 'Your event', 'cater-ice-cream' ), __( 'Tell us the details of your occasion.', 'cater-ice-cream' ) ),
-	array( __( 'Your treats', 'cater-ice-cream' ), __( 'Choose your favourites.', 'cater-ice-cream' ) ),
-	array( __( 'Review & send', 'cater-ice-cream' ), __( "We'll confirm the details.", 'cater-ice-cream' ) ),
+	array( __( 'Your details & favorites', 'cater-ice-cream' ), __( 'How to reach you and the treats you like.', 'cater-ice-cream' ) ),
+	array( __( 'Your event', 'cater-ice-cream' ), __( 'Occasion, date, guests and location.', 'cater-ice-cream' ) ),
 );
 ?>
 <div class="cic-pages cic-contact-page">

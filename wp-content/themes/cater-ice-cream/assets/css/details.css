@@ -187,8 +187,8 @@
 	}
 }
 
-/* Accent words in the heading font's italic for the premium Wedding mood. */
-.cic-event--wedding :is(h1, h2) em {
+/* Accent words in the heading font's italic for the premium Wedding mood (and the Prom evening). */
+:is(.cic-event--wedding, .cic-event--prom) :is(h1, h2) em {
 	font-style: italic;
 	font-weight: 600;
 }
@@ -197,6 +197,8 @@
  * Event heroes: Wedding (05) and split (06 Anniversary, 07 Corporate)
  * ------------------------------------------------------------------ */
 .cic-event--wedding .cic-event__hero,
+.cic-event--prom .cic-event__hero,
+.cic-event--graduation .cic-event__hero,
 .cic-event--anniversary .cic-event__hero,
 .cic-event--corporate .cic-event__hero,
 .cic-event--standard .cic-event__hero {
@@ -237,6 +239,11 @@
 	width: 4rem;
 }
 
+/* Prom: a wider starlight line in place of the rings. */
+.cic-wed-hero__starlight {
+	width: 6.5rem;
+}
+
 .cic-wed-hero__wave {
 	position: absolute;
 	right: 0;
@@ -254,8 +261,8 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-	/* Delicate ring/botanical line motion for Wedding only. */
-	.cic-event--wedding .cic-motif__trail {
+	/* Delicate ring/botanical line motion for Wedding (and the Prom starlight line). */
+	:is(.cic-event--wedding, .cic-event--prom) .cic-motif__trail {
 		animation: cic-trace 4.5s ease-in-out 1 both;
 	}
 
@@ -345,6 +352,14 @@
 	color: var(--cic-color-heading-accent);
 }
 
+/* Graduation: a graduation-cap line beside the headline. */
+.cic-split-hero__cap {
+	top: 0.05em;
+	right: 0;
+	width: 2.2em;
+	color: var(--cic-color-decor);
+}
+
 .cic-split-hero__media {
 	position: relative;
 	padding-bottom: 2.5rem;
@@ -385,6 +400,32 @@
 	bottom: 2.5rem;
 	left: 40%;
 	right: auto;
+}
+
+/* Graduation: small stars and a little confetti around the photo corner. */
+.cic-split-hero__stars {
+	top: -1.25rem;
+	left: -0.5rem;
+	z-index: 3;
+	width: 4.5rem;
+	color: var(--cic-color-decor);
+}
+
+.cic-confetti--grad {
+	inset: -1rem -0.5rem auto auto;
+	z-index: 3;
+	width: 45%;
+	height: 35%;
+}
+
+.cic-confetti--grad .cic-confetti__piece--9,
+.cic-confetti--grad .cic-confetti__piece--10 {
+	display: none;
+}
+
+.cic-event--graduation .cic-ev-value__icon {
+	background-color: color-mix(in srgb, var(--cic-color-accent) 24%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-heading);
 }
 
 @media (min-width: 900px) {
@@ -695,7 +736,7 @@
 	padding-bottom: calc(var(--cic-section-pad) * 0.5);
 }
 
-.cic-event--wedding .cic-brands {
+:is(.cic-event--wedding, .cic-event--prom) .cic-brands {
 	background-color: var(--cic-color-surface);
 }
 
@@ -888,7 +929,7 @@
 	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 22%, var(--wp--preset--color--surface-base));
 }
 
-.cic-event--wedding .cic-plan-band {
+:is(.cic-event--wedding, .cic-event--prom) .cic-plan-band {
 	background-color: var(--cic-color-surface-alt);
 }
 
@@ -924,7 +965,7 @@
 	font-weight: var(--cic-weight-strong);
 }
 
-.cic-event--wedding .cic-plan-band__num {
+:is(.cic-event--wedding, .cic-event--prom) .cic-plan-band__num {
 	border: 1px solid var(--cic-color-decor);
 	background: none;
 	/* Gold stays on the ring (decorative); the digit uses the heading role (gold digits were 2.4:1). */
@@ -954,7 +995,7 @@
 		border-left: 1px solid var(--cic-color-border);
 	}
 
-	.cic-event--wedding .cic-plan-band__step + .cic-plan-band__step {
+	:is(.cic-event--wedding, .cic-event--prom) .cic-plan-band__step + .cic-plan-band__step {
 		border-left-color: var(--cic-color-decor);
 	}
 }
@@ -1397,6 +1438,12 @@
 	.cic-occ-cards {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 1.25rem;
+	}
+
+	/* Five or six paired occasions: two balanced rows of three. */
+	.cic-occ-cards--n5,
+	.cic-occ-cards--n6 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 }
 

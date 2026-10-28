@@ -1,6 +1,7 @@
 <?php
 /**
- * Occasion-specific stories (Birthday: little birthdays / milestone birthdays).
+ * Occasion-specific stories (Birthday: little birthdays / milestone birthdays; Graduation: home
+ * celebrations / school gatherings).
  *
  * @package CaterIceCream
  */

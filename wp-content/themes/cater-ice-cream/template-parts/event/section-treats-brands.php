@@ -13,7 +13,7 @@ $cic_vm    = $args['vm'];
 $cic_t     = $cic_vm['treats'];
 $cic_large = array_slice( $cic_t['items'], 0, 2 );
 $cic_small = array_slice( $cic_t['items'], 2 );
-$cic_wed   = 'wedding' === $cic_vm['layout'];
+$cic_wed   = in_array( $cic_vm['layout'], array( 'wedding', 'prom' ), true );
 echo cic_theme_section_open( 'cic-event', $args['section'], 'cic-section cic-brands' . ( 'anniversary' === $cic_vm['layout'] ? ' cic-band' : '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
 ?>
 	<div class="cic-container cic-container--wide">

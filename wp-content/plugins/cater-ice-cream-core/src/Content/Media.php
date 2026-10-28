@@ -92,7 +92,7 @@ final class Media {
 			0,
 			ucwords( str_replace( '-', ' ', $asset_id ) ),
 			array(
-				'post_content' => 'Provenance: ' . (string) ( $asset['provenance'] ?? 'AI recreation from the approved mockups.' ) . ' Not a photograph of actual Cater Ice Cream customers, staff, equipment or venues; client review required before launch.',
+				'post_content' => 'Provenance: ' . (string) ( $asset['provenance'] ?? 'AI recreation from the approved mockups.' ) . ' Not a photograph of actual CaterIceCream.com customers, staff, equipment or venues; client review required before launch.',
 			)
 		);
 		if ( is_wp_error( $id ) ) {

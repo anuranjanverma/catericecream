@@ -39,7 +39,7 @@ final class Layout {
 				'logo_mobile_id'    => array( 'type' => 'image', 'default' => 0, 'label' => 'Mobile logo', 'help' => 'Optional; falls back to the desktop logo.' ),
 				'logo_width'        => array( 'type' => 'int', 'default' => 190, 'min' => 120, 'max' => 320, 'label' => 'Desktop logo width (px)' ),
 				'logo_width_mobile' => array( 'type' => 'int', 'default' => 136, 'min' => 96, 'max' => 220, 'label' => 'Mobile logo width (px)' ),
-				'show_call'         => array( 'type' => 'bool', 'default' => false, 'label' => 'Show call action' ),
+				'show_call'         => array( 'type' => 'bool', 'default' => true, 'label' => 'Desktop: phone number beside the quote button', 'help' => 'Desktop only (1024 px and wider). Shows the public phone from Business contact. Phones and tablets keep the call action in the menu drawer.' ),
 				'show_quote'        => array( 'type' => 'bool', 'default' => true, 'label' => 'Show quote button' ),
 				'sticky'            => array( 'type' => 'bool', 'default' => true, 'label' => 'Sticky header while scrolling' ),
 				'compact'           => array( 'type' => 'bool', 'default' => true, 'label' => 'Desktop: compact the sticky header while scrolling down', 'help' => 'Desktop only (1024 px and wider) and only when the header is sticky. Scrolling down hides the top row and shortens the main row; scrolling up or returning to the top restores the full header. Mobile and tablet headers never change.' ),
@@ -57,6 +57,7 @@ final class Layout {
 				'show_quote'     => array( 'type' => 'bool', 'default' => true, 'label' => 'Quote button in the menu drawer' ),
 				'show_secondary' => array( 'type' => 'bool', 'default' => true, 'label' => 'Include the bottom-row menu in the drawer' ),
 				'show_email'     => array( 'type' => 'bool', 'default' => false, 'label' => 'Email link in the menu drawer' ),
+				'sticky_quote'   => array( 'type' => 'bool', 'default' => true, 'label' => 'Phones: fixed "Get a Quote" button at the bottom of the screen', 'help' => 'Below 600 px only, on every page except Get a Quote. Links to the Get a Quote page; hidden while the menu is open or a form field is being filled in.' ),
 			),
 			'footer' => array(
 				'logo_id'      => array( 'type' => 'image', 'default' => 0, 'label' => 'Footer logo', 'help' => 'Leave empty to use the approved original logo on a light plate. A reversed (white) logo can be uploaded when an approved one exists.' ),
@@ -78,7 +79,15 @@ final class Layout {
 				'show_email'   => array( 'type' => 'bool', 'default' => false, 'label' => 'Contact column: email' ),
 				'show_social'  => array( 'type' => 'bool', 'default' => true, 'label' => 'Show social links (only profiles with a saved URL appear)' ),
 				'show_legal'   => array( 'type' => 'bool', 'default' => true, 'label' => 'Show the legal row (copyright and policy links)' ),
-				'copyright'    => array( 'type' => 'text', 'default' => '© {year} Cater Ice Cream · Frosty Yummy LLC', 'label' => 'Copyright line', 'max' => 200, 'help' => '{year} is replaced with the current year.' ),
+				'copyright'    => array( 'type' => 'text', 'default' => '© {year} CaterIceCream.com · Frosty Yummy LLC', 'label' => 'Copyright line', 'max' => 200, 'help' => '{year} is replaced with the current year.' ),
+			),
+			// Prefooter "Cities We Serve" (2026-10-22): published, indexable production cities ranked by their
+			// served ZIP codes (DatabaseRepository::served_city_ranking()); never a hand-picked list.
+			'cities' => array(
+				'enabled'    => array( 'type' => 'bool', 'default' => true, 'label' => 'Show "Cities We Serve" above the footer', 'help' => 'Shown on every public page except Get a Quote. Cities are chosen automatically: published, set to Index, approved (production) data and at least one served ZIP code, ordered by how many served ZIP codes they have. The counts are never shown.' ),
+				'heading'    => array( 'type' => 'text', 'default' => 'Cities We Serve', 'label' => 'Heading', 'max' => 80 ),
+				'count'      => array( 'type' => 'int', 'default' => 20, 'min' => 4, 'max' => 60, 'label' => 'Number of cities' ),
+				'link_label' => array( 'type' => 'text', 'default' => 'View all service areas', 'label' => '"View all" link label (links to the Service Areas page)', 'max' => 80 ),
 			),
 		);
 	}

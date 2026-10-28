@@ -160,7 +160,8 @@ final class Catalog {
 	}
 
 	/**
-	 * Published events for public selection.
+	 * Published events for public selection, in the central event order (menu_order, the "Order"
+	 * field on each event). Every event list on the site (menus, cards, quote options) uses this.
 	 *
 	 * @return array<int, array{id: int, key: string, title: string}>
 	 */
@@ -175,6 +176,32 @@ final class Catalog {
 			)
 		);
 		return array_map( static fn( $id ) => array( 'id' => (int) $id, 'key' => self::key( $id ), 'title' => get_the_title( $id ), 'label' => trim( (string) get_post_meta( $id, 'cic_event_short_label', true ) ) ?: get_the_title( $id ) ), $ids );
+	}
+
+	/** Default occasion icons by event key; the event's "Icon" field (cic_event_icon) overrides them. */
+	public const EVENT_ICONS = array(
+		'birthday'    => 'cake',
+		'wedding'     => 'rings',
+		'graduation'  => 'grad-cap',
+		'prom'        => 'mirror-ball',
+		'corporate'   => 'briefcase',
+		'anniversary' => 'heart',
+	);
+
+	/** Occasion icon for an event (quote tiles, treat occasion badges). */
+	public static function event_icon( int $event_id ): string {
+		$icon = trim( (string) get_post_meta( $event_id, 'cic_event_icon', true ) );
+		return '' !== $icon ? $icon : ( self::EVENT_ICONS[ self::key( $event_id ) ] ?? 'sparkle' );
+	}
+
+	/**
+	 * Position of each published event in the central event order (the events' Order field,
+	 * Events → Edit → Order). Components that show only some events sort them with this.
+	 *
+	 * @return array<int, int> Event ID => position (0 = first).
+	 */
+	public static function event_rank(): array {
+		return array_flip( array_column( self::selectable_events(), 'id' ) );
 	}
 
 	/** Unique key for a post type, derived from a base string. */

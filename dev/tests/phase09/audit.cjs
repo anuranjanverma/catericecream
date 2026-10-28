@@ -30,6 +30,8 @@ const PAGES = [
 	[ 'events', '/events/' ],
 	[ 'event-birthday', '/events/birthday/' ],
 	[ 'event-wedding', '/events/wedding/' ],
+	[ 'event-graduation', '/events/graduation-parties/' ],
+	[ 'event-prom', '/events/proms/' ],
 	[ 'event-anniversary', '/events/anniversary/' ],
 	[ 'event-corporate', '/events/corporate/' ],
 	[ 'treats', '/treats/' ],

@@ -70,7 +70,8 @@ $cic_primary    = cic_theme_menu(
 			<?php endif; ?>
 			<div class="cic-header__actions">
 				<?php if ( ! empty( $cic_main['show_call'] ) && '' !== $cic_contact['phone_href'] ) : ?>
-					<a class="cic-header__call" href="<?php echo esc_url( $cic_contact['phone_href'] ); ?>"><?php echo esc_html( $cic_contact['call_label'] . ' ' . $cic_contact['phone'] ); ?></a>
+					<?php // Desktop only (main.css §8): the central business phone, immediately before the quote button (icon-only from 1024 to 1199 px). ?>
+					<a class="cic-header__call" href="<?php echo esc_url( $cic_contact['phone_href'] ); ?>"><span class="cic-header__call-icon" aria-hidden="true"><?php echo cic_theme_icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span><span class="screen-reader-text"><?php echo esc_html( $cic_contact['call_label'] ); ?> </span><span class="cic-header__call-number"><?php echo esc_html( $cic_contact['phone'] ); ?></span></a>
 				<?php endif; ?>
 				<?php if ( ! empty( $cic_main['show_quote'] ) ) : ?>
 					<a class="cic-button cic-header__quote" href="<?php echo esc_url( $cic_contact['quote_url'] ); ?>"><?php echo esc_html( $cic_contact['quote_label'] ); ?> <span aria-hidden="true">→</span></a>

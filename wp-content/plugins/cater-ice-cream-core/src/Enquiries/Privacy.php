@@ -20,7 +20,7 @@ final class Privacy {
 
 	public function exporters( array $exporters ): array {
 		$exporters['cic-enquiries'] = array(
-			'exporter_friendly_name' => __( 'Cater Ice Cream enquiries', 'cater-ice-cream-core' ),
+			'exporter_friendly_name' => __( 'CaterIceCream.com inquiries', 'cater-ice-cream-core' ),
 			'callback'               => array( self::class, 'export' ),
 		);
 		return $exporters;

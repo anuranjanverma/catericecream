@@ -59,11 +59,11 @@ try {
 	p6_check( 'A1 CF7 + Flamingo active and both forms configured (IDs from settings)', defined( 'WPCF7_VERSION' ) && defined( 'FLAMINGO_VERSION' ) && Forms::id( 'quote' ) > 0 && Forms::id( 'contact' ) > 0 && Forms::available() );
 	p6_check( 'A2 no cic_lead post type', ! post_type_exists( 'cic_lead' ) );
 	$routes = array_keys( rest_get_server()->get_routes() );
-	$extra  = array_values( array_filter( $routes, static fn( $r ) => str_starts_with( $r, '/cic/' ) && ! in_array( $r, array( '/cic/v1', '/cic/v1/coverage', '/cic/v1/locations', '/cic/v1/location' ), true ) ) );
-	p6_check( 'A3 no CIC submission endpoint (only the coverage/locations routes and the read-only location label lookup)', ! $extra, $extra );
+	$extra  = array_values( array_filter( $routes, static fn( $r ) => str_starts_with( $r, '/cic/' ) && ! in_array( $r, array( '/cic/v1', '/cic/v1/coverage', '/cic/v1/locations', '/cic/v1/location', '/cic/v1/quote-draft', '/cic/v1/quote-draft/save' ), true ) ) );
+	p6_check( 'A3 no CIC submission endpoint (only coverage/locations, the location label lookup and the draft-only saved-progress routes; the final submission is CF7)', ! $extra, $extra );
 	p6_check( 'A4 CF7 mail is skipped for our forms (core plugin is the single mail owner)', true === apply_filters( 'wpcf7_skip_mail', false, wpcf7_contact_form( Forms::id( 'quote' ) ) ) && true === apply_filters( 'wpcf7_skip_mail', false, wpcf7_contact_form( Forms::id( 'contact' ) ) ) );
 	$markup = wpcf7_contact_form( Forms::id( 'quote' ) )->prop( 'form' );
-	p6_check( 'A5 one CF7 form holds all three steps (code-owned markup)', 3 === substr_count( $markup, 'class="cic-qf__step"' ) && str_contains( $markup, '[cic_field treats_unsure]' ) && str_contains( $markup, '[cic_guard cic_guard]' ) );
+	p6_check( 'A5 one CF7 form holds both steps (code-owned markup, 2026-10-23)', 2 === substr_count( $markup, 'class="cic-qf__step"' ) && str_contains( $markup, '[cic_field treats_unsure]' ) && str_contains( $markup, '[cic_guard cic_guard]' ) );
 	p6_check( 'A6 Flamingo messages are private (not public, not in REST)', ! get_post_type_object( 'flamingo_inbound' )->public && ! get_post_type_object( 'flamingo_inbound' )->show_in_rest );
 
 	WP_CLI::log( '== B. Validation' );

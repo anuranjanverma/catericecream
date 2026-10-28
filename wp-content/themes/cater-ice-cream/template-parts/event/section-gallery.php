@@ -1,7 +1,7 @@
 <?php
 /**
  * Wedding wide photo band (05): reception photo framed by botanical corners, then a caption
- * between fine champagne rules.
+ * between fine champagne rules. Prom: star corners.
  *
  * @package CaterIceCream
  */
@@ -13,7 +13,8 @@ echo cic_theme_section_open( 'cic-event', $args['section'], 'cic-gallery' ); // 
 ?>
 	<div class="cic-gallery__photo">
 		<?php echo cic_theme_image( $cic_g['image'], '100vw' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core image markup. ?>
-		<?php echo cic_theme_motif( 'botanical', 'cic-gallery__botanical cic-gallery__botanical--l' ) . cic_theme_motif( 'botanical', 'cic-gallery__botanical cic-gallery__botanical--r' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG. ?>
+		<?php $cic_corner = 'prom' === $args['vm']['layout'] ? 'stars' : 'botanical'; ?>
+		<?php echo cic_theme_motif( $cic_corner, 'cic-gallery__botanical cic-gallery__botanical--l' ) . cic_theme_motif( $cic_corner, 'cic-gallery__botanical cic-gallery__botanical--r' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG. ?>
 	</div>
 	<?php if ( '' !== $cic_g['caption'] ) : ?>
 		<p class="cic-container cic-ruled-caption"><span><?php echo esc_html( $cic_g['caption'] ); ?></span></p>

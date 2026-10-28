@@ -96,6 +96,50 @@ add_filter(
 	},
 	20
 );
+/**
+ * Menu links to event pages follow the central event order (each event's Order field), so the
+ * Events dropdown never needs reordering by hand. Links to unpublished events are left out.
+ * Other menu items keep their place; event links keep their menu labels.
+ */
+add_filter(
+	'wp_nav_menu_objects',
+	static function ( $items ) {
+		if ( ! class_exists( '\CIC\Content\Catalog' ) ) {
+			return $items;
+		}
+		$by_path = array();
+		foreach ( get_posts( array( 'post_type' => 'cic_event', 'post_status' => array( 'publish', 'draft', 'pending', 'private', 'future' ), 'numberposts' => -1, 'fields' => 'ids' ) ) as $event_id ) {
+			$by_path[ trim( (string) wp_parse_url( (string) get_permalink( $event_id ), PHP_URL_PATH ), '/' ) ] = (int) $event_id;
+		}
+		$rank   = \CIC\Content\Catalog::event_rank();
+		$events = array();
+		foreach ( (array) $items as $index => $item ) {
+			$id = 'post_type' === $item->type && 'cic_event' === $item->object ? (int) $item->object_id : ( $by_path[ trim( (string) wp_parse_url( (string) $item->url, PHP_URL_PATH ), '/' ) ] ?? 0 );
+			if ( ! $id ) {
+				continue;
+			}
+			if ( ! isset( $rank[ $id ] ) ) {
+				unset( $items[ $index ] ); // Unpublished event.
+				continue;
+			}
+			$events[ (int) $item->menu_item_parent ][ $index ] = $rank[ $id ];
+		}
+		// Within each parent, put the event links back into the slots they occupied, in central order.
+		foreach ( $events as $group ) {
+			$slots = array_keys( $group );
+			asort( $group );
+			$ordered = array();
+			foreach ( array_keys( $group ) as $index ) {
+				$ordered[] = $items[ $index ];
+			}
+			foreach ( $slots as $n => $slot ) {
+				$items[ $slot ] = $ordered[ $n ];
+			}
+		}
+		return array_values( $items );
+	},
+	21
+);
 add_filter(
 	'nav_menu_link_attributes',
 	static function ( $atts, $item ) {

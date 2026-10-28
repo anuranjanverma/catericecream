@@ -91,6 +91,16 @@ final class Store {
 		return $summary;
 	}
 
+	/** Flamingo message of a valid, unexpired receipt (0 otherwise). */
+	public static function receipt_flamingo( string $receipt ): int {
+		global $wpdb;
+		if ( ! preg_match( '/^[a-f0-9]{32}$/', $receipt ) ) {
+			return 0;
+		}
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT flamingo_id, created_at FROM ' . self::table() . " WHERE receipt = %s AND status = 'stored'", $receipt ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $row && strtotime( $row['created_at'] . ' UTC' ) >= time() - self::RECEIPT_TTL ? (int) $row['flamingo_id'] : 0;
+	}
+
 	/**
 	 * Mark a claim as stored with its Flamingo message and receipt summary.
 	 *
@@ -168,11 +178,16 @@ final class Store {
 		}
 	}
 
-	/** Remove abandoned claims and old rows whose enquiry is gone (retention). */
+	/**
+	 * Remove abandoned claims and old rows whose enquiry is gone (retention). Draft-creation keys
+	 * (form "draft": no Flamingo id, notification channels skipped) only serve retries of the Step 1
+	 * request, so they are removed after a day.
+	 */
 	public static function cleanup(): void {
 		global $wpdb;
 		$t = self::table();
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$t} WHERE status = 'processing' AND created_at < %s", gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "DELETE s FROM {$t} s LEFT JOIN {$wpdb->posts} p ON p.ID = s.flamingo_id WHERE s.status = 'stored' AND p.ID IS NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$wpdb->query( "DELETE s FROM {$t} s LEFT JOIN {$wpdb->posts} p ON p.ID = s.flamingo_id WHERE s.status = 'stored' AND s.form <> 'draft' AND p.ID IS NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$t} WHERE form = 'draft' AND created_at < %s", gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }

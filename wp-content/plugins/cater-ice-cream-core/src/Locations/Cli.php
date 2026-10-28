@@ -93,6 +93,22 @@ final class Cli {
 	}
 
 	/**
+	 * Invalidates every cached location read (directories, map points, sitemap, the footer "Cities
+	 * We Serve" list). Run after changing location tables directly in the database (SQL imports);
+	 * the admin screens and the CSV importer already do this. The version only ever goes up.
+	 *
+	 * @subcommand flush-cache
+	 *
+	 * @param string[]              $args       Positional.
+	 * @param array<string, string> $assoc_args Flags.
+	 */
+	public function flush_cache( array $args, array $assoc_args ): void {
+		$before = Tables::cache_version();
+		Tables::bump_cache();
+		\WP_CLI::success( sprintf( 'Location cache version %d -> %d.', $before, Tables::cache_version() ) );
+	}
+
+	/**
 	 * Coverage check, e.g. `wp cic locations check 91101` or `check 90220 --city=compton`.
 	 *
 	 * <location>

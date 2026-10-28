@@ -125,7 +125,7 @@ let browser;
 		await page.keyboard.press( 'Enter' );
 		const faq = await page.$eval( '.cic-accordion__item', ( d ) => d.open );
 		const contactLinks = await page.$$eval( 'main a[href^="tel:"], main a[href^="mailto:"]', ( a ) => Array.from( new Set( a.map( ( x ) => x.getAttribute( 'href' ) ) ) ) );
-		check( 'B6 Contact FAQ opens from the keyboard; call/email links use the configured values only', faq && 2 === contactLinks.length && contactLinks.includes( 'tel:+18187269700' ) && contactLinks.includes( 'mailto:ceo.frostyyummy@gmail.com' ), { faq, contactLinks } );
+		check( 'B6 Contact FAQ opens from the keyboard; call/email links use the configured values only', faq && 2 === contactLinks.length && contactLinks.includes( 'tel:+14242354942' ) && contactLinks.includes( 'mailto:ceo.frostyyummy@gmail.com' ), { faq, contactLinks } );
 
 		// ---- Mobile navigation ----
 		await page.setViewport( { width: 390, height: 900, deviceScaleFactor: 1 } );
@@ -134,12 +134,14 @@ let browser;
 		await new Promise( ( r ) => setTimeout( r, 400 ) );
 		const mobileNav = await page.evaluate( () => {
 			const visible = ( el ) => !! el && el.getClientRects().length > 0 && 'hidden' !== getComputedStyle( el ).visibility;
-			const about = Array.from( document.querySelectorAll( '#cic-drawer a[href$="/about/"], header a[href$="/about/"]' ) ).find( visible );
-			const current = document.querySelector( 'header .current-menu-item > a[href$="/about/"], header a[aria-current="page"][href$="/about/"]' );
-			return { about: !! about, current: !! current };
+			// About left the header menu on 2026-10-24 (owner); the footer keeps it, marked as current.
+			const drawerOpen = visible( document.querySelector( '#cic-drawer .cic-drawer__panel' ) );
+			const inHeader = !! document.querySelector( '#cic-drawer a[href$="/about/"], header a[href$="/about/"]' );
+			const footer = document.querySelector( '.cic-footer .current-menu-item > a[href$="/about/"], .cic-footer a[aria-current="page"][href$="/about/"]' );
+			return { drawerOpen, inHeader, footerCurrent: !! footer };
 		} );
 		await page.screenshot( { path: path.join( OUT, 'mobile-menu-390.png' ) } );
-		check( 'B7 mobile menu opens and shows About, marked as the current page', mobileNav.about && mobileNav.current, mobileNav );
+		check( 'B7 mobile menu opens without About (header menu, 2026-10-24); the footer About link is marked as the current page', mobileNav.drawerOpen && ! mobileNav.inHeader && mobileNav.footerCurrent, mobileNav );
 
 		// ---- Admin ----
 		auth = JSON.parse( last( wp( 'eval-file', 'dev/tests/phase02/auth-cookies.php', 'create' ) ) );

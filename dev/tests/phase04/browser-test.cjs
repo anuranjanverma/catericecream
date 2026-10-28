@@ -118,7 +118,8 @@ let browser;
 		console.log( '== Navigation, keyboard and tel links' );
 		await page.goto( BASE + '/', { waitUntil: 'networkidle0' } );
 		const nav = await page.$$eval( '.cic-nav--primary > ul > li > a', ( as ) => as.map( ( a ) => a.textContent.trim() ) );
-		check( 'N1 global menu: Our Treats, Events, How It Works, About, Service Areas + Get a Quote', 'Our Treats,Events,How It Works,About,Service Areas' === nav.join( ',' ) && !! ( await page.$( '.cic-header__quote' ) ), nav );
+		// About left the header menu on 2026-10-24 (owner); it stays in the footer.
+		check( 'N1 global menu: Our Treats, Events, How It Works, Service Areas + Get a Quote', 'Our Treats,Events,How It Works,Service Areas' === nav.join( ',' ) && !! ( await page.$( '.cic-header__quote' ) ), nav );
 		await page.click( '.cic-nav--primary a[href$="#how-it-works"]' );
 		await new Promise( ( r ) => setTimeout( r, 800 ) );
 		const anchor = await page.evaluate( () => ( { top: Math.round( document.getElementById( 'how-it-works' ).getBoundingClientRect().top ), header: Math.round( document.querySelector( '.cic-header' ).getBoundingClientRect().bottom ) } ) );
@@ -138,7 +139,7 @@ let browser;
 		}
 		check( 'K2 keyboard reaches the hero search; the field shows a visible focus ring', reached && ring.startsWith( 'solid 3px' ), ring );
 		const tels = await page.$$eval( 'a[href^="tel:"]', ( as ) => as.map( ( a ) => a.getAttribute( 'href' ) + '|' + a.textContent.replace( /\D/g, '' ) ) );
-		check( 'K3 every tel: link matches the displayed global number', tels.length >= 2 && tels.every( ( t ) => 'tel:+18187269700|8187269700' === t || 'tel:+18187269700|18187269700' === t ), tels );
+		check( 'K3 every tel: link matches the displayed global number', tels.length >= 2 && tels.every( ( t ) => 'tel:+14242354942|4242354942' === t || 'tel:+14242354942|14242354942' === t ), tels );
 		await page.setViewport( { width: 390, height: 844 } );
 		await page.goto( BASE + '/', { waitUntil: 'networkidle0' } );
 		await page.click( '.cic-menu-toggle' );
@@ -170,8 +171,11 @@ let browser;
 			input.value = 'Edited homepage eyebrow';
 			input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
 			window.wp.data.dispatch( 'core/editor' ).editPost( { meta: {} } );
-			window.wp.data.dispatch( 'core/editor' ).savePost();
+			// Return the save promise so the check below cannot see "not saving" before the save
+			// (and the ACF meta-box save) has started — same fix as admin-fields-test.cjs.
+			return window.wp.data.dispatch( 'core/editor' ).savePost();
 		} );
+		await new Promise( ( r ) => setTimeout( r, 800 ) );
 		await page.waitForFunction( () => {
 			const ed = window.wp.data.select( 'core/editor' );
 			const mb = window.wp.data.select( 'core/edit-post' );

@@ -178,6 +178,46 @@ final class DatabaseRepository implements LocationRepository {
 	}
 
 	/**
+	 * Cities ranked by their number of DISTINCT effectively served ZIP codes (footer "Cities We
+	 * Serve"). Eligible: published, index status "index", production dataset (city, link and ZIP),
+	 * a supported state, and at least one served ZIP. A city-ZIP link counts only when the shared
+	 * resolver's Coverage::effective() is "enabled", so globally disabled ZIPs (e.g. the Compton
+	 * exclusions) and disabled links never count; a shared ZIP counts once for each city whose own
+	 * link is served. One query for all rows; sorted by count (desc), then name. Cached under the
+	 * location cache version, which every location write, import and `wp cic locations
+	 * flush-cache` bumps. Counts are for ordering only and are never displayed.
+	 *
+	 * @return array<int, array<string, mixed>> Public city arrays plus 'served_zips'.
+	 */
+	public function served_city_ranking( int $limit = 20 ): array {
+		$all = Tables::cached(
+			'served-ranking',
+			static function () {
+				global $wpdb;
+				$t    = Tables::all();
+				$rows = $wpdb->get_results( "SELECT c.*, cz.zip AS link_zip, cz.service_override, z.service_status FROM {$t['cities']} c JOIN {$t['city_zips']} cz ON cz.city_id = c.id JOIN {$t['zips']} z ON z.zip = cz.zip WHERE c.publish_status = 'published' AND c.index_status = 'index' AND c.dataset = 'production' AND cz.dataset = 'production' AND z.dataset = 'production'", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- internal table names, no input.
+				$cities = array();
+				$served = array();
+				foreach ( $rows as $row ) {
+					if ( '' === Tables::state_slug( (string) $row['state_code'] ) || 'enabled' !== Coverage::effective( (string) $row['service_override'], (string) $row['service_status'] ) ) {
+						continue;
+					}
+					$id                                = (int) $row['id'];
+					$cities[ $id ]                     = $cities[ $id ] ?? $row;
+					$served[ $id ][ $row['link_zip'] ] = true;
+				}
+				$out = array();
+				foreach ( $cities as $id => $row ) {
+					$out[] = array_merge( self::city( $row ), array( 'served_zips' => count( $served[ $id ] ) ) );
+				}
+				usort( $out, static fn( $a, $b ) => ( $b['served_zips'] <=> $a['served_zips'] ) ?: strcasecmp( $a['name'], $b['name'] ) );
+				return $out;
+			}
+		);
+		return array_slice( $all, 0, max( 0, $limit ) );
+	}
+
+	/**
 	 * Other published cities in the same county, nearest first when coordinates exist.
 	 *
 	 * @param array<string, mixed> $city City.
@@ -211,12 +251,28 @@ final class DatabaseRepository implements LocationRepository {
 	}
 
 	/**
-	 * Indexable = published + index status "index" + reviewed editorial content + usable dataset.
+	 * Served = at least one production ZIP linked to the city is effectively "enabled" (the same
+	 * rule as the Cities We Serve ranking, so exclusions and fixture data never count).
+	 *
+	 * @param array<string, mixed> $city City.
+	 */
+	public function is_served( array $city ): bool {
+		foreach ( $this->served_city_ranking( PHP_INT_MAX ) as $row ) {
+			if ( (int) $row['id'] === (int) $city['id'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Indexable = published + index status "index" + reviewed editorial content + approved coverage
+	 * (is_served, 2026-10-28) + usable dataset.
 	 *
 	 * @param array<string, mixed> $city City.
 	 */
 	public function is_indexable( array $city ): bool {
-		return 'published' === $city['publish_status'] && 'index' === $city['index_status'] && $this->get_city_content( (int) $city['id'] )['reviewed'];
+		return 'published' === $city['publish_status'] && 'index' === $city['index_status'] && $this->get_city_content( (int) $city['id'] )['reviewed'] && $this->is_served( $city );
 	}
 
 	/**
@@ -225,20 +281,41 @@ final class DatabaseRepository implements LocationRepository {
 	 * @return array<int, string>
 	 */
 	public function indexable_urls( string $state_code ): array {
+		return array_column( $this->indexable_entries( $state_code ), 'loc' );
+	}
+
+	/**
+	 * Sitemap entries of indexable cities: canonical URL and lastmod (the later of the city record
+	 * and its reviewed content, so it changes only when the page content does).
+	 *
+	 * @return array<int, array<string, string>>
+	 */
+	public function indexable_entries( string $state_code ): array {
 		return Tables::cached(
-			'indexable:' . $state_code,
+			'indexable-entries:' . $state_code,
 			function () use ( $state_code ) {
 				global $wpdb;
 				$t    = Tables::name( 'cities' );
 				$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} c WHERE c.state_code = %s AND c.publish_status = 'published' AND c.index_status = 'index' AND " . Tables::dataset_sql( 'c' ) . ' ORDER BY c.display_order, c.city_name', $state_code ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$urls = array();
+				$out  = array();
 				foreach ( $rows as $row ) {
 					$city = self::city( $row );
-					if ( $this->is_indexable( $city ) ) {
-						$urls[] = $city['url'];
+					if ( ! $this->is_indexable( $city ) ) {
+						continue;
 					}
+					$times = array( (string) get_post_field( 'post_modified_gmt', $this->get_city_content( (int) $city['id'] )['editorial_id'] ) );
+					if ( ! empty( $row['updated_at'] ) ) {
+						$times[] = (string) $row['updated_at'];
+					}
+					$latest = max( array_map( 'strtotime', array_filter( $times ) ) ?: array( 0 ) );
+					$out[]  = array_filter(
+						array(
+							'loc'     => $city['url'],
+							'lastmod' => $latest ? gmdate( 'c', $latest ) : '',
+						)
+					);
 				}
-				return $urls;
+				return $out;
 			}
 		);
 	}

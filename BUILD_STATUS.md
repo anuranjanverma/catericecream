@@ -21,8 +21,310 @@ Environment facts: see `ENVIRONMENT.md`.
 | 10 Release candidate and operational guide | **rc1 prepared locally (release preparation only). NOT launch-ready.** Package, staging rehearsal and restore drill done on disposable copies; nothing deployed. Outstanding business inputs and host checks listed in `docs/release/LAUNCH_CHECKLIST.md` | 2026-10-20 |
 | Refinements (owner request) | **Built and verified locally, awaiting owner review; committed locally (2026-10-21, not pushed).** Location labels, MM/DD/YYYY date picker, Site Icon, event-field icon, California map previews. The rc1 package is **outdated** until regenerated | 2026-10-21 |
 | Desktop compact sticky header (owner request) | **Built and verified locally, awaiting owner review; committed locally (2026-10-21, not pushed).** Desktop (≥1024 px) only; mobile/tablet unchanged. rc1 package still outdated | 2026-10-21 |
+| Client updates (2026-10-22) | **Built and verified locally, awaiting owner review; NOT committed, not deployed.** Graduation Parties + Proms, central six-event order, phone 424-235-4942, contact name Alex Frost, copy + American English, draft Kosher FAQ. Logo NOT changed (input needed). rc1 outdated | 2026-10-22 |
+| Cities We Serve prefooter (owner request) | **Built and verified locally, awaiting owner review; NOT committed, not deployed.** Dynamic ranked city links above the footer (all public pages except Get a Quote), settings in Header, Footer & Contact | 2026-10-23 |
+| Two-step quote form with saved progress (owner request) | **Built and verified locally, awaiting owner review; NOT committed, not deployed.** Step 1 details & favorites → draft on Continue → Step 2 event → "Request My Quote" completes the same Flamingo inquiry; optional details after submission. Retention period and privacy wording pending | 2026-10-23 |
+| Header, quote steps and mobile CTA (owner request) | **Built and verified locally, awaiting owner review; NOT committed, not deployed.** Balanced step indicator, "Not sure yet" default, fixed mobile "Get a Quote" bar, About out of the header menu, desktop phone beside the quote button (menu/settings via a reviewed migration) | 2026-10-24 |
+| Search dropdowns, hero spacing and authentic treat media (owner request) | **Built and verified locally, awaiting owner review; NOT committed, not deployed.** Dropdowns no longer hidden by the next section; homepage hero fitted to the new headline; real wedding photo and videos on Dippin' Dots, storage photo and dipping clip on DipN' Bananas (media imported by a reviewed migration) | 2026-10-24 |
+| Google Analytics 4 (owner request) | **Built and verified locally (production simulated), awaiting owner review; NOT committed, not deployed.** GA4 `G-NXRRDRV5C2` once in `<head>`, only on catericecream.com / www.catericecream.com in production, never for logged-in administrators; admin-editable (Cater Ice Cream → Analytics); settings via a reviewed add-only migration. No form events | 2026-10-25 |
+| SEO foundation (owner request) | **Built and verified locally (production simulated), awaiting owner review; NOT committed, not deployed.** Yoast metadata for all marketing pages, Organization schema, utility/parameter noindex, clean sitemaps with location lastmod, city indexing needs approved coverage. Live Reading setting still needed. Details: `docs/release/SEO_2026-10-28.md` | 2026-10-28 |
+| QA fixes (owner request) | **Built and verified locally, awaiting owner review; NOT committed, not deployed.** Brand CaterIceCream.com, quote step spacing, form failure handling (live cause pending evidence), indexing/canonical (live Reading setting needed), Yoast location SEO + sitemap, 90224 exclusion, privacy draft + automatic links, Contact card, alt text; graduation image needed. Details: `docs/release/QA_FIXES_2026-10-26.md` | 2026-10-26 |
 
 Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `70479ad` Phase 04 + visual correction pass; `78b50d8` homepage approval + header logo restored to initial Phase 04 size; `6f72409` Phase 05; `215515a` Phase 07; `27005ca` Phase 08. Each was committed at the owner's request after reviewing the staged set. `800e07b` Service Areas admin enhancement; `1823bc2` Phase 06; `776a635` Phase 09; `23935f5` Phase 10 release candidate code (staging mail guard + release tooling, **rc1 code commit**); Phase 10 documentation commit follows it (both hashes recorded in the package `VERSION.json`). Nothing pushed.
+
+---
+
+## SEO foundation (owner request, 2026-10-28)
+
+**Not committed, not deployed.** Backup before the local settings migration: `C:\laragon\backup\catericecream\seo-20261028-20261028-231725\` (database, `wp-config.php`, SHA256SUMS, `seo-report.json`). Full write-up (audit, page mapping with final titles/descriptions, indexing and sitemap rules, location SEO, deployment, rollback, backlog): `docs/release/SEO_2026-10-28.md`.
+
+**Summary**
+- Code (core plugin `src/Seo/{Service,YoastAdapter,LocationSitemap}.php`, `src/Locations/DatabaseRepository.php`, `src/Locations/Admin/LocationsPage.php`): quote/contact query variants and Woo utility pages noindex; Woo utility + duplicate shop page out of the sitemap; Organization fields from Header, Footer & Contact; no SearchAction; Service → #organization + mainEntityOfPage; event WebPage name/description = title/description; city indexability also needs ≥1 enabled production ZIP (`is_served()`, shown in the city screen checklist); locations sitemap + index entry with `lastmod`.
+- Settings/metadata (`dev/tools/content/seo-20261028.php`, dry run + report, add-only; 44 changes locally): separator "|", Organization + mascot Site Icon logo, author/date archives off, category/tag/product taxonomy archives noindex, Events archive title/description, default social image, titles/descriptions for Home, Treats, Service Areas, About, Contact, Get a Quote, four treats and four events, sample post to Draft.
+- Found, not changed: GA4 receives no conversion events (`dataLayer` object pushes without GTM); no contact or phone-click event. Service Areas and California directory overlap. Prefooter links to noindex cities. All in the backlog.
+
+**Verification (automated):** seo-test 19/19 (new), qa-test 17/17 (I4 updated: receipt URLs now noindex), phase05 49/55 (same 6 known fixture-data failures), service-areas admin 40/42 (known B7, H1) + browser 21/21, cities 18/18, phase07 23/23, phase03 46/46, analytics 15/15, client-update 35/35, nav-quote 38/38, media 27/27. Not run: guard test (no Woo/guard/REST change; needs fixtures), phase09 audit (no visual change).
+
+**Not tested:** anything on the live site; Rich Results Test / Search Console (no access); `wp yoast index` (refuses on non-production by design).
+
+---
+
+## QA fixes (owner request, 2026-10-26)
+
+**Not committed, not deployed.** Backup: `C:\laragon\backup\catericecream\pre-qa-fixes-20261026-115200\` (database, `wp-config.php`, `.htaccess`, SHA256SUMS, brand migration reports). Full write-up (causes, files, deployment, live settings, live checks for the form failure, rollback, tests and test records): `docs/release/QA_FIXES_2026-10-26.md`.
+
+**Summary**
+1. **Brand → CaterIceCream.com:** code defaults + `dev/tools/content/brand-name-20261026.php` (65 changes locally; rerun 0). Logos already correct (unchanged). Inquiries, CF7 forms, slugs and URLs untouched.
+2. **Quote step headings:** gap 6 px → 16 px (phone) / 20 px (≥640 px) via `--cic-space`.
+3. **Form failures:** not reproduced locally (all suites pass). Fixed three confirmed client defects in `quote.js`: unrelated rejected promises no longer trigger the error; an answered-but-not-JSON request (e.g. security page) shows "didn’t go through … call us"; a replayed receipt after a lost response now records its conversion once. Live checks listed in the write-up §4.
+4. **Indexing:** reproduced with "Discourage search engines" (live setting to change). Non-production sites are now always noindex (`Seo\Service::protected_environment()`).
+5. **Location SEO:** new `Seo\YoastAdapter` (titles, descriptions, canonical, robots, OG/Twitter, schema pieces inside Yoast’s graph, `cic-locations-sitemap.xml`); state route now uses its own title/canonical (pre-existing bug); city default title includes the state and a default description. Cities stay noindex until their content is reviewed (existing rule; none reviewed yet).
+6. **90224:** production exclusion via the Importer (`compton-90224-20261026.php`); owner to confirm (and decide on 90223).
+7. **Privacy:** no approved policy; editable draft saved (still draft) by `privacy-draft-20261026.php`; footer/form links appear automatically once published.
+8. **Contact card:** two real steps.
+9. **Graduation image:** none available; slot and size specified in the write-up.
+10. **Alt text:** 57 concise descriptions by asset id (`alt-text-20261026.php/.json`).
+
+**Verification (automated):** qa-test 17/17, QA browser 19/19, quote-flow 34/34, phase06 browser 35/35 (enquiry 46/49, submit 25/27: known fixture-data failures), phase05 49/55 (known fixture-data failures; SEO checks updated), client-update 35/35, nav-quote 38/38, media 27/27, header 30/30, refinements 46/46, phase08 24/24 + 11/11, phase07 23/23, phase02 51/51 + 58/58, phase03 46/46, phase04 25/25, cities 18/18, analytics 15/15, phase09 review 7/8 (R8 known) + interaction 7/7, audit 390/1440 axe 0. Tests updated: quote-flow V1 (wait for the message), phase05 L6/L7 (Yoast adapter + environment guard), client-update N1 (no canonical while noindex).
+
+**Not tested:** anything on the live site, real devices, Safari/iOS, Firefox, screen readers.
+
+---
+
+## Google Analytics 4 (owner request, 2026-10-25)
+
+**Not committed, not deployed.** Deployment steps: `docs/release/CHANGESET_2026-10-22_23.md` (group 7). No database backup was taken before the local settings migration: it only added one new option (`cic_analytics`), which `wp option delete cic_analytics` removes.
+
+**Inspection before building (what was found)**
+- **Code:** no Google tag, gtag, GTM container, Measurement ID or consent code in the theme, the core plugin or the MU plugins.
+- **Plugins:** active ACF, core plugin, CF7, Flamingo, UpdraftPlus, WooCommerce, Yoast SEO 28.7 (Akismet inactive). None of them outputs a Google tag. No Site Kit, GTM4WP, MonsterInsights, header-script plugin or consent plugin is installed. `woocommerce_analytics_enabled` is WooCommerce's internal admin reports, not Google Analytics.
+- **Database:** no `googletagmanager`, `gtag(` or `GTM-` in options, post content or post meta.
+- **No central tracking settings existed**, so the integration is a new core-plugin module (as requested).
+- **Existing dataLayer use:** `quote.js` already pushes keys-only quote events (`quote_step_view`, `quote_step_completed`, `quote_validation_error`, `coverage_result`, `quote_submitted`) to `window.dataLayer` when it exists. They are unchanged. Once the tag is live, these objects sit in the dataLayer; they are not gtag commands, and no event command was added.
+- **Receipts in URLs:** the quote/contact confirmation uses `?received=` / `?sent=` (random, non-personal, expiring receipts). GA4 would otherwise record them through the page load, history-change page views (default enhanced measurement) and the next page's referrer.
+
+**What was built**
+- `CIC\Analytics\Service` (core plugin): prints the tag once (`wp_head`, priority 10, after enqueued head scripts so a future consent plugin's defaults come first). Conditions, all required:
+  - enabled + valid Measurement ID (`G-` pattern);
+  - `wp_get_environment_type() === 'production'`;
+  - both the site address host and the requested host are `catericecream.com` or `www.catericecream.com`;
+  - not a logged-in administrator (`manage_options` or super admin);
+  - a public front-end page (not wp-admin, AJAX, REST, cron, CLI, feed, preview, Customizer, embed).
+- **Snippet:** exactly the approved snippet, plus ONE line between `gtag('js')` and `gtag('config')` that sets `page_location` and `page_referrer` with `received`/`sent` and the `#fragment` removed. `window.dataLayer = window.dataLayer || []` keeps any existing dataLayer; no consent state is set, so existing/future consent controls stay in charge.
+- `CIC\Analytics\Settings`: **Cater Ice Cream → Analytics** (administrators only): on/off, Measurement ID (validated; junk keeps the previous value), live status line ("Off on this site: the environment is local"), and a warning when an active plugin can add its own Google tag (Site Kit, GTM4WP, MonsterInsights, ExactMetrics, header-script plugins, Google for WooCommerce, ...). Option `cic_analytics`, code defaults off/empty (the ID is not hardcoded).
+- **Migration** `dev/tools/content/analytics-20261025.php [dry-run] [replace-id]`: duplicate-plugin pre-flight, then adds `{enabled: 1, measurement_id: G-NXRRDRV5C2}` only when the option does not exist; an existing value (another ID or "off") is reported and kept (`replace-id` replaces only the ID). Local run: dry run → apply → rerun "already done".
+
+**Files**
+- New: `wp-content/plugins/cater-ice-cream-core/src/Analytics/{Service,Settings}.php`; `dev/tools/content/analytics-20261025.php`; `dev/tests/analytics/{analytics-test.php,browser-test.cjs}`.
+- Changed: `wp-content/plugins/cater-ice-cream-core/src/Plugin.php` (registers the service); docs (`BUILD_STATUS.md`, `CLAUDE.md`, `docs/release/{CHANGESET_2026-10-22_23,ADMIN_GUIDE}.md`).
+
+**Verification actually performed (automated, 2026-10-25)**
+- `dev/tests/analytics/analytics-test.php`: **15/15.**
+  - Rules: 12 environment/host combinations (only production on the two hosts is eligible; staging, development, local, `.test`, localhost, staging host, IP and look-alike hosts are not); off / invalid ID; sanitising (a found bug was fixed: tag-stripping turned junk input into an empty ID); snippet = approved snippet + one redaction line, no consent command.
+  - This local site, real HTTP: **no** tag, GTM or ID on 12 pages (home, both treats, two events, Get a Quote with and without a receipt, Contact, About, Service Areas, a city page, a 404).
+  - Simulated production (temporary MU plugin + per-run header, removed afterwards): **exactly one** installation inside `<head>` on the same 12 pages; one on `www`; **none** for staging, development, a `.test` request host, a staging host, localhost or a wrong token; none on `wp-login.php`, REST and `/feed/`; **none for a logged-in administrator** (admin bar present).
+  - The admin screen renders for an administrator with the saved ID and the local status.
+- `dev/tests/analytics/browser-test.cjs` (Edge, gtag.js answered by a local stub, nothing sent to Google): **16/16.** Local: no tag element, no `gtag`, no Google request. Simulated production: one tag element in `<head>`; a pre-existing dataLayer entry kept; gtag commands exactly js → set → config; clean `page_location` (receipt and fragment dropped, context key kept) for `?received=` and `?sent=`; `page_referrer` without the receipt; the existing quote pushes still arrive, carry keys only and add no gtag command; staging / `.test` host: no tag; page height and headline box identical with and without the tag; no console errors.
+- Regression: phase02 design 51/51; phase09 review 7/8 (R8 = the known production location data, unchanged); debug log has no new entries.
+
+**Not tested / not run**
+- `--real-gtag` mode of the browser test (loads Google's real library with every hit blocked) was **not run**, because it contacts Google from the `.test` site; so what Google's own library does with the existing quote dataLayer objects is not verified here.
+- No real production request, Realtime report or Tag Assistant check (possible only after deployment); phase01 guard test not run (needs fixtures; no WooCommerce/REST change).
+
+**Owner decisions / GA property settings (outside the code)**
+- Privacy policy: mention Google Analytics before or at launch (the policy is still a draft). Consent banner: none exists; decide whether one is wanted (the tag respects one added later).
+- Recommended in GA4 Admin: Data streams → Enhanced measurement → turn **off "Form interactions"** (otherwise GA sends automatic form_start/form_submit events; conversions are planned separately); Redact data → query parameters `received`, `sent` (second layer) and keep email redaction on; review Google signals and data retention.
+
+---
+
+## Search dropdowns, homepage hero and authentic treat media (owner request, 2026-10-24)
+
+**Not committed, not deployed.** Checkpoint before the media import: `C:\laragon\backup\catericecream\pre-treat-media-*\` (database, `wp-config.php`, `.htaccess`, SHA256SUMS). Deployment steps: `docs/release/CHANGESET_2026-10-22_23.md` (group 6).
+
+**1. Search dropdowns behind the next section (cause and fix)**
+- **Cause:** every composition section's content layer is `position: relative; z-index: 1` (`compositions.css`: `.cic-comp > .cic-container`, so content sits above decorative balloons), and each one is a separate stacking context. The location suggestions (`z-index: 20`) and the date picker are trapped inside their section's layer, and the next section's layer (also `z-index: 1`, later in the page) paints over them; at 1440 px it covered 4 of 6 home-hero suggestions. `home.css` intended `z-index: 3` for the hero search wrapper, but the more specific composition rule overrode it. No `overflow` clipping was involved (sections clip only horizontally) and no decorative overlay intercepted clicks.
+- **Fix:** `.cic-comp:has(.cic-ac-list:not([hidden]), .cic-dp:not([hidden])) { z-index: 2; }`. Only the section that shows an open popover is lifted, one step above the following sections and below the sticky header (50) and the mobile quote bar (40). It applies to every template using the shared search/starter fields; nothing changes while no popover is open.
+
+**2. Homepage hero after the headline change**
+- **Cause:** the new headline "Your Special Occasion. / Our Special Treat." is 11.25 em per line (the approved copy was about 6.6 em). At the 72 px desktop size each line wrapped (4 lines), the text column grew taller than the photo, and the search card's intentional 2.5 rem overlap landed on the intro ("parties…" was hidden at 1440 px).
+- **Fix (`home.css` ≥ 900 px, `section-hero.php`):**
+  - The text column keeps the 2.5 rem overlap band free, so the intro can never sit under the card whatever the copy.
+  - The headline shrinks just enough for each line to fit its column. The longest line's character count comes from the template, using about 0.53 em per character of the display face.
+  - It never exceeds the Design System H1 size or goes below its mobile size (44 px); the line height keeps the token ratio.
+- **Results:** two lines at 1440 (52 px) and 1280 (48 px); three or four lines at 1024–1100 and 900 px (44 px). Phones and tablets are unchanged (four lines at 44 / 54 px, already clear of the card).
+
+**3/4. Authentic treat media**
+- **Supplied files found:** all five, in `handoff/Cater_Ice_Cream_WebP_Assets/treats/` (none missing).
+- **Measurements:** the wedding photo is 1600×1066 and the storage photo 1200×1600. The videos are H.264/AAC MP4:
+  - serving: 45.4 s, coded 1024×576 with a 90° rotation, so 576×1024 portrait;
+  - birthday: 24.1 s, 576×1024;
+  - banana dipping: 99.9 s, coded 224×128 with a 90° rotation, so 128×224 portrait (14 MB).
+- **New "Photos and videos" section** (`media`) in the shared split composition after Product detail:
+  - Fields: ACF Free (image, file, textarea), heading, intro, 4 slots of photo/poster + optional video + caption. `Fields::MEDIA_SLOTS`, `ViewModel::media()`, `template-parts/treat/section-media.php`, `compositions.css` media block.
+  - It renders only when filled in, so Classic Ice Cream and Frozen Yogurt keep their compositions.
+- **Video player:**
+  - Native `<video controls playsinline preload="none">` with a WebP poster from the same footage, width/height and aspect ratio reserved, named by its caption; no autoplay, muted or loop.
+  - Only one video plays at a time (`main.js`).
+  - Low-resolution clips (< 360 px wide) are capped at 1.5× their size.
+- **Placements:**
+  - **Dippin' Dots:** the wedding setup photo replaces the AI macro in Product detail (the section about serving arrangements and staffed service; half-width). Photos and videos: serving video first (largest), birthday video second.
+  - **DipN' Bananas:** "Behind the scenes", with the storage photo first and the dipping clip as a small secondary player. No banana assets on the Dippin' Dots page and vice versa.
+- **Build and import:**
+  - `dev/tools/content/build-treat-media.cjs` (local, headless Edge): photos to WebP at their own size; the wedding photo is cropped to leave out the sign with the couple's names and date; posters from real frames at the video size, rotation applied by the browser; videos copied unchanged; SHA256SUMS.
+  - Package: `C:\laragon\release\catericecream\media-20261024-treats\`.
+  - `dev/tools/content/treat-media-20261024.php [dry-run] [source=…]` imports by stable asset key (`_cic_asset_id`):
+    - it checks checksums and never duplicates on reruns;
+    - it stores the rotated display size (`_cic_video_display`) and links posters as video thumbnails;
+    - it fills fields only while empty or still seeded.
+  - Local run: dry run, import (#1031–#1038), re-run "already done"; one attachment per key.
+
+**Verification (actual results)**
+
+| Check | Result |
+| --- | --- |
+| `dev/tests/media/browser-test.cjs` (new) | **27/27**, covering:<br>• **dropdowns:** suggestions never covered on 6 templates (home hero, service-areas hub, city hero, event starter, two treat starters) × 1440/768/390; lowest visible option selectable by mouse and touch; keyboard ArrowDown+Enter; date pickers fully clickable; only the section with an open popover is lifted, then restored;<br>• **hero:** intro clear of the card at 1440/1280/1100/1024/900/768/390, two lines at 1440/1280, never below 44 px, no overflow;<br>• **media:**<br>&nbsp;&nbsp;– wedding photo in Product detail; section order; video order, posters and attributes; portrait 9:16;<br>&nbsp;&nbsp;– no video bytes while loading or scrolling; pressing play plays the serving video (decoded 576×1024), and only it is fetched; the second video pauses the first; focus + Space plays;<br>&nbsp;&nbsp;– axe 0;<br>&nbsp;&nbsp;– bananas: storage photo first, not the hero; no cross-mixing; banana clip ≤ 192 px and plays at 128×224;<br>&nbsp;&nbsp;– 390 px media fit, captions ≥ 13 px;<br>&nbsp;&nbsp;– Classic/Yogurt unchanged; no JS errors. |
+| Updated / re-run suites | Phase 04 browser 22/22, home 25/25 (E2 now counts image-pack masters only: still 57); header 30/30; nav-quote 38/38; refinements 46/46; Phase 07 server 23/23 (split sections now include media), browser 13/13, admin 7/7; Phase 03 catalog 46/46 (File added to the ACF Free type list); Phase 02 design 51/51; Phase 09 review 7/8 (R8 = production location data, as before) |
+| Phase 09 | interaction **7/7**; audit 390 px and 1440 px, 20 pages each: axe-core 0, no overflow, no small targets, max CLS 0.058 / 0.048; treat pages ≈1.0–1.3 MB on load with no video bytes; only the deliberate 404 link fails |
+| Admin | Treat page composition → Photos and videos shows the heading, intro, posters, video files (descriptive titles) and captions, all editable; Product detail shows the wedding photo |
+| Manual visual review | Screenshots of both media sections and the Dippin' Dots detail at 1440/390 and the hero at seven widths. Found and noted: blank hero insets in some headless first-paint screenshots, which the images repaint correctly on reload (a headless Edge artifact, not a page fault) |
+
+Not tested: real phones, iOS Safari (playsinline and rotation are standard there, but not exercised), Firefox, screen readers, real network speeds. The videos have no caption/subtitle track (none supplied; they show service and decor rather than speech, but a track is needed if spoken content matters).
+
+**Owner decisions:**
+- confirm publishing permission for the couple and for the children (serving clip; the birthday clip shows a child's first name on the cake and the banner);
+- keep or undo the crop of the wedding photo's name sign;
+- supply a higher-quality banana clip.
+
+---
+
+## Header, quote steps and mobile CTA (owner request, 2026-10-24)
+
+**Not committed, not deployed.** Checkpoint before the menu/settings change: `C:\laragon\backup\catericecream\pre-header-nav-20261024-194934\` (database, `wp-config.php`, `.htaccess`, SHA256SUMS). Deployment steps: `docs/release/CHANGESET_2026-10-22_23.md` (group 5).
+
+**What changed**
+- **Step indicator** (`quote.css` progress block; `Forms::steps_tag()`; `quote.js` `show()`):
+  - Layout is [Step 1] — flexible connector — [Step 2]. Step 1 keeps its natural width; Step 2 takes the rest and draws the connector before its button, so the gaps on both sides of the line are equal (`--cic-qf-step-gap`, 12 px, 8 px on phones).
+  - Circles, labels and line share one centre line. Long labels wrap on phones (max 7.5rem, 13 px) instead of overflowing.
+  - States are unchanged (current / completed / upcoming). The current step keeps `aria-current="step"`; a completed step now also reads "(completed)" to screen readers.
+- **Default treat** (`quote.js`, `quote.css`):
+  - "Not sure yet — help me choose" is selected whenever no valid treat is chosen: on a fresh form, and again when the last treat is removed. It also cannot be unticked into "nothing selected".
+  - An incoming treat (link from a treat page, session context) or a restored choice wins. Invalid incoming keys are ignored.
+  - This is page state only: nothing is sent before Step 1 Continue, and the draft and submission carry exactly the visible choice.
+  - Selected look: 2 px border, soft surface and a ✓ box, matching the tiles.
+  - Without JavaScript the old single-page fallback is unchanged (an explicit choice is still required).
+- **Mobile "Get a Quote" bar** (`template-parts/footer/mobile-quote.php`, `cic_theme_mobile_cta_url()`, `main.css` §10d, `main.js`):
+  - Shown below 600 px only (the same breakpoint that hides the header quote button, so there is never a second bar), on every public page except Get a Quote (form and success state).
+  - A normal link to the Get a Quote page permalink. The bar is the last element of the page with `position: sticky; bottom: 0`, so it reserves exactly its own height at the end of the page and never covers the footer. Its bottom padding adds `env(safe-area-inset-bottom)`.
+  - Hidden instantly while the menu drawer or any open dialog (e.g. the date picker) is on screen, or while a form field has focus. It is also hidden in print.
+  - Setting: Header, Footer & Contact → Mobile navigation → "Phones: fixed Get a Quote button" (`mobile.sticky_quote`, default on, so no migration is needed).
+- **About out of the header menu:** removed from the menu assigned to the header (local item #32) by `dev/tools/content/header-nav-20261024.php`. The About page, its URL and the footer link (#287) are unchanged. The fresh-install menu plan (`Design\Cli::navigation_plan()`) matches.
+- **Desktop phone beside the quote button** (`site-header.php`, `main.css` §8):
+  - The existing main-row call action (`main.show_call`) is now "Desktop: phone number beside the quote button": icon plus number, desktop only, immediately before "Get a Quote". It reads the central `business_phone` setting; the accessible name is "Call 424-235-4942".
+  - Default on in code; the saved value is turned on by the migration.
+  - From 1200 px the number is shown. Between 1024 and 1199 px the menu, number and button do not fit on one line beside the approved 190 px logo (measured shortfall 70 px at 1024), so the same link is a 44 px round phone icon there.
+  - Mobile and tablet headers are unchanged: menu button, and the call action in the drawer.
+- **Also fixed:**
+  - With the owner's Media Library logo, WordPress core gave the header logo `fetchpriority="high"`, competing with the hero photo (phase04 D4). The logo now uses `fetchpriority="auto"`.
+  - Test corrections for the owner's logo (phase02 H4), the shorter menu (phase02 T14.5, phase04 N1, phase08 B7/P6.2), the treat default (phase06 U1), and fixed pauses replaced by waits in refinements L7/L9 and phase04 E1 (the local server takes 1–1.7 s per REST request).
+
+**Migration (menu and settings only):** `wp eval-file dev/tools/content/header-nav-20261024.php [dry-run] [update-phone]`.
+- **Actions:**
+  - removes top-level header-menu items that point to the About page;
+  - turns on `main.show_call` if it is saved as off;
+  - changes `business_phone` only if it still holds the previous number (818) 726-9700 (any other number is reported and kept unless `update-phone` is given).
+- **Properties:** WordPress APIs only (any prefix); idempotent.
+- **Local results:**
+  - dry run listed the 2 changes;
+  - the apply run removed #32 and turned the phone on;
+  - the re-run reported "already done";
+  - the old-number and unknown-number branches were checked with the value restored afterwards.
+
+**Verification (actual results)**
+
+| Check | Result |
+| --- | --- |
+| `dev/tests/nav-quote/browser-test.cjs` (new) | **38/38**, covering:<br>• step indicator geometry at 1440/768/390 (equal gaps, one centre line, no overflow or clipping, ≥ 13 px labels);<br>• Step 1 / Step 2 / back states with `aria-current` and "(completed)";<br>• fresh default, treat ↔ "Not sure yet" switching, last treat restores the default, no request before Continue;<br>• draft = "Not sure yet", then two treats autosaved to the same draft, submitted record and summary = the two visible treats;<br>• incoming treat kept, invalid one ignored;<br>• About gone from the desktop menu and drawer (order kept), About page 200 + footer link;<br>• phone before the button with the exact `tel:` URL and name;<br>• no text wrapping or overlap at 1024/1100/1199/1200/1280/1440 and in the compact header (1440, 1024);<br>• icon-only form below 1200; dropdowns; 768/390 headers unchanged;<br>• mobile bar: pinned, correct link, ≥ 44 px, rests below the footer, keyboard reachable, hidden while typing, drawer or date picker, shown on event/treat/contact/service-area pages, absent on Get a Quote, absent at 768/1440, works without JavaScript;<br>• axe-core 0 in the header and the bar; no JS errors; cleanup done. |
+| Updated suites | quote flow **34/34**; Phase 06 browser **35/35**; header **30/30**; client update **35/35**; refinements **46/46**; Phase 04 browser **22/22**; Phase 08 browser **11/11**; Phase 02 browser **58/58**; Phase 09 interaction **7/7** (first run caught a real issue, fixed: the bar slid away over 0.2 s, so a focused Contact field was briefly covered at 390 px; hiding is now instant) |
+| Server-side | Phase 02 design **51/51**; Phase 04 home **25/25**; Phase 08 pages **24/24**; Phase 03 catalog **46/46**; Cities **18/18**; Phase 06 server 46/49 and submission 25/27, Phase 09 review 7/8 (the same production-location-data cases as before: B1, C2, C5, S4, S12, R8) |
+| Phase 09 audit | 390 px and 1440 px, 20 pages each: axe-core 0, no overflow, no small targets, max CLS 0.081 / 0.048; only the deliberate 404 link fails |
+| Manual visual review | Screenshots of the step indicator (320/390/600/768/1440, both steps), header (1024/1200/1440 and compact) and the bar (390 top and footer) inspected. Fixed: "Your event" wrapped needlessly at 390 px; the header wrapped at 1024–1179 px with the full number |
+
+Not tested: real iPhones (the safe-area inset only takes effect where the browser reports one; with the current viewport meta, Safari keeps content out of the home-indicator area itself), Safari, Firefox, screen readers, the 768 px full audit, the WordPress toolbar on phones with the bar (the toolbar is at the top). The guard test was not run (no WooCommerce, guard or REST change in this task; its fixtures are not created).
+
+**Found during this task (not changed):** Yoast SEO 28.7 was installed and activated on 2026-10-24 (20:43) outside this task. By design, the site's own SEO adapter (`CIC\Seo\Service::adapter()`) steps aside when an SEO plugin is active. Yoast now outputs titles, robots, schema and sitemaps. Local pages show no canonical or meta description and are noindex because search engines are discouraged locally. Yoast does not apply the city-page review rule (noindex until published + Index + reviewed content), the location sitemap or event Service schema. Owner decision needed before deployment (see Outstanding decisions in the changeset).
+
+---
+
+## Two-step quote form with saved progress (owner request, 2026-10-23)
+
+Deployment files, storage, admin and notification behavior: `docs/release/CHANGESET_2026-10-22_23.md`. **Not committed, not deployed.** Checkpoint: `C:\laragon\backup\catericecream\pre-quote-drafts-20261023-223648\` (database, `wp-config.php`, `.htaccess`, SHA256SUMS).
+
+**What changed**
+- `CIC\Enquiries\Drafts` (new):
+  - Draft-only REST routes `cic/v1/quote-draft` (Step 1 Continue: validate Step 1 on the server, then create or update) and `cic/v1/quote-draft/save` (autosave), protected by same-origin + `X-CIC-Draft`.
+  - Access: HttpOnly/Secure/SameSite=Strict cookie `cic_qd` (only an HMAC is stored) or the in-page client key; numeric ids never authorize.
+  - Allowlisted, length-limited fields; honeypot + signed render time + per-IP limit for creation, per-draft save limit.
+  - Idempotent creation through a `cic_submissions` row (`form = draft`, channels `skipped`, no Flamingo id).
+  - Revision claims (atomic conditional UPDATE) under a per-draft `GET_LOCK` (name includes the prefix).
+  - `complete()` builds exactly the arguments CF7's Flamingo module would store and saves them on the same message; then `_cic_stage = submitted`, revision raised to the maximum.
+  - Optional details (notes, theme, dietary) for 24 hours.
+  - "At a glance" summary only for the owning browser.
+  - Retention cleanup only when `draft_retention_days` is set.
+- `Pipeline`: completes the visitor's incomplete draft instead of storing a new message; the response adds the glance summary and the optional flag; `cic_draft_key` is stripped from stored data. `Workflow::init(…, keep_status)` / `set_context()`: a completed draft keeps a status the team set. `Store`: draft-key rows deleted after a day (orphan rule skips them); `receipt_flamingo()`. `Notifier` maintenance runs the (opt-in) draft cleanup. `Settings`: `draft_retention_days` (0 = not set).
+- `Forms`:
+  - two-step markup;
+  - six occasion tiles in the central order plus "Something else" as a secondary chip;
+  - venue, start time and duration as a compact secondary row;
+  - consent line ("By continuing, you agree that we may contact you about your event.") with the Privacy Policy link once published;
+  - "Request My Quote";
+  - hidden `cic_draft_key`;
+  - notes, theme, dietary and flavours removed from the main steps; the `[cic_summary]` tag removed.
+- `quote.js`:
+  - nothing is sent before Continue;
+  - Continue saves Step 1 (button disabled, error with "Try again", retries reuse the key);
+  - autosave of text fields on blur and selections after 400 ms, with full snapshots, strictly increasing revisions, one request at a time, quiet retries and no saving messages in the steps;
+  - coverage pre-check moved to "Request My Quote";
+  - autosave stops on submission;
+  - confirmation fills "Your event at a glance" and autosaves the optional details with discreet saving / saved / retry feedback.
+- Confirmation component: glance box and optional section (server-rendered on reload only for the owning browser). Admin: Incomplete / Submitted pills, Completion filter, Completion box, last activity, no New count for drafts, CSV `stage`. CSS: `quote.css` two-step block.
+- Draft Privacy Policy: flagged "Quote requests and saved progress" section added by `dev/tools/content/privacy-quote-drafts.php` (still a draft; wording and retention need approval).
+
+**Verification (actual results)**
+
+| Check | Result |
+| --- | --- |
+| `dev/tests/quote-flow/browser-test.cjs` (new) | **34/34**, covering:<br>• Step 1 layout (fields, heading, consent, no optional fields, no capture notice; four treats on one desktop row; name/email side by side);<br>• typing sends and stores nothing;<br>• invalid email: client error, and the server also rejects (422);<br>• a failed Continue shows an error with "Try again", then exactly one Incomplete draft;<br>• HttpOnly/Secure/Strict cookie, nothing in the URL or storage;<br>• six occasions in order on one row, no clipped labels; field order and secondary row; link values kept;<br>• autosave updates the same draft with the newest value and no per-keystroke requests; no saving messages; an older save is ignored;<br>• Back keeps values and edits update the same draft;<br>• another browser is rejected (no cookie, guessed key, missing header, forged cookie with the real id);<br>• three simultaneous Continue requests produce one inquiry;<br>• an excluded/ambiguous ZIP stops submission;<br>• the final submission completes the same inquiry with the latest values;<br>• "Your event at a glance" shows contact, event and treats (no empty rows, no booking claims);<br>• exactly one operator email and one acknowledgement (Mailpit, synthetic addresses);<br>• a late autosave cannot revert or change the submission;<br>• optional details saved to the same inquiry with no new mail, and status/assignee untouched;<br>• reload shows the summary only to this browser, not in another browser;<br>• admin: Incomplete pill, last activity, filter, Completion box (never "abandoned"), then Submitted with the optional details;<br>• 390 px: no overflow, stacked contact fields, two treats per row, occasions in two rows of three;<br>• axe-core: no violations in Step 2 or the confirmation; no JS errors; cleanup done. |
+| `dev/tests/phase06/browser-test.cjs` (updated to two steps) | **35/35**: entry points, Step 1 errors, treat rules, phone preference, Continue, Other occasion / date not set, Compton blocked, unknown ZIP asks for the venue city, Back/history, double-click → one enquiry, saved context, analytics without personal data or draft key, refresh, keyboard, network failure + retry → one enquiry, mobile, no-JS (both steps on one page; server errors; saved once), Contact form, mail failure, admin list/retry/workflow/export/permissions, store-before-notify |
+| Other suites | Phase 06 server 46/49 (B1, C2, C5 = production location data, as before); submit 25/27 (S4, S12, same cause); refinements **46/46** (updated to the two steps: location labels, date picker, touch, icons, map, one complete submission); client update **35/35** (logo widths now read from the settings: owner set 135 px mobile; the acknowledgement keeps the owner's edited sign-off); header **30/30** (baseline reads the configured logo widths); Phase 09 interaction 7/7; audit at 1440 px: 20 pages, axe 0, no overflow, no small targets |
+| Manual visual review | Step 1, Step 2 and the confirmation at 1440 and 390 px. Fixed: double divider under "Not sure yet"; misaligned secondary labels; truncated duration placeholder; an empty "Serving" row (CSS `display:grid` overrode `[hidden]`); per-field "(optional)" in the optional section |
+
+Not tested: Safari, Firefox and real devices, screen readers, real email delivery, the 390/768 px full audits for this change (1440 run only), behavior with cookies fully blocked (covered by design through the in-page key, not exercised in a browser).
+
+**Outstanding decisions**: the retention period for incomplete inquiries; approval of the privacy wording and publication of the policy (the form shows the Privacy Policy link only once published); confirmation of the production location data loaded on 2026-10-21.
+
+---
+
+## Client update log (2026-10-22)
+
+Content handoff notes, outstanding inputs and editing steps: `docs/content/CLIENT_UPDATE_2026-10-22.md`. Photo inventory: `docs/content/PHOTO_INVENTORY.md`. **Not committed, not deployed.** Checkpoint: database + `wp-config.php` + `.htaccess` backup `C:\laragon\backup\catericecream\pre-client-updates-20261022-104440\` (SHA256SUMS) and git tag `checkpoint-pre-client-updates` (= `cda2878`).
+
+**What changed (code)**
+- Central event order = each event's `menu_order` (Order field). `Catalog::selectable_events()` already used it; added `Catalog::event_rank()` (treat-page occasions sorted by it in `ViewModel::treat()`), `Catalog::event_icon()` (+ `cic_event_icon` field, defaults `EVENT_ICONS`) used by the quote tiles and treat occasion badges, and a theme `wp_nav_menu_objects` filter (`inc/setup.php`) that re-sorts menu links to events into the central order and hides links to unpublished events. The pairing "Order on this treat" number no longer affects the public treat page (relabelled).
+- New compositions `graduation` (hero-split + grad-cap/stars/confetti, values, starter, Birthday treat cards, stories, planning band, quote panel) and `prom` (Wedding hero card with starlight line, ribbon, feature with stars, brand treats, gallery with star corners, planning band, framed quote panel) in `Fields::EVENT_LAYOUTS`/`EVENT_LAYOUT_SECTIONS` and `single-cic_event.php`; motifs `grad-cap`, `stars`, `starlight` and icons `grad-cap`, `diploma`, `mirror-ball` (+ `party`, `clock` in the admin icon list); CSS in `details.css`/`compositions.css`. Design System presets `graduation` and `prom` (existing tokens only; gold decorative only).
+- Six-card grids: homepage `.cic-event-cards--5/--6`, Service Areas `.cic-occasions--n5/--n6`, Frozen Yogurt `.cic-occ-cards--n5/--n6` → 3 per row at desktop.
+- Event SEO through the existing SEO service: `cic_seo_title` / `cic_seo_description` fields (fallback title/excerpt), canonical, breadcrumbs and a Service schema with `ViewModel::provider()` (name, legalName, url, telephone; also used by city pages).
+- Contact: `Config` defaults phone `424-235-4942`, `business_contact` `Alex Frost` (now a public, editable field; `Contact::get()['contact_name']`); `{contact_name}` token in About "Meet" and Contact call title. Enquiry settings: new optional `reply_to` for customer acknowledgements, `{contact_name}` placeholder, new acknowledgement defaults; operator subject/recipient unchanged.
+- Homepage FAQ slots: `cic_faq_{i}_draft` (hidden when on; `ViewModel::faqs()`) and `cic_faq_{i}_note` (internal).
+- Customer-facing strings: American English, "inquiry", friendlier confirmations ("Thanks! We received your quote request."), "check" instead of "tick".
+- `SeedData`: Graduation Parties + Proms (order 30/40; Corporate 50, Anniversary 60), 8 new pairings, copy and spelling parity for fresh installs.
+- `dev/tools/content/client-update-20261022.php` (CLI, idempotent, conditional): seeder run, menu_order, copy rewrites only where the old seeded text is unchanged, spelling, pairings via `Pairings::fill_seeded()`, alt text, Kosher draft, acknowledgement texts equal to old defaults, menu links, stored CF7 markup copy. Policy drafts and historical enquiries untouched.
+
+**Database changes (local)**: events #763 Graduation Parties and #765 Proms; Corporate/Anniversary order 50/60; 8 pairings; 2 primary-menu links; copy/spelling in page, event, treat and pairing fields; 20 alt texts; homepage FAQ 4 (draft); acknowledgement subjects/bodies.
+
+**Verification (actual results)**
+
+| Check | Result |
+| --- | --- |
+| `dev/tests/client-update/browser-test.cjs` (new) | **35/35**: order in header dropdown, homepage cards (3 per row), hero search (+Other), footer, Events page, quote tiles (+Other last), three treat pages, Service Areas, a city page (O1–O9); both new pages at 390/768/1440: one H1, distinct title/description/canonical, own composition and motifs, every quote action preselects the event, no overflow or broken images (N1–N4); Anniversary works (N5); all `tel:` = `+14242354942`, Alex Frost on About/Contact with Frosty Yummy LLC kept, logo 190/136 px (C1–C4); a Graduation starter → quote form with Graduation preselected, submitted once to Flamingo (event key `graduation`), one operator notification to the configured (synthetic) recipient and one acknowledgement in Mailpit with "We got your quote request", "Event: Graduation", Alex Frost sign-off and the phone; no Reply-To on the acknowledgement, operator mail replies to the customer (Q1–Q6); no JS errors. Test records and mail removed |
+| Content tool | dry run, real run, then re-runs: no further changes (idempotent) |
+| HTML spot checks | 19 key pages 200, no new PHP log lines; visible text of those pages has no "Yan", old number or British spellings; no "$500"/minimum text; Kosher question not public; both new pages in the `cic_event` sitemap provider (sitemaps stay off while `blog_public=0`) |
+| Updated expectations (event count 4→6, pairings 16→24, phone, presets 8→10, new copy) | Phase 03 server 46/46 + admin 22/22; Phase 04 server 25/25, browser **22/22** (E1 passed this time), admin fields **6/6** (test now waits for the save promise: it could close the browser mid-save); Phase 07 server 23/23 + admin 7/7 + browser 13/13; Phase 08 server 24/24 + browser 11/11; Phase 02 server 51/51 + browser 58/58 |
+| Unchanged suites | guard 69/69 (fixtures created and deleted); header 30/30; Phase 09 interaction 7/7; Phase 09 audit at 390, 768 and 1440 px (now 20 pages incl. the new two): axe-core 0 violations, no overflow, no undersized targets, CLS ≤ 0.064 (390 px; 0.057 at 768, 0.047 at 1440), local LCP 0.52–2.15 s (indicative only) |
+| Manual visual review | Screenshots of both new pages at 390 and 1440 (`dev/tests/output/client-update/`). Found and fixed: the Graduation starter strip overlapped the value row (negative margin meant for Birthday's hero) and the grad-cap motif overlapped the eyebrow on mobile; the Prom feature inset duplicated the Dippin' Dots photo |
+
+**Logos applied (owner instruction, later on 2026-10-22):** `dev/tools/brand-logos.php` imported the supplied `logo-main.webp` (#870) and `logo-transparent.webp` (#871) into the Media Library (SHA-256 identical to the supplied files) and assigned them through the central layout settings (header logo; footer logo; footer plate off). `main.css`: logo images keep the approved 2:1 box (`aspect-ratio`, `object-fit: contain`) and the footer logo box keeps the plate padding without the plate. Measured before/after at 1440/768/390 and compact: header 145/118/118 px, logo 190×95 / 136×68 / 136×68 / compact 140×70, footer logo 144×72 in 168×88, footer heights 229/227/434 px: identical. Footer box transparent. Screenshots `dev/tests/output/client-update/after-*`. Header test 30/30 and client-update test 35/35 rerun after the change. Favicon, emails and other images untouched.
+
+**Cities We Serve prefooter (owner request, 2026-10-22/23):** one shared component above the footer on every public page except Get a Quote.
+- Data: `DatabaseRepository::served_city_ranking()`, one query for all eligible city–ZIP rows (city published + index status "index", city/link/ZIP production, supported state), each relationship passed through the existing `Coverage::effective()`; a city counts its DISTINCT ZIPs whose effective status is "enabled" (so globally disabled ZIPs such as the Compton exclusions, disabled links and manual-review/unreviewed links never count; a shared ZIP counts once per city whose own link is served). Sorted by count desc, then name; cached with `Tables::cached()` under the location cache version (bumped by every admin/import write). New `wp cic locations flush-cache` for direct database imports. `ViewModel::served_cities()` passes only labels ("Los Angeles, CA") and canonical URLs (`DatabaseRepository::url()`); counts are never output.
+- Settings: Header, Footer & Contact → **Cities We Serve** (`Layout` section `cities`: enabled, heading, count 4–60 default 20, link label); empty heading/label fall back to the defaults.
+- Markup/CSS: `<section aria-labelledby>` + `<h2>` + `<ul>` of normal links + "View all service areas" → /service-areas/; footer tokens (same palette, width), hairline divider, wrapping on desktop, two columns at phone width, ≥44 px targets, underline + outline focus, no images/cards/motion (`main.css` §10a).
+- Note: "indexable" here = the city's **Index** setting (as requested). The repository's stricter `is_indexable()` (also requires reviewed city content, used for the city pages' robots tag and sitemap) is currently false for all 202 cities because no city content has been reviewed yet, so those linked city pages still render `noindex`.
+- Also found: on 2026-10-23 the owner saved Header, Footer & Contact with new logos #874 `logo-colour-400` / #875 `logo-white-800` (footer width 190, mobile 135) from a form opened before the new tab existed, which saved the section as off with blank texts. The owner's logo choices were kept; only the `cities` section was reset to its defaults (on).
+- Checks: `dev/tests/cities/cities-test.php` **18/18** (ranking equals an independent SQL DISTINCT count for all 202 cities, order included; temporary draft/noindex/fixture/unserved cities excluded; Compton ZIPs + disabled + manual-review links do not inflate a count; cached until `flush-cache`; an admin override (`CityStore::set_override`) refreshes it; labels/canonical URLs resolve to the city route; homepage HTML 20 links, before the footer, no numbers; absent on Get a Quote, present on event/treat/Service Areas/city pages; settings heading/count/label/disable; test rows removed, settings restored). `dev/tests/cities/browser-test.cjs` **14/14** (390/768/1440: 20 links, no overflow, ≥44 px targets, footer width/background, divider, no images/animation; two columns at 390, wrapping at 768/1440; visible keyboard focus; link contrast 10.32:1; axe-core 0 violations in the section; footer content, logo file and geometry identical with the section on and off; settings restored). Screenshots `dev/tests/output/cities/`.
+
+**Failing checks NOT caused by this update (open)**: the local database now holds **378 production ZIP codes** (sources "LA County PDF 2022-02-25; client approved 2026-10-21", "Client supplied county ZIP list; approved 2026-10-21", "Client Compton exclusion 2026-10-21"; all written 2026-10-21 18:32, before this update and already in this update's pre-change backup). This load is not recorded elsewhere in this file, which still says "fixtures only". Tests written for the fixtures now fail: Phase 05 locations 48/55, Phase 06 enquiry server 46/49 (B1, C2, C5), submit 25/27 (S4, S12), browser 10/16 (U4 onward: 90220 is now excluded, so the scripted shared-ZIP path stops), refinements 39/41 (L11, Q0), Phase 09 review 7/8 (R8), Service Areas admin 40/42 (B7, H1). Not changed here; the owner should confirm this data is approved, then the location tests and docs need updating to production data.
+
+Not tested: real browsers other than headless Edge, real devices, screen readers, sending real email, the supplied logo in place (preview only).
 
 ---
 

@@ -64,7 +64,7 @@ async function scrollAll( page ) {
 			identity: ( document.querySelector( '#cic-identity code' ) || {} ).textContent,
 			price: ( document.querySelector( '#_regular_price' ) || {} ).value,
 		} ) );
-		check( 'E1 product screen shows ACF composition tabs, 4 pairing rows and the stable key', screen.acf && screen.tabs.includes( 'Occasion pairings' ) && 4 === screen.pairings && 'dippin-dots' === screen.identity && '' === screen.price, screen );
+		check( 'E1 product screen shows ACF composition tabs, 6 pairing rows (one per event) and the stable key', screen.acf && screen.tabs.includes( 'Occasion pairings' ) && 6 === screen.pairings && 'dippin-dots' === screen.identity && '' === screen.price, screen );
 		await page.evaluate( () => document.querySelector( '#cic-pairings' ).scrollIntoView() );
 		await page.screenshot( { path: path.join( OUT, 'admin-treat-pairings.png' ) } );
 		await page.evaluate( () => {

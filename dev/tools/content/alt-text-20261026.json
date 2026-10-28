@@ -1,0 +1,292 @@
+{
+  "note": "Concise alt text for the image-pack assets (owner QA request 2026-10-26), keyed by asset id (_cic_asset_id). 'alt' describes visible content only. 'generated' holds the pack's original prompt alt/description per asset, used only to recognise generated text; an editor's own alt text is never replaced.",
+  "alt": {
+    "service-garden": "A caterer in a black cap and apron hands a small cup of colorful frozen beads to a smiling girl at a garden party.",
+    "wedding-couple": "A bride and groom smile at each other, each holding a small cup of ice cream, at a garden wedding.",
+    "corporate-friends": "Four colleagues laugh together with small cups of ice cream in a sunny office courtyard.",
+    "birthday-child": "A smiling girl holds a cup of ice cream with sprinkles at an outdoor birthday party.",
+    "anniversary-couple": "An older couple laughs while sharing small cups of ice cream at a garden anniversary party.",
+    "treat-dots-cup": "A small white cup filled with tiny pastel frozen ice cream beads, with a pink spoon.",
+    "treat-dipped-bananas": "Two frozen banana halves on sticks, dipped in dark chocolate and chopped nuts.",
+    "treat-classic-scoops": "Three bowls of strawberry, vanilla and chocolate ice cream.",
+    "treat-frozen-yogurt": "Two cups of pink and white frozen yogurt topped with fresh berries.",
+    "treat-more-frozen": "Sprinkle-covered ice cream bars and a waffle cone on a lavender table.",
+    "events-treat-trio": "Three hands hold up frozen treats: a cup of ice cream with sprinkles, a chocolate-dipped banana with nuts and a cup of frozen yogurt with berries.",
+    "birthday-adult-friends": "Three friends laugh together with small cups of ice cream at an outdoor birthday party.",
+    "birthday-father-daughter": "A smiling father beside his daughter, who holds a small cup of ice cream at a garden birthday party.",
+    "birthday-milestone-friends": "Four friends raise small cups of ice cream at an outdoor milestone birthday party with balloons.",
+    "wedding-dessert-hands": "A bride and groom's hands holding two small cups of pastel frozen beads.",
+    "wedding-friends-inset": "A bride and three bridesmaids in blush dresses smile with small cups of ice cream at a garden wedding.",
+    "wedding-reception": "A bride and groom with friends at a long garden reception table, everyone holding small cups of ice cream.",
+    "anniversary-garden-party": "An older couple laughs with family and friends at a garden dinner table, each holding a cup of ice cream.",
+    "corporate-caterer": "A caterer in a black cap and apron hands a cup of ice cream to colleagues at an outdoor office event.",
+    "corporate-team-break": "Four colleagues enjoy small cups of ice cream around a courtyard table.",
+    "dots-hero": "A clear cup overflowing with tiny pastel frozen ice cream beads, with a spoon.",
+    "dots-family": "A smiling girl holds a cup of rainbow frozen beads beside her mother at a garden birthday party.",
+    "dots-wedding": "A bride and groom taste tiny pastel frozen beads from small cups at a garden wedding.",
+    "dots-corporate": "Colleagues laugh with small cups of rainbow frozen beads in an office courtyard.",
+    "dots-anniversary": "An older couple tastes pastel frozen beads from small cups at a garden anniversary party.",
+    "dots-theme-playful": "Cups of rainbow frozen beads on a dessert table decorated with pastel balloons.",
+    "dots-theme-retro": "Small cups of pastel frozen beads on a pink retro dessert table with striped napkins.",
+    "dots-theme-elegant": "Cups of pastel frozen beads on an ivory reception table with blush roses and gold cutlery.",
+    "dots-detail-macro": "Close-up of a cup of pink, blue, yellow and white frozen beads with a clear spoon.",
+    "banana-hero": "Close-up of a chocolate-covered frozen banana on a stick, topped with chopped nuts.",
+    "banana-birthday": "A smiling girl eats a chocolate-dipped frozen banana at a garden birthday party.",
+    "banana-wedding": "A bride and groom hold chocolate-covered frozen bananas on sticks at a garden wedding.",
+    "banana-corporate": "Coworkers laugh with chocolate-covered frozen bananas at an outdoor company event.",
+    "banana-anniversary": "An older couple shares chocolate-covered frozen bananas at a garden anniversary party.",
+    "banana-theme-garden": "Chocolate-covered frozen bananas standing on a dessert stand among pink roses and greenery.",
+    "banana-theme-modern": "Chocolate-covered frozen bananas with chopped nuts on an ivory plate.",
+    "banana-theme-evening": "Chocolate-covered frozen bananas on a cream dessert stand in candlelight.",
+    "banana-detail-macro": "Two frozen banana halves dipped in dark chocolate and chopped nuts; one cut end shows the banana inside.",
+    "classic-family": "A girl and her grandmother smile while eating ice cream from small cups in a sunny garden.",
+    "classic-couple": "A young couple laughs while holding ice cream cones at a garden celebration.",
+    "classic-theme-retro": "Vanilla and strawberry ice cream in glass sundae bowls on a pink retro dessert table.",
+    "classic-theme-garden": "Three waffle cones with vanilla, strawberry and peach ice cream on a garden party table.",
+    "classic-theme-elegant": "Vanilla ice cream with raspberries in white porcelain bowls with gold spoons.",
+    "classic-detail-macro": "Close-up of strawberry ice cream in a white bowl with fresh strawberries.",
+    "yogurt-friends": "Three women laugh outdoors, each holding a cup of frozen yogurt topped with berries.",
+    "yogurt-theme-garden": "Bowls of pink and white frozen yogurt with berries on a sunny garden party table.",
+    "yogurt-theme-modern": "Three cups of pink and white frozen yogurt with berries on a pale mint table.",
+    "yogurt-theme-social": "Friends gather around a garden table with cups of berry-topped frozen yogurt.",
+    "yogurt-birthday": "A girl tastes strawberry frozen yogurt from a small cup at a garden birthday party.",
+    "yogurt-wedding": "A bride and groom smile with small cups of berry-topped frozen yogurt at an outdoor wedding.",
+    "yogurt-corporate": "Two colleagues laugh over cups of berry-topped frozen yogurt in an office courtyard.",
+    "yogurt-anniversary": "An older couple with small cups of pink frozen yogurt and berries at a garden anniversary party.",
+    "yogurt-detail-macro": "Close-up of a strawberry frozen yogurt swirl with fresh raspberries.",
+    "county-los-angeles": "Downtown Los Angeles skyline at sunset with palm trees.",
+    "county-ventura": "Ventura County coastline with ocean waves, a sandy beach and green hills.",
+    "county-santa-barbara": "Santa Barbara waterfront with palm trees, Spanish-style buildings and mountains.",
+    "quote-treat-assortment": "A bowl of ice cream with sprinkles, a cup of pastel frozen beads and a chocolate-dipped banana."
+  },
+  "generated": {
+    "service-garden": [
+      "Friendly dark-haired female caterer wearing plain black cap and apron over a white shirt serving a small cup of tiny colorful frozen ice cream beads to a happy little girl at a garden celebration",
+      "Friendly dark-haired female caterer wearing plain black cap and apron over a white shirt serving a small cup of tiny colorful frozen ice cream beads to a happy little girl at a garden celebration. Takeaway tubs on table, greenery, warm natural daylight."
+    ],
+    "wedding-couple": [
+      "Bride in an ivory lace dress and groom in black tuxedo smiling at each other, holding small plain white cups of ice cream with spoons, elegant garden wedding, ivory flowers and warm sunset bokeh",
+      "Bride in an ivory lace dress and groom in black tuxedo smiling at each other, holding small plain white cups of ice cream with spoons, elegant garden wedding, ivory flowers and warm sunset bokeh. Romantic premium natural candid medium shot."
+    ],
+    "corporate-friends": [
+      "Four diverse colleagues in smart business casual clothing laughing together with small unbranded ice cream cups and spoons in a sunny landscaped office courtyard",
+      "Four diverse colleagues in smart business casual clothing laughing together with small unbranded ice cream cups and spoons in a sunny landscaped office courtyard. Inclusive professional adults, sociable relaxed expression, no party hats."
+    ],
+    "birthday-child": [
+      "Delighted curly-haired young girl at the centre holding a little cup of ice cream with sprinkles, other children softly visible behind, outdoor birthday party, pastel pink and lavender balloons and warm string lights",
+      "Delighted curly-haired young girl at the centre holding a little cup of ice cream with sprinkles, other children softly visible behind, outdoor birthday party, pastel pink and lavender balloons and warm string lights. Candid joyful close medium shot."
+    ],
+    "anniversary-couple": [
+      "Happy couple in their early sixties laughing and sharing small plain cups of ice cream at their garden anniversary celebration",
+      "Happy couple in their early sixties laughing and sharing small plain cups of ice cream at their garden anniversary celebration. Man salt and pepper hair, woman shoulder length light brown hair, blush flowers, candlelight and soft warm bokeh, guests behind. Romantic candid medium shot."
+    ],
+    "treat-dots-cup": [
+      "Appetizing macro product photograph of one small plain white paper cup filled with MANY TINY round pastel rainbow frozen ice cream beads, each only 2-4mm, realistic Dippin Dots style frozen beads, NOT candy balls, NOT cereal, NOT scooped ice cream",
+      "Appetizing macro product photograph of one small plain white paper cup filled with MANY TINY round pastel rainbow frozen ice cream beads, each only 2-4mm, realistic Dippin Dots style frozen beads, NOT candy balls, NOT cereal, NOT scooped ice cream. Small pink spoon, a few tiny beads scattered on pale blush tabletop. No labels or logos."
+    ],
+    "treat-dipped-bananas": [
+      "Two frozen banana halves on wooden sticks coated in rich dark chocolate and chopped roasted nuts on a warm ivory tabletop, sliced ripe banana and chopped chocolate nearby",
+      "Two frozen banana halves on wooden sticks coated in rich dark chocolate and chopped roasted nuts on a warm ivory tabletop, sliced ripe banana and chopped chocolate nearby. Appetizing close product shot, soft blush backdrop. No labels, no wrappers."
+    ],
+    "treat-classic-scoops": [
+      "Three realistic ice cream scoops, strawberry pink, vanilla cream and chocolate brown, in simple white bowls on a pale tabletop, strawberries and chocolate pieces nearby",
+      "Three realistic ice cream scoops, strawberry pink, vanilla cream and chocolate brown, in simple white bowls on a pale tabletop, strawberries and chocolate pieces nearby. Inviting classic dessert product photography, soft pink background."
+    ],
+    "treat-frozen-yogurt": [
+      "Two unbranded plain white paper cups of strawberry pink and ivory frozen yogurt soft serve, garnished with fresh raspberries, blueberries, strawberry slices and a little granola",
+      "Two unbranded plain white paper cups of strawberry pink and ivory frozen yogurt soft serve, garnished with fresh raspberries, blueberries, strawberry slices and a little granola. Pale mint background, fresh garden daylight, appetizing realistic product shot."
+    ],
+    "treat-more-frozen": [
+      "Bright cheerful close product photograph of sprinkle-covered frozen ice cream bars and a scoop-topped waffle cone on pale lavender tabletop",
+      "Bright cheerful close product photograph of sprinkle-covered frozen ice cream bars and a scoop-topped waffle cone on pale lavender tabletop. Pink, turquoise and raspberry accents, colorful but realistic appetizing frozen treats. No packaging, no logos."
+    ],
+    "events-treat-trio": [
+      "Three separate human hands lifting celebratory frozen treats against a pale lavender studio background: left small plain white cup of ice cream with colorful sprinkles, centre dark chocolate nut-coated banana on stick, right small plain white cup of pink frozen yogurt with berries",
+      "Three separate human hands lifting celebratory frozen treats against a pale lavender studio background: left small plain white cup of ice cream with colorful sprinkles, centre dark chocolate nut-coated banana on stick, right small plain white cup of pink frozen yogurt with berries. Hands enter frame from bottom, all treats fully visible, joyful clean composition."
+    ],
+    "birthday-adult-friends": [
+      "Three young adult friends laughing together at a colorful outdoor birthday gathering while holding small ice cream cups",
+      "Three young adult friends laughing together at a colorful outdoor birthday gathering while holding small ice cream cups. Raspberry, sky blue and lilac balloons, greenery and string lights. Candid natural joy, diverse adults, clean hands and correct dessert proportions."
+    ],
+    "birthday-father-daughter": [
+      "Smiling father leaning beside his delighted curly-haired daughter who holds a small cup of ice cream, colorful garden birthday party, soft pink and yellow balloons and string lights, family memory candid photo",
+      "Smiling father leaning beside his delighted curly-haired daughter who holds a small cup of ice cream, colorful garden birthday party, soft pink and yellow balloons and string lights, family memory candid photo. Natural people and hands."
+    ],
+    "birthday-milestone-friends": [
+      "Group of four friends in their forties and fifties celebrating a milestone birthday outdoors, raising small cups of ice cream, bright pink and lavender balloons, colorful festive clothing, candid laughter, welcoming and warm",
+      "Group of four friends in their forties and fifties celebrating a milestone birthday outdoors, raising small cups of ice cream, bright pink and lavender balloons, colorful festive clothing, candid laughter, welcoming and warm."
+    ],
+    "wedding-dessert-hands": [
+      "Close-up of bride and groom's hands holding two small plain cups of tiny pastel frozen ice cream beads, ivory lace dress and black tuxedo softly blurred behind, white flowers and golden garden light",
+      "Close-up of bride and groom's hands holding two small plain cups of tiny pastel frozen ice cream beads, ivory lace dress and black tuxedo softly blurred behind, white flowers and golden garden light. Sophisticated romantic wedding dessert detail. No visible text."
+    ],
+    "wedding-friends-inset": [
+      "Three bridesmaids in elegant pale blush dresses smiling with a bride at a garden wedding, holding small white cups of ice cream, ivory floral arrangements, warm sunshine, natural candid joyful photograph",
+      "Three bridesmaids in elegant pale blush dresses smiling with a bride at a garden wedding, holding small white cups of ice cream, ivory floral arrangements, warm sunshine, natural candid joyful photograph."
+    ],
+    "wedding-reception": [
+      "Wide candid photograph of bride and groom at centre surrounded by wedding friends at a long garden reception table, everyone smiling with small ice cream cups, ivory flowers and soft candlelight, warm luxurious romantic evening, no text",
+      "Wide candid photograph of bride and groom at centre surrounded by wedding friends at a long garden reception table, everyone smiling with small ice cream cups, ivory flowers and soft candlelight, warm luxurious romantic evening, no text."
+    ],
+    "anniversary-garden-party": [
+      "Mature anniversary couple laughing with family and adult friends at a garden dinner table, everyone holding small white cups of ice cream, blush floral centrepiece and string lights, warm intimate celebratory atmosphere, natural candid medium-wide shot",
+      "Mature anniversary couple laughing with family and adult friends at a garden dinner table, everyone holding small white cups of ice cream, blush floral centrepiece and string lights, warm intimate celebratory atmosphere, natural candid medium-wide shot."
+    ],
+    "corporate-caterer": [
+      "Friendly female caterer in plain black cap and apron over white shirt handing a small cup of ice cream to smartly dressed colleagues at an outdoor office event, modern office facade, trees, professional happy atmosphere, candid medium shot, no visible branding",
+      "Friendly female caterer in plain black cap and apron over white shirt handing a small cup of ice cream to smartly dressed colleagues at an outdoor office event, modern office facade, trees, professional happy atmosphere, candid medium shot, no visible branding."
+    ],
+    "corporate-team-break": [
+      "Four diverse colleagues in smart business attire gathered around a courtyard table enjoying little cups of ice cream, casual friendly conversation during company gathering, office garden background, natural warm daylight, no birthday decor",
+      "Four diverse colleagues in smart business attire gathered around a courtyard table enjoying little cups of ice cream, casual friendly conversation during company gathering, office garden background, natural warm daylight, no birthday decor."
+    ],
+    "dots-hero": [
+      "A small clear cup overflowing with hundreds of TINY pastel rainbow frozen ice cream beads only 2-4mm each, translucent spoon angled upward",
+      "A small clear cup overflowing with hundreds of TINY pastel rainbow frozen ice cream beads only 2-4mm each, translucent spoon angled upward. Cup large in foreground, smiling mother and young daughter enjoying small cups softly blurred in upper-right background at a sunny garden celebration. Pale sky-blue/pink backdrop, realistic frozen beads NOT large candy spheres, no text."
+    ],
+    "dots-family": [
+      "Happy curly-haired girl holding a small plain white cup filled with tiny rainbow frozen ice cream beads, mother beside her, colorful garden birthday with balloons",
+      "Happy curly-haired girl holding a small plain white cup filled with tiny rainbow frozen ice cream beads, mother beside her, colorful garden birthday with balloons. Frozen beads only 2-4mm in cup; real small dessert portions, joyful candid photo."
+    ],
+    "dots-wedding": [
+      "Bride and groom in ivory lace and black tuxedo smiling while tasting tiny pastel frozen ice cream beads from small plain white cups at a sunny floral garden wedding",
+      "Bride and groom in ivory lace and black tuxedo smiling while tasting tiny pastel frozen ice cream beads from small plain white cups at a sunny floral garden wedding. Romantic elegant candid photograph, no text."
+    ],
+    "dots-corporate": [
+      "Diverse business colleagues laughing with small plain cups of tiny rainbow frozen ice cream beads in a landscaped office courtyard",
+      "Diverse business colleagues laughing with small plain cups of tiny rainbow frozen ice cream beads in a landscaped office courtyard. Professional clothing, friendly afternoon break, realistic candid photo."
+    ],
+    "dots-anniversary": [
+      "Loving couple in their sixties tasting tiny pastel frozen ice cream beads from little plain white cups, warm garden anniversary celebration, flowers and soft lights, gentle laughter, candid realistic image",
+      "Loving couple in their sixties tasting tiny pastel frozen ice cream beads from little plain white cups, warm garden anniversary celebration, flowers and soft lights, gentle laughter, candid realistic image."
+    ],
+    "dots-theme-playful": [
+      "Dessert table at a colorful playful garden celebration, several small clear cups of TINY rainbow frozen ice cream beads, pastel balloons and bright raspberry/sky blue decorations softly blurred, table confetti without lettering, close-up food photography",
+      "Dessert table at a colorful playful garden celebration, several small clear cups of TINY rainbow frozen ice cream beads, pastel balloons and bright raspberry/sky blue decorations softly blurred, table confetti without lettering, close-up food photography."
+    ],
+    "dots-theme-retro": [
+      "Close food photo of small cups of tiny pastel frozen ice cream beads at a nostalgic pink dessert table, soft pink striped napkins, a few retro pastel bowls, warm daylight, cozy celebratory styling, no text or logos",
+      "Close food photo of small cups of tiny pastel frozen ice cream beads at a nostalgic pink dessert table, soft pink striped napkins, a few retro pastel bowls, warm daylight, cozy celebratory styling, no text or logos."
+    ],
+    "dots-theme-elegant": [
+      "Several small clear cups of delicate pastel frozen ice cream beads on an elegant ivory garden reception table with blush roses and fine champagne gold cutlery, soft floral bokeh, refined romantic food photography, no text",
+      "Several small clear cups of delicate pastel frozen ice cream beads on an elegant ivory garden reception table with blush roses and fine champagne gold cutlery, soft floral bokeh, refined romantic food photography, no text."
+    ],
+    "dots-detail-macro": [
+      "Close macro photograph of a clear cup of tiny pastel pink, blue, yellow and white frozen ice cream beads with a clear spoon scooping a little portion",
+      "Close macro photograph of a clear cup of tiny pastel pink, blue, yellow and white frozen ice cream beads with a clear spoon scooping a little portion. Tiny realistic 2-4mm frozen beads, light frost, pale blue tabletop, appetizing texture, no candy or marshmallows."
+    ],
+    "banana-hero": [
+      "Extreme appetizing close photograph of one chocolate-covered frozen banana on wooden stick angled from lower right to upper left, topped with chopped roasted nuts and tiny colorful sprinkles, banana slices and chocolate curls softly blurred on pale blush tabletop",
+      "Extreme appetizing close photograph of one chocolate-covered frozen banana on wooden stick angled from lower right to upper left, topped with chopped roasted nuts and tiny colorful sprinkles, banana slices and chocolate curls softly blurred on pale blush tabletop. Rich glossy chocolate with realistic surface texture. No text."
+    ],
+    "banana-birthday": [
+      "Happy girl with curly brown hair enjoying a chocolate-dipped frozen banana on wooden stick with chopped nuts at a colorful garden birthday, pastel balloons, warm candid sunlight",
+      "Happy girl with curly brown hair enjoying a chocolate-dipped frozen banana on wooden stick with chopped nuts at a colorful garden birthday, pastel balloons, warm candid sunlight. Realistic dessert size, natural hand anatomy."
+    ],
+    "banana-wedding": [
+      "Elegant bride and groom smiling together while holding chocolate-covered frozen bananas on wooden sticks, ivory flowers and romantic sunny garden wedding background",
+      "Elegant bride and groom smiling together while holding chocolate-covered frozen bananas on wooden sticks, ivory flowers and romantic sunny garden wedding background. Candid premium dessert moment, no branding."
+    ],
+    "banana-corporate": [
+      "Diverse smartly dressed coworkers laughing with chocolate-covered frozen bananas on sticks during an outdoor company event, office courtyard greenery, natural professional atmosphere, no party hats",
+      "Diverse smartly dressed coworkers laughing with chocolate-covered frozen bananas on sticks during an outdoor company event, office courtyard greenery, natural professional atmosphere, no party hats."
+    ],
+    "banana-anniversary": [
+      "Warm loving mature couple smiling and sharing a moment with chocolate-covered frozen bananas on wooden sticks at a garden anniversary celebration, blush flowers and evening bokeh",
+      "Warm loving mature couple smiling and sharing a moment with chocolate-covered frozen bananas on wooden sticks at a garden anniversary celebration, blush flowers and evening bokeh. Natural candid photograph."
+    ],
+    "banana-theme-garden": [
+      "Chocolate-covered frozen banana pops upright on a pale dessert stand amid pink roses, white flowers and fresh garden greenery, chocolate with finely chopped nuts, daylight, romantic playful dessert table detail, no text",
+      "Chocolate-covered frozen banana pops upright on a pale dessert stand amid pink roses, white flowers and fresh garden greenery, chocolate with finely chopped nuts, daylight, romantic playful dessert table detail, no text."
+    ],
+    "banana-theme-modern": [
+      "Refined close photograph of chocolate-covered frozen banana pops with finely chopped roasted nuts on a matte ivory plate, minimalist contemporary dessert table, warm cream backdrop, a few banana slices and chocolate pieces, no text",
+      "Refined close photograph of chocolate-covered frozen banana pops with finely chopped roasted nuts on a matte ivory plate, minimalist contemporary dessert table, warm cream backdrop, a few banana slices and chocolate pieces, no text."
+    ],
+    "banana-theme-evening": [
+      "Chocolate-covered frozen banana pops with delicate toppings on an elegant cream dessert stand at an intimate evening celebration, candlelight and golden string-light bokeh behind, appetizing warm editorial food photograph, no text",
+      "Chocolate-covered frozen banana pops with delicate toppings on an elegant cream dessert stand at an intimate evening celebration, candlelight and golden string-light bokeh behind, appetizing warm editorial food photograph, no text."
+    ],
+    "banana-detail-macro": [
+      "Macro still life of two frozen banana halves coated in dark chocolate and chopped roasted nuts on wooden sticks, one cut end reveals creamy pale banana centre, sliced bananas and chopped chocolate nearby, warm ivory surface, crisp appetizing texture, no labels",
+      "Macro still life of two frozen banana halves coated in dark chocolate and chopped roasted nuts on wooden sticks, one cut end reveals creamy pale banana centre, sliced bananas and chopped chocolate nearby, warm ivory surface, crisp appetizing texture, no labels."
+    ],
+    "classic-family": [
+      "Happy young girl and her silver-haired grandmother smiling together while eating classic ice cream from little white cups in a sunlit garden, strawberry pink and vanilla ice cream, intimate multigenerational celebration, natural candid photograph",
+      "Happy young girl and her silver-haired grandmother smiling together while eating classic ice cream from little white cups in a sunlit garden, strawberry pink and vanilla ice cream, intimate multigenerational celebration, natural candid photograph."
+    ],
+    "classic-couple": [
+      "Young couple laughing warmly while holding classic ice cream cones, woman long wavy brown hair, man dark hair and light beard, soft garden wedding celebration background with ivory flowers, candid natural daylight photograph",
+      "Young couple laughing warmly while holding classic ice cream cones, woman long wavy brown hair, man dark hair and light beard, soft garden wedding celebration background with ivory flowers, candid natural daylight photograph."
+    ],
+    "classic-theme-retro": [
+      "Vanilla and strawberry ice cream scoops in small glass sundae bowls on a pink retro dessert table with pale pink striped napkins, nostalgic cheerful styling, soft daylight, food-focused photo, no text",
+      "Vanilla and strawberry ice cream scoops in small glass sundae bowls on a pink retro dessert table with pale pink striped napkins, nostalgic cheerful styling, soft daylight, food-focused photo, no text."
+    ],
+    "classic-theme-garden": [
+      "Three classic waffle cones with vanilla, strawberry and peach-colored ice cream in a simple stand on a garden party table, white flowers, green leaves, warm natural sunlight, relaxed refined food photography",
+      "Three classic waffle cones with vanilla, strawberry and peach-colored ice cream in a simple stand on a garden party table, white flowers, green leaves, warm natural sunlight, relaxed refined food photography."
+    ],
+    "classic-theme-elegant": [
+      "Elegant vanilla ice cream scoops in white porcelain dessert bowls with raspberries, a little chocolate drizzle and fine champagne gold spoons, ivory tablecloth and floral bokeh, restrained sophisticated food photograph",
+      "Elegant vanilla ice cream scoops in white porcelain dessert bowls with raspberries, a little chocolate drizzle and fine champagne gold spoons, ivory tablecloth and floral bokeh, restrained sophisticated food photograph."
+    ],
+    "classic-detail-macro": [
+      "Macro photograph of strawberry pink ice cream with soft scoop ridges in a simple white bowl, fresh strawberries and softly blurred vanilla ice cream bowl behind, pale blush background, realistic creamy texture",
+      "Macro photograph of strawberry pink ice cream with soft scoop ridges in a simple white bowl, fresh strawberries and softly blurred vanilla ice cream bowl behind, pale blush background, realistic creamy texture."
+    ],
+    "yogurt-friends": [
+      "Three young adult women laughing together outdoors, each holding a small plain white cup of pink and ivory frozen yogurt topped with berries, sunny garden celebration, green leaves and warm bokeh, relaxed candid photograph",
+      "Three young adult women laughing together outdoors, each holding a small plain white cup of pink and ivory frozen yogurt topped with berries, sunny garden celebration, green leaves and warm bokeh, relaxed candid photograph."
+    ],
+    "yogurt-theme-garden": [
+      "Small white bowls of pink and ivory frozen yogurt swirls topped with berries on a sunny garden party table, fresh green foliage, tiny white flowers, warm light, relaxed appetizing food detail, no text",
+      "Small white bowls of pink and ivory frozen yogurt swirls topped with berries on a sunny garden party table, fresh green foliage, tiny white flowers, warm light, relaxed appetizing food detail, no text."
+    ],
+    "yogurt-theme-modern": [
+      "Three small plain white cups of neat pink and ivory frozen yogurt swirls with raspberries blueberries and strawberry slices on a clean pale mint tabletop, minimal contemporary styling, soft studio daylight, no text",
+      "Three small plain white cups of neat pink and ivory frozen yogurt swirls with raspberries blueberries and strawberry slices on a clean pale mint tabletop, minimal contemporary styling, soft studio daylight, no text."
+    ],
+    "yogurt-theme-social": [
+      "Friends casually gathered around a garden table with several small cups of berry-topped frozen yogurt in foreground, greenery and soft warm string lights, casual welcoming social celebration, focus on dessert table, no text",
+      "Friends casually gathered around a garden table with several small cups of berry-topped frozen yogurt in foreground, greenery and soft warm string lights, casual welcoming social celebration, focus on dessert table, no text."
+    ],
+    "yogurt-birthday": [
+      "Happy curly-haired girl tasting strawberry frozen yogurt with a spoon from a small plain white cup at a garden birthday party, colorful balloons and greenery, natural candid delight, no text",
+      "Happy curly-haired girl tasting strawberry frozen yogurt with a spoon from a small plain white cup at a garden birthday party, colorful balloons and greenery, natural candid delight, no text."
+    ],
+    "yogurt-wedding": [
+      "Bride and groom smiling together with little cups of berry-topped ivory frozen yogurt at an elegant outdoor wedding, ivory lace dress and black tuxedo, blush flowers and warm sunlight, candid realistic photo",
+      "Bride and groom smiling together with little cups of berry-topped ivory frozen yogurt at an elegant outdoor wedding, ivory lace dress and black tuxedo, blush flowers and warm sunlight, candid realistic photo."
+    ],
+    "yogurt-corporate": [
+      "Two diverse colleagues in business casual clothing laughing over small cups of berry-topped frozen yogurt in an office garden courtyard, professional friendly midday break, natural realistic photo",
+      "Two diverse colleagues in business casual clothing laughing over small cups of berry-topped frozen yogurt in an office garden courtyard, professional friendly midday break, natural realistic photo."
+    ],
+    "yogurt-anniversary": [
+      "Mature couple in their sixties smiling closely with small plain cups of pink frozen yogurt and berries at a garden anniversary gathering, warm natural evening light, intimate candid photograph",
+      "Mature couple in their sixties smiling closely with small plain cups of pink frozen yogurt and berries at a garden anniversary gathering, warm natural evening light, intimate candid photograph."
+    ],
+    "yogurt-detail-macro": [
+      "Extreme appetizing macro food photograph of soft strawberry-pink frozen yogurt swirl with smooth ridges, fresh raspberries around it, a hint of ivory swirl beside it, pale mint and blush background, realistic texture, no text",
+      "Extreme appetizing macro food photograph of soft strawberry-pink frozen yogurt swirl with smooth ridges, fresh raspberries around it, a hint of ivory swirl beside it, pale mint and blush background, realistic texture, no text."
+    ],
+    "county-los-angeles": [
+      "Photorealistic Southern California cityscape of downtown Los Angeles skyline at golden hour with tall palm trees in foreground, warm lavender-pink sky, crisp architecture, no text, no invented landmark signage",
+      "Photorealistic Southern California cityscape of downtown Los Angeles skyline at golden hour with tall palm trees in foreground, warm lavender-pink sky, crisp architecture, no text, no invented landmark signage. Landscape panoramic travel editorial photograph."
+    ],
+    "county-ventura": [
+      "Photorealistic Ventura County Southern California coast, Pacific Ocean blue waves, sandy beach and green coastal hills in warm afternoon light, natural realistic landscape travel photograph, no text",
+      "Photorealistic Ventura County Southern California coast, Pacific Ocean blue waves, sandy beach and green coastal hills in warm afternoon light, natural realistic landscape travel photograph, no text."
+    ],
+    "county-santa-barbara": [
+      "Photorealistic Santa Barbara Southern California coastline with tall palms, cream Spanish-style waterfront buildings and distant mountains, clear blue sky and sunny welcoming light, landscape travel editorial photograph, no text",
+      "Photorealistic Santa Barbara Southern California coastline with tall palms, cream Spanish-style waterfront buildings and distant mountains, clear blue sky and sunny welcoming light, landscape travel editorial photograph, no text."
+    ],
+    "quote-treat-assortment": [
+      "Appetizing still life of a small unbranded white bowl of pink and vanilla ice cream with sprinkles, a tiny clear cup of pastel frozen ice cream beads, and a chocolate-coated nut-topped frozen banana on wooden stick, pale blush tabletop, clean joyful dessert styling, no lettering, no logos",
+      "Appetizing still life of a small unbranded white bowl of pink and vanilla ice cream with sprinkles, a tiny clear cup of pastel frozen ice cream beads, and a chocolate-coated nut-topped frozen banana on wooden stick, pale blush tabletop, clean joyful dessert styling, no lettering, no logos."
+    ]
+  }
+}

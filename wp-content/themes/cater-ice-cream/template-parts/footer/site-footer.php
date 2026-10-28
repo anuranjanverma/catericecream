@@ -15,6 +15,13 @@ $cic_menu_1  = 'brand-contact' !== $cic_layout ? cic_theme_menu( 'footer', array
 $cic_menu_2  = 'brand-menus-contact' === $cic_layout ? cic_theme_menu( 'footer_secondary', array( 'depth' => 1 ) ) : '';
 $cic_legal   = ! empty( $cic_footer['show_legal'] ) ? cic_theme_menu( 'legal', array( 'depth' => 1 ) ) : '';
 $cic_social  = ! empty( $cic_footer['show_social'] ) ? $cic_contact['social'] : array();
+// Privacy Policy: added to the legal row automatically once a policy page is PUBLISHED (core
+// Settings → Privacy) and the legal menu does not already link to it. Drafts never show.
+$cic_privacy = ! empty( $cic_footer['show_legal'] ) ? get_privacy_policy_url() : '';
+if ( '' !== $cic_privacy && false === strpos( $cic_legal, esc_url( $cic_privacy ) ) ) {
+	$cic_item  = '<li class="menu-item menu-item-privacy-policy">' . get_the_privacy_policy_link() . '</li>';
+	$cic_legal = '' !== $cic_legal ? (string) preg_replace( '#</ul>\s*$#', $cic_item . '</ul>', $cic_legal, 1 ) : '<ul class="menu">' . $cic_item . '</ul>';
+}
 ?>
 <footer class="cic-footer" style="<?php echo esc_attr( '--cic-footer-logo-w:' . (int) $cic_footer['logo_width'] . 'px' ); ?>">
 	<div class="cic-container cic-footer__grid cic-footer--<?php echo esc_attr( $cic_layout ); ?>">

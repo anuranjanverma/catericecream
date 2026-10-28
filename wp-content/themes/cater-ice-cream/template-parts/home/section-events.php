@@ -1,6 +1,7 @@
 <?php
 /**
- * Home events band: one card per published event (Anniversary included), in menu order.
+ * Home events band: one card per published event, in the central event order (each event's Order
+ * field). Six events: two rows of three on desktop.
  *
  * @package CaterIceCream
  */

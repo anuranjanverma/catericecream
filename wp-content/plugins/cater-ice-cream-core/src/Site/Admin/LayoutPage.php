@@ -104,6 +104,7 @@ final class LayoutPage {
 			'bottom'  => __( 'Header: bottom row', 'cater-ice-cream-core' ),
 			'mobile'  => __( 'Mobile navigation', 'cater-ice-cream-core' ),
 			'footer'  => __( 'Footer', 'cater-ice-cream-core' ),
+			'cities'  => __( 'Cities We Serve', 'cater-ice-cream-core' ),
 		);
 		?>
 		<div class="wrap cic-admin" id="cic-header-footer">
@@ -133,6 +134,7 @@ final class LayoutPage {
 					$contact_fields = array(
 						'business_name'     => __( 'Public business name', 'cater-ice-cream-core' ),
 						'legal_entity'      => __( 'Legal entity', 'cater-ice-cream-core' ),
+						'business_contact'  => __( 'Public contact name', 'cater-ice-cream-core' ),
 						'business_phone'    => __( 'Public phone', 'cater-ice-cream-core' ),
 						'business_email'    => __( 'Public email', 'cater-ice-cream-core' ),
 						'business_location' => __( 'Public business location', 'cater-ice-cream-core' ),
@@ -153,6 +155,9 @@ final class LayoutPage {
 							<th scope="row"><label for="cic-contact-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label></th>
 							<td><input type="<?php echo esc_attr( $type ); ?>" class="regular-text" id="cic-contact-<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( Config::OPTION_SETTINGS . '[' . $key . ']' ); ?>" value="<?php echo esc_attr( (string) $contact[ $key ] ); ?>"<?php echo str_starts_with( $key, 'social_' ) ? ' placeholder="https://"' : ''; ?>>
 							<?php if ( 'quote_url' === $key ) : ?><p class="description"><?php esc_html_e( 'A site path such as /get-a-quote/ or an https:// address.', 'cater-ice-cream-core' ); ?></p><?php endif; ?>
+							<?php if ( 'business_contact' === $key ) : ?><p class="description"><?php esc_html_e( 'The name customers see on the Contact and About pages, call panels and email sign-offs. The legal entity above stays the company name.', 'cater-ice-cream-core' ); ?></p><?php endif; ?>
+							<?php if ( 'business_phone' === $key ) : ?><p class="description"><?php esc_html_e( 'Shown as typed; call links use the international form automatically (for example tel:+14242354942).', 'cater-ice-cream-core' ); ?></p><?php endif; ?>
+							<?php if ( 'business_email' === $key ) : ?><p class="description"><?php esc_html_e( 'Shown on the website only. Inquiry notifications, the sender address and Reply-To are set separately under Enquiries → Settings, so changing this never reroutes notifications.', 'cater-ice-cream-core' ); ?></p><?php endif; ?>
 							<?php if ( str_starts_with( $key, 'social_' ) ) : ?><p class="description"><?php esc_html_e( 'Leave empty unless a real profile exists. Empty profiles are never displayed.', 'cater-ice-cream-core' ); ?></p><?php endif; ?>
 							</td>
 						</tr>
@@ -185,6 +190,7 @@ final class LayoutPage {
 			'bottom' => __( 'An optional secondary row using the "Header bottom row" menu.', 'cater-ice-cream-core' ),
 			'mobile' => __( 'Below 1024 px the primary menu moves into an accessible drawer (toggle button, submenus, close button, Escape key and focus return).', 'cater-ice-cream-core' ),
 			'footer' => __( 'Uses the "Footer navigation", "Footer second menu" and "Footer legal links" menus.', 'cater-ice-cream-core' ),
+			'cities' => __( 'A list of city links directly above the footer. The cities come from Service Areas automatically and update when coverage changes.', 'cater-ice-cream-core' ),
 		)[ $section ] ?? '';
 		echo '<p>' . esc_html( $text ) . '</p>';
 		$needs = array(

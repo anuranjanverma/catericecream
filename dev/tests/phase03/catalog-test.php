@@ -84,7 +84,7 @@ try {
 			$types[ $f['type'] ] = true;
 		}
 	}
-	$free = array( 'tab', 'message', 'text', 'textarea', 'image', 'select', 'true_false', 'number', 'relationship' );
+	$free = array( 'tab', 'message', 'text', 'textarea', 'image', 'file', 'select', 'true_false', 'number', 'relationship' ); // File: treat videos (2026-10-24), part of ACF Free.
 	cic3_check( 'A4 ACF Free only: no Pro build, only free field types', ! defined( 'ACF_PRO' ) && ! array_diff( array_keys( $types ), $free ), array_keys( $types ) );
 	cic3_check( 'A5 field groups registered with ACF and exposed to REST', (bool) acf_get_field_group( 'group_cic_treat' ) && (bool) acf_get_field_group( 'group_cic_event' ) && ! empty( acf_get_field_group( 'group_cic_treat' )['show_in_rest'] ) );
 
@@ -100,7 +100,7 @@ try {
 	$brands = array_map( static fn( $k ) => wp_get_object_terms( Catalog::find_by_key( 'product', $k ), 'product_brand', array( 'fields' => 'names' ) ), array( 'dippin-dots', 'classic-ice-cream', 'frozen-yogurt' ) );
 	cic3_check( 'B3 WooCommerce Brands reused: Dippin\' Dots branded; generic treats carry no brand', array( "Dippin' Dots" ) === $brands[0] && array() === $brands[1] && array() === $brands[2] && 'generic' === get_post_meta( Catalog::find_by_key( 'product', 'classic-ice-cream' ), 'cic_brand_type', true ) );
 	$events = wp_list_pluck( Catalog::selectable_events(), 'key' );
-	cic3_check( 'B4 four published events in order; Anniversary is the fourth card', array( 'birthday', 'wedding', 'corporate', 'anniversary' ) === $events, $events );
+	cic3_check( 'B4 six published events in the central order (client update 2026-10-22); Anniversary is last', array( 'birthday', 'wedding', 'graduation', 'prom', 'corporate', 'anniversary' ) === $events, $events );
 	$pt = get_post_type_object( EventType::POST_TYPE );
 	cic3_check( 'B5 cic_event: public, REST, archive /events/, revisions, title/editor/thumbnail', $pt->public && $pt->show_in_rest && 'events' === $pt->has_archive && post_type_supports( EventType::POST_TYPE, 'revisions' ) && post_type_supports( EventType::POST_TYPE, 'thumbnail' ) && post_type_supports( EventType::POST_TYPE, 'editor' ) );
 
@@ -136,7 +136,7 @@ try {
 		$e = array_values( array_filter( Pairings::for_event( (int) $row['event_id'] ), static fn( $x ) => $x['product_id'] === (int) $row['product_id'] ) )[0];
 		$same = $same && $p === $e;
 	}
-	cic3_check( 'D1 sixteen seeded pairings (four treats × four occasions, Phase 07); product-side and event-side reads return identical rows', 16 === count( $all ) && $same );
+	cic3_check( 'D1 twenty-four seeded pairings (four treats × six occasions); product-side and event-side reads return identical rows', 24 === count( $all ) && $same );
 	$tvm = ViewModel::treat( $dd );
 	$evm = ViewModel::event( $birthday );
 	$tb  = array_values( array_filter( $tvm['occasions']['items'], static fn( $i ) => $i['event_id'] === $birthday ) )[0];
@@ -146,7 +146,7 @@ try {
 	$page_bd = cic3_get( '/events/birthday/' )['body'];
 	cic3_check( 'D3 rendered HTML contains the shared pairing text on both pages', str_contains( $page_dd, esc_html( $tb['description'] ) ) && str_contains( $page_bd, esc_html( $tb['description'] ) ) );
 	$errs = Pairings::replace_for_product( $dd, array( array( 'event_id' => 999999 ), array( 'event_id' => $dd ), array( 'event_id' => $wedding ), array( 'event_id' => $wedding ) ), true );
-	cic3_check( 'D4 strict save rejects unknown IDs, non-events and duplicate events, writing nothing', 3 === count( $errs ) && 4 === count( Pairings::for_product( $dd ) ), $errs );
+	cic3_check( 'D4 strict save rejects unknown IDs, non-events and duplicate events, writing nothing', 3 === count( $errs ) && 6 === count( Pairings::for_product( $dd ) ), $errs );
 	$errs = Pairings::replace_for_product( $birthday, array( array( 'event_id' => $wedding ) ) );
 	cic3_check( 'D5 pairings can only belong to a product', 1 === count( $errs ) && ! Pairings::for_product( $birthday ) );
 	$raw = $wpdb->query( $wpdb->prepare( 'INSERT INTO ' . Pairings::table() . ' (product_id, event_id, description, event_intro) VALUES (%d, %d, %s, %s)', $dd, $birthday, 'dup', '' ) ); // phpcs:ignore
@@ -163,7 +163,7 @@ try {
 	$e2 = ViewModel::event( $birthday );
 	cic3_check( 'E1 draft event is hidden from the treat page pairings and quote event choices', ! in_array( $wedding, wp_list_pluck( $t2['occasions']['items'], 'event_id' ), true ) && ! in_array( 'wedding', wp_list_pluck( Catalog::selectable_events(), 'key' ), true ) );
 	cic3_check( 'E2 draft treat is hidden from the event page and quote treat choices', ! in_array( $bananas, wp_list_pluck( $e2['treats']['items'], 'product_id' ), true ) && ! in_array( 'dipn-bananas', wp_list_pluck( Catalog::selectable_products(), 'key' ), true ) );
-	cic3_check( 'E3 drafts return 404 to anonymous visitors; editor still sees the pairing in admin', 404 === cic3_get( '/events/wedding/' )['code'] && 404 === cic3_get( '/treats/dipn-bananas/' )['code'] && 4 === count( Pairings::for_product( $dd ) ) );
+	cic3_check( 'E3 drafts return 404 to anonymous visitors; editor still sees the pairing in admin', 404 === cic3_get( '/events/wedding/' )['code'] && 404 === cic3_get( '/treats/dipn-bananas/' )['code'] && 6 === count( Pairings::for_product( $dd ) ) );
 	$page = cic3_get( '/treats/dippin-dots/' )['body'];
 	// Checked on the pairing cards only: the seeded navigation menu uses custom links (pending item).
 	cic3_check( 'E4 rendered treat page shows no pairing card for the draft event', ! str_contains( $page, 'data-cic-pairing-event="' . $wedding . '"' ) && str_contains( $page, 'data-cic-pairing-event="' . $birthday . '"' ) );
@@ -186,7 +186,7 @@ try {
 	cic3_check( 'F1 rerun creates and fills nothing', 0 === $r['created'] && 0 === $r['filled'] && 0 === $r['pairs'], $r );
 	cic3_check( 'F2 edited field kept; deliberately cleared field stays empty', "Edited by an editor\n<em>keep me</em>" === get_post_meta( $dd, 'cic_hero_headline', true ) && '' === get_post_meta( $dd, 'cic_feel_note', true ) );
 	$after = Pairings::for_product( $dd );
-	cic3_check( 'F3 edited pairing text kept; deliberately removed pairing not recreated', 'Editor-changed pairing text.' === $after[0]['description'] && 3 === count( $after ) );
+	cic3_check( 'F3 edited pairing text kept; deliberately removed pairing not recreated', 'Editor-changed pairing text.' === $after[0]['description'] && 5 === count( $after ) );
 
 	WP_CLI::log( '== G. Fifth event and fifth treat without source edits' );
 	$event5 = wp_insert_post( array( 'post_type' => EventType::POST_TYPE, 'post_status' => 'publish', 'post_title' => 'Graduations', 'post_name' => 'cic-test-graduation', 'meta_input' => array( '_cic_fixture' => 'phase03', 'cic_hero_headline' => "Caps off.\n<em>Cups up.</em>" ) ) );
@@ -213,10 +213,10 @@ try {
 	$data = $anon->get_data();
 	cic3_check( 'H1 public event REST exposes published pairings and typed meta', 200 === $anon->get_status() && 4 === count( $data['cic_pairings'] ) && 'birthday' === $data['meta']['cic_key'] );
 	$denied = cic3_rest( 'POST', '/wp/v2/product/' . $dd, array( 'cic_pairings' => array() ) );
-	cic3_check( 'H2 anonymous users cannot edit pairings', in_array( $denied->get_status(), array( 401, 403 ), true ) && 3 === count( Pairings::for_product( $dd ) ) );
+	cic3_check( 'H2 anonymous users cannot edit pairings', in_array( $denied->get_status(), array( 401, 403 ), true ) && 5 === count( Pairings::for_product( $dd ) ) );
 	wp_set_current_user( $admin->ID );
 	$bad = cic3_rest( 'POST', '/wp/v2/product/' . $dd, array( 'cic_pairings' => array( array( 'event_id' => 123456789 ) ) ) );
-	cic3_check( 'H3 invalid REST pairing update is rejected (400) and writes nothing', 400 === $bad->get_status() && 3 === count( Pairings::for_product( $dd ) ), $bad->get_status() );
+	cic3_check( 'H3 invalid REST pairing update is rejected (400) and writes nothing', 400 === $bad->get_status() && 5 === count( Pairings::for_product( $dd ) ), $bad->get_status() );
 	$schema = cic3_rest( 'OPTIONS', '/wp/v2/events' )->get_data()['schema']['properties'];
 	cic3_check( 'H4 REST schema documents cic_pairings and meta types (key pattern, preset enum)', isset( $schema['cic_pairings']['items']['properties']['event_id'] ) && '^[a-z0-9]+(-[a-z0-9]+)*$' === $schema['meta']['properties']['cic_key']['pattern'] && in_array( 'wedding', $schema['meta']['properties']['cic_preset']['enum'], true ) );
 	$bad_meta = cic3_rest( 'POST', '/wp/v2/events/' . $birthday, array( 'meta' => array( 'cic_preset' => 'not-a-preset' ) ) );

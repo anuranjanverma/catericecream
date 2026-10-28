@@ -122,7 +122,7 @@ let browser;
 		wp( 'eval-file', 'dev/tests/phase07/state.php', 'restore', snapshot );
 		const wed2 = await publicText( browser, '/events/wedding/' );
 		const classic2 = await publicText( browser, '/treats/classic-ice-cream/' );
-		check( 'A7 restore brings back the approved copy on both pages', wed2.includes( '<li>Favourite treats</li>' ) && ! wed2.includes( 'Edited in admin' ) && classic2.includes( 'Which options can we choose?' ) && ! classic2.includes( 'Edited garden theme' ) );
+		check( 'A7 restore brings back the approved copy on both pages', wed2.includes( '<li>Favorite treats</li>' ) && ! wed2.includes( 'Edited in admin' ) && classic2.includes( 'Which options can we choose?' ) && ! classic2.includes( 'Edited garden theme' ) );
 	} finally {
 		try {
 			wp( 'eval-file', 'dev/tests/phase07/state.php', 'restore', snapshot );

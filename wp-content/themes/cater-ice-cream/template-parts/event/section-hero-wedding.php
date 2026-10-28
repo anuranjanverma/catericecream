@@ -3,6 +3,7 @@
  * Wedding hero (05): full-bleed couple photo with an ivory text card on the left, champagne-gold
  * eyebrow rule, italic accent headline, interlocking-rings line motif and a fine gold wave.
  * Mobile (21): the photo first, then the card overlapping its lower edge.
+ * Prom uses the same card with a starlight sparkle line instead of the rings.
  *
  * @package CaterIceCream
  */
@@ -33,7 +34,7 @@ echo cic_theme_section_open( 'cic-event', $args['section'], 'cic-wed-hero' ); //
 					<?php echo cic_theme_arrow_link( $cic_shop, $cic_hero['link_label'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?>
 				<?php endif; ?>
 			</div>
-			<?php echo cic_theme_motif( 'rings', 'cic-wed-hero__rings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG. ?>
+			<?php echo 'prom' === $cic_vm['layout'] ? cic_theme_motif( 'starlight', 'cic-wed-hero__rings cic-wed-hero__starlight' ) : cic_theme_motif( 'rings', 'cic-wed-hero__rings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG. ?>
 		</div>
 	</div>
 	<?php echo cic_theme_motif( 'gold-wave', 'cic-wed-hero__wave' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG. ?>

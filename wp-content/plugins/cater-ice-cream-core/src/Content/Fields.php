@@ -52,6 +52,11 @@ final class Fields {
 		'clipboard'  => 'Checklist',
 		'mail'       => 'Envelope',
 		'phone'      => 'Phone',
+		'grad-cap'   => 'Graduation cap',
+		'diploma'    => 'Diploma',
+		'mirror-ball' => 'Mirror ball',
+		'party'      => 'Party popper',
+		'clock'      => 'Clock',
 	);
 
 	public const FAQ_SLOTS = 6;
@@ -64,8 +69,13 @@ final class Fields {
 	);
 
 	/** Approved section order per treat composition (FAQ sits inside the quote area in 11/12). */
+	/** Photo/video slots in the treat "media" section. */
+	public const MEDIA_SLOTS = 4;
+
 	public const TREAT_LAYOUT_SECTIONS = array(
-		'split'   => array( 'hero', 'feelings', 'occasions', 'themes', 'detail', 'faq', 'quote' ),
+		// "media" (2026-10-24, owner request): authentic photos/videos after Product detail; it renders
+		// only when filled in, so pages without media keep the approved composition.
+		'split'   => array( 'hero', 'feelings', 'occasions', 'themes', 'detail', 'media', 'faq', 'quote' ),
 		'classic' => array( 'hero', 'feelings', 'occasions', 'themes', 'detail', 'quote' ),
 		'yogurt'  => array( 'hero', 'feelings', 'themes', 'occasions', 'detail', 'quote' ),
 	);
@@ -77,6 +87,7 @@ final class Fields {
 		'occasions' => 'Occasion pairings',
 		'themes'    => 'Theme inspiration',
 		'detail'    => 'Product detail',
+		'media'     => 'Photos and videos',
 		'faq'       => 'FAQs',
 		'quote'     => 'Quote starter',
 	);
@@ -84,13 +95,13 @@ final class Fields {
 	/** Event sections (labels for the section controls); each layout uses its own subset. */
 	public const EVENT_SECTIONS = array(
 		'hero'     => 'Hero',
-		'starter'  => 'Quote starter strip (Birthday)',
-		'ribbon'   => 'Ribbon phrases (Wedding)',
-		'values'   => 'Value points (Anniversary, Corporate)',
-		'feature'  => 'Story with photo (Wedding, Anniversary, Corporate)',
+		'starter'  => 'Quote starter strip (Birthday, Graduation)',
+		'ribbon'   => 'Ribbon phrases (Wedding, Prom)',
+		'values'   => 'Value points (Graduation, Anniversary, Corporate)',
+		'feature'  => 'Story with photo (Wedding, Prom, Anniversary, Corporate)',
 		'treats'   => 'Featured treats',
-		'stories'  => 'Occasion stories (Birthday)',
-		'gallery'  => 'Wide photo band (Wedding)',
+		'stories'  => 'Occasion stories (Birthday, Graduation)',
+		'gallery'  => 'Wide photo band (Wedding, Prom)',
 		'planning' => 'Planning steps',
 		'quote'    => 'Quote and FAQ',
 	);
@@ -99,6 +110,12 @@ final class Fields {
 	public const EVENT_LAYOUT_SECTIONS = array(
 		'birthday'    => array( 'hero', 'starter', 'treats', 'stories', 'planning', 'quote' ),
 		'wedding'     => array( 'hero', 'ribbon', 'feature', 'treats', 'gallery', 'planning', 'quote' ),
+		// Graduation (2026-10-22): Birthday energy (starter strip, treat cards, stories) with the
+		// organised value row of Corporate; the hero is the split hero with graduation motifs.
+		'graduation'  => array( 'hero', 'values', 'starter', 'treats', 'stories', 'planning', 'quote' ),
+		// Prom (2026-10-22): the Wedding hero card and ribbon for an evening mood, the dessert-moment
+		// story first, then treats, the wide evening photo band, planning and the quote panel.
+		'prom'        => array( 'hero', 'ribbon', 'feature', 'treats', 'gallery', 'planning', 'quote' ),
 		'anniversary' => array( 'hero', 'values', 'treats', 'feature', 'planning', 'quote' ),
 		'corporate'   => array( 'hero', 'values', 'treats', 'feature', 'planning', 'quote' ),
 		'standard'    => array( 'hero', 'treats', 'feature', 'planning', 'quote' ),
@@ -172,6 +189,8 @@ final class Fields {
 	public const EVENT_LAYOUTS = array(
 		'birthday'    => 'Birthday composition',
 		'wedding'     => 'Wedding composition',
+		'graduation'  => 'Graduation party composition',
+		'prom'        => 'Prom composition',
 		'anniversary' => 'Anniversary composition',
 		'corporate'   => 'Corporate composition',
 		'standard'    => 'Standard event composition',
@@ -383,8 +402,8 @@ final class Fields {
 			$fields[] = self::text( "{$p}step_{$i}_text", "Step {$i}: text" );
 		}
 		$fields[] = self::tab( 'about_meet', 'Meet' );
-		$fields[] = self::heading( $p . 'meet_heading', 'Heading' );
-		$fields[] = self::area( $p . 'meet_text', 'Text', 'Verified role only. Business name, location, phone and email come from the global contact settings.', 2 );
+		$fields[] = self::text( $p . 'meet_heading', 'Heading', '{contact_name} is replaced by the public contact name from Header, Footer & Contact. &lt;em&gt;…&lt;/em&gt; for accent words.' );
+		$fields[] = self::area( $p . 'meet_text', 'Text', 'Verified facts only (no invented biography). {contact_name} is replaced by the public contact name. Business name, legal entity, location, phone and email come from the global contact settings.', 2 );
 		$fields[] = self::text( $p . 'meet_initials', 'Initials (placeholder graphic)', 'Shown until a real portrait is supplied.' );
 		$fields[] = self::image( $p . 'meet_portrait', 'Portrait (optional)', 'Only a real, approved portrait. Replaces the initials.' );
 		$fields[] = self::image( $p . 'meet_image', 'Service photo' );
@@ -412,7 +431,7 @@ final class Fields {
 			self::area( $p . 'headline', 'Headline', 'One line per row; &lt;em&gt;…&lt;/em&gt; for accent words.', 2 ),
 			self::area( $p . 'intro', 'Introduction', '', 2 ),
 			self::image( $p . 'image', 'Photo' ),
-			self::text( $p . 'call_title', 'Call card title', 'Phone number comes from the global contact settings.' ),
+			self::text( $p . 'call_title', 'Call card title', 'Phone number comes from the global contact settings; {contact_name} is replaced by the public contact name.' ),
 			self::text( $p . 'email_title', 'Email card title', 'Email address comes from the global contact settings.' ),
 			self::tab( 'contact_help', 'Message panel' ),
 			self::heading( $p . 'help_heading', 'Heading' ),
@@ -700,6 +719,8 @@ final class Fields {
 		for ( $i = 1; $i <= self::FAQ_SLOTS; $i++ ) {
 			$fields[] = self::text( "cic_faq_{$i}_q", "Question {$i}" );
 			$fields[] = self::area( "cic_faq_{$i}_a", "Answer {$i}", 'No prices or minimum-order amounts.', 2 );
+			$fields[] = self::f( 'true_false', "cic_faq_{$i}_draft", "Question {$i}: draft", array( 'message' => 'Draft: keep this question off the website', 'ui' => 1, 'default_value' => 0 ) );
+			$fields[] = self::text( "cic_faq_{$i}_note", "Question {$i}: internal note", 'Never shown on the website (for example, what must be confirmed before publishing).' );
 		}
 		$fields[] = self::tab( 'home_coverage', 'Service areas' );
 		$fields[] = self::area( 'cic_cov_heading', 'Heading', 'One line per row.', 2 );
@@ -795,6 +816,15 @@ final class Fields {
 			$fields[] = self::text( "cic_point_{$i}_label", "Detail point {$i}: label" );
 		}
 		$fields[] = self::area( 'cic_ingredient_note', 'Ingredient / dietary note', 'Client-approved wording only. No dietary guarantees.', 2 );
+		$fields[] = self::tab( 'treat_media', 'Photos and videos' );
+		$fields[] = self::f( 'message', 'cic_media_help', 'Authentic photos and videos', array( 'message' => 'Real photos and short videos only (Dippin’ Dots and DipN’ Bananas compositions). For a photo, choose it in "Photo or poster". For a video, upload the MP4 in "Video" and choose a WebP frame from the same footage as its poster. Videos never play on their own and load only when a visitor presses play. Captions describe only what is visible: no names, dates, places or claims.' ) );
+		$fields[] = self::heading( 'cic_media_heading', 'Section heading' );
+		$fields[] = self::area( 'cic_media_intro', 'Introduction (optional)', '', 2 );
+		for ( $i = 1; $i <= self::MEDIA_SLOTS; $i++ ) {
+			$fields[] = self::image( "cic_media_{$i}_image", "Item {$i}: photo or poster", 1 === $i ? 'The first item is shown largest.' : '' );
+			$fields[] = self::f( 'file', "cic_media_{$i}_video", "Item {$i}: video (optional)", array( 'return_format' => 'id', 'library' => 'all', 'mime_types' => 'mp4,webm', 'instructions' => 'MP4 (H.264) or WebM. Leave empty for a photo.' ) );
+			$fields[] = self::area( "cic_media_{$i}_caption", "Item {$i}: caption", 'What is visible, in one sentence.', 2 );
+		}
 		$fields[] = self::tab( 'treat_faq', 'FAQs' );
 		$fields[] = self::area( 'cic_faq_heading', 'FAQ heading', 'One line per row. (Same field as the homepage FAQ heading, so it is multi-line everywhere.)', 2 );
 		$fields[] = self::text( 'cic_treat_faq_intro', 'FAQ introduction (optional)' );
@@ -835,7 +865,9 @@ final class Fields {
 			self::area( 'cic_hero_intro', 'Introduction', '', 2 ),
 			self::text( 'cic_hero_cta', 'Quote button label', 'Opens the shared quote flow with this occasion selected.' ),
 			self::text( 'cic_hero_link_label', 'Treats link label' ),
-			self::text( 'cic_event_short_label', 'Short label', 'Used on the quote form tiles and enquiry summaries (e.g. "Birthday"). Empty uses the title.' ),
+			self::text( 'cic_event_short_label', 'Short label', 'Used on the quote form tiles and inquiry summaries (e.g. "Birthday"). Empty uses the title.' ),
+			self::icon( 'cic_event_icon', 'Occasion icon (quote form tile and treat-page badge; none = the default for this event)' ),
+			self::f( 'message', 'cic_event_order_help', 'Where this event appears in lists', array( 'message' => 'Menus, event cards, quote options and treat recommendations list events by the "Order" number in the Page Attributes box (lowest first). Current order: Birthdays 10, Weddings 20, Graduation Parties 30, Proms 40, Corporate Events 50, Anniversaries 60.' ) ),
 		);
 		for ( $i = 1; $i <= 3; $i++ ) {
 			$fields[] = self::image( "cic_hero_image_{$i}", "Hero photo {$i}", 1 === $i ? 'Birthday: left of the collage. Wedding: full-width background. Anniversary/Corporate: main photo.' : ( 2 === $i ? 'Birthday: centre (largest). Anniversary/Corporate: framed inset.' : 'Birthday: right.' ) );
@@ -898,6 +930,9 @@ final class Fields {
 			$fields[] = self::area( "cic_faq_{$i}_a", "Answer {$i}", '', 2 );
 		}
 		$fields[] = self::text( 'cic_area_link_label', 'Service-area link label' );
+		$fields[] = self::tab( 'event_search', 'Search results' );
+		$fields[] = self::text( 'cic_seo_title', 'Search result title', 'Shown in the browser tab and search results, followed by the site name. Empty uses the event title.' );
+		$fields[] = self::area( 'cic_seo_description', 'Search result description', 'About 150 characters. Empty uses the excerpt.', 2 );
 		$fields[] = self::tab( 'event_sections', 'Sections' );
 		$fields   = array_merge( $fields, self::section_controls( self::EVENT_SECTIONS ) );
 

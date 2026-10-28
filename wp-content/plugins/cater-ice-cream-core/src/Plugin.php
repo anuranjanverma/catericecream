@@ -42,6 +42,7 @@ final class Plugin {
 		( new Locations\Service() )->register();
 		( new Seo\Service() )->register();
 		( new Enquiries\Service() )->register();
+		( new Analytics\Service() )->register();
 	}
 
 	public function load_textdomain(): void {

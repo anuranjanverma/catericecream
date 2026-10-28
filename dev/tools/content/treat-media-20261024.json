@@ -1,0 +1,89 @@
+{
+	"version": "2026-10-24",
+	"about": "Authentic treat-page media supplied by the owner (handoff/Cater_Ice_Cream_WebP_Assets/treats). Asset keys are stable identifiers: the importer finds attachments by the _cic_asset_id meta (the same identifier the image-pack importer uses), never by local IDs or URLs. Files are built by build-treat-media.cjs into a media package; originals are never modified.",
+	"assets": {
+		"dots-wedding-setup": {
+			"source": "WhatsApp Image 2026-10-12 at 6.20.50 PM.jpeg",
+			"file": "dots-wedding-setup.webp",
+			"kind": "image",
+			"crop": { "x": 0, "y": 0, "width": 1240, "height": 1066, "why": "Leaves out the easel sign on the right, which shows the couple's first names and wedding date." },
+			"title": "Dippin' Dots catering setup at a wedding (bride and groom)",
+			"alt": "A bride and groom standing behind a Dippin' Dots serving table at an evening garden wedding, next to a Dippin' Dots freezer cart and branded umbrella.",
+			"caption": "A Dippin' Dots serving table and freezer cart at a wedding."
+		},
+		"dots-serving-poster": {
+			"source": "WhatsApp Video 2026-10-19 at 7.36.00 AM.mp4",
+			"file": "dots-serving-poster.webp",
+			"kind": "poster",
+			"time": 25.7,
+			"title": "Poster: staff serving Dippin' Dots to children",
+			"alt": "A server wearing an insulated glove passing a cup of Dippin' Dots to children at a white serving counter."
+		},
+		"dots-serving-video": {
+			"source": "WhatsApp Video 2026-10-19 at 7.36.00 AM.mp4",
+			"file": "dots-serving-video.mp4",
+			"kind": "video",
+			"poster": "dots-serving-poster",
+			"title": "Video: staff serving Dippin' Dots to children (45 s)",
+			"caption": "Staff serving Dippin' Dots beaded ice cream to children at an event (45 seconds)."
+		},
+		"dots-birthday-poster": {
+			"source": "WhatsApp Video 2026-10-19 at 8.42.08 PM.mp4",
+			"file": "dots-birthday-poster.webp",
+			"kind": "poster",
+			"time": 4.0,
+			"title": "Poster: decorated birthday party tables",
+			"alt": "Long party tables with brightly colored chairs and balloon decorations at an outdoor birthday party."
+		},
+		"dots-birthday-video": {
+			"source": "WhatsApp Video 2026-10-19 at 8.42.08 PM.mp4",
+			"file": "dots-birthday-video.mp4",
+			"kind": "video",
+			"poster": "dots-birthday-poster",
+			"title": "Video: birthday party setup with a Dippin' Dots banner (24 s)",
+			"caption": "A decorated birthday party setup, ending with a Dippin' Dots banner (24 seconds)."
+		},
+		"bananas-storage-trays": {
+			"source": "DipN' Bananas Storage.jpeg",
+			"file": "bananas-storage-trays.webp",
+			"kind": "image",
+			"title": "DipN' Bananas on trays in storage",
+			"alt": "Trays of chocolate-covered bananas on sticks, topped with chopped nuts or rainbow sprinkles, on a rack inside a stainless-steel cabinet.",
+			"caption": "Chocolate-covered bananas with nut and sprinkle toppings, on trays in storage."
+		},
+		"bananas-dipping-poster": {
+			"source": "WhatsApp Video 2026-10-15 at 11.42.13 PM.mp4",
+			"file": "bananas-dipping-poster.webp",
+			"kind": "poster",
+			"time": 32.5,
+			"title": "Poster: a banana being dipped in chocolate",
+			"alt": "A gloved hand holding a chocolate-dipped banana above a tray of melted chocolate."
+		},
+		"bananas-dipping-video": {
+			"source": "WhatsApp Video 2026-10-15 at 11.42.13 PM.mp4",
+			"file": "bananas-dipping-video.mp4",
+			"kind": "video",
+			"poster": "bananas-dipping-poster",
+			"lowres": true,
+			"title": "Video: dipping a banana in chocolate (100 s, low-resolution phone clip)",
+			"caption": "Dipping a banana in chocolate (short phone clip, 100 seconds)."
+		}
+	},
+	"placements": {
+		"dippin-dots": {
+			"detail_image": { "asset": "dots-wedding-setup", "replaces_seeded": "dots-detail-macro" },
+			"media": {
+				"heading": "Dippin' Dots at <em>real events.</em>",
+				"intro": "Short clips from events. Each video plays, with sound, only when you press play.",
+				"items": [ "dots-serving-video", "dots-birthday-video" ]
+			}
+		},
+		"dipn-bananas": {
+			"media": {
+				"heading": "Behind the <em>scenes.</em>",
+				"intro": "How DipN' Bananas are dipped and kept ready before an event.",
+				"items": [ "bananas-storage-trays", "bananas-dipping-video" ]
+			}
+		}
+	}
+}

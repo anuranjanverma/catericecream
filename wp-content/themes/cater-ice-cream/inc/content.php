@@ -51,6 +51,9 @@ function cic_theme_icon( string $name ): string {
 		'gift-cups'  => '<path d="M3.5 10.5h8L10 20H5z"/><path d="M12.5 10.5h8L19 20h-5z"/><path d="M4.5 10.5a3 3 0 0 1 6 0M13.5 10.5a3 3 0 0 1 6 0"/><path d="M8 5l1 -2M16 5l-1-2M12 6V3.5"/>',
 		'arrow'      => '<path d="M5 12h14M13 6l6 6-6 6"/>',
 		'arrow-down' => '<path d="M12 5v14M6 13l6 6 6-6"/>',
+		'grad-cap'   => '<path d="M2.5 9.5L12 5l9.5 4.5L12 14z"/><path d="M6.5 11.6v3.9c0 1.6 2.5 3 5.5 3s5.5-1.4 5.5-3v-3.9"/><path d="M21.5 9.5v5.2"/><path d="M20.6 14.7h1.8l-.4 2.3h-1z"/>',
+		'diploma'    => '<path d="M6.5 6.5h11a2.5 2.5 0 0 1 0 5h-11"/><path d="M6.5 6.5a2.5 2.5 0 0 0 0 5h11a2.5 2.5 0 0 1 0 5h-11a2.5 2.5 0 0 1 0-5"/><path d="M13.5 15.5l-.8 4.5 1.8-1 1.8 1-.8-4.5"/>',
+		'mirror-ball' => '<path d="M12 2.5v3"/><circle cx="12" cy="13" r="7"/><path d="M5 13h14M12 6v14M7.2 8.5c3 1.4 6.6 1.4 9.6 0M7.2 17.5c3-1.4 6.6-1.4 9.6 0"/><path d="M19.5 2.5l.5 1.4 1.4.5-1.4.5-.5 1.4-.5-1.4-1.4-.5 1.4-.5z"/>',
 	);
 	if ( ! isset( $paths[ $name ] ) ) {
 		return '';
@@ -147,6 +150,9 @@ function cic_theme_motif( string $name, string $class = '' ): string {
 		'skyline'     => array( '0 0 120 48', '<path d="M2 44h116M10 44V30h8v14M22 44V22h10v22M36 44V12h8v32M48 44V26h12v18M64 44V18h9v26M78 44V30h8v14M92 44V24h10v20"/><path d="M106 44V30M106 30c-3-4-7-5-10-4M106 30c3-4 7-5 10-4M106 30c-1-5 0-9 3-11"/>' ),
 		'coast'       => array( '0 0 120 48', '<path d="M2 44h116"/><path d="M4 34l18-14 14 10 16-16 20 18 14-8 18 10 12-6"/><path d="M14 44c6-4 12-4 18 0s12 4 18 0 12-4 18 0"/><path d="M98 34V20M98 20c-3-4-7-4-10-2M98 20c3-4 7-4 10-2"/>' ),
 		'mission'     => array( '0 0 120 48', '<path d="M2 44h116"/><path d="M40 44V26h40v18M48 26v-8h24v8M56 18v-8l4-4 4 4v8"/><path d="M54 44V34a6 6 0 0 1 12 0v10M60 10V4"/><path d="M14 44V30M14 30c-3-4-7-4-10-2M14 30c3-4 7-4 10-2M102 44V30M102 30c-3-4-7-4-10-2M102 30c3-4 7-4 10-2"/>' ),
+		'grad-cap'    => array( '0 0 80 60', '<path d="M6 22L40 8l34 14-34 14z"/><path d="M20 28v11c0 5 9 9 20 9s20-4 20-9V28"/><path d="M74 22v15" class="cic-motif__trail"/><path d="M71 37h6l-1 8h-4z"/>' ),
+		'stars'       => array( '0 0 90 50', '<path d="M20 8l2.5 9 9 2.5-9 2.5L20 31l-2.5-9-9-2.5 9-2.5z"/><path d="M62 4l1.5 5 5 1.5-5 1.5L62 17l-1.5-5-5-1.5 5-1.5z"/><path d="M74 30l1.2 4 4 1.2-4 1.2L74 40.4l-1.2-4-4-1.2 4-1.2z"/><circle cx="44" cy="40" r="1.6"/><circle cx="6" cy="42" r="1.2"/>' ),
+		'starlight'   => array( '0 0 120 60', '<path d="M4 50c22-4 40-18 58-30s36-14 54-8" class="cic-motif__trail"/><path d="M62 8l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/><path d="M100 26l1.4 4.6 4.6 1.4-4.6 1.4-1.4 4.6-1.4-4.6-4.6-1.4 4.6-1.4z"/><path d="M26 30l1 3.4 3.4 1-3.4 1-1 3.4-1-3.4-3.4-1 3.4-1z"/>' ),
 		'people-line' => array( '0 0 96 64', '<circle cx="30" cy="22" r="8"/><circle cx="66" cy="22" r="8"/><circle cx="48" cy="16" r="9"/><path d="M14 56c0-10 8-18 16-18M82 56c0-10-8-18-16-18M30 58c0-12 8-22 18-22s18 10 18 22"/>' ),
 	);
 	if ( ! isset( $motifs[ $name ] ) ) {
@@ -269,11 +275,14 @@ add_action(
 					'cic-quote',
 					'window.cicQuote = ' . wp_json_encode(
 						array(
+							// Saved quote progress (draft-only routes; the final submission is always CF7).
+							'draft'    => rest_url( 'cic/v1/quote-draft' ),
+							'save'     => rest_url( 'cic/v1/quote-draft/save' ),
 							'messages' => array(
 								'summary'   => __( 'Please check these fields:', 'cater-ice-cream' ),
 								'required'  => __( 'Please fill in this field.', 'cater-ice-cream' ),
 								'event'     => __( 'Please choose what you are celebrating.', 'cater-ice-cream' ),
-								'date'      => __( 'Please choose your event date, or tick “Date not set yet”.', 'cater-ice-cream' ),
+								'date'      => __( 'Please choose your event date, or check “Date not set yet”.', 'cater-ice-cream' ),
 								'dateRange' => __( 'Please choose a date from today onward (within three years).', 'cater-ice-cream' ),
 								'guests'    => __( 'Please enter an approximate guest count (a whole number from 1).', 'cater-ice-cream' ),
 								'location'  => __( 'Please enter your event city or 5-digit ZIP code.', 'cater-ice-cream' ),
@@ -283,7 +292,21 @@ add_action(
 								'needCity'  => __( 'Venue city', 'cater-ice-cream' ),
 								'needZip'   => __( 'Event ZIP code', 'cater-ice-cream' ),
 								'sending'   => __( 'Sending…', 'cater-ice-cream' ),
-								'network'   => __( 'We could not reach the server. Your answers are kept: please press Send again.', 'cater-ice-cream' ),
+								'network'   => __( 'We couldn’t reach the server. Your answers are still here, so just press the button again.', 'cater-ice-cream' ),
+								// The server answered, but not with a form response (HTTP error or a non-JSON page,
+								// e.g. a hosting security check): retrying may not help, so offer the phone too.
+								'server'    => '' !== cic_theme_contact()['phone']
+									/* translators: %s: business phone number. */
+									? sprintf( __( 'Your request didn’t go through. Your answers are still here: please press the button again in a moment. If it still doesn’t work, call us at %s.', 'cater-ice-cream' ), cic_theme_contact()['phone'] )
+									: __( 'Your request didn’t go through. Your answers are still here: please press the button again in a moment.', 'cater-ice-cream' ),
+								'continueFail' => __( 'We couldn’t save your details just now. Your answers are still here: please try again.', 'cater-ice-cream' ),
+								'continueBusy' => __( 'Still saving your details. Please try again in a moment.', 'cater-ice-cream' ),
+								'retry'     => __( 'Try again', 'cater-ice-cream' ),
+								'stepDone'  => __( '(completed)', 'cater-ice-cream' ),
+								'optSaving' => __( 'Saving…', 'cater-ice-cream' ),
+								'optSaved'  => __( 'Saved', 'cater-ice-cream' ),
+								'optFailed' => __( 'Not saved yet.', 'cater-ice-cream' ),
+								'optClosed' => __( 'These details can no longer be changed online. Please call or email us.', 'cater-ice-cream' ),
 								'waiting'   => __( 'We are already saving this request. Please wait a moment.', 'cater-ice-cream' ),
 								'unsureTip' => __( 'Not sure yet', 'cater-ice-cream' ),
 								'tbc'       => __( 'Date to be confirmed', 'cater-ice-cream' ),

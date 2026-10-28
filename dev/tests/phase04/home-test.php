@@ -60,8 +60,8 @@ $front = (int) get_option( 'page_on_front' );
 $vm    = ViewModel::home( $front );
 cic4_check( 'C1 static front page is the seeded Home page', 'page' === get_option( 'show_on_front' ) && 'home' === get_post_meta( $front, 'cic_key', true ) );
 cic4_check( 'C2 approved section order', array( 'hero', 'values', 'treats', 'events', 'process', 'faq', 'coverage', 'cta' ) === wp_list_pluck( $vm['sections'], 'key' ), wp_list_pluck( $vm['sections'], 'key' ) );
-cic4_check( 'C3 events include Anniversary (correction) in menu order', array( 'birthday', 'wedding', 'corporate', 'anniversary' ) === wp_list_pluck( $vm['events']['items'], 'key' ) );
-cic4_check( 'C4 hero search: Location, Event type, Date; event options are published events + Other', 'Location' === $vm['search']['location_label'] && 'Event type' === $vm['search']['event_label'] && 'Date' === $vm['search']['date_label'] && array( 'birthday', 'wedding', 'corporate', 'anniversary', 'other' ) === array_keys( $vm['search']['events'] ) );
+cic4_check( 'C3 six events in the central order (2026-10-22), Anniversary last', array( 'birthday', 'wedding', 'graduation', 'prom', 'corporate', 'anniversary' ) === wp_list_pluck( $vm['events']['items'], 'key' ) );
+cic4_check( 'C4 hero search: Location, Event type, Date; event options are published events + Other', 'Location' === $vm['search']['location_label'] && 'Event type' === $vm['search']['event_label'] && 'Date' === $vm['search']['date_label'] && array( 'birthday', 'wedding', 'graduation', 'prom', 'corporate', 'anniversary', 'other' ) === array_keys( $vm['search']['events'] ) );
 cic4_check( 'C5 all homepage photos resolve to imported attachments', ! in_array( 0, $vm['hero']['images'], true ) && $vm['treats']['more_image'] && ! in_array( 0, wp_list_pluck( $vm['events']['items'], 'image' ), true ) && ! in_array( 0, wp_list_pluck( $vm['treats']['items'], 'image' ), true ) );
 $cic4_cities = array_merge( ...wp_list_pluck( $vm['coverage']['counties'], 'cities' ) );
 cic4_check( 'C6 counties in approved order; listed cities come only from published repository records and link to their city pages', array( 'Los Angeles County', 'Ventura County', 'Santa Barbara County' ) === wp_list_pluck( $vm['coverage']['counties'], 'name' ) && ! array_filter( $cic4_cities, static fn( $c ) => ! str_contains( (string) $c['url'], '/service-areas/' ) ) && ! in_array( 'Compton', wp_list_pluck( $cic4_cities, 'name' ), true ) );
@@ -86,6 +86,9 @@ cic4_check( 'D7 search form posts nowhere personal: GET to the quote route with 
 WP_CLI::log( '== E. Seeding' );
 $result = ( new Seeder() )->run( false );
 cic4_check( 'E1 seed re-run changes nothing', 0 === $result['report']['created'] && 0 === $result['report']['filled'] && 0 === $result['report']['pairs'], $result['report'] );
-cic4_check( 'E2 57 masters imported in total (slice, homepage, county, Phase 07 detail pages and Phase 08 events hero), each once', 57 === count( get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => '_cic_asset_id', 'numberposts' => -1, 'fields' => 'ids' ) ) ) ); // phpcs:ignore
+// Image-pack masters only: their _cic_asset_source is an images/… path (the owner's authentic treat
+// media of 2026-10-24 also carries _cic_asset_id, with the original file name as its source).
+$cic4_masters = array_filter( get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'meta_key' => '_cic_asset_id', 'numberposts' => -1, 'fields' => 'ids' ) ), static fn( $a ) => str_starts_with( (string) get_post_meta( $a, '_cic_asset_source', true ), 'images/' ) ); // phpcs:ignore
+cic4_check( 'E2 57 masters imported in total (slice, homepage, county, Phase 07 detail pages and Phase 08 events hero), each once', 57 === count( $cic4_masters ), count( $cic4_masters ) );
 
 WP_CLI::log( sprintf( '== RESULT: %d passed, %d failed', $cic4['pass'], $cic4['fail'] ) );

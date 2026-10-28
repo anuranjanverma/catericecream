@@ -181,8 +181,9 @@ try {
 	cic_check( 'H2 contact: valid phone saved, bad email/link/social rejected', '(818) 555-0100' === $cc['business_phone'] && 3 === count( $e ) && 'Call' === $cc['call_label'], implode( ' | ', $e ) );
 	cic_check( 'H3 private operator recipient is preserved untouched', ( $snapshot[ CIC\Config::OPTION_SETTINGS ]['operator_recipient'] ?? CIC\Config::defaults()['operator_recipient'] ) === ( $cc['operator_recipient'] ?? CIC\Config::defaults()['operator_recipient'] ) );
 	$e = array();
+	$prev_logo = (int) Layout::get()['main']['logo_id']; // An invalid image keeps the saved logo (the owner's, since 2026-10-23).
 	$l = Layout::sanitize( array( 'main' => array( 'logo_width' => '999', 'logo_id' => '999999', 'sticky' => '' ), 'top' => array( 'surface' => 'not-a-token', 'text' => '<script>x</script>Hi' ), 'footer' => array( 'layout' => 'evil' ) ), $e );
-	cic_check( 'H4 layout: bounded widths, real images only, allowlisted tokens/layouts, plain text', Layout::defaults()['main']['logo_width'] === $l['main']['logo_width'] && 0 === $l['main']['logo_id'] && false === $l['main']['sticky'] && 'text_primary' === $l['top']['surface'] && 'Hi' === $l['top']['text'] && 'brand-menu-contact' === $l['footer']['layout'] && 3 === count( $e ), implode( ' | ', $e ) );
+	cic_check( 'H4 layout: bounded widths, real images only, allowlisted tokens/layouts, plain text', Layout::defaults()['main']['logo_width'] === $l['main']['logo_width'] && $prev_logo === $l['main']['logo_id'] && false === $l['main']['sticky'] && 'text_primary' === $l['top']['surface'] && 'Hi' === $l['top']['text'] && 'brand-menu-contact' === $l['footer']['layout'] && 3 === count( $e ), implode( ' | ', $e ) );
 } finally {
 	foreach ( $snapshot as $opt => $value ) {
 		if ( null === $value ) {

@@ -14,6 +14,8 @@ $cic_small = array_slice( $cic_t['items'], 2 );
 echo cic_theme_section_open( 'cic-event', $args['section'], 'cic-section' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
 if ( 'birthday' === $args['vm']['layout'] ) {
 	echo cic_theme_balloon( 'cic-balloon--t1', 'heading-accent' ) . cic_theme_confetti( 'cic-confetti--treats' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG.
+} elseif ( 'graduation' === $args['vm']['layout'] ) {
+	echo cic_theme_motif( 'stars', 'cic-treats__stars' ) . cic_theme_confetti( 'cic-confetti--treats' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG.
 }
 ?>
 	<div class="cic-container">

@@ -117,10 +117,13 @@ let browser;
 		} );
 		await box.screenshot( { path: path.join( OUT, 'admin-fields-treats-tab.png' ) } );
 
+		// Wait for the save itself (the promise), then for the meta-box save it triggers: polling alone
+		// could see "not saving" before the save had started and close the browser mid-save.
 		await page.evaluate( () => {
 			window.wp.data.dispatch( 'core/editor' ).editPost( { meta: {} } );
-			window.wp.data.dispatch( 'core/editor' ).savePost();
+			return window.wp.data.dispatch( 'core/editor' ).savePost();
 		} );
+		await new Promise( ( r ) => setTimeout( r, 800 ) );
 		await page.waitForFunction( () => {
 			const ed = window.wp.data.select( 'core/editor' );
 			const mb = window.wp.data.select( 'core/edit-post' );

@@ -1,6 +1,6 @@
 <?php
 /**
- * Three value points under the hero (06 Anniversary, 07 Corporate): icon in a tinted circle,
+ * Three value points under the hero (06 Anniversary, 07 Corporate, Graduation): icon in a tinted circle,
  * title and a short line, separated by fine dividers.
  *
  * @package CaterIceCream

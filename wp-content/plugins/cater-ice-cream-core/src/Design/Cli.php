@@ -97,7 +97,7 @@ final class Cli {
 					array( 'title' => 'Our Treats', 'path' => '/treats/', 'children' => $treats ),
 					array( 'title' => 'Events', 'path' => '/events/', 'children' => $events ),
 					array( 'title' => 'How It Works', 'path' => '/#how-it-works' ),
-					array( 'title' => 'About', 'path' => '/about/' ),
+					// About left the header menu on 2026-10-24 (owner); it stays in the footer.
 					array( 'title' => 'Service Areas', 'path' => '/service-areas/' ),
 				),
 			),

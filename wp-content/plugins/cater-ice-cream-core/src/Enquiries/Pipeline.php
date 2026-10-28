@@ -21,6 +21,11 @@
  *  6. wpcf7_feedback_response adds {cic: accepted, receipt, summary} for the JavaScript; the
  *     no-JS path redirects to the confirmation page (receipt only, never personal data).
  *
+ * Saved quote progress (Drafts, 2026-10-23): when the browser holds an incomplete draft (cookie, or
+ * the Step 1 client key posted as cic_draft_key), step 3b completes that SAME Flamingo message
+ * instead of storing a new one; everything else (claim, validation, notifications once) is
+ * unchanged. Without a draft (no JavaScript) a new message is stored as before.
+ *
  * @package CIC
  */
 
@@ -55,7 +60,7 @@ final class Pipeline {
 	 */
 	public function strip_guard( $data ) {
 		if ( is_array( $data ) && '' !== Forms::current_type() ) {
-			unset( $data['cic_website'], $data['cic_ts'], $data['cic_key'], $data['cic_source'], $data['cic_guard'] );
+			unset( $data['cic_website'], $data['cic_ts'], $data['cic_key'], $data['cic_source'], $data['cic_guard'], $data['cic_draft_key'] );
 		}
 		return $data;
 	}
@@ -166,8 +171,14 @@ final class Pipeline {
 		if ( 'stored' === $claim['state'] ) {
 			// A retry of a request we already saved: same receipt, nothing stored or sent again.
 			$abort = true;
-			$submission->set_response( Forms::type_of( (int) $form->id() ) === 'contact' ? __( 'Your message is received.', 'cater-ice-cream-core' ) : __( 'Your quote request is received.', 'cater-ice-cream-core' ) );
-			$submission->add_result_props( array( 'cic' => self::payload( $type, $claim['row'], true ) ) );
+			$submission->set_response( Forms::type_of( (int) $form->id() ) === 'contact' ? __( 'Thanks! We received your message.', 'cater-ice-cream-core' ) : __( 'Thanks! We received your quote request.', 'cater-ice-cream-core' ) );
+			$replay = self::payload( $type, $claim['row'], true );
+			$mine   = $claim['row'] ? Drafts::for_receipt( (int) $claim['row']['flamingo_id'] ) : null;
+			if ( $mine ) {
+				$replay['glance']   = $mine['glance'];
+				$replay['optional'] = true;
+			}
+			$submission->add_result_props( array( 'cic' => $replay ) );
 			return;
 		}
 		if ( 'claimed' !== $claim['state'] ) {
@@ -179,13 +190,19 @@ final class Pipeline {
 
 		$check             = self::check( $type );
 		self::$flamingo_id = 0;
-		self::$storing     = true;
-		try {
-			wpcf7_flamingo_submit( $form, array( 'status' => 'mail_sent' ) );
-		} catch ( \Throwable $e ) {
-			self::$flamingo_id = 0;
-		} finally {
-			self::$storing = false;
+		$draft             = 'quote' === $type ? Drafts::resolve( (string) ( $post['cic_draft_key'] ?? '' ) ) : null;
+		$completed         = ( $draft && 'incomplete' === $draft['stage'] ) ? Drafts::complete( (int) $draft['id'], $form, $submission ) : 0;
+		if ( $completed ) {
+			self::$flamingo_id = $completed; // 3b. The visitor's saved draft, completed in place.
+		} else {
+			self::$storing = true;
+			try {
+				wpcf7_flamingo_submit( $form, array( 'status' => 'mail_sent' ) );
+			} catch ( \Throwable $e ) {
+				self::$flamingo_id = 0;
+			} finally {
+				self::$storing = false;
+			}
 		}
 		$id = self::$flamingo_id;
 		if ( ! $id || 'flamingo_inbound' !== get_post_type( $id ) ) {
@@ -196,13 +213,19 @@ final class Pipeline {
 			return;
 		}
 
-		Workflow::init( $id, $check['data'], Workflow::clean_source( (string) ( $post['cic_source'] ?? '' ) ) );
+		Workflow::init( $id, $check['data'], Workflow::clean_source( (string) ( $post['cic_source'] ?? '' ) ), (bool) $completed );
 		$summary = self::summary( $check['data'] );
 		Store::complete( $key, $id, $summary );
 		Guard::accepted();
 		do_action( 'cic_enquiry_stored', $id, $type );
 		Notifier::send_all( $id );
-		$submission->add_result_props( array( 'cic' => self::payload( $type, Store::by_key( $key ), false ) ) );
+		$payload = self::payload( $type, Store::by_key( $key ), false );
+		if ( 'quote' === $type ) {
+			// "Your event at a glance" for this visitor only (the REST response, never a URL).
+			$payload['glance']   = Drafts::glance( $check['data'] );
+			$payload['optional'] = (bool) $completed;
+		}
+		$submission->add_result_props( array( 'cic' => $payload ) );
 	}
 
 	/**

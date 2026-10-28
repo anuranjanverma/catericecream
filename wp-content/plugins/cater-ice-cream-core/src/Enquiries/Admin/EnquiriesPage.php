@@ -14,6 +14,7 @@
 
 namespace CIC\Enquiries\Admin;
 
+use CIC\Enquiries\Drafts;
 use CIC\Enquiries\Notifier;
 use CIC\Enquiries\Roles;
 use CIC\Enquiries\Settings;
@@ -58,8 +59,31 @@ final class EnquiriesPage {
 		if ( ! current_user_can( Roles::CAPABILITY ) ) {
 			return 0;
 		}
-		$q = new \WP_Query( array( 'post_type' => Workflow::POST_TYPE, 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids', 'meta_query' => array( array( 'key' => '_cic_status', 'value' => 'new' ) ), 'no_found_rows' => false ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		// Incomplete (not yet submitted) quote progress is not counted as a new inquiry.
+		$q = new \WP_Query( array( 'post_type' => Workflow::POST_TYPE, 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids', 'meta_query' => array( array( 'key' => '_cic_status', 'value' => 'new' ), self::submitted_clause() ), 'no_found_rows' => false ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		return (int) $q->found_posts;
+	}
+
+	/** Meta clause: submitted inquiries (historical ones have no stage meta). */
+	private static function submitted_clause(): array {
+		return array(
+			'relation' => 'OR',
+			array( 'key' => '_cic_stage', 'compare' => 'NOT EXISTS' ),
+			array( 'key' => '_cic_stage', 'value' => 'incomplete', 'compare' => '!=' ),
+		);
+	}
+
+	/** "Incomplete" / "Submitted" pill. */
+	private static function stage_pill( int $id ): string {
+		return 'incomplete' === Drafts::stage( $id )
+			? '<span class="cic-pill cic-pill--warn" data-stage="incomplete">' . esc_html__( 'Incomplete', 'cater-ice-cream-core' ) . '</span>'
+			: '<span class="cic-pill cic-pill--good" data-stage="submitted">' . esc_html__( 'Submitted', 'cater-ice-cream-core' ) . '</span>';
+	}
+
+	/** Last visitor activity (Pacific), or ''. */
+	private static function activity( int $id ): string {
+		$at = (int) get_post_meta( $id, '_cic_activity', true );
+		return $at ? wp_date( 'M j, Y g:i a', $at, new \DateTimeZone( 'America/Los_Angeles' ) ) : '';
 	}
 
 	/**
@@ -80,6 +104,11 @@ final class EnquiriesPage {
 		}
 		if ( $f['assignee'] > 0 ) {
 			$meta[] = array( 'key' => '_cic_assignee', 'value' => $f['assignee'] );
+		}
+		if ( 'incomplete' === $f['stage'] ) {
+			$meta[] = array( 'key' => '_cic_stage', 'value' => 'incomplete' );
+		} elseif ( 'submitted' === $f['stage'] ) {
+			$meta[] = self::submitted_clause();
 		}
 		$args = array(
 			'post_type'      => Workflow::POST_TYPE,
@@ -105,6 +134,7 @@ final class EnquiriesPage {
 			'status'   => isset( Workflow::statuses()[ $status ] ) ? $status : '',
 			'type'     => in_array( $type, array( 'quote', 'contact' ), true ) ? $type : '',
 			'assignee' => isset( $_REQUEST['assignee'] ) ? absint( $_REQUEST['assignee'] ) : 0,
+			'stage'    => isset( $_REQUEST['stage'] ) && in_array( $_REQUEST['stage'], array( 'incomplete', 'submitted' ), true ) ? sanitize_key( wp_unslash( $_REQUEST['stage'] ) ) : '',
 			's'        => isset( $_REQUEST['s'] ) ? mb_substr( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ), 0, 80 ) : '',
 		);
 		// phpcs:enable
@@ -174,13 +204,14 @@ final class EnquiriesPage {
 		$export = wp_nonce_url( add_query_arg( array_merge( array( 'action' => 'cic_enquiry_export' ), array_filter( $f ) ), admin_url( 'admin-post.php' ) ), 'cic_enquiry_export' );
 		echo '<a class="page-title-action" id="cic-export" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 'cater-ice-cream-core' ) . '</a><hr class="wp-header-end">';
 		$this->notices();
-		echo '<p class="description">' . esc_html__( 'Every website enquiry is saved in Flamingo before any email is sent. A request is not a booking until you confirm it with the customer.', 'cater-ice-cream-core' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Every website enquiry is saved in Flamingo before any email is sent. A request is not a booking until you confirm it with the customer.', 'cater-ice-cream-core' ) . ' ' . esc_html__( '"Incomplete" means the visitor saved Step 1 of the quote form (and possibly more) but has not sent the request yet; no emails or reminders are sent for it. Follow up by hand only if appropriate, using their preferred contact method.', 'cater-ice-cream-core' ) . '</p>';
 		echo '<form method="get" style="margin:1em 0"><input type="hidden" name="page" value="' . esc_attr( self::SLUG ) . '">';
 		echo '<label class="screen-reader-text" for="cic-enq-status">' . esc_html__( 'Status', 'cater-ice-cream-core' ) . '</label><select id="cic-enq-status" name="status"><option value="">' . esc_html__( 'All open and closed (not spam)', 'cater-ice-cream-core' ) . '</option>';
 		foreach ( Workflow::statuses() as $k => $l ) {
 			echo '<option value="' . esc_attr( $k ) . '"' . selected( $f['status'], $k, false ) . '>' . esc_html( $l ) . '</option>';
 		}
 		echo '</select> <label class="screen-reader-text" for="cic-enq-type">' . esc_html__( 'Type', 'cater-ice-cream-core' ) . '</label><select id="cic-enq-type" name="type"><option value="">' . esc_html__( 'Quotes and messages', 'cater-ice-cream-core' ) . '</option><option value="quote"' . selected( $f['type'], 'quote', false ) . '>' . esc_html__( 'Quote requests', 'cater-ice-cream-core' ) . '</option><option value="contact"' . selected( $f['type'], 'contact', false ) . '>' . esc_html__( 'Contact messages', 'cater-ice-cream-core' ) . '</option></select> ';
+		echo '<label class="screen-reader-text" for="cic-enq-stage">' . esc_html__( 'Completion', 'cater-ice-cream-core' ) . '</label><select id="cic-enq-stage" name="stage"><option value="">' . esc_html__( 'Submitted and incomplete', 'cater-ice-cream-core' ) . '</option><option value="submitted"' . selected( $f['stage'], 'submitted', false ) . '>' . esc_html__( 'Submitted', 'cater-ice-cream-core' ) . '</option><option value="incomplete"' . selected( $f['stage'], 'incomplete', false ) . '>' . esc_html__( 'Incomplete (not yet submitted)', 'cater-ice-cream-core' ) . '</option></select> ';
 		echo '<label class="screen-reader-text" for="cic-enq-assignee">' . esc_html__( 'Assignee', 'cater-ice-cream-core' ) . '</label><select id="cic-enq-assignee" name="assignee"><option value="0">' . esc_html__( 'Anyone', 'cater-ice-cream-core' ) . '</option>';
 		foreach ( Roles::assignees() as $u ) {
 			echo '<option value="' . (int) $u->ID . '"' . selected( $f['assignee'], (int) $u->ID, false ) . '>' . esc_html( $u->display_name ) . '</option>';
@@ -198,14 +229,15 @@ final class EnquiriesPage {
 			$type = (string) get_post_meta( $id, '_cic_type', true );
 			$as   = (int) get_post_meta( $id, '_cic_assignee', true );
 			$user = $as ? get_userdata( $as ) : null;
-			echo '<tr data-enquiry="' . (int) $id . '"><td><a class="row-title" href="' . esc_url( self::detail_url( $id ) ) . '">#' . (int) $id . ' ' . esc_html( self::field( $id, 'your_name' ) ) . '</a><br><span class="description">' . esc_html( 'contact' === $type ? __( 'Contact message', 'cater-ice-cream-core' ) : __( 'Quote request', 'cater-ice-cream-core' ) ) . '</span></td>';
-			echo '<td>' . esc_html( self::received( $id ) ) . '</td>';
+			$open = 'incomplete' === Drafts::stage( $id );
+			echo '<tr data-enquiry="' . (int) $id . '" data-stage="' . esc_attr( Drafts::stage( $id ) ) . '"><td><a class="row-title" href="' . esc_url( self::detail_url( $id ) ) . '">#' . (int) $id . ' ' . esc_html( self::field( $id, 'your_name' ) ) . '</a><br><span class="description">' . esc_html( 'contact' === $type ? __( 'Contact message', 'cater-ice-cream-core' ) : __( 'Quote request', 'cater-ice-cream-core' ) ) . '</span> ' . ( 'quote' === $type ? self::stage_pill( $id ) : '' ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped pill.
+			echo '<td>' . ( $open ? esc_html__( 'Not submitted yet', 'cater-ice-cream-core' ) . '<br><span class="description">' . esc_html( sprintf( /* translators: %s: time. */ __( 'Last activity %s', 'cater-ice-cream-core' ), self::activity( $id ) ) ) . '</span>' : esc_html( self::received( $id ) ) ) . '</td>';
 			echo '<td>' . esc_html( (string) ( $c['event_label'] ?? ( $c['topic_label'] ?? '' ) ) ) . ( ! empty( $c['date_label'] ) ? '<br><span class="description">' . esc_html( $c['date_label'] ) . '</span>' : '' ) . '</td>';
 			echo '<td>' . esc_html( (string) ( $c['location_label'] ?? '' ) ) . ( ! empty( $c['coverage']['fixture'] ) ? ' <span class="cic-badge-fx">' . esc_html__( 'TEST DATA', 'cater-ice-cream-core' ) . '</span>' : '' ) . '</td>';
 			echo '<td data-status="' . esc_attr( Workflow::status( $id ) ) . '">' . esc_html( Workflow::statuses()[ Workflow::status( $id ) ] ) . '</td>';
 			echo '<td>' . esc_html( $user ? $user->display_name : '—' ) . '</td>';
 			echo '<td>' . esc_html( (string) get_post_meta( $id, '_cic_follow_up', true ) ?: '—' ) . '</td>';
-			echo '<td>' . self::notify_pill( Store::by_flamingo( $id ) ) . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped pills.
+			echo '<td>' . ( $open ? '<span class="cic-pill">' . esc_html__( 'None (not submitted)', 'cater-ice-cream-core' ) . '</span>' : self::notify_pill( Store::by_flamingo( $id ) ) ) . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped pills.
 		}
 		if ( ! $q->posts ) {
 			echo '<tr><td colspan="8">' . esc_html__( 'No enquiries match these filters.', 'cater-ice-cream-core' ) . '</td></tr>';
@@ -224,12 +256,29 @@ final class EnquiriesPage {
 		$type = (string) get_post_meta( $id, '_cic_type', true );
 		$c    = Workflow::context( $id );
 		$row  = Store::by_flamingo( $id );
-		echo '<h1>' . esc_html( sprintf( /* translators: 1: id, 2: type. */ __( 'Enquiry #%1$d · %2$s', 'cater-ice-cream-core' ), $id, 'contact' === $type ? __( 'Contact message', 'cater-ice-cream-core' ) : __( 'Quote request', 'cater-ice-cream-core' ) ) ) . '</h1>';
+		$open = 'incomplete' === Drafts::stage( $id );
+		echo '<h1>' . esc_html( sprintf( /* translators: 1: id, 2: type. */ __( 'Enquiry #%1$d · %2$s', 'cater-ice-cream-core' ), $id, 'contact' === $type ? __( 'Contact message', 'cater-ice-cream-core' ) : __( 'Quote request', 'cater-ice-cream-core' ) ) ) . ( 'quote' === $type ? ' ' . self::stage_pill( $id ) : '' ) . '</h1>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped pill.
 		echo '<p><a href="' . esc_url( self::url() ) . '">← ' . esc_html__( 'All enquiries', 'cater-ice-cream-core' ) . '</a></p>';
 		$this->notices();
 		echo '<div class="cic-enq-grid"><div>';
 
-		$rows = array( __( 'Received (Pacific)', 'cater-ice-cream-core' ) => self::received( $id ) );
+		if ( 'quote' === $type ) {
+			$sub = (int) get_post_meta( $id, '_cic_submitted_at', true );
+			$opt = (int) get_post_meta( $id, '_cic_optional_at', true );
+			echo '<div class="cic-box" id="cic-completion"><h2>' . esc_html__( 'Completion', 'cater-ice-cream-core' ) . '</h2><table>';
+			echo '<tr><th scope="row">' . esc_html__( 'Status', 'cater-ice-cream-core' ) . '</th><td>' . esc_html( $open ? __( 'Incomplete: Step 1 was saved, the request has not been sent yet. The visitor may still be filling it in.', 'cater-ice-cream-core' ) : __( 'Submitted', 'cater-ice-cream-core' ) ) . '</td></tr>';
+			if ( self::activity( $id ) ) {
+				echo '<tr><th scope="row">' . esc_html__( 'Last activity (Pacific)', 'cater-ice-cream-core' ) . '</th><td>' . esc_html( self::activity( $id ) ) . '</td></tr>';
+			}
+			if ( $sub ) {
+				echo '<tr><th scope="row">' . esc_html__( 'Submitted (Pacific)', 'cater-ice-cream-core' ) . '</th><td>' . esc_html( wp_date( 'M j, Y g:i a', $sub, new \DateTimeZone( 'America/Los_Angeles' ) ) ) . '</td></tr>';
+			}
+			if ( $opt ) {
+				echo '<tr><th scope="row">' . esc_html__( 'Optional details updated', 'cater-ice-cream-core' ) . '</th><td>' . esc_html( wp_date( 'M j, Y g:i a', $opt, new \DateTimeZone( 'America/Los_Angeles' ) ) ) . '</td></tr>';
+			}
+			echo '</table>' . ( $open ? '<p class="description">' . esc_html__( 'No emails, calls or reminders are sent automatically for incomplete inquiries. You can follow up by hand using the preferred contact method.', 'cater-ice-cream-core' ) . '</p>' : '' ) . '</div>';
+		}
+		$rows = array( ( $open ? __( 'Started (Pacific)', 'cater-ice-cream-core' ) : __( 'Received (Pacific)', 'cater-ice-cream-core' ) ) => self::received( $id ) );
 		if ( 'contact' === $type ) {
 			$rows[ __( 'Topic', 'cater-ice-cream-core' ) ]   = (string) ( $c['topic_label'] ?? '' );
 			$rows[ __( 'Message', 'cater-ice-cream-core' ) ] = self::field( $id, 'message' );
@@ -321,7 +370,7 @@ final class EnquiriesPage {
 				: ( $at ? sprintf( /* translators: %s: time. */ __( 'Reminder scheduled for %s (Pacific).', 'cater-ice-cream-core' ), wp_date( 'M j, Y g:i a', (int) $at, new \DateTimeZone( 'America/Los_Angeles' ) ) ) : __( 'No reminder scheduled.', 'cater-ice-cream-core' ) )
 		) . '</p></div>';
 
-		echo '<div class="cic-box" id="cic-notifications"><h2>' . esc_html__( 'Notifications', 'cater-ice-cream-core' ) . '</h2><p>' . self::notify_pill( $row ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped pills.
+		echo '<div class="cic-box" id="cic-notifications"><h2>' . esc_html__( 'Notifications', 'cater-ice-cream-core' ) . '</h2><p>' . ( $open ? esc_html__( 'None: notifications are sent only when the request is submitted.', 'cater-ice-cream-core' ) : self::notify_pill( $row ) ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped pills.
 		if ( $row && '' !== $row['last_error'] ) {
 			echo '<p class="description">' . esc_html( sprintf( /* translators: %s: error code. */ __( 'Last error: %s', 'cater-ice-cream-core' ), $row['last_error'] ) ) . '</p>';
 		}
@@ -395,7 +444,7 @@ final class EnquiriesPage {
 		}
 		$f    = self::filters();
 		$q    = new \WP_Query( array_merge( self::query_args( $f, 2000, 1 ), array( 'no_found_rows' => true ) ) );
-		$head = array( 'id', 'received_pacific', 'type', 'status', 'assignee', 'next_follow_up', 'event', 'date', 'guests', 'location', 'coverage', 'treats', 'topic', 'name', 'email', 'phone', 'contact_pref', 'team_notification', 'customer_notification' );
+		$head = array( 'id', 'received_pacific', 'type', 'stage', 'status', 'assignee', 'next_follow_up', 'event', 'date', 'guests', 'location', 'coverage', 'treats', 'topic', 'name', 'email', 'phone', 'contact_pref', 'team_notification', 'customer_notification' );
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="enquiries-' . gmdate( 'Ymd-His' ) . '.csv"' );
@@ -407,7 +456,7 @@ final class EnquiriesPage {
 			$c    = Workflow::context( $id );
 			$as   = get_userdata( (int) get_post_meta( $id, '_cic_assignee', true ) );
 			$row  = Store::by_flamingo( $id );
-			$line = array( $id, self::received( $id ), get_post_meta( $id, '_cic_type', true ), Workflow::status( $id ), $as ? $as->display_name : '', get_post_meta( $id, '_cic_follow_up', true ), $c['event_label'] ?? '', $c['date_label'] ?? '', $c['guests'] ?? '', $c['location_label'] ?? '', ( $c['coverage']['status'] ?? '' ) . ( ! empty( $c['coverage']['fixture'] ) ? ' (test data)' : '' ), implode( ', ', (array) ( $c['treat_labels'] ?? array() ) ), $c['topic_label'] ?? '', self::field( $id, 'your_name' ), self::field( $id, 'your_email' ), self::field( $id, 'phone' ), $c['contact_pref'] ?? '', $row['operator_status'] ?? '', $row['customer_status'] ?? '' );
+			$line = array( $id, self::received( $id ), get_post_meta( $id, '_cic_type', true ), 'quote' === get_post_meta( $id, '_cic_type', true ) ? Drafts::stage( $id ) : 'submitted', Workflow::status( $id ), $as ? $as->display_name : '', get_post_meta( $id, '_cic_follow_up', true ), $c['event_label'] ?? '', $c['date_label'] ?? '', $c['guests'] ?? '', $c['location_label'] ?? '', ( $c['coverage']['status'] ?? '' ) . ( ! empty( $c['coverage']['fixture'] ) ? ' (test data)' : '' ), implode( ', ', (array) ( $c['treat_labels'] ?? array() ) ), $c['topic_label'] ?? '', self::field( $id, 'your_name' ), self::field( $id, 'your_email' ), self::field( $id, 'phone' ), $c['contact_pref'] ?? '', $row['operator_status'] ?? '', $row['customer_status'] ?? '' );
 			fputcsv( $out, array_map( array( self::class, 'csv_cell' ), $line ), ',', '"', '' );
 		}
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose

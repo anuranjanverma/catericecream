@@ -96,6 +96,21 @@ let browser;
 			await p.keyboard.press( 'ArrowDown' );
 			await p.keyboard.press( 'Enter' );
 		};
+		// Two-step quote form: fill Step 1 with synthetic details and continue to "Your event".
+		const toStep2 = async ( p = page ) => {
+			if ( await p.$eval( '.cic-qf__step[data-step="2"]', ( e ) => ! e.hidden ).catch( () => false ) ) {
+				return;
+			}
+			const mail = email( 'step' );
+			used.push( mail );
+			state( 'reset-limits' );
+			await p.$eval( '#cic-f-your-name', ( e ) => { if ( ! e.value ) { e.value = 'Refinement Tester'; } } );
+			await p.$eval( '#cic-f-your-email', ( e, m ) => { e.value = m; }, mail );
+			await p.$eval( '[name=treats_unsure]', ( e ) => { if ( ! document.querySelector( 'input[name="treats[]"]:checked' ) ) { e.checked = true; } } );
+			await sleep( 3200 ); // Spam guard: Step 1 may not be sent within 3 s of rendering.
+			await p.click( '.cic-qf__step[data-step="1"] [data-cic-next]' );
+			await p.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 15000 } );
+		};
 
 		/* ================= 1. Location labels ================= */
 		console.log( '== Location labels' );
@@ -139,7 +154,8 @@ let browser;
 		check( 'L6 direct links: city key → label, ZIP stays the ZIP, unknown key leaves the field empty (never the slug)', 'Los Angeles, CA' === direct && '91101' === zip && '' === unknown && ! html.includes( 'value="nowhere-ca"' ), { direct, zip, unknown } );
 		await p2.evaluate( () => window.sessionStorage.setItem( 'cic_quote_context', JSON.stringify( { location: 'pasadena-ca' } ) ) );
 		await go( '/events/birthday/', p2 );
-		await sleep( 800 );
+		// Wait for the label lookup (a REST call that can take over a second locally) instead of a fixed pause.
+		await p2.waitForFunction( () => 'Pasadena, CA' === ( document.querySelector( '#cic-starter-location' ) || {} ).value, { timeout: 8000 } ).catch( () => {} );
 		check( 'L7 an older stored key without a label is resolved through the location repository', 'Pasadena, CA' === await val( '#cic-starter-location', p2 ), await val( '#cic-starter-location', p2 ) );
 		await fresh.close();
 
@@ -154,7 +170,8 @@ let browser;
 		await page.type( '#cic-starter-location', 'Compton', { delay: 30 } );
 		await page.keyboard.press( 'Escape' );
 		await page.click( '.cic-starter button[type=submit]' );
-		await sleep( 1200 );
+		// Wait for the coverage answer (a REST call that can take over a second locally) instead of a fixed pause.
+		await page.waitForFunction( () => { const e = document.querySelector( '#cic-starter-error' ); return e && ! e.hidden && e.textContent.trim(); }, { timeout: 8000 } ).catch( () => {} );
 		const blocked = await page.$eval( '#cic-starter-error', ( e ) => ! e.hidden && e.textContent.trim() ).catch( () => '' );
 		check( 'L9 the excluded city (Compton) is still blocked and stays on the page', !! blocked && /events\/birthday/.test( page.url() ), blocked );
 		await pick( '#cic-starter-location', 'Pasad' );
@@ -162,30 +179,29 @@ let browser;
 		c = await ctx();
 		check( 'L10 a new choice replaces the old one: "Pasadena, CA" with key pasadena-ca', 'Pasadena, CA' === await val( '#cic-f-location' ) && 'pasadena-ca' === c.location, { v: await val( '#cic-f-location' ), c } );
 
-		// Shared ZIP clarification (fixture 90220 is shared with excluded Compton).
+		// Clarification: a ZIP we cannot confirm asks for the venue city before anything is sent.
+		const unknownZip = JSON.parse( state( 'info' ) ).unknown;
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await go( '/get-a-quote/' );
+		await toStep2();
 		await page.click( 'input[name=event][value=birthday]' );
 		await page.click( '[name=date_unknown]' ).catch( async () => page.click( '[name=date_unknown]' ) );
 		await page.type( '#cic-f-guests', '40' );
-		await page.type( '#cic-f-location', '90220' );
-		await page.click( '.cic-qf__step[data-step="1"] [data-cic-next]' );
-		await sleep( 1500 );
+		await page.type( '#cic-f-location', unknownZip );
+		await page.click( '.cic-button--send' );
+		await sleep( 2500 );
 		const detailShown = await page.$eval( '[data-cic-detail]', ( e ) => ! e.hidden ).catch( () => false );
-		check( 'L11 shared ZIP still asks for the venue city before continuing', detailShown && '1' === await page.$eval( '.cic-qf__step:not([hidden])', ( e ) => e.getAttribute( 'data-step' ) ) );
+		check( 'L11 a ZIP we cannot confirm still asks for the venue city before sending', detailShown && '2' === await page.$eval( '.cic-qf__step:not([hidden])', ( e ) => e.getAttribute( 'data-step' ) ) && ! await page.$eval( '[data-cic-received]', ( e ) => ! e.hidden ) );
 
-		// Changing the location on the quote form: validated on Next, then kept across a reload.
+		// Changing the location on the quote form: the label is shown and the canonical key kept.
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await go( '/get-a-quote/?location=los-angeles-ca&event=birthday' );
-		await page.click( '[name=date_unknown]' );
-		await page.type( '#cic-f-guests', '30' );
+		await toStep2();
+		const before12 = await val( '#cic-f-location' );
 		await pick( '#cic-f-location', 'Pasad' );
-		await page.click( '.cic-qf__step[data-step="1"] [data-cic-next]' );
-		await page.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 8000 } );
-		const urlAfter = new URL( page.url() ).searchParams.get( 'location' );
-		await page.reload( { waitUntil: 'networkidle2' } );
 		const afterChange = await val( '#cic-f-location' );
-		check( 'L12 a changed location is validated on Next, written to the URL as its key and kept after reload ("Pasadena, CA")', 'pasadena-ca' === urlAfter && 'Pasadena, CA' === afterChange, { urlAfter, afterChange } );
+		const keyAfter = await page.$eval( '#cic-f-location', ( e ) => e.getAttribute( 'data-cic-location-key' ) );
+		check( 'L12 the linked location is kept in Step 2 ("Los Angeles, CA"); a new choice shows "Pasadena, CA" with key pasadena-ca', 'Los Angeles, CA' === before12 && 'Pasadena, CA' === afterChange && 'pasadena-ca' === keyAfter, { before12, afterChange, keyAfter } );
 
 		/* ================= 2. Date picker ================= */
 		console.log( '== Date picker' );
@@ -193,6 +209,7 @@ let browser;
 			await page.setViewport( { width: w, height: 900 } );
 			await page.evaluate( () => window.sessionStorage.clear() );
 			await go( '/get-a-quote/' );
+			await toStep2();
 			// Click the icon area at the left of the control.
 			const box = await page.$eval( '#cic-f-event-date', ( e ) => { const r = e.getBoundingClientRect(); return { x: r.left + 14, y: r.top + r.height / 2 }; } );
 			await page.evaluate( () => document.querySelector( '#cic-f-event-date' ).scrollIntoView( { block: 'center' } ) );
@@ -235,7 +252,7 @@ let browser;
 			await page.click( 'input[name=event][value=wedding]' );
 			await page.type( '#cic-f-guests', '50' );
 			await pick( '#cic-f-location', 'Pasad' );
-			await page.click( '.cic-qf__step[data-step="1"] [data-cic-next]' );
+			await page.click( '.cic-button--send' );
 			await sleep( 600 );
 			const err = await page.$eval( '#cic-f-event-date', ( e ) => e.getAttribute( 'aria-invalid' ) );
 			check( 'D5 an impossible date is reported on the visible date field (existing validation)', 'true' === err, err );
@@ -251,6 +268,7 @@ let browser;
 		watch( tp );
 		await tp.setViewport( { width: 390, height: 844, isMobile: true, hasTouch: true } );
 		await go( '/get-a-quote/', tp );
+		await toStep2( tp );
 		await tp.evaluate( () => document.querySelector( '#cic-f-event-date' ).scrollIntoView( { block: 'center' } ) );
 		const tb = await tp.$eval( '#cic-f-event-date', ( e ) => { const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; } );
 		await tp.touchscreen.tap( tb.x, tb.y );
@@ -293,7 +311,7 @@ let browser;
 		} ) );
 		check( 'I2 quote starter: event type uses the party icon, date keeps the calendar, labels remain', /party/.test( qsIcons.event ) && /calendar/.test( qsIcons.date ) && qsIcons.labels.every( Boolean ), qsIcons );
 		const glance = await request( BASE + '/get-a-quote/' );
-		check( 'I3 review summary and confirmation: event rows use the party icon, the date row keeps the calendar', /data-cic-glance="event"><span class="cic-field__icon" aria-hidden="true"><svg class="cic-icon cic-icon--party/.test( glance.body ) && /data-cic-glance="date"><span class="cic-field__icon" aria-hidden="true"><svg class="cic-icon cic-icon--calendar/.test( glance.body ) && /data-chip="event"[^>]*><svg class="cic-icon cic-icon--party/.test( glance.body ) );
+		check( 'I3 confirmation: the event chip uses the party icon; the quote form date field keeps the calendar', /data-chip="event"[^>]*><svg class="cic-icon cic-icon--party/.test( glance.body ) && /<span class="cic-field__icon" aria-hidden="true"><svg class="cic-icon cic-icon--calendar[^"]*"[^>]*>.{0,600}?id="cic-f-event-date"/s.test( glance.body ) );
 
 		/* ================= 4. Favicon ================= */
 		console.log( '== Site Icon' );
@@ -401,27 +419,18 @@ let browser;
 		const qDate = await page.evaluate( () => document.activeElement.getAttribute( 'data-date' ) );
 		await page.keyboard.press( 'Enter' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.click( '.cic-search__submit' ) ] );
-		await page.type( '#cic-f-guests', '60' );
-		// Los Angeles is only partly served in the fixtures, so the form asks for the event ZIP first.
-		await page.click( '.cic-qf__step[data-step="1"] [data-cic-next]' );
-		await page.waitForSelector( '[data-cic-detail]:not([hidden])', { timeout: 8000 } );
-		check( 'Q0 a partly served city asks for the event ZIP (clarification preserved)', true );
-		await page.type( '#cic-f-location-detail', '90012' );
-		await page.click( '.cic-qf__step[data-step="1"] [data-cic-next]' );
-		await page.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 8000 } );
-		await page.click( 'input[name="treats[]"]' );
-		await page.click( '.cic-qf__step[data-step="2"] [data-cic-next]' );
-		await page.waitForSelector( '.cic-qf__step[data-step="3"]:not([hidden])' );
-		const [ qy, qm, qd ] = qDate.split( '-' );
-		const glanceVals = await page.evaluate( () => ( {
-			location: document.querySelector( '[data-cic-glance="location"] [data-cic-glance-value]' ).textContent,
-			date: document.querySelector( '[data-cic-glance="date"] [data-cic-glance-value]' ).textContent,
-		} ) );
-		check( 'Q1 review summary shows "Los Angeles, CA · 90012" and the date as MM/DD/YYYY', 'Los Angeles, CA · 90012' === glanceVals.location && `${ qm }/${ qd }/${ qy }` === glanceVals.date, glanceVals );
-		await shot( 'review-390.png', page, true );
+		// Step 1: details and favorites, then Continue.
 		await page.type( '#cic-f-your-name', 'Refinement Tester' );
 		await page.type( '#cic-f-your-email', who );
-		await sleep( 3500 ); // The spam guard rejects forms sent faster than 3 s after rendering.
+		await page.click( 'input[name="treats[]"] + .cic-treat__box' );
+		await sleep( 3500 ); // The spam guard rejects requests sent faster than 3 s after rendering.
+		await page.click( '.cic-qf__step[data-step="1"] [data-cic-next]' );
+		await page.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 15000 } );
+		const carried = { event: await page.$eval( 'input[name=event]:checked', ( e ) => e.value ).catch( () => '' ), loc: await val( '#cic-f-location' ), date: await val( '#cic-f-event-date' ) };
+		const [ qy, qm, qd ] = qDate.split( '-' );
+		check( 'Q0 hero search choices carry into Step 2: Birthday, "Los Angeles, CA" and the date as MM/DD/YYYY', 'birthday' === carried.event && 'Los Angeles, CA' === carried.loc && `${ qm }/${ qd }/${ qy }` === carried.date, carried );
+		await page.type( '#cic-f-guests', '60' );
+		await shot( 'review-390.png', page, true );
 		await page.click( '.cic-button--send' );
 		await page.waitForSelector( '[data-cic-received]:not([hidden])', { timeout: 30000 } ).catch( async ( e ) => {
 			console.log( 'DIAG', JSON.stringify( await page.evaluate( () => ( {
@@ -434,6 +443,11 @@ let browser;
 			throw e;
 		} );
 		await sleep( 1500 );
+		const glanceVals = await page.evaluate( () => ( {
+			location: ( document.querySelector( '[data-g="location"] [data-g-value]' ) || {} ).textContent,
+			date: ( document.querySelector( '[data-g="date"] [data-g-value]' ) || {} ).textContent,
+		} ) );
+		check( 'Q1 "Your event at a glance" shows "Los Angeles, CA" and the date as MM/DD/YYYY', 'Los Angeles, CA' === glanceVals.location && `${ qm }/${ qd }/${ qy }` === glanceVals.date, glanceVals );
 		const chip = await page.$eval( '[data-chip="location"] [data-chip-value]', ( e ) => e.textContent );
 		await shot( 'confirmation-390.png', page, true );
 		await page.reload( { waitUntil: 'networkidle2' } );
@@ -441,8 +455,8 @@ let browser;
 		const saved = JSON.parse( state( 'enquiry', who ) );
 		const operatorMail = ( await mails( operator ) ).length;
 		const customerMail = ( await mails( who ) ).length;
-		check( 'Q2 confirmation chip shows "Los Angeles, CA 90012" (repository label + event ZIP)', 'Los Angeles, CA 90012' === chip, chip );
-		check( 'Q3 saved exactly once in Flamingo (also after refreshing the confirmation) with the label "Los Angeles, CA 90012", key los-angeles-ca and date label MM/DD/YYYY', 1 === saved.count && 'Los Angeles, CA 90012' === saved.context.location_label && 'los-angeles-ca' === saved.context.location && `${ qm }/${ qd }/${ qy }` === saved.context.date_label && qDate === saved.context.date, saved );
+		check( 'Q2 confirmation chip shows "Los Angeles, CA" (repository label)', 'Los Angeles, CA' === chip, chip );
+		check( 'Q3 saved exactly once in Flamingo (also after refreshing the confirmation) with the label "Los Angeles, CA", key los-angeles-ca and date label MM/DD/YYYY', 1 === saved.count && 'Los Angeles, CA' === saved.context.location_label && 'los-angeles-ca' === saved.context.location && `${ qm }/${ qd }/${ qy }` === saved.context.date_label && qDate === saved.context.date, saved );
 		check( 'Q4 local mail capture received one operator notification and one acknowledgement', 1 === operatorMail && 1 === customerMail, { operatorMail, customerMail } );
 
 		check( 'X1 no JavaScript errors during the run', 0 === errors.length, errors );

@@ -8,6 +8,8 @@
  *                    treats, durations, topic) with server-resolved labels
  *   _cic_source      first/latest permitted source context (template + key)
  *   _cic_status      new | contacted | quote_sent | booked | lost | spam
+ *   _cic_stage       incomplete (saved quote progress, not submitted) | submitted; missing = submitted
+ *   _cic_activity    last visitor save (unix time); _cic_submitted_at when the quote was submitted
  *   _cic_assignee    user id with manage_cic_enquiries
  *   _cic_follow_up   next follow-up date (Y-m-d, America/Los_Angeles)
  *   _cic_notes       private notes [{time, user, text}]
@@ -62,12 +64,26 @@ final class Workflow {
 	 * @param array<string, mixed> $data   Validated, normalised submission.
 	 * @param array<string, mixed> $source Validated source context.
 	 */
-	public static function init( int $id, array $data, array $source ): void {
-		$keep = array( 'event', 'event_label', 'event_other', 'date', 'date_unknown', 'date_label', 'guests', 'location', 'location_label', 'location_detail', 'coverage', 'venue', 'serve_time', 'serve_duration', 'treats', 'treat_labels', 'treats_unsure', 'contact_pref', 'topic', 'topic_label' );
+	public static function init( int $id, array $data, array $source, bool $keep_status = false ): void {
 		update_post_meta( $id, '_cic_type', $data['type'] );
+		self::set_context( $id, $data );
+		if ( $source || ! $keep_status ) {
+			update_post_meta( $id, '_cic_source', wp_slash( wp_json_encode( $source ) ) );
+		}
+		// A completed draft keeps any status the team already set; everything else starts as New.
+		if ( ! $keep_status || '' === (string) get_post_meta( $id, '_cic_status', true ) ) {
+			update_post_meta( $id, '_cic_status', 'new' );
+		}
+	}
+
+	/**
+	 * Non-personal selections (with server-resolved labels) only; status and assignee untouched.
+	 *
+	 * @param array<string, mixed> $data Validated, normalised values.
+	 */
+	public static function set_context( int $id, array $data ): void {
+		$keep = array( 'event', 'event_label', 'event_other', 'date', 'date_unknown', 'date_label', 'guests', 'location', 'location_label', 'location_detail', 'coverage', 'venue', 'serve_time', 'serve_duration', 'treats', 'treat_labels', 'treats_unsure', 'contact_pref', 'topic', 'topic_label' );
 		update_post_meta( $id, '_cic_context', wp_slash( wp_json_encode( array_intersect_key( $data, array_flip( $keep ) ) ) ) );
-		update_post_meta( $id, '_cic_source', wp_slash( wp_json_encode( $source ) ) );
-		update_post_meta( $id, '_cic_status', 'new' );
 	}
 
 	/** @return array<string, mixed> */

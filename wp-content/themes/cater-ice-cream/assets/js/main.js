@@ -122,6 +122,48 @@
 		} );
 	}
 
+	/* Fixed mobile "Get a Quote" button (main.css §10d). It is a normal link and works without this
+	   script; the script only hides it while the menu drawer or another open dialog (e.g. the date
+	   picker) is on screen, or while a form field has focus, so it never sits over the on-screen
+	   keyboard or the field being filled in. */
+	var cta = document.querySelector( '[data-cic-mobile-cta]' );
+	if ( cta ) {
+		var FIELD = 'textarea, select, [contenteditable=""], [contenteditable="true"], input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"])';
+		var dialogOpen = function () {
+			if ( document.body.classList.contains( 'cic-drawer-open' ) ) {
+				return true;
+			}
+			return Array.prototype.some.call( document.querySelectorAll( 'dialog[open], [aria-modal="true"], [role="dialog"]' ), function ( d ) {
+				return ! d.hidden && ! cta.contains( d ) && d.getClientRects().length > 0;
+			} );
+		};
+		var syncCta = function () {
+			var active = document.activeElement;
+			var typing = !! ( active && active.matches && active.matches( FIELD ) );
+			cta.classList.toggle( 'is-hidden', typing || dialogOpen() );
+		};
+		document.addEventListener( 'focusin', syncCta );
+		document.addEventListener( 'focusout', function () {
+			window.setTimeout( syncCta, 0 );
+		} );
+		if ( window.MutationObserver ) {
+			new MutationObserver( syncCta ).observe( document.body, { attributes: true, subtree: true, attributeFilter: [ 'hidden', 'open', 'aria-modal' ] } );
+		}
+		syncCta();
+	}
+
+	/* Treat photos and videos: only one video plays at a time (each starts only when pressed). */
+	document.addEventListener( 'play', function ( event ) {
+		if ( ! event.target.matches || ! event.target.matches( '[data-cic-media-video]' ) ) {
+			return;
+		}
+		Array.prototype.forEach.call( document.querySelectorAll( '[data-cic-media-video]' ), function ( v ) {
+			if ( v !== event.target && ! v.paused ) {
+				v.pause();
+			}
+		} );
+	}, true );
+
 	/* County directories: accordions on mobile, always open on wider screens. */
 	var counties = document.querySelectorAll( '[data-cic-county]' );
 	if ( counties.length ) {

@@ -115,7 +115,7 @@ let browser;
 		await page.keyboard.press( 'Tab' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.click( '.cic-search__submit' ) ] );
 		const home = { url: page.url(), event: await page.$eval( 'input[name=event]:checked', ( e ) => e.value ).catch( () => '' ), loc: await v( '#cic-f-location' ), date: await v( '[name=event_date]' ) };
-		check( 'E1 homepage search → quote form with location, event and date preselected', 'wedding' === home.event && info.covered === home.loc && info.future === home.date && 1 === await step(), home );
+		check( 'E1 homepage search → quote form with location, event and date preselected (event fields in step 2)', 'wedding' === home.event && info.covered === home.loc && info.future === home.date && 1 === await step(), home );
 
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await go( '/events/birthday/' );
@@ -133,14 +133,38 @@ let browser;
 		const src = await page.evaluate( () => JSON.parse( window.sessionStorage.getItem( 'cic_quote_source' ) || '{}' ) );
 		check( 'E4 city page action → Pasadena prefilled (visible label "Pasadena, CA"); source attributed to the city page (template + key only)', 'Pasadena, CA' === await v( '#cic-f-location' ) && 'city' === ( src.latest || {} ).type && 'pasadena-ca' === ( src.latest || {} ).key, src );
 
-		// ---------------- Step 1 ----------------
+		// ---------------- Step 1: your details & favorites (two-step flow, 2026-10-23) ----------------
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await go( '/get-a-quote/' );
 		await shot( 'p6-step1-desktop.png' );
 		await clickNext();
-		const s1err = await page.evaluate( () => ( { summary: ! document.querySelector( '[data-cic-errors]' ).hidden, focus: document.activeElement && document.activeElement.matches( '[data-cic-errors]' ), tips: document.querySelectorAll( '.cic-qf__step[data-step="1"] .wpcf7-not-valid-tip' ).length } ) );
+		const s1err = await page.evaluate( () => ( { summary: ! document.querySelector( '[data-cic-errors]' ).hidden, focus: document.activeElement && document.activeElement.matches( '[data-cic-errors]' ), tips: document.querySelectorAll( '.cic-qf__step[data-step="1"] .wpcf7-not-valid-tip' ).length, unsure: document.querySelector( 'input[name=treats_unsure]' ).checked } ) );
 		await shot( 'p6-step1-errors.png', false );
-		check( 'U1 Continue with missing answers → inline errors + focused error summary; stays on step 1', s1err.summary && s1err.focus && s1err.tips >= 4 && 1 === await step(), s1err );
+		// Treats default to "Not sure yet" (2026-10-24), so a fresh form has no treat error.
+		check( 'U1 Continue with missing answers → inline errors (name, email) + focused error summary; treats already "Not sure yet"; stays on step 1', s1err.summary && s1err.focus && s1err.tips >= 2 && s1err.unsure && 1 === await step(), s1err );
+		await pick( 'input[name="treats[]"][value=dippin-dots]' );
+		await pick( 'input[name="treats[]"][value=classic-ice-cream]' );
+		await pick( 'input[name=treats_unsure]' );
+		const ex1 = await page.$$eval( 'input[name="treats[]"]:checked', ( x ) => x.length );
+		await pick( 'input[name="treats[]"][value=frozen-yogurt]' );
+		const ex2 = { treats: await page.$$eval( 'input[name="treats[]"]:checked', ( x ) => x.length ), unsure: await page.$eval( 'input[name=treats_unsure]', ( e ) => e.checked ) };
+		await pick( 'input[name="treats[]"][value=dippin-dots]' );
+		check( 'U7 “Not sure yet” clears treats and choosing a treat clears “Not sure yet”', 0 === ex1 && 1 === ex2.treats && ! ex2.unsure, { ex1, ex2 } );
+		const mail1 = email( 'flow' );
+		used.push( mail1 );
+		await type( '#cic-f-your-name', 'Browser Tester' );
+		await type( '#cic-f-your-email', mail1 );
+		await page.$eval( 'input[name=contact_pref][value=phone]', ( e ) => e.click() );
+		await clickNext();
+		check( 'U9 Phone preference requires a phone number (checked before continuing; nothing saved)', await visible( '.wpcf7-form-control-wrap[data-name=phone] .wpcf7-not-valid-tip' ) && 1 === await step() && 0 === json( 'enquiry', mail1 ).count );
+		await type( '#cic-f-phone', '818-555-0100' );
+		await sleep( 3200 ); // Spam guard: Step 1 may not be sent within 3 s of rendering.
+		await clickNext();
+		await page.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 15000 } ).catch( () => {} );
+		const focused2 = await page.evaluate( () => document.activeElement && document.activeElement.classList.contains( 'cic-qf__title' ) );
+		check( 'U5 valid details → step 2 (draft saved); focus moves to the step heading; URL #step-2', 2 === await step() && focused2 && page.url().endsWith( '#step-2' ) );
+
+		// ---------------- Step 2: your event ----------------
 		await pick( 'input[name=event][value=other]' );
 		const otherShown = await visible( '#cic-f-event-other' );
 		await type( '#cic-f-event-other', 'Graduation party' );
@@ -149,73 +173,50 @@ let browser;
 		check( 'U2 Other occasion reveals its description; “Date not set yet” disables the date', otherShown && dateDisabled, { otherShown, dateDisabled } );
 		await type( '#cic-f-guests', '60' );
 		await type( '#cic-f-location', 'Compton' );
-		await clickNext();
-		const blocked = await page.evaluate( () => ( { tip: ( document.querySelector( '.wpcf7-form-control-wrap[data-name=location] .wpcf7-not-valid-tip' ) || {} ).textContent || '', step: document.querySelector( '.cic-qf__step:not([hidden])' ).dataset.step } ) );
-		check( 'U3 excluded location blocks progress with the service-area message', /do not currently serve/i.test( blocked.tip ) && '1' === blocked.step, blocked );
-		await type( '#cic-f-location', '90220' );
-		await clickNext();
-		const clarify = { shown: await visible( '#cic-f-location-detail' ), label: await page.$eval( '[data-cic-detail] .cic-field__label', ( e ) => e.textContent ).catch( () => '' ), step: await step() };
-		await shot( 'p6-step1-clarify.png', false );
-		check( 'U4 shared ZIP reveals the venue-city question and stays on step 1', clarify.shown && /Venue city/.test( clarify.label ) && 1 === clarify.step, clarify );
-		await type( '#cic-f-location-detail', 'Rancho Dominguez' );
-		await clickNext();
-		const focused2 = await page.evaluate( () => document.activeElement && document.activeElement.classList.contains( 'cic-qf__title' ) );
-		check( 'U5 with the venue city given → step 2; focus moves to the step heading; URL #step-2', 2 === await step() && focused2 && page.url().endsWith( '#step-2' ) );
-
-		// ---------------- Step 2 ----------------
-		await clickNext();
-		check( 'U6 step 2 requires a treat or “Not sure yet”', 2 === await step() && await visible( '.wpcf7-form-control-wrap[data-name=treats] .wpcf7-not-valid-tip' ) );
-		await pick( 'input[name="treats[]"][value=dippin-dots]' );
-		await pick( 'input[name="treats[]"][value=classic-ice-cream]' );
-		await pick( 'input[name=treats_unsure]' );
-		const ex1 = await page.$$eval( 'input[name="treats[]"]:checked', ( x ) => x.length );
-		await pick( 'input[name="treats[]"][value=frozen-yogurt]' );
-		const ex2 = { treats: await page.$$eval( 'input[name="treats[]"]:checked', ( x ) => x.length ), unsure: await page.$eval( 'input[name=treats_unsure]', ( e ) => e.checked ) };
-		await pick( 'input[name="treats[]"][value=dippin-dots]' );
-		await shot( 'p6-step2-desktop.png' );
-		check( 'U7 “Not sure yet” clears treats and choosing a treat clears “Not sure yet”', 0 === ex1 && 1 === ex2.treats && ! ex2.unsure, { ex1, ex2 } );
-		await type( '#cic-f-dietary', 'Nut allergy at table 3' );
-		await clickNext();
-
-		// ---------------- Step 3 ----------------
-		const glance = await page.$$eval( '[data-cic-glance]', ( rows ) => Object.fromEntries( rows.map( ( r ) => [ r.dataset.cicGlance, r.querySelector( '[data-cic-glance-value]' ).textContent ] ) ) );
-		check( 'U8 review summary shows event, treats, location, date and guests', 'Graduation party' === glance.event && /Frozen Yogurt/.test( glance.treats ) && /Dippin/.test( glance.treats ) && /90220.*Rancho Dominguez/.test( glance.location ) && 'Date to be confirmed' === glance.date && '60 guests' === glance.guests, glance );
-		await page.$eval( 'input[name=contact_pref][value=phone]', ( e ) => e.click() );
-		const mail1 = email( 'flow' );
-		used.push( mail1 );
-		await type( '#cic-f-your-name', 'Browser Tester' );
-		await type( '#cic-f-your-email', mail1 );
 		await page.$eval( '.cic-button--send', ( b ) => b.click() );
-		await sleep( 600 );
-		check( 'U9 Phone preference requires a phone number (checked before sending)', await visible( '.wpcf7-form-control-wrap[data-name=phone] .wpcf7-not-valid-tip' ) && 0 === json( 'enquiry', mail1 ).count );
+		await sleep( 2500 );
+		const blocked = await page.evaluate( () => ( { tip: ( document.querySelector( '.wpcf7-form-control-wrap[data-name=location] .wpcf7-not-valid-tip' ) || {} ).textContent || '', step: document.querySelector( '.cic-qf__step:not([hidden])' ).dataset.step } ) );
+		check( 'U3 excluded location blocks sending with the service-area message', /do not currently serve/i.test( blocked.tip ) && '2' === blocked.step && ! await visible( '[data-cic-received]' ), blocked );
+		// An unknown ZIP (not in the location data) needs clarification: the venue city is asked for.
+		await type( '#cic-f-location', info.unknown );
+		await page.$eval( '.cic-button--send', ( b ) => b.click() );
+		await sleep( 2500 );
+		const clarify = { shown: await visible( '#cic-f-location-detail' ), label: await page.$eval( '[data-cic-detail] .cic-field__label', ( e ) => e.textContent ).catch( () => '' ), step: await step() };
+		await shot( 'p6-step2-clarify.png', false );
+		check( 'U4 a ZIP we cannot confirm reveals the venue-city question and is not sent yet', clarify.shown && /Venue city/.test( clarify.label ) && 2 === clarify.step && ! await visible( '[data-cic-received]' ), clarify );
+		await type( '#cic-f-location-detail', 'Pasadena' );
+		await page.click( '#cic-f-guests' );
+		await shot( 'p6-step2-desktop.png' );
+
+		// Back and browser history keep answers.
 		await page.$eval( '.cic-qf__nav--send [data-cic-back]', ( b ) => b.click() );
 		await sleep( 300 );
-		const kept = { step: await step(), dots: await page.$eval( 'input[name="treats[]"][value=dippin-dots]', ( e ) => e.checked ), dietary: await v( '#cic-f-dietary' ) };
-		// The in-form Back adds a history entry (step 2), so browser Back returns to step 3 and Forward to step 2.
+		const kept = { step: await step(), dots: await page.$eval( 'input[name="treats[]"][value=dippin-dots]', ( e ) => e.checked ), name: await v( '#cic-f-your-name' ) };
 		await page.goBack();
 		await sleep( 500 );
 		const hist = await step();
 		await page.goForward();
 		await sleep( 500 );
 		const fwd = await step();
-		check( 'U10 Back and browser history move between steps and keep answers', 2 === kept.step && kept.dots && 'Nut allergy at table 3' === kept.dietary && 3 === hist && 2 === fwd, { kept, hist, fwd } );
+		check( 'U10 Back and browser history move between the steps and keep answers', 1 === kept.step && kept.dots && 'Browser Tester' === kept.name && 2 === hist && 1 === fwd, { kept, hist, fwd } );
 		await clickNext();
-		await type( '#cic-f-phone', '818-555-0100' );
-		await shot( 'p6-step3-desktop.png' );
+		await page.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 15000 } ).catch( () => {} );
+		check( 'U6 Step 2 answers are still there after going back (Other occasion, guests, venue city)', 'Graduation party' === await v( '#cic-f-event-other' ) && '60' === await v( '#cic-f-guests' ) && 'Pasadena' === await v( '#cic-f-location-detail' ) );
 
 		// Double-click send → one enquiry; confirmation; analytics once, no personal data.
 		await page.evaluate( () => { const b = document.querySelector( '.cic-button--send' ); b.click(); b.click(); b.click(); } );
-		await page.waitForSelector( '[data-cic-received]:not([hidden])', { timeout: 20000 } );
-		await sleep( 500 );
+		await page.waitForSelector( '[data-cic-received]:not([hidden])', { timeout: 30000 } );
+		await sleep( 800 );
 		const e1 = json( 'enquiry', mail1 );
-		const conf = await page.evaluate( () => ( { url: location.href, focus: document.activeElement && document.activeElement.id, chips: Array.from( document.querySelectorAll( '[data-cic-chips] li:not([hidden])' ) ).map( ( l ) => l.textContent.trim() ), form: ! document.querySelector( '[data-cic-form-area]' ).hidden } ) );
+		const conf = await page.evaluate( () => ( { url: location.href, focus: document.activeElement && document.activeElement.id, glance: Object.fromEntries( Array.from( document.querySelectorAll( '[data-cic-glance-box] [data-g]' ) ).filter( ( r ) => r.offsetParent ).map( ( r ) => [ r.dataset.g, r.querySelector( '[data-g-value]' ).textContent ] ) ), form: ! document.querySelector( '[data-cic-form-area]' ).hidden } ) );
 		await shot( 'p6-confirmation-desktop.png' );
-		check( 'U11 double-clicking Send stores one enquiry; the confirmation replaces the form (URL carries only a receipt)', 1 === e1.count && /\?received=[a-f0-9]{32}#confirmation$/.test( conf.url ) && 'confirmation' === conf.focus && ! conf.form && conf.chips.some( ( c ) => /Graduation party/.test( c ) ), { count: e1.count, conf } );
-		check( 'U12 saved context: Other occasion, date unknown, shared ZIP + venue, treats, phone preference, source', 'other' === e1.context.event && true === e1.context.date_unknown && '90220' === e1.context.location && 'Rancho Dominguez' === e1.context.location_detail && 2 === e1.context.treats.length && 'phone' === e1.context.contact_pref && e1.source.latest, e1.context );
+		check( 'U8 "Your event at a glance" shows contact, event, treats, location, date and guests', 'Graduation party' === conf.glance.event && /Frozen Yogurt/.test( conf.glance.treats ) && /Dippin/.test( conf.glance.treats ) && conf.glance.location.includes( info.unknown ) && /Pasadena/.test( conf.glance.location ) && 'Date to be confirmed' === conf.glance.date && '60 guests' === conf.glance.guests && 'Browser Tester' === conf.glance.name && 'Phone' === conf.glance.contact, conf.glance );
+		check( 'U11 double-clicking Request My Quote stores one enquiry; the confirmation replaces the form (URL carries only a receipt)', 1 === e1.count && /\?received=[a-f0-9]{32}#confirmation$/.test( conf.url ) && 'confirmation' === conf.focus && ! conf.form, { count: e1.count, conf } );
+		check( 'U12 saved context: Other occasion, date unknown, ZIP + venue city, treats, phone preference, source', 'other' === e1.context.event && true === e1.context.date_unknown && info.unknown === e1.context.location && 'Pasadena' === e1.context.location_detail && 2 === e1.context.treats.length && 'phone' === e1.context.contact_pref && e1.source.latest, e1.context );
 		const dl = await page.evaluate( () => window.dataLayer );
 		const dlText = JSON.stringify( dl );
 		const submitted = dl.filter( ( x ) => 'quote_submitted' === x.event );
-		check( 'U13 analytics: quote_submitted once after the server saved it; no name, email, phone, venue or dietary text in any event', 1 === submitted.length && ! dlText.includes( mail1 ) && ! dlText.includes( 'Browser Tester' ) && ! dlText.includes( '555-0100' ) && ! /Nut allergy|Rancho/.test( dlText ) && dl.some( ( x ) => 'quote_step_view' === x.event ) && dl.some( ( x ) => 'coverage_result' === x.event ), dl );
+		check( 'U13 analytics: quote_submitted once after the server saved it; no name, email, phone, venue or draft key in any event', 1 === submitted.length && ! dlText.includes( mail1 ) && ! dlText.includes( 'Browser Tester' ) && ! dlText.includes( '555-0100' ) && ! /Pasadena|cic_qd|draft/i.test( dlText ) && dl.some( ( x ) => 'quote_step_view' === x.event ) && dl.some( ( x ) => 'coverage_result' === x.event ), dl );
 		await page.reload( { waitUntil: 'networkidle2' } );
 		const after = { shown: await visible( '[data-cic-received]' ), submitted: ( await page.evaluate( () => window.dataLayer ) ).filter( ( x ) => 'quote_submitted' === x.event ).length };
 		check( 'U14 refreshing the confirmation shows it again without a new conversion or submission', after.shown && 0 === after.submitted && 1 === json( 'enquiry', mail1 ).count, after );
@@ -224,33 +225,38 @@ let browser;
 		// ---------------- Keyboard ----------------
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await go( '/get-a-quote/' );
+		const mail2 = email( 'net' );
+		used.push( mail2 );
+		await page.focus( '#cic-f-your-name' );
+		await page.keyboard.type( 'Network Tester' );
+		await page.focus( '#cic-f-your-email' );
+		await page.keyboard.type( mail2 );
+		await page.focus( 'input[name="treats[]"][value=classic-ice-cream]' );
+		await page.keyboard.press( 'Space' );
+		const tabbable = await page.evaluate( () => Array.from( document.querySelectorAll( '.cic-form input, .cic-form select, .cic-form textarea, .cic-form button' ) ).filter( ( e ) => 'hidden' !== e.type && ! e.closest( '.cic-hp' ) ).every( ( e ) => e.tabIndex >= 0 ) );
+		await page.keyboard.down( 'Shift' );
+		await page.keyboard.press( 'Tab' );
+		await page.keyboard.up( 'Shift' );
+		await page.keyboard.press( 'Tab' );
+		const ring = await page.evaluate( () => { const a = document.activeElement; return a && a.nextElementSibling ? a.className + ':' + getComputedStyle( a.nextElementSibling ).outlineStyle : 'none'; } );
+		await sleep( 3200 );
+		await page.focus( '#cic-f-your-name' );
+		await page.keyboard.press( 'Enter' );
+		await page.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 15000 } ).catch( () => {} );
+		const kbStep = await step();
 		await page.focus( 'input[name=event][value=birthday]' );
 		await page.keyboard.press( 'Space' );
 		await page.keyboard.press( 'ArrowRight' );
 		const kbEvent = await page.$eval( 'input[name=event]:checked', ( e ) => e.value ).catch( () => '' );
+		check( 'U15 keyboard: Space toggles a treat, Enter continues, event tiles work with Space/arrow keys, every control is tabbable, focus is visible', kbEvent && 'birthday' !== kbEvent && 2 === kbStep && tabbable && /cic-treat__input:(solid|auto)/.test( ring ), { kbEvent, kbStep, tabbable, ring } );
+
+		// ---------------- Network failure ----------------
 		await page.focus( '#cic-f-guests' );
 		await page.keyboard.type( '25' );
 		await page.focus( 'input[name=date_unknown]' );
 		await page.keyboard.press( 'Space' );
 		await page.focus( '#cic-f-location' );
 		await page.keyboard.type( info.covered );
-		await page.keyboard.press( 'Enter' );
-		await sleep( 900 );
-		const kbStep = await step();
-		const tabbable = await page.evaluate( () => Array.from( document.querySelectorAll( '.cic-form input, .cic-form select, .cic-form textarea, .cic-form button' ) ).filter( ( e ) => 'hidden' !== e.type && ! e.closest( '.cic-hp' ) ).every( ( e ) => e.tabIndex >= 0 ) );
-		// A real Tab from the step heading lands on the first treat card: its focus ring must show.
-		await page.keyboard.press( 'Tab' );
-		const ring = await page.evaluate( () => { const a = document.activeElement; return a && a.nextElementSibling ? a.className + ':' + getComputedStyle( a.nextElementSibling ).outlineStyle : 'none'; } );
-		check( 'U15 keyboard: tiles work with Space/arrow keys, Enter continues to the next step, every control is tabbable, focus is visible', kbEvent && 'birthday' !== kbEvent && 2 === kbStep && tabbable && /cic-treat__input:(solid|auto)/.test( ring ), { kbEvent, kbStep, tabbable, ring } );
-
-		// ---------------- Network failure ----------------
-		await page.focus( 'input[name="treats[]"][value=classic-ice-cream]' );
-		await page.keyboard.press( 'Space' );
-		await clickNext();
-		const mail2 = email( 'net' );
-		used.push( mail2 );
-		await type( '#cic-f-your-name', 'Network Tester' );
-		await type( '#cic-f-your-email', mail2 );
 		await page.setRequestInterception( true );
 		let blockedOnce = false;
 		const onReq = ( r ) => {
@@ -266,12 +272,12 @@ let browser;
 		await page.keyboard.press( 'Enter' );
 		await page.waitForFunction( () => ! document.querySelector( '[data-cic-errors]' ).hidden, { timeout: 40000 } ).catch( () => {} );
 		const net = await page.evaluate( () => ( { msg: document.querySelector( '[data-cic-errors]' ).textContent, btn: document.querySelector( '.cic-button--send' ).disabled, status: document.querySelector( 'form.wpcf7-form' ).getAttribute( 'data-status' ) } ) );
-		check( 'U16 network failure: clear message, answers kept, the form is usable again (not stuck “submitting”)', blockedOnce && /could not reach/i.test( net.msg ) && ! net.btn && 'init' === net.status && 'Network Tester' === await v( '#cic-f-your-name' ), net );
+		check( 'U16 network failure: clear message, answers kept, the form is usable again (not stuck “submitting”)', blockedOnce && /couldn.t reach/i.test( net.msg ) && ! net.btn && 'init' === net.status && '25' === await v( '#cic-f-guests' ), net );
 		page.off( 'request', onReq );
 		await page.setRequestInterception( false );
 		await page.$eval( '.cic-button--send', ( b ) => b.click() );
 		await page.waitForSelector( '[data-cic-received]:not([hidden])', { timeout: 20000 } ).catch( () => {} );
-		check( 'U17 pressing Send again after the failure saves exactly one enquiry', 1 === json( 'enquiry', mail2 ).count && await visible( '[data-cic-received]' ) );
+		check( 'U17 pressing the button again after the failure saves exactly one enquiry (the same draft, now submitted)', 1 === json( 'enquiry', mail2 ).count && await visible( '[data-cic-received]' ) );
 
 		// ---------------- Mobile ----------------
 		await page.setViewport( { width: 390, height: 844 } );
@@ -294,7 +300,7 @@ let browser;
 			send: !! document.querySelector( '.cic-button--send' ).offsetHeight,
 		} ) );
 		await nojs.screenshot( { path: path.join( OUT, 'p6-nojs.png' ), fullPage: true } );
-		check( 'U19 no JavaScript: all three steps visible as one form with a single Send button', 3 === nj.steps && nj.nav && nj.send, nj );
+		check( 'U19 no JavaScript: both steps visible as one form with a single Request My Quote button', 2 === nj.steps && nj.nav && nj.send, nj );
 		await nojs.type( '#cic-f-your-name', 'No Script Person' );
 		await sleep( 3200 );
 		await Promise.all( [ nojs.waitForNavigation( { waitUntil: 'domcontentloaded' } ), nojs.click( '.cic-button--send' ) ] );
@@ -337,13 +343,14 @@ let browser;
 		used.push( mail5 );
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await go( '/get-a-quote/?event=anniversary&treat=classic-ice-cream' );
+		await type( '#cic-f-your-name', '=SUM(1,2)' );
+		await type( '#cic-f-your-email', mail5 );
+		await sleep( 3200 );
+		await clickNext();
+		await page.waitForSelector( '.cic-qf__step[data-step="2"]:not([hidden])', { timeout: 15000 } ).catch( () => {} );
 		await pick( 'input[name=date_unknown]' );
 		await type( '#cic-f-guests', '35' );
 		await type( '#cic-f-location', info.covered );
-		await clickNext();
-		await clickNext();
-		await type( '#cic-f-your-name', '=SUM(1,2)' );
-		await type( '#cic-f-your-email', mail5 );
 		await page.$eval( '.cic-button--send', ( b ) => b.click() );
 		await page.waitForSelector( '[data-cic-received]:not([hidden])', { timeout: 20000 } ).catch( () => {} );
 		const e5 = json( 'enquiry', mail5 );

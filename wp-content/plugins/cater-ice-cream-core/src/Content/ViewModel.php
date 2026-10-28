@@ -40,6 +40,51 @@ final class ViewModel {
 	 * @param array<int, array<string, mixed>> $items Items to filter.
 	 * @return array<int, array<string, mixed>>
 	 */
+	/**
+	 * Authentic photos/videos of a treat ("media" section). A video item needs a video attachment;
+	 * its poster is the item's image (a frame of the same footage), whose size gives the displayed
+	 * shape, so rotated phone videos keep their real orientation. Clips narrower than 360 px are
+	 * flagged low-resolution and shown small (never enlarged into a feature).
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function media( int $id ): array {
+		$items = array();
+		for ( $i = 1; $i <= Fields::MEDIA_SLOTS; $i++ ) {
+			$image = self::img( $id, "cic_media_{$i}_image" );
+			$video = (int) get_post_meta( $id, "cic_media_{$i}_video", true );
+			$mime  = $video ? (string) get_post_mime_type( $video ) : '';
+			$video = in_array( $mime, array( 'video/mp4', 'video/webm' ), true ) ? $video : 0;
+			if ( ! $image && ! $video ) {
+				continue;
+			}
+			$width = $height = 0;
+			if ( $image ) {
+				$src    = wp_get_attachment_image_src( $image, 'full' );
+				$width  = (int) ( $src[1] ?? 0 );
+				$height = (int) ( $src[2] ?? 0 );
+			}
+			if ( $video && ( ! $width || ! $height ) ) {
+				$display = explode( 'x', (string) get_post_meta( $video, '_cic_video_display', true ) );
+				$meta    = (array) wp_get_attachment_metadata( $video );
+				$width   = (int) ( $display[0] ?? 0 ) ?: (int) ( $meta['width'] ?? 0 );
+				$height  = (int) ( $display[1] ?? 0 ) ?: (int) ( $meta['height'] ?? 0 );
+			}
+			$items[] = array(
+				'image'   => $image,
+				'video'   => $video,
+				'src'     => $video ? (string) wp_get_attachment_url( $video ) : '',
+				'mime'    => $mime,
+				'poster'  => $video && $image ? (string) wp_get_attachment_image_url( $image, 'full' ) : '',
+				'width'   => $width ?: 16,
+				'height'  => $height ?: 9,
+				'lowres'  => $video && $width && $width < 360,
+				'caption' => self::m( $id, "cic_media_{$i}_caption" ),
+			);
+		}
+		return $items;
+	}
+
 	private static function filled( array $items, string $required ): array {
 		return array_values( array_filter( $items, static fn( $i ) => '' !== (string) $i[ $required ] ) );
 	}
@@ -76,6 +121,25 @@ final class ViewModel {
 		return $out;
 	}
 
+	/**
+	 * The business as a schema.org Organization (central contact settings; no address, rating or
+	 * branch is invented).
+	 *
+	 * @return array<string, string>
+	 */
+	public static function provider(): array {
+		$contact = Contact::get();
+		return array_filter(
+			array(
+				'@type'     => 'Organization',
+				'name'      => $contact['business_name'],
+				'legalName' => $contact['legal_entity'],
+				'url'       => home_url( '/' ),
+				'telephone' => '' !== $contact['phone_href'] ? substr( $contact['phone_href'], 4 ) : '',
+			)
+		);
+	}
+
 	/** Quote link carrying an explicit selection (the quote flow arrives in Phase 06). */
 	public static function quote_url( string $param, string $key ): string {
 		return add_query_arg( $param, rawurlencode( $key ), Contact::get()['quote_url'] );
@@ -87,6 +151,9 @@ final class ViewModel {
 	private static function faqs( int $id ): array {
 		$items = array();
 		for ( $i = 1; $i <= Fields::FAQ_SLOTS; $i++ ) {
+			if ( '1' === self::m( $id, "cic_faq_{$i}_draft" ) ) {
+				continue; // Draft questions (awaiting confirmation) stay off the website.
+			}
 			$items[] = array(
 				'q' => self::m( $id, "cic_faq_{$i}_q" ),
 				'a' => self::m( $id, "cic_faq_{$i}_a" ),
@@ -242,6 +309,38 @@ final class ViewModel {
 	 */
 	private static function tokens( string $text, array $tokens ): string {
 		return strtr( $text, $tokens );
+	}
+
+	/**
+	 * Prefooter "Cities We Serve" (shared component; settings in Header, Footer & Contact → Cities
+	 * We Serve). Labels like "Los Angeles, CA" and canonical city URLs come from the location
+	 * repository's ranking; ZIP counts are used for ordering only and are not passed on.
+	 *
+	 * @return array{heading: string, items: array<int, array{label: string, url: string}>, all_label: string, all_url: string}|null
+	 */
+	public static function served_cities(): ?array {
+		$settings = \CIC\Site\Layout::get()['cities'];
+		$repo     = \CIC\Locations\Service::repository();
+		if ( empty( $settings['enabled'] ) || ! $repo instanceof \CIC\Locations\DatabaseRepository ) {
+			return null;
+		}
+		$items = array();
+		foreach ( $repo->served_city_ranking( (int) $settings['count'] ) as $city ) {
+			if ( '' !== $city['url'] ) {
+				$items[] = array( 'label' => (string) $city['label'], 'url' => (string) $city['url'] );
+			}
+		}
+		if ( ! $items ) {
+			return null;
+		}
+		// An empty heading or label (e.g. saved from an older form) falls back to the default wording.
+		$defaults = \CIC\Site\Layout::defaults()['cities'];
+		return array(
+			'heading'   => '' !== trim( (string) $settings['heading'] ) ? (string) $settings['heading'] : $defaults['heading'],
+			'items'     => $items,
+			'all_label' => '' !== trim( (string) $settings['link_label'] ) ? (string) $settings['link_label'] : $defaults['link_label'],
+			'all_url'   => self::hub_url(),
+		);
 	}
 
 	/** Hub URL (Service Areas Page) or the state hub fallback. */
@@ -546,8 +645,11 @@ final class ViewModel {
 			'hub_url'   => $hub_url,
 			'breadcrumbs' => $crumbs,
 		);
-		$title       = $text( 'seo_title' ) ?: sprintf( /* translators: %s: city. */ __( 'Ice Cream Catering in %s', 'cater-ice-cream-core' ), $city['name'] );
-		$description = $text( 'seo_description' );
+		// The city's own search title/description win; the defaults name the city and state
+		// ("Los Angeles, CA") and never claim that every ZIP code is served.
+		$place       = (string) ( $city['label'] ?? '' ) ?: $city['name'];
+		$title       = $text( 'seo_title' ) ?: sprintf( /* translators: %s: city and state, e.g. "Los Angeles, CA". */ __( 'Ice Cream Catering in %s', 'cater-ice-cream-core' ), $place );
+		$description = $text( 'seo_description' ) ?: sprintf( /* translators: %s: city and state. */ __( 'Staffed ice cream catering for birthdays, weddings, graduation parties and other celebrations in %s. Check your event ZIP code and request a quote.', 'cater-ice-cream-core' ), $place );
 		$vm['seo']   = array(
 			'title'       => $title . ' | ' . get_bloginfo( 'name' ),
 			'description' => $description,
@@ -558,14 +660,7 @@ final class ViewModel {
 				'@type'      => 'Service',
 				'name'       => sprintf( /* translators: %s: city. */ __( 'Ice cream catering in %s', 'cater-ice-cream-core' ), $city['name'] ),
 				'serviceType' => __( 'Ice cream catering', 'cater-ice-cream-core' ),
-				'provider'   => array_filter(
-					array(
-						'@type'     => 'Organization',
-						'name'      => $contact['business_name'],
-						'url'       => home_url( '/' ),
-						'telephone' => $contact['phone'],
-					)
-				),
+				'provider'   => self::provider(),
 				'areaServed' => array(
 					'@type' => 'City',
 					'name'  => $city['name'] . ', ' . $tokens['{state}'],
@@ -723,6 +818,8 @@ final class ViewModel {
 			}
 		}
 		$points = self::map_points( 'CA' );
+		// {contact_name} in the "Meet" block follows the public contact name (Header, Footer & Contact).
+		$names = array( '{contact_name}' => $contact['contact_name'] );
 		return array(
 			'title'    => get_the_title( $id ),
 			'hero'     => array(
@@ -749,9 +846,9 @@ final class ViewModel {
 				'items'   => self::filled( $steps, 'title' ),
 			),
 			'meet'     => array(
-				'heading'  => self::rich( self::m( $id, $p . 'meet_heading' ) ),
+				'heading'  => self::rich( self::tokens( self::m( $id, $p . 'meet_heading' ), $names ) ),
 				'byline'   => trim( $contact['legal_entity'] . ( '' !== $contact['legal_entity'] && '' !== $contact['location'] ? ' · ' : '' ) . $contact['location'] ),
-				'text'     => self::m( $id, $p . 'meet_text' ),
+				'text'     => self::tokens( self::m( $id, $p . 'meet_text' ), $names ),
 				'initials' => self::m( $id, $p . 'meet_initials' ),
 				'portrait' => self::img( $id, $p . 'meet_portrait' ),
 				'image'    => self::img( $id, $p . 'meet_image' ),
@@ -792,7 +889,7 @@ final class ViewModel {
 				'headline'    => self::lines( self::m( $id, $p . 'headline' ) ?: get_the_title( $id ) ),
 				'intro'       => self::m( $id, $p . 'intro' ),
 				'image'       => self::img( $id, $p . 'image' ),
-				'call_title'  => self::m( $id, $p . 'call_title' ),
+				'call_title'  => self::tokens( self::m( $id, $p . 'call_title' ), array( '{contact_name}' => Contact::get()['contact_name'] ) ),
 				'email_title' => self::m( $id, $p . 'email_title' ),
 			),
 			'help'  => array(
@@ -827,7 +924,7 @@ final class ViewModel {
 			),
 			'form'    => \CIC\Enquiries\Forms::render( 'contact' ),
 			'success' => array(
-				'heading' => self::m( $id, $p . 'success_heading' ) ?: __( 'Your message is received.', 'cater-ice-cream-core' ),
+				'heading' => self::m( $id, $p . 'success_heading' ) ?: __( 'Thanks! We received your message.', 'cater-ice-cream-core' ),
 				'text'    => self::m( $id, $p . 'success_text' ),
 				'receipt' => self::receipt( 'sent', 'contact' ),
 			),
@@ -882,14 +979,16 @@ final class ViewModel {
 				'items'   => $items( 'next' ),
 			),
 			'success' => array(
-				'heading' => self::m( $id, $p . 'success_heading' ) ?: __( 'Your quote request is received.', 'cater-ice-cream-core' ),
+				'heading' => self::m( $id, $p . 'success_heading' ) ?: __( 'Thanks! We received your quote request.', 'cater-ice-cream-core' ),
 				'text'    => self::m( $id, $p . 'success_text' ),
 				'note'    => self::m( $id, $p . 'success_note' ),
 				'cta'     => self::m( $id, $p . 'success_cta' ) ?: __( 'Explore more treats', 'cater-ice-cream-core' ),
 				'home'    => self::m( $id, $p . 'success_home' ) ?: __( 'Back to homepage', 'cater-ice-cream-core' ),
 				'receipt' => self::receipt( 'received', 'quote' ),
+				// Contact/event summary and optional details: only for the browser that submitted it.
+				'mine'    => self::receipt( 'received', 'quote' ) ? \CIC\Enquiries\Drafts::for_receipt( \CIC\Enquiries\Store::receipt_flamingo( isset( $_GET['received'] ) ? sanitize_key( wp_unslash( $_GET['received'] ) ) : '' ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- random receipt, read-only.
 			),
-			'unavailable' => self::m( $id, $p . 'unavailable' ) ?: __( 'Our online quote form is unavailable right now. Please call or email us and we will help you plan.', 'cater-ice-cream-core' ),
+			'unavailable' => self::m( $id, $p . 'unavailable' ) ?: __( 'Our online quote form isn’t available right now. Please call or email us and we’ll help you plan.', 'cater-ice-cream-core' ),
 			'form'    => \CIC\Enquiries\Forms::render( 'quote' ),
 		);
 	}
@@ -955,11 +1054,16 @@ final class ViewModel {
 			$feelings[] = array( 'icon' => self::m( $id, "cic_feel_{$i}_icon" ), 'title' => self::m( $id, "cic_feel_{$i}_title" ), 'text' => self::m( $id, "cic_feel_{$i}_text" ) );
 		}
 
+		// Paired occasions follow the central event order (the events' Order field).
+		$rank  = Catalog::event_rank();
+		$pairs = Pairings::for_product( $id, true );
+		usort( $pairs, static fn( $a, $b ) => ( $rank[ (int) $a['event_id'] ] ?? PHP_INT_MAX ) <=> ( $rank[ (int) $b['event_id'] ] ?? PHP_INT_MAX ) );
 		$occasions = array();
-		foreach ( Pairings::for_product( $id, true ) as $row ) {
+		foreach ( $pairs as $row ) {
 			$occasions[] = array(
 				'event_id'    => $row['event_id'],
 				'event_key'   => Catalog::key( (int) $row['event_id'] ),
+				'event_icon'  => Catalog::event_icon( (int) $row['event_id'] ),
 				'event_title' => get_the_title( $row['event_id'] ),
 				'event_url'   => get_permalink( $row['event_id'] ),
 				'headline'    => $row['headline'],
@@ -1021,6 +1125,11 @@ final class ViewModel {
 				'points'     => self::filled( $points, 'label' ),
 				'ingredient' => self::m( $id, 'cic_ingredient_note' ),
 			),
+			'media'     => array(
+				'heading' => self::rich( self::m( $id, 'cic_media_heading' ) ),
+				'intro'   => self::m( $id, 'cic_media_intro' ),
+				'items'   => self::media( $id ),
+			),
 			'faq'       => array(
 				'heading' => self::rich( self::m( $id, 'cic_faq_heading' ) ?: __( 'Good to know.', 'cater-ice-cream-core' ) ),
 				'intro'   => self::m( $id, 'cic_treat_faq_intro' ),
@@ -1045,6 +1154,7 @@ final class ViewModel {
 				'occasions' => (bool) $vm['occasions']['items'],
 				'themes'    => (bool) $vm['themes']['items'],
 				'detail'    => '' !== $vm['detail']['heading'] && ( '' !== trim( $vm['detail']['body'] ) || $vm['detail']['points'] ),
+				'media'     => (bool) $vm['media']['items'],
 				'faq'       => (bool) $vm['faq']['items'],
 				'quote'     => true,
 			),
@@ -1261,6 +1371,30 @@ final class ViewModel {
 					'date_label'     => __( 'Event date', 'cater-ice-cream-core' ),
 					'guests_label'   => __( 'Estimated guests', 'cater-ice-cream-core' ),
 				),
+			),
+		);
+
+		$canonical   = (string) get_permalink( $id );
+		$description = self::m( $id, 'cic_seo_description' ) ?: wp_strip_all_tags( (string) get_post_field( 'post_excerpt', $id ) );
+		$vm['seo']   = array(
+			'title'       => ( self::m( $id, 'cic_seo_title' ) ?: $title ) . ' | ' . get_bloginfo( 'name' ),
+			'description' => $description,
+			'canonical'   => $canonical,
+			'image'       => $images[0] ?: (int) get_post_thumbnail_id( $id ),
+			'breadcrumbs' => array(
+				array( __( 'Home', 'cater-ice-cream-core' ), home_url( '/' ) ),
+				array( __( 'Events', 'cater-ice-cream-core' ), (string) get_post_type_archive_link( EventType::POST_TYPE ) ),
+				array( $title, $canonical ),
+			),
+			'schema'      => array_filter(
+				array(
+					'@type'       => 'Service',
+					'name'        => self::m( $id, 'cic_hero_eyebrow' ) ?: $title,
+					'serviceType' => __( 'Ice cream catering', 'cater-ice-cream-core' ),
+					'description' => $description,
+					'provider'    => self::provider(),
+					'url'         => $canonical,
+				)
 			),
 		);
 

@@ -46,6 +46,7 @@ final class Notifier {
 			}
 		}
 		Store::cleanup();
+		Drafts::cleanup(); // Only when a draft retention period is configured.
 	}
 
 	public static function retry_job( $id ): void {
@@ -246,14 +247,19 @@ final class Notifier {
 		$vars  = array(
 			'{name}'    => (string) ( $f['your_name'] ?? '' ),
 			'{summary}' => implode( "\n", self::summary_lines( $c ) ),
-			'{phone}'   => Contact::get()['phone'],
+			'{phone}'        => Contact::get()['phone'],
+			'{contact_name}' => Contact::get()['contact_name'],
 		);
-		$key   = 'contact' === $type ? 'contact' : 'quote';
+		$key     = 'contact' === $type ? 'contact' : 'quote';
+		$headers = array_merge( self::from_headers(), array( 'Content-Type: text/plain; charset=UTF-8' ) );
+		if ( is_email( (string) ( $s['reply_to'] ?? '' ) ) ) {
+			$headers[] = 'Reply-To: ' . $s['reply_to'];
+		}
 		return array(
 			'to'      => $to,
 			'subject' => strtr( (string) $s[ $key . '_ack_subject' ], $vars ),
 			'body'    => strtr( (string) $s[ $key . '_ack_body' ], $vars ),
-			'headers' => array_merge( self::from_headers(), array( 'Content-Type: text/plain; charset=UTF-8' ) ),
+			'headers' => $headers,
 		);
 	}
 

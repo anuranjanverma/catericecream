@@ -233,6 +233,22 @@
 	.cic-home-hero__search {
 		margin-top: -2.5rem;
 	}
+
+	/* The search card overlaps the hero by 2.5rem. The text column keeps that band free, so a longer
+	   headline can never push the intro underneath the card (the photo side still runs beneath it). */
+	.cic-home-hero__text {
+		container-type: inline-size;
+		padding-bottom: 2.5rem;
+	}
+
+	/* Each headline line stays on one row where possible, as in the approved two-line design: the size
+	   shrinks to fit the longest line in the column (≈0.53em per character of the display face), never
+	   above the Design System H1 size and never below its mobile size; anything still too long wraps.
+	   Line height keeps the token ratio. --cic-hero-chars comes from section-hero.php. */
+	.cic-home-hero__title {
+		font-size: max(calc(var(--cic-fs-min) * 1px), min(clamp(calc(var(--cic-fs-min) * 1px), calc(var(--cic-fs-min) * 1px + (var(--cic-fs-max) - var(--cic-fs-min)) * (100vw - 390px) / 1050), calc(var(--cic-fs-max) * 1px)), calc(100cqi / (var(--cic-hero-chars, 12) * 0.53))));
+		line-height: calc(var(--cic-lh-max) / var(--cic-fs-max));
+	}
 }
 
 /* Hero search card */
@@ -706,6 +722,12 @@
 
 	.cic-event-cards--4 {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	/* Six occasions (2026-10-22): two balanced rows of three. */
+	.cic-event-cards--5,
+	.cic-event-cards--6 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 }
 

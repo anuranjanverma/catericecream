@@ -198,10 +198,22 @@ try {
 
 	/* ---------------- L6 SEO ---------------- */
 	update_option( 'blog_public', '1' );
+	// Production view: non-production sites are always noindex (Seo\Service, 2026-10-26), so a
+	// temporary MU plugin lifts that protection only for this test's own requests (random header).
+	$cic5_token = wp_generate_password( 32, false );
+	file_put_contents( WPMU_PLUGIN_DIR . '/zz-cic5-seo.php', "<?php\n// TEMPORARY (dev/tests/phase05); deleted by the test.\nif ( isset( \$_SERVER['HTTP_X_CIC5_SEO'] ) && hash_equals( '{$cic5_token}', (string) \$_SERVER['HTTP_X_CIC5_SEO'] ) ) {\n\tadd_filter( 'cic_seo_protect', '__return_false' );\n}\n" );
+	$cic5_header = static function ( $a ) use ( $cic5_token ) {
+		$a['headers']['X-CIC5-SEO'] = $cic5_token;
+		return $a;
+	};
+	add_filter( 'http_request_args', $cic5_header );
+	// With Yoast SEO the YoastAdapter feeds Yoast's output: Yoast prints no canonical on noindex pages
+	// and serves its own sitemaps (cic-locations-sitemap.xml in sitemap_index.xml).
+	$cic5_yoast = defined( 'WPSEO_VERSION' );
 	$city = cic5_get( '/service-areas/california/pasadena/' )['body'];
 	preg_match_all( '/<link rel="canonical" href="([^"]+)"/', $city, $canon_tags );
 	preg_match( '/<title>([^<]+)<\/title>/', $city, $title );
-	cic5_check( 'L6.1 one canonical tag pointing at the virtual city URL; city title from the template', 1 === count( $canon_tags[1] ) && $canon === $canon_tags[1][0] && str_contains( html_entity_decode( $title[1] ?? '' ), 'Ice Cream Catering in Pasadena, CA' ), array( $canon_tags[1], $title[1] ?? '' ) );
+	cic5_check( 'L6.1 one canonical tag pointing at the virtual city URL (Yoast: none while noindex); city title from the template', ( $cic5_yoast ? 0 === count( $canon_tags[1] ) : ( 1 === count( $canon_tags[1] ) && $canon === $canon_tags[1][0] ) ) && str_contains( html_entity_decode( $title[1] ?? '' ), 'Ice Cream Catering in Pasadena, CA' ), array( $canon_tags[1], $title[1] ?? '' ) );
 	cic5_check( 'L6.2 unreviewed city is noindex even though its index status is "index"', (bool) preg_match( '/<meta name=[\'"]robots[\'"] content=[\'"][^\'"]*noindex/', $city ) );
 	cic5_check( 'L6.3 BreadcrumbList + Service JSON-LD; no fabricated address, reviews or ratings', str_contains( $city, '"BreadcrumbList"' ) && str_contains( $city, '"areaServed"' ) && ! preg_match( '/"(address|aggregateRating|review)"/', $city ) );
 	cic5_check( 'L6.4 Open Graph and meta description use the same canonical URL', str_contains( $city, '<meta property="og:url" content="' . $canon . '"' ) && str_contains( $city, '<meta name="description"' ) );
@@ -211,23 +223,26 @@ try {
 	update_post_meta( $editorial, 'cic_city_subtitle', 'Reviewed local copy for the test.' );
 	Tables::bump_cache();
 	$city2 = cic5_get( '/service-areas/california/pasadena/' )['body'];
-	cic5_check( 'L6.5 published + index + reviewed content → indexable (no noindex) and the override renders', ! preg_match( '/<meta name=[\'"]robots[\'"] content=[\'"][^\'"]*noindex/', $city2 ) && str_contains( $city2, 'Reviewed local copy for the test.' ) );
+	cic5_check( 'L6.5 published + index + reviewed content → indexable (no noindex), one canonical to the city URL, and the override renders', ! preg_match( '/<meta name=[\'"]robots[\'"] content=[\'"][^\'"]*noindex/', $city2 ) && 1 === substr_count( $city2, 'rel="canonical"' ) && str_contains( $city2, '<link rel="canonical" href="' . $canon . '"' ) && str_contains( $city2, 'Reviewed local copy for the test.' ) );
 	$q = cic5_get( '/service-areas/california/pasadena/?location=91101' )['body'];
 	$h = cic5_get( '/service-areas/?location=pasadena' )['body'];
 	$s = cic5_get( '/service-areas/california/?county=los-angeles-county' )['body'];
 	$noindex = '/<meta name=[\'"]robots[\'"] content=[\'"][^\'"]*noindex/';
-	cic5_check( 'L6.6 query-string variants (search, county filter) are noindex with the clean canonical', preg_match( $noindex, $q ) && preg_match( $noindex, $h ) && preg_match( $noindex, $s ) && str_contains( $q, '<link rel="canonical" href="' . $canon . '"' ) );
+	cic5_check( 'L6.6 query-string variants (search, county filter) are noindex with the clean canonical (Yoast: no canonical on noindex)', preg_match( $noindex, $q ) && preg_match( $noindex, $h ) && preg_match( $noindex, $s ) && ( $cic5_yoast ? ! str_contains( $q, 'rel="canonical"' ) : str_contains( $q, '<link rel="canonical" href="' . $canon . '"' ) ) );
 
 	/* ---------------- L7 sitemap ---------------- */
-	$index = cic5_get( '/wp-sitemap.xml' )['body'];
-	$sm    = cic5_get( '/wp-sitemap-locations-1.xml' );
-	cic5_check( 'L7.1 core sitemap index lists the locations sitemap and not the private city content type', str_contains( $index, 'wp-sitemap-locations-1.xml' ) && ! str_contains( $index, Editorial::POST_TYPE ), $index );
+	$cic5_sm_path = $cic5_yoast ? '/cic-locations-sitemap.xml' : '/wp-sitemap-locations-1.xml';
+	$index        = cic5_get( $cic5_yoast ? '/sitemap_index.xml' : '/wp-sitemap.xml' )['body'];
+	$sm           = cic5_get( $cic5_sm_path );
+	cic5_check( 'L7.1 sitemap index (core, or Yoast when active) lists the locations sitemap and not the private city content type', str_contains( $index, ltrim( $cic5_sm_path, '/' ) ) && ! str_contains( $index, Editorial::POST_TYPE ), $index );
 	cic5_check( 'L7.2 locations sitemap: state hub + reviewed indexable Pasadena; no drafts, noindex cities, aliases or query URLs', 200 === $sm['code'] && str_contains( $sm['body'], home_url( '/service-areas/california/' ) ) && str_contains( $sm['body'], $canon ) && ! str_contains( $sm['body'], '/glendale/' ) && ! str_contains( $sm['body'], '/compton/' ) && ! str_contains( $sm['body'], 'pasadena-city' ) && ! preg_match( '/<loc>[^<]*\?/', $sm['body'] ), $sm['body'] );
 	update_post_meta( $editorial, Editorial::REVIEWED, '0' );
 	Tables::bump_cache();
-	$sm2 = cic5_get( '/wp-sitemap-locations-1.xml' )['body'];
+	$sm2 = cic5_get( $cic5_sm_path )['body'];
 	cic5_check( 'L7.3 un-reviewing the content removes Pasadena from the sitemap (cache invalidated)', ! str_contains( $sm2, $canon ), $sm2 );
 	update_option( 'blog_public', '0' );
+	remove_filter( 'http_request_args', $cic5_header );
+	wp_delete_file( WPMU_PLUGIN_DIR . '/zz-cic5-seo.php' );
 
 	/* ---------------- L8 cache invalidation ---------------- */
 	$before = wp_list_pluck( $repo->list_cities( 'CA', 'los-angeles-county' )['items'], 'slug' );
@@ -306,6 +321,9 @@ try {
 	cic5_check( 'L13.3 administrators have manage_locations; editors do not', get_role( 'administrator' )->has_cap( Tables::CAPABILITY ) && ! get_role( 'editor' )->has_cap( Tables::CAPABILITY ) );
 } finally {
 	update_option( 'blog_public', '0' );
+	if ( file_exists( WPMU_PLUGIN_DIR . '/zz-cic5-seo.php' ) ) {
+		wp_delete_file( WPMU_PLUGIN_DIR . '/zz-cic5-seo.php' );
+	}
 	WP_CLI::runcommand( 'eval-file dev/tests/phase05/state.php restore ' . $snapshot, array( 'launch' => false, 'exit_error' => false ) );
 	$left = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}cic_zips WHERE source_reference LIKE 'test:%'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	cic5_check( 'L14.1 cleanup: test rows, aliases, editorial records and options restored', 0 === $left && '0' === (string) get_option( 'blog_public' ) && 'pasadena' === $wpdb->get_var( "SELECT city_slug FROM {$wpdb->prefix}cic_cities WHERE city_slug = 'pasadena'" ) && 0 === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}cic_city_slugs" ) && ! get_posts( array( 'post_type' => Editorial::POST_TYPE, 'post_status' => 'any', 'numberposts' => 1 ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

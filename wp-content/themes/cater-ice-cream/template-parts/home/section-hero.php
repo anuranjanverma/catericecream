@@ -10,6 +10,14 @@ defined( 'ABSPATH' ) || exit;
 $cic_vm   = $args['vm'];
 $cic_hero = $cic_vm['hero'];
 $cic_imgs = $cic_hero['images'];
+// Longest headline line in characters: lets home.css size the desktop headline so each line fits its
+// column (the headline is editable copy; longer words must not push the intro under the search card).
+$cic_chars = 0;
+if ( preg_match_all( '#<span class="cic-line">(.*?)</span>#s', (string) $cic_hero['headline'], $cic_m ) ) {
+	foreach ( $cic_m[1] as $cic_l ) {
+		$cic_chars = max( $cic_chars, mb_strlen( html_entity_decode( wp_strip_all_tags( $cic_l ), ENT_QUOTES, 'UTF-8' ) ) );
+	}
+}
 echo cic_theme_section_open( 'cic-home', $args['section'], 'cic-home-hero' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
 ?>
 	<div class="cic-container cic-container--wide cic-home-hero__grid">
@@ -17,7 +25,7 @@ echo cic_theme_section_open( 'cic-home', $args['section'], 'cic-home-hero' ); //
 			<?php if ( '' !== $cic_hero['eyebrow'] ) : ?>
 				<p class="cic-eyebrow"><?php echo esc_html( $cic_hero['eyebrow'] ); ?></p>
 			<?php endif; ?>
-			<h1 class="cic-home-hero__title"><span class="cic-swoosh" aria-hidden="true"></span><?php echo $cic_hero['headline']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses-filtered. ?></h1>
+			<h1 class="cic-home-hero__title"<?php echo $cic_chars ? ' style="--cic-hero-chars:' . (int) $cic_chars . '"' : ''; ?>><span class="cic-swoosh" aria-hidden="true"></span><?php echo $cic_hero['headline']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses-filtered. ?></h1>
 			<?php if ( '' !== $cic_hero['intro'] ) : ?>
 				<p class="cic-lead"><?php echo esc_html( $cic_hero['intro'] ); ?></p>
 			<?php endif; ?>

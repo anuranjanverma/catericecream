@@ -5,7 +5,7 @@
  * - Two CF7 forms are created once (IDs stored per environment in Enquiry settings, never
  *   hardcoded). Their markup is code-owned through the supported wpcf7_contact_form_properties
  *   filter, so the three-step structure cannot be broken from the CF7 editor.
- * - Custom form tags ([cic_field name], [cic_steps], [cic_summary], [cic_guard], [cic_submit])
+ * - Custom form tags ([cic_field name], [cic_steps], [cic_guard], [cic_submit])
  *   render the approved controls with CF7's wrapper/error conventions, so CF7's JavaScript, its
  *   no-JavaScript re-render (hangover values + inline errors) and Flamingo storage all work.
  *   Event and treat options come from published records at render time; the server validates
@@ -122,10 +122,10 @@ final class Forms {
 	/** @return array<string, string> */
 	private static function messages( string $type ): array {
 		return array(
-			'mail_sent_ok'     => 'quote' === $type ? __( 'Your quote request is received.', 'cater-ice-cream-core' ) : __( 'Your message is received.', 'cater-ice-cream-core' ),
-			'mail_sent_ng'     => __( 'Your request was saved, but we could not send the confirmation email. Our team will still see it.', 'cater-ice-cream-core' ),
+			'mail_sent_ok'     => 'quote' === $type ? __( 'Thanks! We received your quote request.', 'cater-ice-cream-core' ) : __( 'Thanks! We received your message.', 'cater-ice-cream-core' ),
+			'mail_sent_ng'     => __( 'We saved your request, but we couldn’t send the confirmation email. We’ll still see your request and get back to you.', 'cater-ice-cream-core' ),
 			'validation_error' => __( 'Please check the highlighted fields and try again.', 'cater-ice-cream-core' ),
-			'spam'             => __( 'Sorry, we could not send this right now. Please try again later or call us.', 'cater-ice-cream-core' ),
+			'spam'             => __( 'Sorry, we couldn’t send this right now. Please try again later or give us a call.', 'cater-ice-cream-core' ),
 			'accept_terms'     => __( 'Please confirm before sending.', 'cater-ice-cream-core' ),
 			'invalid_required' => __( 'Please fill in this field.', 'cater-ice-cream-core' ),
 			'invalid_too_long' => __( 'This is too long.', 'cater-ice-cream-core' ),
@@ -191,35 +191,41 @@ final class Forms {
 				. '[cic_guard cic_guard][cic_submit cic_submit]'
 				. '</div>';
 		}
-		$step = static fn( int $n, string $title, string $intro ): string => '<fieldset class="cic-qf__step" data-step="' . $n . '" id="cic-step-' . $n . '"><legend class="cic-qf__legend"><span class="cic-qf__kicker">' . esc_html( sprintf( /* translators: %d: step. */ __( 'Step %d of 3', 'cater-ice-cream-core' ), $n ) ) . '</span> <span class="cic-qf__title">' . esc_html( $title ) . '</span></legend><p class="cic-qf__intro">' . esc_html( $intro ) . '</p>';
-		$nav  = static fn( string $back, string $next ): string => '<div class="cic-qf__nav cic-js-only">' . ( '' !== $back ? '<button type="button" class="cic-qf__back" data-cic-back>← ' . esc_html( $back ) . '</button>' : '<span class="cic-qf__count">' . esc_html__( 'Step 1 of 3', 'cater-ice-cream-core' ) . '</span>' ) . ( '' !== $next ? '<button type="button" class="cic-button" data-cic-next>' . esc_html( $next ) . ' <span aria-hidden="true">→</span></button>' : '' ) . '</div>';
+		// Two steps (2026-10-23): your details & favorites, then your event. Optional details (notes,
+		// theme, dietary) are asked after submission on the confirmation (Drafts). Without JavaScript
+		// both steps show on one page and the form submits as before.
+		$step = static fn( int $n, string $title, string $intro ): string => '<fieldset class="cic-qf__step" data-step="' . $n . '" id="cic-step-' . $n . '"><legend class="cic-qf__legend"><span class="cic-qf__kicker">' . esc_html( sprintf( /* translators: %d: step. */ __( 'Step %d of 2', 'cater-ice-cream-core' ), $n ) ) . '</span> <span class="cic-qf__title">' . esc_html( $title ) . '</span></legend>' . ( '' !== $intro ? '<p class="cic-qf__intro">' . esc_html( $intro ) . '</p>' : '' );
 		return '<div class="cic-qf novalidate" data-cic-form="quote">'
 			. '[cic_steps cic_steps]'
 			. '<div class="cic-qf__errors" data-cic-errors hidden tabindex="-1"></div>'
-			. $step( 1, __( 'First, tell us about your event.', 'cater-ice-cream-core' ), __( 'A few details will help us shape the conversation.', 'cater-ice-cream-core' ) )
-			. '[cic_field event]<div class="cic-qf__grid">[cic_field event_other]</div>'
-			. '<div class="cic-qf__grid">[cic_field event_date][cic_field guests]</div>'
-			. '<div class="cic-qf__grid">[cic_field location][cic_field venue]</div>'
-			. '[cic_field location_detail]'
-			. '<div class="cic-qf__grid">[cic_field serve_time][cic_field serve_duration]</div>'
-			. '<p class="cic-qf__note">' . esc_html__( 'We’ll confirm service for your exact event location and date.', 'cater-ice-cream-core' ) . '</p>'
-			. $nav( '', __( 'Continue to treats', 'cater-ice-cream-core' ) ) . '</fieldset>'
-			. $step( 2, __( 'What would you love to share?', 'cater-ice-cream-core' ), __( 'Select your favourites, or let us help you choose.', 'cater-ice-cream-core' ) )
-			. '[cic_field treats][cic_field treats_unsure][cic_field flavours][cic_field party_theme][cic_field dietary]'
-			. $nav( __( 'Back to your event', 'cater-ice-cream-core' ), __( 'Continue to review', 'cater-ice-cream-core' ) ) . '</fieldset>'
-			. $step( 3, __( 'Let’s make sure it feels right.', 'cater-ice-cream-core' ), __( 'Add your contact details and review your plans.', 'cater-ice-cream-core' ) )
+			. $step( 1, __( 'Your details & favorites', 'cater-ice-cream-core' ), '' )
 			. '<div class="cic-qf__grid">[cic_field your_name][cic_field your_email]</div>'
 			. '<div class="cic-qf__grid">[cic_field phone][cic_field contact_pref]</div>'
-			. '[cic_summary cic_summary][cic_field notes]'
+			. '<h3 class="cic-qf__subhead">' . esc_html__( 'Pick your favorites, or let us help you choose.', 'cater-ice-cream-core' ) . '</h3>'
+			. '[cic_field treats][cic_field treats_unsure]'
+			. '<div class="cic-qf__nav cic-qf__nav--continue cic-js-only"><p class="cic-qf__consent">' . esc_html__( 'By continuing, you agree that we may contact you about your event.', 'cater-ice-cream-core' ) . self::privacy_link() . '</p><button type="button" class="cic-button" data-cic-next>' . esc_html__( 'Continue', 'cater-ice-cream-core' ) . ' <span aria-hidden="true">→</span></button><p class="cic-qf__failure" data-cic-failure role="alert" hidden></p></div>'
+			. '</fieldset>'
+			. $step( 2, __( 'Your event', 'cater-ice-cream-core' ), '' )
+			. '[cic_field event]<div class="cic-qf__grid">[cic_field event_other]</div>'
+			. '<div class="cic-qf__grid">[cic_field event_date][cic_field guests]</div>'
+			. '<div class="cic-qf__grid">[cic_field location][cic_field location_detail]</div>'
+			. '<div class="cic-qf__secondary">[cic_field venue][cic_field serve_time][cic_field serve_duration]</div>'
+			. '<p class="cic-qf__note">' . esc_html__( 'We’ll confirm service for your exact event location and date.', 'cater-ice-cream-core' ) . '</p>'
 			. '<p class="cic-qf__privacy">' . self::privacy() . '</p>'
-			. '<div class="cic-qf__nav cic-qf__nav--send"><button type="button" class="cic-qf__back cic-js-only" data-cic-back>← ' . esc_html__( 'Back to your treats', 'cater-ice-cream-core' ) . '</button>[cic_guard cic_guard][cic_submit cic_submit]</div>'
-			. '<p class="cic-qf__after">' . esc_html__( 'Our team will confirm availability, selections and serving details with you.', 'cater-ice-cream-core' ) . '</p>'
+			. '<div class="cic-qf__nav cic-qf__nav--send"><button type="button" class="cic-qf__back cic-js-only" data-cic-back>← ' . esc_html__( 'Back to your details', 'cater-ice-cream-core' ) . '</button>[cic_guard cic_guard][cic_submit cic_submit]</div>'
+			. '<p class="cic-qf__after">' . esc_html__( 'This is a quote request, not a booking. We’ll confirm availability, pricing and serving details with you.', 'cater-ice-cream-core' ) . '</p>'
 			. '</fieldset></div>';
+	}
+
+	/** " Privacy Policy" link (only once the policy page is published). */
+	private static function privacy_link(): string {
+		$url = get_privacy_policy_url();
+		return '' !== $url ? ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Privacy Policy', 'cater-ice-cream-core' ) . '</a>' : '';
 	}
 
 	private static function privacy(): string {
 		$url  = get_privacy_policy_url();
-		$text = esc_html__( 'We’ll use these details to respond to your enquiry.', 'cater-ice-cream-core' );
+		$text = esc_html__( 'We’ll use these details to reply to your inquiry.', 'cater-ice-cream-core' );
 		return '' !== $url ? $text . ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Privacy Policy', 'cater-ice-cream-core' ) . '</a>' : $text;
 	}
 
@@ -232,18 +238,18 @@ final class Forms {
 		$opt = __( '(optional)', 'cater-ice-cream-core' );
 		return array(
 			'event'           => array( 'type' => 'event', 'label' => __( 'What are you celebrating?', 'cater-ice-cream-core' ), 'required' => true ),
-			'event_other'     => array( 'type' => 'text', 'label' => __( 'Tell us about the occasion', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'e.g. graduation, baby shower, school event', 'cater-ice-cream-core' ), 'max' => 80, 'wrap' => 'data-cic-other' ),
+			'event_other'     => array( 'type' => 'text', 'label' => __( 'Tell us about the occasion', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'e.g. baby shower, retirement, school event', 'cater-ice-cream-core' ), 'max' => 80, 'wrap' => 'data-cic-other' ),
 			'event_date'      => array( 'type' => 'date', 'label' => __( 'Event date', 'cater-ice-cream-core' ), 'icon' => 'calendar', 'required' => true, 'after' => 'date_unknown' ),
 			'date_unknown'    => array( 'type' => 'check', 'label' => __( 'Date not set yet', 'cater-ice-cream-core' ) ),
 			'guests'          => array( 'type' => 'number', 'label' => __( 'Approximate guest count', 'cater-ice-cream-core' ), 'placeholder' => __( 'Estimated number', 'cater-ice-cream-core' ), 'icon' => 'people', 'required' => true ),
 			'location'        => array( 'type' => 'location', 'label' => __( 'City or ZIP code', 'cater-ice-cream-core' ), 'placeholder' => __( 'Where is your event?', 'cater-ice-cream-core' ), 'icon' => 'pin', 'required' => true ),
 			'location_detail' => array( 'type' => 'text', 'label' => __( 'Venue city or event ZIP code', 'cater-ice-cream-core' ), 'optional' => __( '(if we ask for it)', 'cater-ice-cream-core' ), 'placeholder' => __( 'e.g. Pasadena, or 91101', 'cater-ice-cream-core' ), 'max' => 60, 'wrap' => 'data-cic-detail', 'help' => __( 'Some ZIP codes cover more than one community, and some cities are only partly served. We use this to confirm your exact location.', 'cater-ice-cream-core' ) ),
-			'venue'           => array( 'type' => 'text', 'label' => __( 'Venue or address', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'Tell us if you know.', 'cater-ice-cream-core' ), 'icon' => 'home', 'max' => 200, 'autocomplete' => 'off' ),
+			'venue'           => array( 'type' => 'text', 'label' => __( 'Venue or address', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'If you know it', 'cater-ice-cream-core' ), 'icon' => 'home', 'max' => 200, 'autocomplete' => 'off' ),
 			'serve_time'      => array( 'type' => 'time', 'label' => __( 'Serving start time', 'cater-ice-cream-core' ), 'optional' => $opt, 'icon' => 'clock' ),
-			'serve_duration'  => array( 'type' => 'select', 'label' => __( 'Serving duration', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'Approximate time needed', 'cater-ice-cream-core' ), 'options' => Validator::DURATIONS, 'icon' => 'clock' ),
+			'serve_duration'  => array( 'type' => 'select', 'label' => __( 'Serving duration', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'Choose', 'cater-ice-cream-core' ), 'options' => Validator::DURATIONS, 'icon' => 'clock' ),
 			'treats'          => array( 'type' => 'treats', 'label' => __( 'Treats', 'cater-ice-cream-core' ) ),
 			'treats_unsure'   => array( 'type' => 'unsure', 'label' => __( 'Not sure yet — help me choose', 'cater-ice-cream-core' ), 'help' => __( 'You can select more than one treat.', 'cater-ice-cream-core' ) ),
-			'flavours'        => array( 'type' => 'textarea', 'label' => __( 'Flavour or topping preferences', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'e.g. chocolate, vanilla, fresh fruit, sprinkles…', 'cater-ice-cream-core' ), 'max' => 500 ),
+			'flavours'        => array( 'type' => 'textarea', 'label' => __( 'Flavor or topping preferences', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'e.g. chocolate, vanilla, fresh fruit, sprinkles…', 'cater-ice-cream-core' ), 'max' => 500 ),
 			'party_theme'     => array( 'type' => 'textarea', 'label' => __( 'Party theme or feeling', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'Playful, nostalgic, elegant… tell us your ideas', 'cater-ice-cream-core' ), 'max' => 500 ),
 			'dietary'         => array( 'type' => 'textarea', 'label' => __( 'Dietary requirements', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'e.g. nut allergies, gluten-free, dairy-free…', 'cater-ice-cream-core' ), 'max' => 500, 'help' => __( 'We’ll review current ingredients and suitable options with you.', 'cater-ice-cream-core' ) ),
 			'your_name'       => array( 'type' => 'text', 'label' => __( 'Full name', 'cater-ice-cream-core' ), 'placeholder' => __( 'Your name', 'cater-ice-cream-core' ), 'required' => true, 'max' => 100, 'autocomplete' => 'name' ),
@@ -252,7 +258,7 @@ final class Forms {
 			'contact_pref'    => array( 'type' => 'radio', 'label' => __( 'Preferred contact method', 'cater-ice-cream-core' ), 'options' => array( 'email' => __( 'Email', 'cater-ice-cream-core' ), 'phone' => __( 'Phone', 'cater-ice-cream-core' ) ), 'default' => 'email' ),
 			'notes'           => array( 'type' => 'textarea', 'label' => __( 'Additional notes', 'cater-ice-cream-core' ), 'optional' => $opt, 'placeholder' => __( 'Anything else we should know about your event?', 'cater-ice-cream-core' ), 'max' => 1500 ),
 			'topic'           => array( 'type' => 'select', 'label' => __( 'Topic', 'cater-ice-cream-core' ), 'placeholder' => __( 'Select a topic', 'cater-ice-cream-core' ), 'options' => Validator::TOPICS, 'required' => true ),
-			'message'         => array( 'type' => 'textarea', 'label' => __( 'Message', 'cater-ice-cream-core' ), 'placeholder' => __( 'Tell us about your enquiry…', 'cater-ice-cream-core' ), 'required' => true, 'max' => 3000, 'rows' => 5 ),
+			'message'         => array( 'type' => 'textarea', 'label' => __( 'Message', 'cater-ice-cream-core' ), 'placeholder' => __( 'How can we help?', 'cater-ice-cream-core' ), 'required' => true, 'max' => 3000, 'rows' => 5 ),
 		);
 	}
 
@@ -263,7 +269,6 @@ final class Forms {
 	public function add_tags(): void {
 		wpcf7_add_form_tag( 'cic_field', array( $this, 'field_tag' ), array( 'name-attr' => true ) );
 		wpcf7_add_form_tag( 'cic_steps', array( $this, 'steps_tag' ), array( 'name-attr' => true, 'do-not-store' => true ) );
-		wpcf7_add_form_tag( 'cic_summary', array( $this, 'summary_tag' ), array( 'name-attr' => true, 'do-not-store' => true ) );
 		wpcf7_add_form_tag( 'cic_guard', array( $this, 'guard_tag' ), array( 'name-attr' => true, 'do-not-store' => true ) );
 		wpcf7_add_form_tag( 'cic_submit', array( $this, 'submit_tag' ), array( 'name-attr' => true, 'do-not-store' => true ) );
 	}
@@ -313,10 +318,10 @@ final class Forms {
 		switch ( $spec['type'] ) {
 			case 'event':
 				$events = Catalog::selectable_events();
-				$icons  = array( 'birthday' => 'cake', 'wedding' => 'rings', 'anniversary' => 'heart', 'corporate' => 'briefcase' );
 				$items  = '';
-				foreach ( array_merge( $events, array( array( 'key' => 'other', 'title' => __( 'Other', 'cater-ice-cream-core' ) ) ) ) as $e ) {
-					$items .= '<label class="cic-tile"><input type="radio" class="cic-tile__input" name="event" value="' . esc_attr( $e['key'] ) . '"' . checked( (string) $value, $e['key'], false ) . '><span class="cic-tile__box">' . self::icon( $icons[ $e['key'] ] ?? ( 'other' === $e['key'] ? 'dots' : 'sparkle' ) ) . '<span class="cic-tile__label">' . esc_html( $e['label'] ?? $e['title'] ) . '</span><span class="cic-tile__check" aria-hidden="true"></span></span></label>';
+				foreach ( array_merge( $events, array( array( 'key' => 'other', 'title' => __( 'Something else', 'cater-ice-cream-core' ) ) ) ) as $e ) {
+					$other  = 'other' === $e['key'];
+					$items .= '<label class="cic-tile' . ( $other ? ' cic-tile--other' : '' ) . '"><input type="radio" class="cic-tile__input" name="event" value="' . esc_attr( $e['key'] ) . '"' . checked( (string) $value, $e['key'], false ) . '><span class="cic-tile__box">' . self::icon( $other ? 'dots' : Catalog::event_icon( (int) $e['id'] ) ) . '<span class="cic-tile__label">' . esc_html( $e['label'] ?? $e['title'] ) . '</span><span class="cic-tile__check" aria-hidden="true"></span></span></label>';
 				}
 				return '<fieldset class="cic-field cic-field--tiles" id="' . esc_attr( $id ) . '"><legend class="cic-field__label">' . esc_html( $spec['label'] ) . ' <span class="cic-req" aria-hidden="true">*</span></legend>' . $wrap( '<span class="wpcf7-form-control cic-tiles' . ( $error ? ' wpcf7-not-valid' : '' ) . '" role="radiogroup"' . $aria . '>' . $items . '</span>' ) . '</fieldset>';
 
@@ -386,23 +391,12 @@ final class Forms {
 	}
 
 	public function steps_tag( $tag ): string {
-		$steps = array( __( 'Your event', 'cater-ice-cream-core' ), __( 'Your treats', 'cater-ice-cream-core' ), __( 'Review & send', 'cater-ice-cream-core' ) );
+		$steps = array( __( 'Your details & favorites', 'cater-ice-cream-core' ), __( 'Your event', 'cater-ice-cream-core' ) );
 		$out   = '<nav class="cic-qf__progress cic-js-only" aria-label="' . esc_attr__( 'Quote steps', 'cater-ice-cream-core' ) . '"><ol>';
 		foreach ( $steps as $i => $label ) {
-			$out .= '<li data-step="' . ( $i + 1 ) . '"><button type="button" class="cic-qf__stepbtn" data-cic-goto="' . ( $i + 1 ) . '"><span class="cic-qf__num" aria-hidden="true">' . ( $i + 1 ) . '</span><span class="cic-qf__steplabel">' . esc_html( $label ) . '</span></button></li>';
+			$out .= '<li data-step="' . ( $i + 1 ) . '"><button type="button" class="cic-qf__stepbtn" data-cic-goto="' . ( $i + 1 ) . '"><span class="cic-qf__num" aria-hidden="true">' . ( $i + 1 ) . '</span><span class="cic-qf__steplabel">' . esc_html( $label ) . '</span><span class="screen-reader-text" data-cic-stepstate></span></button></li>';
 		}
 		return $out . '</ol></nav>';
-	}
-
-	public function summary_tag( $tag ): string {
-		$row = static fn( string $key, string $icon, string $label ): string => '<div class="cic-glance__row" data-cic-glance="' . esc_attr( $key ) . '">' . self::icon( $icon ) . '<span><span class="cic-glance__label">' . esc_html( $label ) . '</span><span class="cic-glance__value" data-cic-glance-value></span></span></div>';
-		return '<section class="cic-glance cic-js-only" aria-labelledby="cic-glance-title"><div class="cic-glance__head"><h3 id="cic-glance-title">' . esc_html__( 'Your event at a glance', 'cater-ice-cream-core' ) . '</h3><span class="cic-glance__edit"><button type="button" class="cic-text-link" data-cic-goto="1">' . esc_html__( 'Edit event', 'cater-ice-cream-core' ) . '</button> <button type="button" class="cic-text-link" data-cic-goto="2">' . esc_html__( 'Edit treats', 'cater-ice-cream-core' ) . '</button></span></div><div class="cic-glance__grid">'
-			. $row( 'event', 'party', __( 'Event type', 'cater-ice-cream-core' ) )
-			. $row( 'treats', 'sundae', __( 'Selected treats', 'cater-ice-cream-core' ) )
-			. $row( 'location', 'pin', __( 'Location', 'cater-ice-cream-core' ) )
-			. $row( 'date', 'calendar', __( 'Date', 'cater-ice-cream-core' ) )
-			. $row( 'guests', 'people', __( 'Approx. guests', 'cater-ice-cream-core' ) )
-			. '</div></section>';
 	}
 
 	/** Honeypot, signed render time and the retry-safe submission key (none are stored). */
@@ -410,12 +404,12 @@ final class Forms {
 		$error = function_exists( 'wpcf7_get_validation_error' ) ? wpcf7_get_validation_error( 'cic_guard' ) : '';
 		$key   = isset( $_POST['cic_key'] ) && Store::valid_key( sanitize_text_field( wp_unslash( $_POST['cic_key'] ) ) ) ? sanitize_text_field( wp_unslash( $_POST['cic_key'] ) ) : self::new_key(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- the same key survives a failed no-JS submission.
 		return '<span class="wpcf7-form-control-wrap" data-name="cic_guard"><span class="cic-hp" aria-hidden="true"><label>' . esc_html__( 'Leave this field empty', 'cater-ice-cream-core' ) . '<input type="text" name="cic_website" value="" tabindex="-1" autocomplete="off"></label></span>'
-			. '<input type="hidden" name="cic_guard" value="1"><input type="hidden" name="cic_ts" value="' . esc_attr( Guard::token() ) . '" data-cic-ts><input type="hidden" name="cic_key" value="' . esc_attr( $key ) . '" data-cic-key><input type="hidden" name="cic_source" value="" data-cic-source>' . $error . '</span>';
+			. '<input type="hidden" name="cic_guard" value="1"><input type="hidden" name="cic_ts" value="' . esc_attr( Guard::token() ) . '" data-cic-ts><input type="hidden" name="cic_key" value="' . esc_attr( $key ) . '" data-cic-key><input type="hidden" name="cic_source" value="" data-cic-source><input type="hidden" name="cic_draft_key" value="" data-cic-draft-key>' . $error . '</span>';
 	}
 
 	public function submit_tag( $tag ): string {
 		$type = self::rendering_type();
-		return '<button type="submit" class="wpcf7-form-control wpcf7-submit cic-button cic-button--send">' . esc_html( 'contact' === $type ? __( 'Send my message', 'cater-ice-cream-core' ) : __( 'Send my quote request', 'cater-ice-cream-core' ) ) . ' <span aria-hidden="true">→</span></button>';
+		return '<button type="submit" class="wpcf7-form-control wpcf7-submit cic-button cic-button--send">' . esc_html( 'contact' === $type ? __( 'Send my message', 'cater-ice-cream-core' ) : __( 'Request My Quote', 'cater-ice-cream-core' ) ) . ' <span aria-hidden="true">→</span></button>';
 	}
 
 	public static function new_key(): string {

@@ -19,6 +19,14 @@
 	z-index: 1;
 }
 
+/* Each section's content layer is z-index 1, so a later section paints over an earlier one. While a
+   section shows an open popover (location suggestions from context.js, the date picker), the whole
+   section is lifted one step so the popover stays above the following sections and every option
+   remains clickable. Still far below the sticky header (50) and the mobile quote bar (40). */
+.cic-comp:has(.cic-ac-list:not([hidden]), .cic-dp:not([hidden])) {
+	z-index: 2;
+}
+
 .cic-center {
 	text-align: center;
 }
@@ -570,6 +578,13 @@
 	width: clamp(30px, 4vw, 48px);
 }
 
+/* Graduation treats: a few stars at the top corner (the confetti is shared with Birthday). */
+.cic-treats__stars {
+	top: 1.5rem;
+	left: 5%;
+	width: clamp(48px, 6vw, 80px);
+}
+
 .cic-confetti {
 	position: absolute;
 	inset: 0;
@@ -633,6 +648,12 @@
 	position: relative;
 	z-index: 3;
 	margin-top: -4rem;
+}
+
+/* Graduation: the strip follows the value row (not the hero), so it does not overlap upward. */
+.cic-event--graduation .cic-starter-wrap {
+	margin-top: 0;
+	padding-bottom: calc(var(--cic-space) * 2);
 }
 
 .cic-starter {
@@ -990,3 +1011,70 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
+
+/* ------------------------------------------------------------------ *
+ * Treat "Photos and videos" (template-parts/treat/section-media.php, 2026-10-24)
+ * Authentic photos and portrait phone videos in one centred row. The first item is the largest;
+ * low-resolution clips are capped at 1.5× their own size (--cic-media-max). Each frame reserves its
+ * shape from the poster/photo size (--cic-media-ratio), so nothing shifts when media loads.
+ * ------------------------------------------------------------------ */
+.cic-media-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem 1.5rem;
+	align-items: flex-start;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-media-item {
+	--cic-media-w: 280px;
+	flex: 0 1 var(--cic-media-w);
+	min-width: 0;
+	max-width: min(100%, var(--cic-media-max, var(--cic-media-w)));
+}
+
+.cic-media-item--lead.cic-media-item--video {
+	--cic-media-w: 360px;
+}
+
+.cic-media-item--lead:not(.cic-media-item--video) {
+	--cic-media-w: 420px;
+}
+
+.cic-media-item--lowres {
+	--cic-media-w: var(--cic-media-max);
+}
+
+.cic-media-item__figure {
+	margin: 0;
+}
+
+.cic-media-item__frame {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: var(--cic-media-ratio, 9 / 16);
+	border-radius: var(--cic-radius-image);
+	background-color: var(--wp--preset--color--surface-soft);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-media-item__frame > img,
+.cic-media-item__video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.cic-media-item__video {
+	background-color: var(--wp--preset--color--text-primary);
+	object-fit: contain;
+}
+
+.cic-media-item__caption {
+	margin-top: 0.75rem;
+}
+

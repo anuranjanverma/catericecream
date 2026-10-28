@@ -5,6 +5,7 @@
  *   three icon points with fine dividers.
  * - Anniversary (06) / Corporate (07): wide photo bleeding to the left edge, heading, text and a
  *   three-item checklist with icon circles; a heart or people line motif.
+ * - Prom: the Wedding arrangement, with stars instead of the botanical line art.
  *
  * @package CaterIceCream
  */
@@ -13,13 +14,13 @@ defined( 'ABSPATH' ) || exit;
 
 $cic_vm  = $args['vm'];
 $cic_f   = $cic_vm['feature'];
-$cic_wed = 'wedding' === $cic_vm['layout'];
+$cic_wed = in_array( $cic_vm['layout'], array( 'wedding', 'prom' ), true );
 echo cic_theme_section_open( 'cic-event', $args['section'], 'cic-section cic-feature cic-feature--' . ( $cic_wed ? 'wedding' : 'split' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
 ?>
 	<div class="cic-container cic-container--wide cic-feature__grid">
 		<div class="cic-feature__media">
 			<?php if ( $cic_wed ) : ?>
-				<?php echo cic_theme_motif( 'botanical', 'cic-feature__botanical cic-feature__botanical--l' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG. ?>
+				<?php echo 'prom' === $cic_vm['layout'] ? cic_theme_motif( 'stars', 'cic-feature__botanical cic-feature__botanical--l cic-feature__stars' ) : cic_theme_motif( 'botanical', 'cic-feature__botanical cic-feature__botanical--l' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static decorative SVG. ?>
 			<?php endif; ?>
 			<?php if ( $cic_f['image'] ) : ?>
 				<div class="cic-feature__photo"><?php echo cic_theme_image( $cic_f['image'], '(max-width: 899px) 100vw, 50vw' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core image markup. ?></div>

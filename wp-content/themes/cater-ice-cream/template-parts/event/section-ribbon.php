@@ -1,6 +1,6 @@
 <?php
 /**
- * Wedding ribbon (05): three short phrases between fine champagne rules.
+ * Wedding ribbon (05): three short phrases between fine champagne rules (also used by Prom).
  *
  * @package CaterIceCream
  */

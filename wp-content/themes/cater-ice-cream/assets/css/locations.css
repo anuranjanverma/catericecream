@@ -519,6 +519,12 @@
 	.cic-occasions--grid {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
+
+	/* Five or six occasions: two balanced rows of three. */
+	.cic-occasions--grid.cic-occasions--n5,
+	.cic-occasions--grid.cic-occasions--n6 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
 }
 
 /* ------------------------------------------------------------------ *

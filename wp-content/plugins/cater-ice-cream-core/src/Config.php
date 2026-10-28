@@ -23,10 +23,14 @@ final class Config {
 	 */
 	public static function defaults(): array {
 		return array(
-			'business_name'      => 'Cater Ice Cream',
+			'business_name'      => 'CaterIceCream.com',
 			'legal_entity'       => 'Frosty Yummy LLC',
-			'business_contact'   => 'Yan Kriv',
-			'business_phone'     => '(818) 726-9700',
+			// Public contact name: the client's public business name "Alex Frost" (2026-10-22). The
+			// legal company stays Frosty Yummy LLC; WordPress accounts and records are unchanged.
+			'business_contact'   => 'Alex Frost',
+			'business_phone'     => '424-235-4942',
+			// Public email: the working address stays until the company-domain mailbox is supplied.
+			// Independent of the enquiry recipient, sender and Reply-To (Enquiries → Settings).
 			'business_email'     => 'ceo.frostyyummy@gmail.com',
 			'business_location'  => 'Los Angeles, California',
 			// Notification recipient, not a sender or login identity. Local/staging mail is captured.
@@ -37,7 +41,7 @@ final class Config {
 			'quote_url'          => '/get-a-quote/',
 			'call_label'         => 'Call',
 			'availability_note'  => 'Your date and service availability will be confirmed with your quote.',
-			'website_label'      => 'catericecream.com',
+			'website_label'      => 'CaterIceCream.com',
 			// Social profiles stay empty until real URLs are supplied; empty ones are never displayed.
 			'social_instagram'   => '',
 			'social_facebook'    => '',

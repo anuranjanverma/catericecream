@@ -30,7 +30,18 @@ const state = ( ...a ) => last( wp( 'eval-file', 'dev/tests/header/state.php', .
 const sleep = ( ms ) => new Promise( ( r ) => setTimeout( r, ms ) );
 
 // Baseline geometry recorded before the change (header height, logo width x height, top-row height).
-const BASE_GEO = { 1440: { header: 145, logo: [ 190, 95 ], top: 34 }, 768: { header: 118, logo: [ 136, 68 ], top: 34 }, 390: { header: 118, logo: [ 136, 68 ], top: 34 } };
+// Header heights are fixed by the approved design; logo widths follow the Header settings (the owner
+// set the mobile logo to 135 px on 2026-10-23); the logo box keeps the approved 2:1 shape.
+const SAVED_LAYOUT = ( () => {
+	try {
+		return JSON.parse( last( wp( 'option', 'get', 'cic_site_layout', '--format=json' ) ) || '{}' );
+	} catch ( e ) {
+		return {};
+	}
+} )();
+const LOGO_D = +( ( SAVED_LAYOUT.main || {} ).logo_width || 190 );
+const LOGO_M = +( ( SAVED_LAYOUT.main || {} ).logo_width_mobile || 136 );
+const BASE_GEO = { 1440: { header: 145, logo: [ LOGO_D, Math.round( LOGO_D / 2 ) ], top: 34 }, 768: { header: 118, logo: [ LOGO_M, Math.round( LOGO_M / 2 ) ], top: 34 }, 390: { header: 118, logo: [ LOGO_M, Math.round( LOGO_M / 2 ) ], top: 34 } };
 
 let browser;
 ( async () => {
@@ -255,7 +266,7 @@ let browser;
 		await page.setViewport( { width: 900, height: 900 } );
 		await sleep( 500 );
 		const narrow = await geo();
-		check( 'R1 narrowing below 1024 px removes the compact class and inline variables; the mobile header is unchanged (118 px, logo 136 px)', before.compact && ! narrow.compact && '|' === narrow.inline && 118 === narrow.headerH && 136 === narrow.logo[ 0 ] && 34 === narrow.topH, { before, narrow } );
+		check( `R1 narrowing below 1024 px removes the compact class and inline variables; the mobile header is unchanged (118 px, logo ${ LOGO_M } px)`, before.compact && ! narrow.compact && '|' === narrow.inline && 118 === narrow.headerH && LOGO_M === narrow.logo[ 0 ] && 34 === narrow.topH, { before, narrow } );
 		await atTop();
 		await page.setViewport( { width: 1440, height: 900 } );
 		await sleep( 900 );

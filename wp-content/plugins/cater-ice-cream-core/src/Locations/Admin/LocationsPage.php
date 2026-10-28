@@ -347,6 +347,7 @@ final class LocationsPage {
 			array( 'published' === $city['publish_status'], __( 'Page published', 'cater-ice-cream-core' ) ),
 			array( 'index' === $city['index_status'], __( 'Search engines set to Index', 'cater-ice-cream-core' ) ),
 			array( $content['reviewed'], __( 'City content reviewed and published', 'cater-ice-cream-core' ) ),
+			array( $repo->is_served( $city ), __( 'At least one approved (enabled) production ZIP code', 'cater-ice-cream-core' ) ),
 		);
 		echo '<div class="cic-card"><h3>' . esc_html__( 'Search-engine indexing', 'cater-ice-cream-core' ) . '</h3>' . self::pill( Labels::index( $indexable, $city['index_status'] ), $indexable ? 'good' : 'neutral' ) . '<ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		foreach ( $checks as $c ) {

@@ -19,8 +19,8 @@ The site's pages are normal WordPress pages with fixed, labelled fields undernea
 
 | Page | What you edit |
 | --- | --- |
-| **Home** (front page) | Hero, event and treat sections, FAQ, quote starter. The homepage design is owner-approved: change words and images, not the structure |
-| **About**, **Contact** | Their own field tabs (headline, story, images, help text, FAQ) |
+| **Home** (front page) | Hero, event and treat sections, FAQ, quote starter. The homepage design is owner-approved: change words and images, not the structure. Each FAQ question has a **Draft** switch (keeps it off the website) and an **internal note** that is never shown |
+| **About**, **Contact** | Their own field tabs (headline, story, images, help text, FAQ). `{contact_name}` in the About "Meet" heading/text and the Contact call-card title is replaced by the public contact name (section 5), so a name change needs no page edits |
 | **Get a Quote** | Page wording around the form. The form itself is managed in code (see section 7) |
 | **Service Areas** | Hub page wording plus the **default city content** used by every city page (fields beginning "City template …") |
 | **Events → Overview page** | Introduction, headings, steps and labels of the `/events/` page. The cards come from published events |
@@ -48,18 +48,28 @@ Adding a treat: **Add New**, fill the fields, set a key, and save as **Draft**. 
 
 Never enter a price or sale price, never enable "purchasable" features and never install payment gateways. Selling online would need a separate, tested release.
 
+### Photos and videos on a treat page (2026-10-24)
+
+**Treat page composition → Photos and videos** (Dippin' Dots and DipN' Bananas pages) shows real photos and short videos after "Product detail". It has a heading, an optional introduction and up to four items; the first item is shown largest. For a photo, choose it in "Photo or poster". For a video, upload the MP4 in "Video" and choose a WebP frame from the same video as its poster. Videos never play on their own and only download when a visitor presses play. Write captions that describe only what is visible: no names, dates, places, quotes or claims. Leave all items empty to hide the section.
+
+Use real photos of people only with their permission (and parents' permission for children). Do not use the Dippin' Dots photos or videos on the DipN' Bananas page or the other way round.
+
 ## 3. Events
 
-**Events** holds Birthday, Wedding, Anniversary and Corporate.
+**Events** holds Birthdays, Weddings, Graduation Parties, Proms, Corporate Events and Anniversaries.
+
+**Event order (one place for the whole site).** Every list of events (the header Events dropdown, homepage cards, the Events page, Service Areas and city pages, the hero search and quote-form choices, and the occasion recommendations on treat pages) follows each event's **Order** number in the **Page Attributes** box on the event's edit screen, lowest first. Current numbers: Birthdays 10, Weddings 20, Graduation Parties 30, Proms 40, Corporate Events 50, Anniversaries 60. To move an event, change its number (for example 35 puts it between Graduation Parties and Proms). Menu links to events are re-sorted automatically, so you never reorder them in Appearance → Menus; a link to an unpublished event is hidden. "Other" always stays last in the quote choices.
 
 1. **Events → (event) → Edit.**
 2. **Composition** chooses the approved page design for that occasion (its own sections, order and colours). Keep the approved composition.
-3. Content tabs: hero, story, plans, quote and FAQ wording, and images.
+3. Content tabs: hero, story, plans, quote and FAQ wording, and images. **Occasion icon** sets the icon on the quote-form tile and on treat-page occasion cards. **Search results** sets the browser-tab/search title and the meta description (empty uses the title and the excerpt).
 4. **Section controls:** each section has **show** (untick to hide), **order** (leave empty for the approved order, or enter a number to move it) and **preset** (leave on "Inherit page preset"). Empty order fields always mean "approved order".
 5. **Paired treats** (side box) shows which treats are paired. Pairing text is edited on the treat (section 2).
 6. **Update.**
 
-Adding an event: **Add New**, choose a composition, fill the fields, then save as **Draft** and preview it. Publishing adds it to the Events page, the menus that list events and the quote form's occasion choices.
+Adding an event: **Add New**, choose a composition, set its **Order** number, fill the fields, then save as **Draft** and preview it. Publishing adds it to the Events page, the homepage and Service Areas cards and the quote form's occasion choices automatically. Add its link under **Events** in Appearance → Menus (the position is sorted for you) and pair it with treats on each treat's **Occasion pairings** box.
+
+**Graduation Parties** (`/events/graduation-parties/`, composition "Graduation party") and **Proms** (`/events/proms/`, composition "Prom") were added on 2026-10-22, each with its own design preset (Graduation, Prom) and pairings with all four treats. Their photos are temporary until real graduation and prom photos are supplied (see `docs/content/PHOTO_INVENTORY.md`).
 
 ## 4. Global design (colours, fonts and sizes)
 
@@ -100,18 +110,32 @@ Use these sparingly. Most changes belong in the Design System.
 
 | Tab / section | Controls |
 | --- | --- |
-| Header | Top row (enable, content), main row (logo, size: 190 px desktop / 136 px mobile approved; sticky header; **desktop compact header** and its compact logo width, default 140 px), optional bottom row (uses the "Header bottom row" menu) |
-| Mobile navigation | Drawer options |
+| Header | Top row (enable, content), main row (logo, size: 190 px desktop / 136 px mobile approved; **desktop phone beside the quote button**; sticky header; **desktop compact header** and its compact logo width, default 140 px), optional bottom row (uses the "Header bottom row" menu) |
+| Mobile navigation | Drawer options; **fixed "Get a Quote" button on phones** |
 | Footer | Columns, footer logo, text, menus, legal line |
-| Contact & calls to action | Public business name, legal entity, **public phone**, public email, location, quote button label/link, call label, availability note, website label, social profile URLs (empty profiles are never shown) |
+| Contact & calls to action | Public business name, legal entity, **public contact name** (Alex Frost), **public phone** (424-235-4942), public email, location, quote button label/link, call label, availability note, website label, social profile URLs (empty profiles are never shown) |
 
-The public phone is used everywhere: header, footer, contact page and every `tel:` link. Change it once here.
+The public phone is used everywhere: header, footer, contact page, structured data and every `tel:` link (shown as typed; the link becomes `tel:+14242354942` automatically). Change it once here. The **public contact name** appears on the About and Contact pages and in the sign-off of customer acknowledgement emails; the legal entity (Frosty Yummy LLC) stays the company name in the footer and on the About page. WordPress user accounts are unrelated to either.
 
 **Desktop compact header** (main row settings, on by default): on screens 1024 px and wider, scrolling down hides the top row and shortens the main row, and the logo shrinks to the compact width. Scrolling up, or returning to the top, restores the full header. The header stays full while a dropdown is open or someone is using the keyboard inside it. It works only when "Sticky header while scrolling" is on. Phones and tablets are never affected, and rows you hide in these settings stay hidden.
 
+**Logos (2026-10-22):** the header uses `logo-main.webp` and the footer uses the white `logo-transparent.webp` (with "Show the logo on a light plate" off, so it stays transparent on the dark footer). Both are in the Media Library. The logo box keeps the approved 2:1 shape, so a replacement with different proportions is fitted inside it without changing the header height. Do not use the white footer logo on light backgrounds.
+
+**Desktop phone (2026-10-24):** "Desktop: phone number beside the quote button" shows the public phone, with a small phone icon, just before "Get a Quote" on screens 1024 px and wider (from 1200 px the full number; between 1024 and 1199 px a round phone button, because the full number would make the menu wrap). It always uses the public phone above. Phones and tablets keep the call button inside the menu.
+
+**Fixed "Get a Quote" button on phones (2026-10-24):** on screens narrower than 600 px a "Get a Quote" button stays at the bottom of the screen on every page except Get a Quote itself. It moves out of the way while the menu is open, while the date picker is open and while someone is typing in a form field, and at the very end of a page it sits below the footer. Turn it off in **Mobile navigation** if ever needed.
+
+**Header menu (2026-10-24):** About is no longer in the header menu (desktop and phone); the About page and its footer link are unchanged. To add or remove header links later, use **Appearance → Menus → Primary navigation** (never hide links with CSS).
+
 The menus themselves are edited in **Appearance → Menus** (locations: Primary navigation, Header bottom row, Footer navigation, Footer second menu, Footer legal links).
 
-The public business email is **not** where enquiries are sent. The notification recipient is set separately in Enquiry settings (section 7).
+The public business email is **not** where enquiries are sent. The notification recipient is set separately in Enquiry settings (section 7). A company-domain mailbox is pending: when it exists, change **Public email** here (the website only), and separately decide the sender email and Reply-To in Enquiry settings. None of these reroutes notifications.
+
+### Cities We Serve (above the footer)
+
+**Header, Footer & Contact → Cities We Serve**: on/off, heading, number of cities (default 20) and the "View all service areas" link label (it opens the Service Areas page). The section appears on every public page except Get a Quote.
+
+The cities are chosen automatically, never by hand: a city is listed when it is **Published**, set to **Index**, part of the approved (production) data, and has at least one served ZIP code. Cities are ordered by how many different served ZIP codes they have (most first, then alphabetically); the numbers are never shown. Excluded ZIP codes (such as the Compton exclusions) and removed or disabled city–ZIP links never count. Changes made in Service Areas or through the CSV importer update the list automatically. After changing the location tables directly in the database, run `wp cic locations flush-cache`.
 
 ### Site Icon (favicon)
 
@@ -184,13 +208,19 @@ The same import exists for developers: `wp cic locations import file.csv --type=
 
 Quote requests and contact messages arrive through the two Contact Form 7 forms and are stored once in Flamingo. **Enquiries** in the menu is the place to work them.
 
+**The quote form (two steps, 2026-10-23).** Step 1 asks for the visitor's details (name, email, phone, preferred contact method) and treat choices ("Not sure yet — help me choose" is selected until the visitor picks specific treats); Step 2 asks about the event. When the visitor presses **Continue** after Step 1, their details are saved as an **Incomplete** inquiry, and everything they change afterwards is saved to that same inquiry. Pressing **Request My Quote** turns it into a **Submitted** inquiry and sends the usual notification once. After that, visitors can add optional notes, party theme and dietary details for 24 hours; these appear on the same inquiry without a new email.
+
+- **Incomplete** means "not sent yet", not "abandoned": the visitor may still be filling it in. No emails, calls or reminders go out automatically. If you follow up, use their preferred contact method.
+- Incomplete inquiries are kept until deleted by hand unless **Enquiries → Settings → Delete incomplete inquiries after** is set (retention period pending the owner's decision).
+
 Visitors always see place names the way the location data spells them (for example "Los Angeles, CA", or a ZIP code such as "91101"). Internally the site uses keys such as `los-angeles-ca`, so a city's display name changes in **Service Areas → Edit city**. Dates appear as MM/DD/YYYY everywhere visitors see them, including emails. Visitors type or choose dates from a calendar; choosing a date never reserves it.
 
 ### Daily work
 
-1. **Enquiries → All enquiries**: filter by status, type (quote or contact) and assignee, and search. The **Notifications** column shows whether the operator and customer emails went out.
+1. **Enquiries → All enquiries**: filter by status, completion (Submitted / Incomplete), type (quote or contact) and assignee, and search. Quote requests show a **Submitted** or **Incomplete** label (incomplete ones show their last activity). The **Notifications** column shows whether the operator and customer emails went out (none for incomplete ones).
 2. Open an enquiry. You will see:
-   - the request (event, date, guests, location and the coverage-check result, venue, treats, notes);
+   - **Completion** (quote requests): Submitted or Incomplete, last activity, when it was submitted and when optional details were last updated;
+   - the request (event, date, guests, location and the coverage-check result, venue, treats, notes, theme, dietary details);
    - customer details, and the **Source** (first and latest page);
    - **Workflow**: status, assignee, next follow-up;
    - **Private notes**;
@@ -238,12 +268,27 @@ Retention:
 | --- | --- |
 | Operator notification recipient | Initially `anuranjan.verma25@gmail.com`. This is where new-enquiry notifications go, and it is separate from the public business email |
 | Sender name / Sender email | **Pending production setup.** Empty uses the WordPress default. Set them only to a verified sending domain |
-| Operator subject, acknowledgement subjects and texts | Editable. Placeholders such as `{name}`, `{summary}`, `{phone}`, `{type}`, `{id}`, `{event}`, `{location}` are listed on the screen. Acknowledgements must never promise a booking |
+| Reply-To for customer emails | Optional. Where customer replies to acknowledgements go; empty = replies go to the sender email. Operator notifications always reply to the customer |
+| Operator subject, acknowledgement subjects and texts | Editable. Placeholders such as `{name}`, `{summary}`, `{phone}`, `{contact_name}`, `{type}`, `{id}`, `{event}`, `{location}` are listed on the screen. Acknowledgements must never promise a booking. Emails are plain text (no logo) |
 | Customer acknowledgement | On or off |
 | Forms | The CF7 quote and contact forms (#357 and #358). Do not change them unless a developer asks |
 | Internal follow-up reminders | **Off.** Enable only when the owner has chosen the timing: set a reminder time (HH:MM, Pacific), the number of days before the follow-up date, and an optional fallback recipient. Reminders go to staff only, never to customers |
 
 The form fields themselves (questions, options, required fields) are defined in code and are **provisional pending the owner's review**. Ask a developer to change them; do not edit the CF7 form markup in **Contact → Contact Forms**. The CF7 "Mail" tabs are unused because the site sends its own emails. "Contact form 1" is an unused default.
+
+### Analytics (administrators)
+
+**Cater Ice Cream → Analytics** controls Google Analytics 4 (Measurement ID `G-NXRRDRV5C2`).
+
+| Setting | Notes |
+| --- | --- |
+| Enable Google Analytics on the live site | On or off. Even when on, only the live site (catericecream.com / www.catericecream.com, production) sends data; local and staging copies never do |
+| Measurement ID | From Google Analytics → Admin → Data streams. Must look like `G-XXXXXXXXXX`; an invalid entry is rejected and the previous ID kept |
+| Status on this site | Shows whether the tag is active here and why not (for example "the environment is local") |
+
+- Your own visits are never counted while you are logged in as an administrator. To see the tag, use a private window.
+- Install the property **only once**: do not also add it through Site Kit, a Tag Manager container, a "header scripts" plugin or the host. The screen warns when such a plugin is active.
+- No names, emails, phone numbers, addresses or form contents are sent. Conversion tracking (form events) is not set up here; it will be configured separately.
 
 ## 8. Routine checks
 
@@ -257,6 +302,7 @@ The form fields themselves (questions, options, required fields) are defined in 
 
 ## 9. Please do not
 
+- Add a second Google Analytics or Tag Manager install (plugin, header script or host setting) next to Cater Ice Cream → Analytics.
 - Delete or rename `wp-content/mu-plugins/cic-catalog-guard.php`, or add `CIC_COMMERCE_MODE` to `wp-config.php`.
 - Add prices, payment gateways or "minimum order" text.
 - Install page builders, ACF Pro, SEO or SMTP plugins without a developer review.

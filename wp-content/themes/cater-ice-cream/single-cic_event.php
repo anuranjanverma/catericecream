@@ -1,7 +1,8 @@
 <?php
 /**
- * Single event. Each composition (designs/04 Birthday, 05 Wedding, 06 Anniversary, 07 Corporate)
- * has its own approved sections and order (CIC\Content\Fields::EVENT_LAYOUT_SECTIONS) and its own
+ * Single event. Each composition (designs/04 Birthday, 05 Wedding, 06 Anniversary, 07 Corporate;
+ * Graduation Parties and Proms added 2026-10-22 from the same component families) has its own
+ * approved sections and order (CIC\Content\Fields::EVENT_LAYOUT_SECTIONS) and its own
  * section variants where the references differ, so the pages are not one reordered template.
  *
  * @package CaterIceCream
@@ -12,6 +13,8 @@ defined( 'ABSPATH' ) || exit;
 /** Section variants per composition; anything not listed uses section-{key}.php (Birthday's). */
 $cic_variants = array(
 	'wedding'     => array( 'hero' => 'hero-wedding', 'treats' => 'treats-brands', 'planning' => 'planning-band', 'quote' => 'quote-panel' ),
+	'graduation'  => array( 'hero' => 'hero-split', 'planning' => 'planning-band', 'quote' => 'quote-panel' ),
+	'prom'        => array( 'hero' => 'hero-wedding', 'treats' => 'treats-brands', 'planning' => 'planning-band', 'quote' => 'quote-panel' ),
 	'anniversary' => array( 'hero' => 'hero-split', 'treats' => 'treats-brands', 'planning' => 'planning-band', 'quote' => 'quote-panel' ),
 	'corporate'   => array( 'hero' => 'hero-split', 'treats' => 'treats-brands', 'planning' => 'planning-band', 'quote' => 'quote-panel' ),
 	'standard'    => array( 'hero' => 'hero-split', 'treats' => 'treats-brands', 'planning' => 'planning-band', 'quote' => 'quote-panel' ),

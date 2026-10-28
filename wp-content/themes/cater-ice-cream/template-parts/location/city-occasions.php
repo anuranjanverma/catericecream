@@ -1,6 +1,7 @@
 <?php
 /**
- * "Find the feeling for your {city} celebration." four occasion cards (photo beside text).
+ * "Find the feeling for your {city} celebration." occasion cards (photo beside text), one per
+ * published event in the central event order.
  *
  * @package CaterIceCream
  */

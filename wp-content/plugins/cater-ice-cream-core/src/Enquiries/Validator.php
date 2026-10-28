@@ -90,7 +90,7 @@ final class Validator {
 		if ( ! $data['date_unknown'] ) {
 			$date = Context::date( $raw_date );
 			if ( '' === $raw_date ) {
-				$errors['event_date'] = __( 'Please choose your event date, or tick “Date not set yet”.', 'cater-ice-cream-core' );
+				$errors['event_date'] = __( 'Please choose your event date, or check “Date not set yet”.', 'cater-ice-cream-core' );
 			} elseif ( '' === $date ) {
 				$errors['event_date'] = __( 'Please choose a date from today onward (within three years).', 'cater-ice-cream-core' );
 			} else {

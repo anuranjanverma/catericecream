@@ -24,7 +24,7 @@ function cic_theme_layout(): array {
 			'logo_mobile_id'    => 0,
 			'logo_width'        => 190,
 			'logo_width_mobile' => 136,
-			'show_call'         => false,
+			'show_call'         => true,
 			'show_quote'        => true,
 			'sticky'            => true,
 			'compact'           => true,
@@ -36,6 +36,7 @@ function cic_theme_layout(): array {
 			'show_quote'     => true,
 			'show_secondary' => false,
 			'show_email'     => false,
+			'sticky_quote'   => true,
 		),
 		'footer' => array(
 			'logo_id'        => 0,
@@ -50,6 +51,7 @@ function cic_theme_layout(): array {
 			'show_legal'     => true,
 			'copyright_text' => '© ' . wp_date( 'Y' ) . ' ' . get_bloginfo( 'name' ),
 		),
+		'cities' => array( 'enabled' => false ),
 	);
 }
 
@@ -176,6 +178,8 @@ function cic_theme_header_logo( array $main ): string {
 				'alt'           => $name,
 				'sizes'   => $width . 'px',
 				'loading' => 'eager',
+				// Core would give this first large image fetchpriority="high"; that belongs to the hero photo.
+				'fetchpriority' => 'auto',
 			)
 		);
 	} else {
@@ -234,4 +238,27 @@ function cic_theme_menu( string $location, array $args = array() ): string {
 			$args
 		)
 	);
+}
+
+/**
+ * URL for the fixed mobile "Get a Quote" button (template-parts/footer/mobile-quote.php), or '' when
+ * it is not shown: switched off in Header settings (mobile → sticky_quote), or on the Get a Quote page
+ * itself (form and success state). The link is the WordPress page's permalink, falling back to the
+ * quote URL from Business contact.
+ */
+function cic_theme_mobile_cta_url(): string {
+	static $url = null;
+	if ( null !== $url ) {
+		return $url;
+	}
+	$url = '';
+	if ( empty( cic_theme_layout()['mobile']['sticky_quote'] ) || is_admin() || is_embed() ) {
+		return $url;
+	}
+	$page = class_exists( '\CIC\Content\Catalog' ) ? (int) \CIC\Content\Catalog::find_by_key( 'page', 'get-a-quote' ) : 0;
+	if ( ( $page && is_page( $page ) ) || is_page( 'get-a-quote' ) ) {
+		return $url;
+	}
+	$url = $page && 'publish' === get_post_status( $page ) ? (string) get_permalink( $page ) : (string) cic_theme_contact()['quote_url'];
+	return $url;
 }

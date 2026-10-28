@@ -101,7 +101,7 @@ try {
 			$cards[] = $ev['key'];
 		}
 	}
-	cic8_check( 'P3.1 all four occasions (Anniversary included) with Explore opening each event page', 4 === count( Catalog::selectable_events() ) && ! $cards && str_contains( $events, 'Anniversaries' ), $cards );
+	cic8_check( 'P3.1 all six occasions (Anniversary included) with Explore opening each event page', 6 === count( Catalog::selectable_events() ) && ! $cards && str_contains( $events, 'Anniversaries' ), $cards );
 	cic8_check( 'P3.2 "Tell us about your event" opens the quote route with Other occasion; treats link their pages', str_contains( $events, '/get-a-quote/?event=other"' ) && str_contains( $events, 'href="' . get_permalink( Catalog::find_by_key( 'product', 'dippin-dots' ) ) . '"' ) );
 	$ev_id = wp_insert_post( array( 'post_type' => 'cic_event', 'post_status' => 'publish', 'post_title' => 'Phase Eight Graduations', 'post_name' => 'phase-eight-graduations', 'menu_order' => 99, 'post_excerpt' => 'A temporary test occasion.' ) );
 	update_post_meta( $ev_id, '_cic_phase08_test', '1' );
@@ -127,7 +127,7 @@ try {
 	$tel = array_unique( array_filter( $tm[1], static fn( $h ) => str_starts_with( $h, 'tel:' ) ) );
 	$mail = array_unique( array_filter( $tm[1], static fn( $h ) => str_starts_with( $h, 'mailto:' ) ) );
 	cic8_check( 'P5.1 every tel/mailto link equals the global contact values (' . $contact['phone'] . ', ' . $contact['email'] . ')', array( $contact['phone_href'] ) === array_values( $tel ) && array( 'mailto:' . $contact['email'] ) === array_values( $mail ) && str_contains( $contact_html, esc_html( $contact['phone'] ) ) );
-	cic8_check( 'P5.2 the verified phone/email from the prompt are what is configured', 'tel:+18187269700' === $contact['phone_href'] && 'ceo.frostyyummy@gmail.com' === $contact['email'] );
+	cic8_check( 'P5.2 the client-confirmed phone (2026-10-22) and the current public email are what is configured; contact name Alex Frost', 'tel:+14242354942' === $contact['phone_href'] && 'ceo.frostyyummy@gmail.com' === $contact['email'] && 'Alex Frost' === $contact['contact_name'] );
 	preg_match_all( '/<form\b[^>]*>/', $contact_html, $forms );
 	cic8_check( 'P5.3 Contact has exactly one form — the configured CF7 Contact form (Phase 06) — and shows no success before a message is sent', 1 === count( $forms[0] ) && str_contains( $forms[0][0], 'wpcf7-form' ) && str_contains( $contact_html, 'name="_wpcf7" value="' . \CIC\Enquiries\Forms::id( 'contact' ) . '"' ) && str_contains( $contact_html, 'data-cic-received hidden' ) && ! str_contains( $contact_html, 'cic-contact-pending' ) );
 	cic8_check( 'P5.4 Contact offers the event-quote alternative and FAQ accordions', str_contains( $contact_html, 'href="' . $contact['quote_url'] . '"' ) && substr_count( $contact_html, 'cic-accordion__item' ) >= 3 );
@@ -159,7 +159,10 @@ try {
 	}
 	cic8_check( 'P6.1 every link on the five pages (header, content, footer) is internal and resolves (' . count( $links ) . ' unique)', ! $external && ! $broken, array( 'external' => array_values( $external ), 'broken' => $broken ) );
 	$home = cic8_get( '/' )['body'];
-	cic8_check( 'P6.2 menus: primary links About; footer links About and Contact; links to unpublished policy drafts are hidden (no 404 links)', str_contains( $home, 'href="' . home_url( '/about/' ) . '"' ) && str_contains( $home, 'href="' . home_url( '/contact/' ) . '"' ) && ! str_contains( $home, '/privacy-policy/' ) && ! str_contains( $home, '/website-terms/' ) );
+	// About left the header menu on 2026-10-24 (owner); the footer keeps About and Contact.
+	$cic8_head   = substr( $home, 0, (int) strpos( $home, '<main' ) );
+	$cic8_footer = substr( $home, (int) strpos( $home, '<footer' ) );
+	cic8_check( 'P6.2 menus: the header (desktop and drawer) no longer links About; footer links About and Contact; links to unpublished policy drafts are hidden (no 404 links)', ! str_contains( $cic8_head, 'href="' . home_url( '/about/' ) . '"' ) && str_contains( $cic8_footer, 'href="' . home_url( '/about/' ) . '"' ) && str_contains( $cic8_footer, 'href="' . home_url( '/contact/' ) . '"' ) && ! str_contains( $home, '/privacy-policy/' ) && ! str_contains( $home, '/website-terms/' ) );
 	cic8_check( 'P6.3 no public pricing, minimum-order or ® copy on these pages', ! $copy, $copy );
 
 	/* ---------------- P7 policy template ---------------- */

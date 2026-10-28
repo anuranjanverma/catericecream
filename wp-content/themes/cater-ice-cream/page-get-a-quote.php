@@ -1,8 +1,8 @@
 <?php
 /**
  * Get a Quote (approved references designs/17_quote_step_1.png, 18_quote_later_steps.png; mobile
- * column of 21_mobile_detail_and_quote.png). One shared CF7 form in three steps (Your event, Your
- * treats, Review and send), progressively enhanced by assets/js/quote.js; without JavaScript the
+ * column of 21_mobile_detail_and_quote.png). One shared CF7 form in two steps (Your details &
+ * favorites, Your event; owner change 2026-10-23), progressively enhanced by assets/js/quote.js; without JavaScript the
  * whole form is usable on one page. Incoming selections are prefilled by the server.
  *
  * The confirmation state (#confirmation) is rendered by the server for a valid receipt

@@ -226,6 +226,31 @@ final class Schema {
 				'heading_weight'       => 600,
 				'heading_accent_style' => 'italic',
 			),
+			// Graduation (2026-10-22): Birthday-like brightness from existing tokens; text stays plum.
+			'graduation'  => array(
+				'label' => 'Graduation',
+				'kind'  => 'event',
+				'roles' => array(
+					'surface_alt' => 'treat_sky',
+					'accent'      => 'birthday_sky',
+					'accent_2'    => 'strawberry',
+					'decor'       => 'birthday_violet',
+				),
+			),
+			// Prom (2026-10-22): an evening take on the Wedding mood; gold stays decorative only.
+			'prom'        => array(
+				'label'                => 'Prom',
+				'kind'                 => 'event',
+				'roles'                => array(
+					'surface'     => 'wedding_ivory',
+					'surface_alt' => 'surface_soft',
+					'accent'      => 'lavender',
+					'accent_2'    => 'wedding_gold',
+					'decor'       => 'wedding_gold',
+				),
+				'heading_weight'       => 600,
+				'heading_accent_style' => 'italic',
+			),
 			'anniversary' => array(
 				'label' => 'Anniversary',
 				'kind'  => 'event',

@@ -230,7 +230,7 @@ const cf7 = ( type, fields, opts = {} ) => {
 		const conf = await request( BASE + '/get-a-quote/?received=' + r1.cic.receipt );
 		const confBad = await request( BASE + '/get-a-quote/?received=' + 'a'.repeat( 32 ) );
 		const visible = /id="confirmation"[^>]*data-cic-received(?! hidden)/.test( conf.body ) || /data-cic-received>/.test( conf.body );
-		check( 'S20 refreshing the confirmation URL shows the same non-personal confirmation; unknown receipts show none', visible && conf.body.includes( 'Your quote request is received.' ) && ! conf.body.includes( f1.your_email ) && ! conf.body.includes( 'Phase Six Tester' ) && /data-cic-received hidden/.test( confBad.body ), conf.code );
+		check( 'S20 refreshing the confirmation URL shows the same non-personal confirmation; unknown receipts show none', visible && conf.body.includes( 'Thanks! We received your quote request.' ) && ! conf.body.includes( f1.your_email ) && ! conf.body.includes( 'Phase Six Tester' ) && /data-cic-received hidden/.test( confBad.body ), conf.code );
 
 		// S21 no-JS submissions.
 		state( 'reset-limits' );
