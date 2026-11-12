@@ -123,15 +123,15 @@ let browser;
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.click( '.cic-search__submit' ) ] );
 		let c = await ctx();
 		check( 'L2 quote form shows "Los Angeles, CA"; the context keeps the key; the URL and the context carry only the key', 'Los Angeles, CA' === await val( '#cic-f-location' ) && 'los-angeles-ca' === c.location && 'los-angeles-ca' === new URL( page.url() ).searchParams.get( 'location' ), { v: await val( '#cic-f-location' ), c, url: page.url() } );
-		await go( '/events/birthday/' );
+		await go( '/events/birthday-party-ice-cream-catering/' );
 		check( 'L3 another page\'s starter shows "Los Angeles, CA" (not los-angeles-ca)', 'Los Angeles, CA' === await val( '#cic-starter-location' ), await val( '#cic-starter-location' ) );
-		await go( '/treats/dippin-dots/' );
+		await go( '/treats/dippin-dots-catering/' );
 		const treatLoc = await page.$eval( '.cic-qs input[data-cic-context=location]', ( e ) => e.value ).catch( () => null );
 		check( 'L4 treat-page quote starter shows "Los Angeles, CA"', 'Los Angeles, CA' === treatLoc, treatLoc );
 		await go( '/get-a-quote/' );
 		await page.reload( { waitUntil: 'networkidle2' } );
 		const afterReload = await val( '#cic-f-location' );
-		await go( '/events/birthday/' );
+		await go( '/events/birthday-party-ice-cream-catering/' );
 		await page.goBack( { waitUntil: 'networkidle2' } );
 		const afterBack = await val( '#cic-f-location' );
 		await page.goForward( { waitUntil: 'networkidle2' } );
@@ -153,14 +153,14 @@ let browser;
 		const html = await p2.content();
 		check( 'L6 direct links: city key → label, ZIP stays the ZIP, unknown key leaves the field empty (never the slug)', 'Los Angeles, CA' === direct && '91101' === zip && '' === unknown && ! html.includes( 'value="nowhere-ca"' ), { direct, zip, unknown } );
 		await p2.evaluate( () => window.sessionStorage.setItem( 'cic_quote_context', JSON.stringify( { location: 'pasadena-ca' } ) ) );
-		await go( '/events/birthday/', p2 );
+		await go( '/events/birthday-party-ice-cream-catering/', p2 );
 		// Wait for the label lookup (a REST call that can take over a second locally) instead of a fixed pause.
 		await p2.waitForFunction( () => 'Pasadena, CA' === ( document.querySelector( '#cic-starter-location' ) || {} ).value, { timeout: 8000 } ).catch( () => {} );
 		check( 'L7 an older stored key without a label is resolved through the location repository', 'Pasadena, CA' === await val( '#cic-starter-location', p2 ), await val( '#cic-starter-location', p2 ) );
 		await fresh.close();
 
 		// Editing after a selection, exclusion and a new choice.
-		await go( '/events/birthday/' );
+		await go( '/events/birthday-party-ice-cream-catering/' );
 		await page.focus( '#cic-starter-location' );
 		await page.keyboard.press( 'End' );
 		await page.keyboard.type( 'x' );
@@ -284,7 +284,7 @@ let browser;
 		// Starter date travels to the quote form.
 		await page.setViewport( { width: 390, height: 900 } );
 		await page.evaluate( () => window.sessionStorage.clear() );
-		await go( '/events/birthday/' );
+		await go( '/events/birthday-party-ice-cream-catering/' );
 		await page.evaluate( () => document.querySelector( '#cic-starter-date' ).scrollIntoView( { block: 'center' } ) );
 		await page.click( '#cic-starter-date' );
 		await page.keyboard.press( 'ArrowDown' );
@@ -303,7 +303,7 @@ let browser;
 		await go( '/' );
 		const heroIcons = await page.evaluate( () => Array.from( document.querySelectorAll( '.cic-search__field' ) ).map( ( f ) => ( { icon: ( f.querySelector( '.cic-icon' ) || {} ).getAttribute ? f.querySelector( '.cic-icon' ).getAttribute( 'class' ) : '', label: ( f.querySelector( 'label' ) || {} ).textContent } ) ) );
 		check( 'I1 hero search: event type uses the party icon, date keeps the calendar, text labels remain', /party/.test( heroIcons[ 1 ].icon ) && /calendar/.test( heroIcons[ 2 ].icon ) && heroIcons.every( ( f ) => f.label && f.label.trim() ), heroIcons );
-		await go( '/treats/dippin-dots/' );
+		await go( '/treats/dippin-dots-catering/' );
 		const qsIcons = await page.evaluate( () => ( {
 			event: ( document.querySelector( '.cic-qs__field--event .cic-icon' ) || { getAttribute: () => '' } ).getAttribute( 'class' ),
 			date: ( document.querySelector( '.cic-qs__field--date .cic-icon' ) || { getAttribute: () => '' } ).getAttribute( 'class' ),

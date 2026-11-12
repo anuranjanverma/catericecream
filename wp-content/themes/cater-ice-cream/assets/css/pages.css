@@ -157,7 +157,11 @@
 
 .cic-cat-row {
 	display: grid;
-	scroll-margin-top: calc(var(--cic-header-offset, 0px) + 4.5rem);
+	/* Room for the sticky jump bar only: html scroll-padding-top already reserves the header.
+	   (Both used to include the header, so sections landed far down the screen.) main.js aligns
+	   jump links exactly; this is the fallback (no JS, the browser's own fragment scroll):
+	   jump bar height (44px link + 2 × 0.75rem padding + 1px border) − the 8px html already adds. */
+	scroll-margin-top: calc(44px + 1.5rem + 1px - 8px);
 	background-color: var(--cic-color-surface-alt);
 }
 

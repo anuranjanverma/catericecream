@@ -65,7 +65,7 @@ let browser;
 		// I2 visible focus on every tab stop.
 		const noRing = [];
 		await page.setViewport( { width: 1440, height: 900 } );
-		for ( const url of [ '/', '/get-a-quote/', '/contact/', '/events/birthday/', '/treats/dippin-dots/', '/service-areas/california/pasadena/' ] ) {
+		for ( const url of [ '/', '/get-a-quote/', '/contact/', '/events/birthday-party-ice-cream-catering/', '/treats/dippin-dots-catering/', '/service-areas/california/pasadena-ice-cream-catering/' ] ) {
 			await page.goto( BASE + url, { waitUntil: 'networkidle2' } );
 			for ( let i = 0; i < 45; i++ ) {
 				await page.keyboard.press( 'Tab' );
@@ -98,7 +98,7 @@ let browser;
 		// I3 reduced motion.
 		await page.emulateMediaFeatures( [ { name: 'prefers-reduced-motion', value: 'reduce' } ] );
 		const motion = [];
-		for ( const url of [ '/', '/events/birthday/', '/events/wedding/', '/treats/dippin-dots/', '/get-a-quote/' ] ) {
+		for ( const url of [ '/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/treats/dippin-dots-catering/', '/get-a-quote/' ] ) {
 			await page.goto( BASE + url, { waitUntil: 'networkidle2' } );
 			await page.evaluate( () => window.scrollTo( 0, 600 ) );
 			await new Promise( ( r ) => setTimeout( r, 300 ) );
@@ -113,7 +113,7 @@ let browser;
 		await page.emulateMediaFeatures( [] );
 		check( 'I3 with reduced motion: no running animations or smooth scrolling (home, Birthday, Wedding, a treat, quote)', ! motion.length, motion );
 		const endless = [];
-		for ( const url of [ '/', '/events/birthday/', '/events/wedding/', '/events/anniversary/', '/events/corporate/', '/treats/dippin-dots/' ] ) {
+		for ( const url of [ '/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/events/anniversary-ice-cream-catering/', '/events/corporate-events-ice-cream-catering/', '/treats/dippin-dots-catering/' ] ) {
 			await page.goto( BASE + url, { waitUntil: 'networkidle2' } );
 			const e = await page.evaluate( () => document.getAnimations().filter( ( a ) => { const t = a.effect && a.effect.getComputedTiming(); return t && ( t.endTime === Infinity || t.endTime > 5000 ); } ).map( ( a ) => ( a.animationName || 'anim' ) + ' ' + Math.round( a.effect.getComputedTiming().endTime ) ) );
 			if ( e.length ) {
@@ -125,7 +125,7 @@ let browser;
 		// I4 accordions with the keyboard.
 		await page.setViewport( { width: 390, height: 844 } );
 		const acc = [];
-		for ( const [ url, sel ] of [ [ '/contact/', '.cic-accordion__item summary' ], [ '/events/birthday/', 'details summary' ], [ '/service-areas/', '.cic-county__toggle summary, .cic-county-card__toggle summary' ] ] ) {
+		for ( const [ url, sel ] of [ [ '/contact/', '.cic-accordion__item summary' ], [ '/events/birthday-party-ice-cream-catering/', 'details summary' ], [ '/service-areas/', '.cic-county__toggle summary, .cic-county-card__toggle summary' ] ] ) {
 			await page.goto( BASE + url, { waitUntil: 'networkidle2' } );
 			const has = await page.$( sel );
 			if ( ! has ) {
@@ -149,7 +149,7 @@ let browser;
 		const noSrcset = [];
 		for ( const w of [ 390, 1440 ] ) {
 			await page.setViewport( { width: w, height: 900 } );
-			for ( const url of [ '/', '/events/', '/events/birthday/', '/treats/', '/treats/frozen-yogurt/', '/service-areas/california/pasadena/', '/about/' ] ) {
+			for ( const url of [ '/', '/events/', '/events/birthday-party-ice-cream-catering/', '/treats/', '/treats/frozen-yogurt-catering/', '/service-areas/california/pasadena-ice-cream-catering/', '/about/' ] ) {
 				await page.goto( BASE + url, { waitUntil: 'networkidle2' } );
 				await page.evaluate( async () => {
 					for ( let y = 0; y < document.body.scrollHeight; y += 700 ) {

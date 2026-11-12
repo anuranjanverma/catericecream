@@ -383,7 +383,7 @@ let browser;
 
 		// Other pages, other widths, no JavaScript.
 		const pagesShown = {};
-		for ( const u of [ '/events/birthday/', '/treats/dippin-dots/', '/contact/', '/service-areas/' ] ) {
+		for ( const u of [ '/events/birthday-party-ice-cream-catering/', '/treats/dippin-dots-catering/', '/contact/', '/service-areas/' ] ) {
 			await go( page, u );
 			const c = await cta();
 			pagesShown[ u ] = !! ( c && c.shown );

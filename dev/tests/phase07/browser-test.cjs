@@ -23,14 +23,14 @@ const OUTSIDE = 'Sorry, we do not currently serve this area. Please choose anoth
 fs.mkdirSync( OUT, { recursive: true } );
 
 const PAGES = {
-	birthday: '/events/birthday/',
-	wedding: '/events/wedding/',
-	anniversary: '/events/anniversary/',
-	corporate: '/events/corporate/',
-	'dippin-dots': '/treats/dippin-dots/',
-	'dipn-bananas': '/treats/dipn-bananas/',
-	'classic-ice-cream': '/treats/classic-ice-cream/',
-	'frozen-yogurt': '/treats/frozen-yogurt/',
+	birthday: '/events/birthday-party-ice-cream-catering/',
+	wedding: '/events/weddings-ice-cream-catering/',
+	anniversary: '/events/anniversary-ice-cream-catering/',
+	corporate: '/events/corporate-events-ice-cream-catering/',
+	'dippin-dots': '/treats/dippin-dots-catering/',
+	'dipn-bananas': '/treats/dipn-bananas-catering/',
+	'classic-ice-cream': '/treats/classic-ice-cream-catering/',
+	'frozen-yogurt': '/treats/frozen-yogurt-catering/',
 };
 
 const results = [];
@@ -133,7 +133,7 @@ let browser;
 		await page.$eval( '#cic-event-quote-location', ( el ) => el.form.requestSubmit() );
 		await page.waitForFunction( () => { const e = document.querySelector( '#cic-event-quote-error' ); return e && ! e.hidden; }, { timeout: 5000 } );
 		const blocked = await page.evaluate( () => ( { path: location.pathname, msg: document.querySelector( '#cic-event-quote-error' ).textContent, guests: document.querySelector( '#cic-event-quote-guests' ).value } ) );
-		check( 'B7 event starter blocks a confirmed outside-area ZIP with the exact error and keeps other answers', '/events/corporate/' === blocked.path && OUTSIDE === blocked.msg && '40' === blocked.guests, blocked );
+		check( 'B7 event starter blocks a confirmed outside-area ZIP with the exact error and keeps other answers', '/events/corporate-events-ice-cream-catering/' === blocked.path && OUTSIDE === blocked.msg && '40' === blocked.guests, blocked );
 		await page.$eval( '#cic-event-quote-location', ( el ) => { el.value = '91101'; } );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.$eval( '#cic-event-quote-location', ( el ) => el.form.requestSubmit() ) ] );
 		const cq = new URL( page.url() );

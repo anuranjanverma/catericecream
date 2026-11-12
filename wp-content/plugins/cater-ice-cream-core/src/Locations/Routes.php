@@ -2,7 +2,8 @@
 /**
  * Virtual state and city routes (BUILD_SPECIFICATION §3, §10):
  *   /service-areas/{state}/          state hub (database, location renderer)
- *   /service-areas/{state}/{city}/   city page
+ *   /service-areas/{state}/{city}-ice-cream-catering/   city page (DatabaseRepository::URL_SUFFIX;
+ *                                    the bare /{city}/ address 301s there)
  * /service-areas/ itself is a normal Page (the hub).
  *
  * Explicit rewrite rules, flushed only when ROUTE_VERSION changes (activation or a versioned
@@ -116,7 +117,17 @@ final class Routes {
 		$slug    = strtolower( rawurldecode( $city_slug ) );
 		// City-level preview (no content record yet) is flagged as -1: preview banner + noindex, template content only.
 		$city_preview = $preview ? 0 : Editorial::preview_city_request();
-		$city         = $repo->resolve_city( $lower, $slug, $preview > 0 || $city_preview > 0 );
+		$unpublished  = $preview > 0 || $city_preview > 0;
+		$city         = null;
+		// Public addresses end in DatabaseRepository::URL_SUFFIX; the bare slug (old address) still
+		// resolves and is 301'd to the suffixed canonical by canonical_redirect() below.
+		$suffix = DatabaseRepository::URL_SUFFIX;
+		if ( strlen( $slug ) > strlen( $suffix ) && str_ends_with( $slug, $suffix ) ) {
+			$city = $repo->resolve_city( $lower, substr( $slug, 0, -strlen( $suffix ) ), $unpublished );
+		}
+		if ( ! $city ) {
+			$city = $repo->resolve_city( $lower, $slug, $unpublished );
+		}
 		if ( ! $city ) {
 			$this->not_found();
 			return;

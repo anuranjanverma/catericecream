@@ -8,6 +8,13 @@
 	document.documentElement.classList.add( 'cic-js' );
 
 	var header = document.querySelector( '[data-cic-header]' );
+	// While an in-page jump is landing (see "In-page jump navigation"), the desktop compact header
+	// keeps its current size, so the landing position computed from it stays exact.
+	var holdHeaderUntil = 0;
+	var jumpNav = document.querySelector( '.cic-jump' );
+	if ( jumpNav && window.location.hash ) {
+		holdHeaderUntil = Infinity; // Until the page has loaded and the section is aligned.
+	}
 	var drawer = document.querySelector( '[data-cic-drawer]' );
 	var opener = document.querySelector( '[data-cic-drawer-open]' );
 
@@ -276,6 +283,10 @@
 			var y = Math.max( 0, window.scrollY );
 			var dy = y - lastY;
 			lastY = y;
+			if ( Date.now() < holdHeaderUntil ) {
+				travel = 0; // An in-page jump is landing: keep the header as it is.
+				return;
+			}
 			if ( y <= THRESHOLD ) {
 				travel = 0;
 				setCompact( false );
@@ -344,5 +355,66 @@
 			} );
 		}
 		measure();
+	}
+
+	/* In-page jump navigation (Our Treats chips, .cic-jump; 2026-11-12). A chip, a shared
+	   /treats/#treat-… link, Back/Forward or a hash change lands the section directly under the
+	   sticky header + jump bar: target = section top − the bar's sticky top − the bar's height.
+	   The header keeps its size during the jump (holdHeaderUntil), so the result is exact on
+	   desktop (full or compact) and mobile alike. Instant, like a normal anchor; the URL keeps the
+	   hash and focus moves to the section for keyboard and screen-reader users. */
+	if ( jumpNav ) {
+		var jumpSection = function ( hash ) {
+			var known = Array.prototype.some.call( jumpNav.querySelectorAll( 'a[href^="#"]' ), function ( a ) {
+				return a.getAttribute( 'href' ) === hash;
+			} );
+			return known ? document.getElementById( decodeURIComponent( hash.slice( 1 ) ) ) : null;
+		};
+		var jumpTo = function ( section, moveFocus ) {
+			holdHeaderUntil = Date.now() + 400;
+			var stickyTop = parseFloat( window.getComputedStyle( jumpNav ).top ) || 0;
+			var y = window.scrollY + section.getBoundingClientRect().top - stickyTop - jumpNav.offsetHeight;
+			window.scrollTo( 0, Math.max( 0, Math.round( y ) ) );
+			if ( moveFocus ) {
+				if ( ! section.hasAttribute( 'tabindex' ) ) {
+					section.setAttribute( 'tabindex', '-1' );
+				}
+				section.focus( { preventScroll: true } );
+			}
+		};
+		jumpNav.addEventListener( 'click', function ( event ) {
+			var link = event.target.closest( 'a[href^="#"]' );
+			var section = link ? jumpSection( link.getAttribute( 'href' ) ) : null;
+			if ( ! section || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
+				return;
+			}
+			event.preventDefault();
+			if ( window.location.hash !== link.getAttribute( 'href' ) ) {
+				window.history.pushState( null, '', link.getAttribute( 'href' ) );
+			}
+			jumpTo( section, true );
+		} );
+		var fromLocation = function () {
+			var section = jumpSection( window.location.hash );
+			if ( section ) {
+				jumpTo( section, false );
+			} else if ( Infinity === holdHeaderUntil ) {
+				holdHeaderUntil = 0;
+			}
+		};
+		window.addEventListener( 'popstate', fromLocation );
+		window.addEventListener( 'hashchange', fromLocation );
+		// Shared link (/treats/#treat-…): align once the DOM is ready and again after load
+		// (the browser's own fragment scroll uses CSS offsets only).
+		if ( window.location.hash ) {
+			if ( 'loading' === document.readyState ) {
+				document.addEventListener( 'DOMContentLoaded', fromLocation );
+			} else {
+				fromLocation();
+			}
+			window.addEventListener( 'load', function () {
+				window.requestAnimationFrame( fromLocation );
+			} );
+		}
 	}
 }() );

@@ -105,16 +105,16 @@ try {
 	cic3_check( 'B5 cic_event: public, REST, archive /events/, revisions, title/editor/thumbnail', $pt->public && $pt->show_in_rest && 'events' === $pt->has_archive && post_type_supports( EventType::POST_TYPE, 'revisions' ) && post_type_supports( EventType::POST_TYPE, 'thumbnail' ) && post_type_supports( EventType::POST_TYPE, 'editor' ) );
 
 	WP_CLI::log( '== C. Routes' );
-	cic3_check( 'C1 canonical product URL /treats/{slug}/', home_url( '/treats/dippin-dots/' ) === get_permalink( $dd ) );
-	cic3_check( 'C2 catalogue /treats/ and events /events/{slug}/', home_url( '/treats/' ) === wc_get_page_permalink( 'shop' ) && home_url( '/events/birthday/' ) === get_permalink( $birthday ) );
+	cic3_check( 'C1 canonical product URL /treats/{slug}/', home_url( '/treats/dippin-dots-catering/' ) === get_permalink( $dd ) );
+	cic3_check( 'C2 catalogue /treats/ and events /events/{slug}/', home_url( '/treats/' ) === wc_get_page_permalink( 'shop' ) && home_url( '/events/birthday-party-ice-cream-catering/' ) === get_permalink( $birthday ) );
 	$checks = array(
 		'/treats/'                        => array( 200, '' ),
-		'/treats/dippin-dots/'            => array( 200, '' ),
+		'/treats/dippin-dots-catering/'            => array( 200, '' ),
 		'/events/'                        => array( 200, '' ),
-		'/events/birthday/'               => array( 200, '' ),
-		'/product/dippin-dots/'           => array( 301, '/treats/dippin-dots/' ),
+		'/events/birthday-party-ice-cream-catering/'               => array( 200, '' ),
+		'/product/dippin-dots/'           => array( 301, '/treats/dippin-dots-catering/' ),
 		'/shop/'                          => array( 301, '/treats/' ),
-		'/brand/dippin-dots/'             => array( 301, '/treats/dippin-dots/' ),
+		'/brand/dippin-dots/'             => array( 301, '/treats/dippin-dots-catering/' ),
 		'/product-category/uncategorized/' => array( 301, '/treats/' ),
 		'/treats/not-a-treat/'            => array( 404, '' ),
 		'/events/not-an-event/'           => array( 404, '' ),
@@ -142,8 +142,8 @@ try {
 	$tb  = array_values( array_filter( $tvm['occasions']['items'], static fn( $i ) => $i['event_id'] === $birthday ) )[0];
 	$eb  = array_values( array_filter( $evm['treats']['items'], static fn( $i ) => $i['product_id'] === $dd ) )[0];
 	cic3_check( 'D2 the same description renders on the treat page and the event page', $tb['description'] === $eb['description'] && $tb['headline'] === $eb['headline'] );
-	$page_dd = cic3_get( '/treats/dippin-dots/' )['body'];
-	$page_bd = cic3_get( '/events/birthday/' )['body'];
+	$page_dd = cic3_get( '/treats/dippin-dots-catering/' )['body'];
+	$page_bd = cic3_get( '/events/birthday-party-ice-cream-catering/' )['body'];
 	cic3_check( 'D3 rendered HTML contains the shared pairing text on both pages', str_contains( $page_dd, esc_html( $tb['description'] ) ) && str_contains( $page_bd, esc_html( $tb['description'] ) ) );
 	$errs = Pairings::replace_for_product( $dd, array( array( 'event_id' => 999999 ), array( 'event_id' => $dd ), array( 'event_id' => $wedding ), array( 'event_id' => $wedding ) ), true );
 	cic3_check( 'D4 strict save rejects unknown IDs, non-events and duplicate events, writing nothing', 3 === count( $errs ) && 6 === count( Pairings::for_product( $dd ) ), $errs );
@@ -163,15 +163,15 @@ try {
 	$e2 = ViewModel::event( $birthday );
 	cic3_check( 'E1 draft event is hidden from the treat page pairings and quote event choices', ! in_array( $wedding, wp_list_pluck( $t2['occasions']['items'], 'event_id' ), true ) && ! in_array( 'wedding', wp_list_pluck( Catalog::selectable_events(), 'key' ), true ) );
 	cic3_check( 'E2 draft treat is hidden from the event page and quote treat choices', ! in_array( $bananas, wp_list_pluck( $e2['treats']['items'], 'product_id' ), true ) && ! in_array( 'dipn-bananas', wp_list_pluck( Catalog::selectable_products(), 'key' ), true ) );
-	cic3_check( 'E3 drafts return 404 to anonymous visitors; editor still sees the pairing in admin', 404 === cic3_get( '/events/wedding/' )['code'] && 404 === cic3_get( '/treats/dipn-bananas/' )['code'] && 6 === count( Pairings::for_product( $dd ) ) );
-	$page = cic3_get( '/treats/dippin-dots/' )['body'];
+	cic3_check( 'E3 drafts return 404 to anonymous visitors; editor still sees the pairing in admin', 404 === cic3_get( '/events/weddings-ice-cream-catering/' )['code'] && 404 === cic3_get( '/treats/dipn-bananas-catering/' )['code'] && 6 === count( Pairings::for_product( $dd ) ) );
+	$page = cic3_get( '/treats/dippin-dots-catering/' )['body'];
 	// Checked on the pairing cards only: the seeded navigation menu uses custom links (pending item).
 	cic3_check( 'E4 rendered treat page shows no pairing card for the draft event', ! str_contains( $page, 'data-cic-pairing-event="' . $wedding . '"' ) && str_contains( $page, 'data-cic-pairing-event="' . $birthday . '"' ) );
 	wp_update_post( array( 'ID' => $wedding, 'post_status' => 'publish' ) );
 	wp_update_post( array( 'ID' => $bananas, 'post_status' => 'publish' ) );
 	update_post_meta( $bananas, 'cic_catalog_active', '0' );
 	$list = cic3_get( '/treats/' )['body'];
-	cic3_check( 'E5 inactive treat leaves the catalogue, quote choices and event page; page is noindex', ! str_contains( $list, 'data-cic-product="dipn-bananas"' ) && ! in_array( 'dipn-bananas', wp_list_pluck( Catalog::selectable_products(), 'key' ), true ) && ! in_array( $bananas, wp_list_pluck( ViewModel::event( $birthday )['treats']['items'], 'product_id' ), true ) && str_contains( cic3_get( '/treats/dipn-bananas/' )['body'], 'noindex' ) );
+	cic3_check( 'E5 inactive treat leaves the catalogue, quote choices and event page; page is noindex', ! str_contains( $list, 'data-cic-product="dipn-bananas"' ) && ! in_array( 'dipn-bananas', wp_list_pluck( Catalog::selectable_products(), 'key' ), true ) && ! in_array( $bananas, wp_list_pluck( ViewModel::event( $birthday )['treats']['items'], 'product_id' ), true ) && str_contains( cic3_get( '/treats/dipn-bananas-catering/' )['body'], 'noindex' ) );
 	update_post_meta( $bananas, 'cic_catalog_active', $snap['bananas_act'] );
 
 	WP_CLI::log( '== F. Seed reruns preserve edits' );
@@ -230,13 +230,13 @@ try {
 	cic3_check( 'I1 event edits create revisions, including revisioned preset meta', count( $revs ) > $before && 'birthday' === get_metadata( 'post', $rev->ID, 'cic_preset', true ) );
 
 	WP_CLI::log( '== J. Catalogue protection on seeded products' );
-	$pages = array( cic3_get( '/treats/dippin-dots/' )['body'], cic3_get( '/treats/' )['body'] );
+	$pages = array( cic3_get( '/treats/dippin-dots-catering/' )['body'], cic3_get( '/treats/' )['body'] );
 	$leak  = false;
 	foreach ( $pages as $html ) {
 		$leak = $leak || (bool) preg_match( '/add_to_cart|add-to-cart|single_add_to_cart|woocommerce-Price-amount|"@type":"Offer"|wc-block-cart|name="quantity"/', $html );
 	}
 	cic3_check( 'J1 treat and catalogue pages render no price, quantity, add-to-cart, cart or Offer markup', ! $leak );
-	$add = cic3_get( '/treats/dippin-dots/?add-to-cart=' . $dd );
+	$add = cic3_get( '/treats/dippin-dots-catering/?add-to-cart=' . $dd );
 	cic3_check( 'J2 add-to-cart query on a seeded treat is refused (redirect without the key)', 302 === $add['code'] && ! str_contains( $add['location'], 'add-to-cart' ) );
 	$store = wp_remote_post( home_url( '/wp-json/wc/store/v1/cart/add-item' ), array( 'sslverify' => false, 'body' => array( 'id' => $dd, 'quantity' => 1 ) ) );
 	cic3_check( 'J3 Store API add-item for a seeded treat returns 403', 403 === (int) wp_remote_retrieve_response_code( $store ) );
@@ -253,12 +253,12 @@ try {
 
 	WP_CLI::log( '== L. Content survives a theme switch and ACF deactivation' );
 	switch_theme( 'twentytwentyfive' );
-	$tt5 = cic3_get( '/events/birthday/' );
-	$tt5p = cic3_get( '/treats/dippin-dots/' );
+	$tt5 = cic3_get( '/events/birthday-party-ice-cream-catering/' );
+	$tt5p = cic3_get( '/treats/dippin-dots-catering/' );
 	cic3_check( 'L1 with Twenty Twenty-Five active, event and treat still exist and return 200', 200 === $tt5['code'] && 200 === $tt5p['code'] && 'More candles.' !== '' && str_contains( $tt5['body'], 'Birthdays' ) );
 	switch_theme( $snap['theme'] );
 	deactivate_plugins( 'advanced-custom-fields/acf.php', true );
-	$noacf = cic3_get( '/events/birthday/' );
+	$noacf = cic3_get( '/events/birthday-party-ice-cream-catering/' );
 	cic3_check( 'L2 with ACF deactivated, the composed Birthday page still renders its stored fields', 200 === $noacf['code'] && str_contains( $noacf['body'], 'Every age deserves a' ) && str_contains( $noacf['body'], 'Party planning questions' ) );
 	activate_plugin( 'advanced-custom-fields/acf.php' );
 } catch ( Throwable $e ) {

@@ -97,7 +97,7 @@ try {
 	);
 
 	/* ---------------- Item 4: indexing ---------------- */
-	$cic_pages = array( '/', '/treats/dippin-dots/', '/events/birthday/', '/events/graduation-parties/', '/service-areas/', '/service-areas/california/', '/service-areas/california/los-angeles/' );
+	$cic_pages = array( '/', '/treats/dippin-dots-catering/', '/events/birthday-party-ice-cream-catering/', '/events/graduation-party-ice-cream-catering/', '/service-areas/', '/service-areas/california/', '/service-areas/california/los-angeles-ice-cream-catering/' );
 	$cic_bad   = array();
 	foreach ( array( '' => 'local', 'protect' => 'staging copy' ) as $cic_mode => $cic_label ) {
 		foreach ( $cic_pages as $cic_p ) {
@@ -112,9 +112,9 @@ try {
 
 	$cic_expect = array(
 		'/'                          => home_url( '/' ),
-		'/treats/dippin-dots/'       => home_url( '/treats/dippin-dots/' ),
-		'/events/birthday/'          => home_url( '/events/birthday/' ),
-		'/events/graduation-parties/' => home_url( '/events/graduation-parties/' ),
+		'/treats/dippin-dots-catering/'       => home_url( '/treats/dippin-dots-catering/' ),
+		'/events/birthday-party-ice-cream-catering/'          => home_url( '/events/birthday-party-ice-cream-catering/' ),
+		'/events/graduation-party-ice-cream-catering/' => home_url( '/events/graduation-party-ice-cream-catering/' ),
 		'/service-areas/'            => home_url( '/service-areas/' ),
 		'/service-areas/california/' => home_url( '/service-areas/california/' ),
 	);
@@ -143,7 +143,7 @@ try {
 	$cic_titles = array();
 	$cic_bad    = array();
 	foreach ( array( 'los-angeles' => 'Los Angeles', 'camarillo' => 'Camarillo', 'santa-barbara' => 'Santa Barbara', 'pasadena' => 'Pasadena' ) as $cic_slug => $cic_name ) {
-		$cic_m = $cic_meta( $cic_head( $cic_get( "/service-areas/california/{$cic_slug}/", 'prod' )[1] ) );
+		$cic_m = $cic_meta( $cic_head( $cic_get( "/service-areas/california/{$cic_slug}-ice-cream-catering/", 'prod' )[1] ) );
 		$cic_titles[] = $cic_m['title'][0] ?? '';
 		$cic_types_c  = $cic_types( $cic_m['ld'] );
 		if ( array( "Ice Cream Catering in {$cic_name}, CA | CaterIceCream.com" ) !== $cic_m['title'] || 1 !== count( $cic_m['desc'] ) || false === strpos( $cic_m['desc'][0], "{$cic_name}, CA" ) || array( "Ice Cream Catering in {$cic_name}, CA | CaterIceCream.com" ) !== $cic_m['og'] || 1 !== count( $cic_m['ld'] ) || ! array_intersect( array( 'WebPage' ), $cic_types_c ) || ! in_array( 'BreadcrumbList', $cic_types_c, true ) || ! in_array( 'Service', $cic_types_c, true ) ) {
@@ -152,7 +152,7 @@ try {
 	}
 	$cic_check( 'S2 the four audited city pages: unique "Ice Cream Catering in {City}, CA | CaterIceCream.com" titles, city descriptions, og:title, and WebPage + BreadcrumbList + Service inside Yoast’s single graph', ! $cic_bad && 4 === count( array_unique( $cic_titles ) ), $cic_bad );
 
-	$cic_m = $cic_meta( $cic_head( $cic_get( '/service-areas/california/los-angeles/', 'prod' )[1] ) );
+	$cic_m = $cic_meta( $cic_head( $cic_get( '/service-areas/california/los-angeles-ice-cream-catering/', 'prod' )[1] ) );
 	$cic_check( 'S3 an unreviewed city keeps the existing rule: "noindex, follow", no canonical (Yoast omits it on noindex pages)', 1 === count( $cic_m['robots'] ) && false !== strpos( $cic_m['robots'][0], 'noindex' ) && false === strpos( $cic_m['robots'][0], 'nofollow' ) && ! $cic_m['canon'], $cic_m['robots'] );
 
 	// Indexable path: mark one published + Index city's content as reviewed for the run.
@@ -164,8 +164,8 @@ try {
 		update_post_meta( $cic_editorial, Editorial::REVIEWED, '1' );
 		wp_update_post( array( 'ID' => $cic_editorial, 'post_status' => 'publish' ) );
 		Tables::bump_cache();
-		$cic_url = home_url( "/service-areas/california/{$cic_city_slug}/" );
-		$cic_m   = $cic_meta( $cic_head( $cic_get( "/service-areas/california/{$cic_city_slug}/", 'prod' )[1] ) );
+		$cic_url = home_url( "/service-areas/california/{$cic_city_slug}-ice-cream-catering/" );
+		$cic_m   = $cic_meta( $cic_head( $cic_get( "/service-areas/california/{$cic_city_slug}-ice-cream-catering/", 'prod' )[1] ) );
 		$cic_sm  = $cic_get( '/cic-locations-sitemap.xml', 'prod' );
 		$cic_idx = $cic_get( '/sitemap_index.xml', 'prod' )[1];
 		$cic_check( 'S4 a reviewed (published + Index) city: indexable, canonical = its own URL, listed in cic-locations-sitemap.xml, which is in Yoast’s sitemap index', 1 === count( $cic_m['robots'] ) && false === strpos( $cic_m['robots'][0], 'noindex' ) && array( $cic_url ) === $cic_m['canon'] && 200 === $cic_sm[0] && 1 === substr_count( $cic_sm[1], '<loc>' . $cic_url . '</loc>' ) && false === strpos( $cic_sm[1], '/los-angeles/' ) && false !== strpos( $cic_idx, home_url( '/cic-locations-sitemap.xml' ) ), array( $cic_m['robots'], $cic_m['canon'], $cic_sm[0], substr( $cic_sm[1], 0, 600 ) ) );
@@ -175,7 +175,7 @@ try {
 
 	/* ---------------- Item 1: brand ---------------- */
 	$cic_bad = array();
-	foreach ( array( '/', '/about/', '/contact/', '/get-a-quote/', '/events/birthday/', '/treats/dippin-dots/', '/service-areas/california/los-angeles/' ) as $cic_p ) {
+	foreach ( array( '/', '/about/', '/contact/', '/get-a-quote/', '/events/birthday-party-ice-cream-catering/', '/treats/dippin-dots-catering/', '/service-areas/california/los-angeles-ice-cream-catering/' ) as $cic_p ) {
 		$cic_html = $cic_get( $cic_p, 'prod' )[1];
 		$cic_text = preg_replace( array( '#<style.*?</style>#s', '#https?://[^\s"\'<>]+#' ), '', $cic_html );
 		$cic_m    = $cic_meta( $cic_head( $cic_html ) );
@@ -220,7 +220,7 @@ try {
 
 	/* ---------------- Item 10: alt text ---------------- */
 	$cic_bad = array();
-	foreach ( array( '/', '/treats/dippin-dots/', '/treats/dipn-bananas/', '/treats/frozen-yogurt/', '/events/birthday/', '/events/wedding/', '/events/graduation-parties/', '/service-areas/', '/contact/', '/get-a-quote/' ) as $cic_p ) {
+	foreach ( array( '/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/treats/frozen-yogurt-catering/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/events/graduation-party-ice-cream-catering/', '/service-areas/', '/contact/', '/get-a-quote/' ) as $cic_p ) {
 		preg_match_all( '#<img[^>]+alt="([^"]*)"#', $cic_get( $cic_p )[1], $cic_alts );
 		foreach ( $cic_alts[1] as $cic_alt ) {
 			$cic_alt = html_entity_decode( $cic_alt );

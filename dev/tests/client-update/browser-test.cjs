@@ -25,7 +25,7 @@ const OUT = path.join( ROOT, 'dev/tests/output/client-update' );
 const WP = 'C:\\laragon\\bin\\wp-cli\\wp.cmd';
 const BROWSER = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 const ORDER = [ 'birthday', 'wedding', 'graduation', 'prom', 'corporate', 'anniversary' ];
-const SLUGS = [ 'birthday', 'wedding', 'graduation-parties', 'proms', 'corporate', 'anniversary' ];
+const SLUGS = [ 'birthday-party-ice-cream-catering', 'weddings-ice-cream-catering', 'graduation-party-ice-cream-catering', 'proms-ice-cream-catering', 'corporate-events-ice-cream-catering', 'anniversary-ice-cream-catering' ];
 fs.mkdirSync( OUT, { recursive: true } );
 
 const results = [];
@@ -98,7 +98,7 @@ let browser;
 		check( 'O6 quote form event tiles: six events in order, "Other" last', same( tiles, ORDER.concat( [ 'other' ] ) ), tiles );
 		const ids = JSON.parse( last( wp( 'eval', 'echo wp_json_encode( array_column( CIC\\Content\\Catalog::selectable_events(), "id", "key" ) );' ) ) );
 		for ( const treat of [ 'dippin-dots', 'frozen-yogurt', 'classic-ice-cream' ] ) {
-			await go( '/treats/' + treat + '/' );
+			await go( '/treats/' + treat + '-catering/' );
 			const occ = await page.$$eval( '[data-cic-pairing-event]', ( ls ) => ls.map( ( l ) => +l.dataset.cicPairingEvent ) );
 			check( 'O7 ' + treat + ' occasion recommendations follow the central order', same( occ, ORDER.map( ( k ) => ids[ k ] ) ), occ );
 		}
@@ -114,7 +114,7 @@ let browser;
 
 		/* ================= 2. New pages at three widths ================= */
 		console.log( '== New pages' );
-		const pages = { graduation: '/events/graduation-parties/', prom: '/events/proms/' };
+		const pages = { graduation: '/events/graduation-party-ice-cream-catering/', prom: '/events/proms-ice-cream-catering/' };
 		for ( const [ key, url ] of Object.entries( pages ) ) {
 			for ( const width of [ 390, 768, 1440 ] ) {
 				await page.setViewport( { width, height: 900 } );
@@ -143,13 +143,13 @@ let browser;
 				await shot( `${ key }-${ width }.png` );
 			}
 		}
-		await go( '/events/anniversary/' );
-		check( 'N5 Anniversary page still works at /events/anniversary/', 1 === ( await page.$$( 'h1' ) ).length && ( await page.$( '.cic-event--anniversary' ) ) !== null );
+		await go( '/events/anniversary-ice-cream-catering/' );
+		check( 'N5 Anniversary page still works at /events/anniversary-ice-cream-catering/', 1 === ( await page.$$( 'h1' ) ).length && ( await page.$( '.cic-event--anniversary' ) ) !== null );
 
 		/* ================= 3. Contact details, legal name, logo ================= */
 		console.log( '== Contact and brand' );
 		const tels = [];
-		for ( const url of [ '/', '/about/', '/contact/', '/events/proms/' ] ) {
+		for ( const url of [ '/', '/about/', '/contact/', '/events/proms-ice-cream-catering/' ] ) {
 			await page.setViewport( { width: 1440, height: 900 } );
 			await go( url );
 			tels.push( ...await page.$$eval( 'a[href^="tel:"]', ( as ) => as.map( ( a ) => a.getAttribute( 'href' ) ) ) );
@@ -175,7 +175,7 @@ let browser;
 		console.log( '== Graduation quote' );
 		state( 'reset-limits' );
 		await page.setViewport( { width: 390, height: 900 } );
-		await go( '/events/graduation-parties/' );
+		await go( '/events/graduation-party-ice-cream-catering/' );
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await page.type( '#cic-starter-location', '91101' );
 		await page.click( '#cic-starter-date' );

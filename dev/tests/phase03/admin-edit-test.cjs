@@ -77,9 +77,9 @@ async function scrollAll( page ) {
 		await page.waitForSelector( '#post', { timeout: 60000 } );
 		const updated = await page.evaluate( () => !! document.querySelector( '#message.updated, .notice-success' ) );
 		check( 'E2 product saved through the normal Update button', updated );
-		await page.goto( BASE + '/treats/dippin-dots/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/treats/dippin-dots-catering/', { waitUntil: 'networkidle0' } );
 		const treatHtml = await page.content();
-		await page.goto( BASE + '/events/birthday/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/events/birthday-party-ice-cream-catering/', { waitUntil: 'networkidle0' } );
 		const eventHtml = await page.content();
 		check( 'E3 the edited ACF field shows on the treat page', treatHtml.includes( 'Edited eyebrow from the admin' ) );
 		check( 'E4 the pairing text edited once appears on BOTH the treat and the event page', treatHtml.includes( 'Pairing text edited once in the admin.' ) && eventHtml.includes( 'Pairing text edited once in the admin.' ) );
@@ -104,7 +104,7 @@ async function scrollAll( page ) {
 		}, { timeout: 60000 } );
 		await new Promise( ( r ) => setTimeout( r, 1500 ) );
 		await page.screenshot( { path: path.join( OUT, 'admin-event-block-editor.png' ) } );
-		await page.goto( BASE + '/events/birthday/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/events/birthday-party-ice-cream-catering/', { waitUntil: 'networkidle0' } );
 		check( 'E5 ACF field saved from the block editor appears on the event page (accent markup kept, nothing else)', ( await page.content() ).includes( 'Every age, <em>edited in the block editor.</em>' ) );
 	} finally {
 		try {
@@ -120,7 +120,7 @@ async function scrollAll( page ) {
 	console.log( '== Slice screenshots and responsive checks (anonymous, restored content)' );
 	const anon = await browser.createBrowserContext();
 	const p = await anon.newPage();
-	for ( const [ name, url ] of [ [ 'treat-dippin-dots', '/treats/dippin-dots/' ], [ 'event-birthday', '/events/birthday/' ], [ 'treats-list', '/treats/' ], [ 'events-list', '/events/' ] ] ) {
+	for ( const [ name, url ] of [ [ 'treat-dippin-dots', '/treats/dippin-dots-catering/' ], [ 'event-birthday', '/events/birthday-party-ice-cream-catering/' ], [ 'treats-list', '/treats/' ], [ 'events-list', '/events/' ] ] ) {
 		for ( const w of [ 390, 768, 1440 ] ) {
 			await p.setViewport( { width: w, height: 900 } );
 			await p.goto( BASE + url, { waitUntil: 'networkidle0' } );
@@ -133,12 +133,12 @@ async function scrollAll( page ) {
 		}
 	}
 	await p.setViewport( { width: 1440, height: 900 } );
-	await p.goto( BASE + '/treats/dippin-dots/', { waitUntil: 'networkidle0' } );
+	await p.goto( BASE + '/treats/dippin-dots-catering/', { waitUntil: 'networkidle0' } );
 	const order = await p.$$eval( '.cic-treat > section', ( s ) => s.map( ( x ) => x.id ) );
 	check( 'S1 treat sections in the approved order', 'hero,feelings,occasions,themes,detail,quote' === order.join( ',' ), order );
 	const lcp = await p.$$eval( 'img[fetchpriority="high"]', ( i ) => i.length );
 	check( 'S2 exactly one high-priority image per page (the hero photo)', 1 === lcp, lcp );
-	await p.goto( BASE + '/events/birthday/', { waitUntil: 'networkidle0' } );
+	await p.goto( BASE + '/events/birthday-party-ice-cream-catering/', { waitUntil: 'networkidle0' } );
 	const evOrder = await p.$$eval( '.cic-event > section', ( s ) => s.map( ( x ) => x.id ) );
 	check( 'S3 Birthday sections in the approved order', 'hero,starter,treats,stories,planning,quote' === evOrder.join( ',' ), evOrder );
 	const ctx = await p.evaluate( () => ( {

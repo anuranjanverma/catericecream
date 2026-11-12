@@ -175,7 +175,7 @@ let browser;
 		await page.$eval( '#cic-city_slug', ( el ) => { el.value = 'phase-test-vista-new'; } );
 		await submit( '#submit' );
 		const hop = await request( BASE + '/service-areas/california/phase-test-vista/' );
-		check( 'B12 slug change keeps the old address as a one-hop 301 redirect', 301 === hop.code && hop.location.endsWith( '/service-areas/california/phase-test-vista-new/' ), hop );
+		check( 'B12 slug change keeps the old address as a one-hop 301 redirect', 301 === hop.code && hop.location.endsWith( '/service-areas/california/phase-test-vista-new-ice-cream-catering/' ), hop );
 		await page.$eval( '#cic-city_slug', ( el ) => { el.value = 'pasadena'; } );
 		await submit( '#submit' );
 		const clash = await notice();

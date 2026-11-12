@@ -91,13 +91,13 @@ let browser;
 		check( 'H4 the quote form arrives prefilled with the server-validated selections (no availability claim)', 'anniversary' === summary.event && 'Pasadena, CA' === summary.location && date === summary.date && mdy( date ) === summary.shown && ! /available|reserved|confirmed for/i.test( await page.$eval( 'main', ( m ) => m.innerText ) ), summary );
 
 		console.log( '== Explicit selections persist across pages' );
-		await page.goto( BASE + '/treats/dippin-dots/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/treats/dippin-dots-catering/', { waitUntil: 'networkidle0' } );
 		const afterView = JSON.parse( await page.evaluate( () => window.sessionStorage.getItem( 'cic_quote_context' ) ) );
 		check( 'P1 viewing a treat page does not change the stored selection', 'anniversary' === afterView.event && ! afterView.treat, afterView );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle0' } ), page.click( '.cic-treat__hero .cic-button' ) ] );
 		const t = new URL( await opened() );
 		check( 'P2 treat quote action adds the treat and keeps event, location and date', 'dippin-dots' === t.searchParams.get( 'treat' ) && 'anniversary' === t.searchParams.get( 'event' ) && 'pasadena-ca' === t.searchParams.get( 'location' ) && date === t.searchParams.get( 'date' ), page.url() );
-		await page.goto( BASE + '/events/birthday/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/events/birthday-party-ice-cream-catering/', { waitUntil: 'networkidle0' } );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle0' } ), page.click( '.cic-event__hero .cic-button' ) ] );
 		const e = new URL( await opened() );
 		check( 'P3 a newer explicit event choice wins; unrelated choices are kept', 'birthday' === e.searchParams.get( 'event' ) && 'dippin-dots' === e.searchParams.get( 'treat' ) && 'pasadena-ca' === e.searchParams.get( 'location' ), page.url() );
@@ -151,7 +151,7 @@ let browser;
 		console.log( '== Global header edit reaches every template' );
 		wp( 'eval-file', 'dev/tests/phase04/state.php', 'set-top-text', 'Phase 04 global header test' );
 		const seen = [];
-		for ( const url of [ '/', '/treats/dippin-dots/', '/events/birthday/', '/get-a-quote/', '/treats/' ] ) {
+		for ( const url of [ '/', '/treats/dippin-dots-catering/', '/events/birthday-party-ice-cream-catering/', '/get-a-quote/', '/treats/' ] ) {
 			await page.goto( BASE + url, { waitUntil: 'domcontentloaded' } );
 			seen.push( ( await page.content() ).includes( 'Phase 04 global header test' ) );
 		}

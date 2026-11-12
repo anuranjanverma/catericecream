@@ -34,6 +34,30 @@ Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 0
 
 ---
 
+## Our Treats jump chips land at the top (owner request, 2026-11-12)
+
+Bug: `/treats/#treat-…` and the "Jump to a treat" chips left the section ~40% down the screen (370 px at 1440), because the row's `scroll-margin-top` (header + 4.5rem) was added to `html`'s `scroll-padding-top` (header + 8px), and the desktop header compacting mid-scroll changed the target. Fix: `pages.css` `.cic-cat-row` reserves only the jump bar (exact fallback for the browser's fragment scroll); `main.js` "In-page jump navigation" aligns chip clicks, shared hash links, Back/Forward and hash changes to section top = sticky bar bottom, holding the compact header's state during the jump (`holdHeaderUntil`), keeps the hash in the URL and moves focus to the section. Not committed. Verified in Edge at 1440/768/390: hash load and every chip (down, up while compact, Back) → gap 0 under the bar; user scrolling still compacts the header; no JS errors. Tests: header 30/30, phase08 11/11, phase09 interaction 7/7.
+
+---
+
+## Treat media: equal height for mixed photo + video rows (owner request, 2026-11-12)
+
+DipN' Bananas "Behind the scenes": the photo (was 420×560) and the low-resolution clip (192×336, capped at 1.5× its 128×224 source) now share one height. Owner chose "shrink the photo" so the clip stays sharp: both 336 px tall (photo 252 px wide) from 600 px; on phones they stack as before (photo full width). Rule: a row that mixes photos and videos gets `.cic-media-grid--equal` and per-item `--cic-media-row-w` from `template-parts/treat/section-media.php` (tallest height every item reaches at its normal maximum width); `compositions.css` media block. Single-type rows (Dippin' Dots: two videos, 360×640 + 280×498) unchanged. Not committed. Verified in Edge: 1440 and 768 → 252×336 + 192×336, same top; 390 → stacked; Dippin' Dots unchanged. Tests: media browser 27/27 (D3 needed the new city URL), analytics 15/15, cities 18/18; phase05 browser test URLs updated (its 6 failures are pre-existing, see below).
+
+---
+
+## Keyword URL slugs for treats and events (SEO review, 2026-11-12)
+
+Source: `handoff/cater-ice-cream/CIC_URL Optimization.csv`. **Not committed, not deployed.** Backup: `C:\laragon\backup\catericecream\pre-url-slugs-20261112-015838\`. Details and deployment: `docs/release/URL_SLUGS_2026-11-12.md`.
+
+- Applied as recommended (10 records, found by `cic_key`): `/treats/{dippin-dots,dipn-bananas,classic-ice-cream,frozen-yogurt}-catering/`, `/events/birthday-party-ice-cream-catering/`, `weddings-…`, `graduation-party-…`, `proms-…`, `corporate-events-…`, `anniversary-ice-cream-catering/`. Keys, composition layouts, presets, pairings and quote context are unchanged (none depend on slugs).
+- `dev/tools/content/url-slugs-20261112.php` (dry run; re-run reports "already done"): renames slugs, updates the 10 custom header-menu links and the links in blog drafts #1245–#1248. Code: `SeedData` slugs, `Design\Cli` default menu paths, `docs/content/blog/*.md` links, test URLs (`details-test.php` now uses real permalinks).
+- Verified: all 10 old URLs answer 301 → new URL (WordPress old-slug redirect); new URLs 200; Yoast product/event sitemaps list only new URLs; homepage has no old links; header event order intact. Tests: phase03 catalog 46/46, phase07 details 23/23, seo-20261028 19/19, qa-20261026 17/17, browser client-update 35/35, phase07 13/13, nav-quote 38/38.
+- **City pages (owner approved the same day):** `/service-areas/{state}/{city}-ice-cream-catering/`, code only (`DatabaseRepository::URL_SUFFIX` in `url()`, stripped in `Routes::resolve()`; stored slugs/keys unchanged; bare old address, aliases and old slugs 301 in one hop; admin preview shows the suffix). Location cache flushed. Verified: old → 301, new → 200, unknown → 404, all rendered city links suffixed (home, hub, state, city). Tests: seo-20261028 19/19, qa-20261026 17/17, cities 18/18, phase05 50 passed (new L5.2b bare-slug 301), browser service-areas 21/21, cities 14/14, phase06 35/35, phase05 admin 10/12.
+- **Pre-existing failures (same on the committed code, baseline run):** phase05 L2.1, L2.3 (fixture flag), L2.4, L4.1, L8.1, L10.4; service-areas admin-test B7, H1; phase05 admin-locations A1, A3; phase05 browser P4, P6, P8, P13, P16, P22; phase09 review R8. Cause: those tests assume fixture-only coverage data, but production cities/ZIPs are now loaded locally (e.g. 202 production cities, Pasadena 9 ZIPs). The tests need updating for the production dataset (separate task).
+
+---
+
 ## SEO foundation (owner request, 2026-10-28)
 
 **Not committed, not deployed.** Backup before the local settings migration: `C:\laragon\backup\catericecream\seo-20261028-20261028-231725\` (database, `wp-config.php`, SHA256SUMS, `seo-report.json`). Full write-up (audit, page mapping with final titles/descriptions, indexing and sitemap rules, location SEO, deployment, rollback, backlog): `docs/release/SEO_2026-10-28.md`.

@@ -116,7 +116,7 @@ try {
 	$cic_check( 'R8 redaction line sits after gtag(\'js\') and before gtag(\'config\'), removes received/sent and sets no consent', array_search( $cic_redact[0] ?? '', $cic_lines, true ) === 6 && false !== strpos( $cic_redact[0] ?? '', "delete('received')" ) && false !== strpos( $cic_redact[0] ?? '', "delete('sent')" ) && false === stripos( $cic_snip, 'consent' ) );
 
 	/* 2. This local site, unchanged: no tag anywhere. */
-	$cic_pages = array( '/', '/treats/dippin-dots/', '/treats/dipn-bananas/', '/events/birthday/', '/events/wedding/', '/get-a-quote/', '/get-a-quote/?received=abc123', '/contact/', '/about/', '/service-areas/', '/service-areas/california/agoura-hills/', '/no-such-page-analytics/' );
+	$cic_pages = array( '/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/get-a-quote/', '/get-a-quote/?received=abc123', '/contact/', '/about/', '/service-areas/', '/service-areas/california/agoura-hills-ice-cream-catering/', '/no-such-page-analytics/' );
 	$cic_local = array();
 	foreach ( $cic_pages as $cic_p ) {
 		list( $cic_code, $cic_html ) = $cic_get( $cic_p );
@@ -164,7 +164,7 @@ try {
 		'wrong token'          => array( array( 'X-CIC-Analytics-Test' => 'nope|production|catericecream.com|catericecream.com' ), 0 ),
 	);
 	foreach ( $cic_cases as $cic_label => $cic_case ) {
-		foreach ( array( '/', '/get-a-quote/', '/treats/dippin-dots/' ) as $cic_p ) {
+		foreach ( array( '/', '/get-a-quote/', '/treats/dippin-dots-catering/' ) as $cic_p ) {
 			list( , $cic_html ) = $cic_get( $cic_p, $cic_case[0] );
 			$cic_c = $cic_count( $cic_html );
 			if ( '' === $cic_html || $cic_c['loader'] !== $cic_case[1] || $cic_c['config'] !== $cic_case[1] ) {
@@ -188,7 +188,7 @@ try {
 		$cic_session = WP_Session_Tokens::get_instance( $cic_admin )->create( $cic_exp );
 		$cic_cookie  = LOGGED_IN_COOKIE . '=' . rawurlencode( wp_generate_auth_cookie( $cic_admin, $cic_exp, 'logged_in', $cic_session ) );
 		$cic_admin_r = array();
-		foreach ( array( '/', '/get-a-quote/', '/treats/dippin-dots/' ) as $cic_p ) {
+		foreach ( array( '/', '/get-a-quote/', '/treats/dippin-dots-catering/' ) as $cic_p ) {
 			list( , $cic_html ) = $cic_get( $cic_p, array_merge( $cic_prod, array( 'Cookie' => $cic_cookie ) ) );
 			$cic_logged = false !== strpos( $cic_html, 'id="wpadminbar"' );
 			$cic_c      = $cic_count( $cic_html );

@@ -28,7 +28,7 @@ final class SeedData {
 		return array(
 			'dippin-dots'       => array(
 				'title'      => "Dippin' Dots",
-				'slug'       => 'dippin-dots',
+				'slug'       => 'dippin-dots-catering',
 				'order'      => 10,
 				'excerpt'    => 'Little beads. Big smiles. Tiny flash-frozen beads of ice cream that bring a colorful, unexpected twist to the dessert moment.',
 				'content'    => "Dippin' Dots is ice cream in tiny, flash-frozen beads: a distinctive texture that gives this familiar frozen treat its character. Ask us about the flavors and serving arrangements available for your event.",
@@ -109,7 +109,7 @@ final class SeedData {
 			),
 			'dipn-bananas'      => array(
 				'title'      => "DipN' Bananas",
-				'slug'       => 'dipn-bananas',
+				'slug'       => 'dipn-bananas-catering',
 				'order'      => 20,
 				'excerpt'    => 'A delicious twist on dessert: familiar fruit with a chocolate finish.',
 				'image'      => 'asset:treat-dipped-bananas',
@@ -194,7 +194,7 @@ final class SeedData {
 			),
 			'classic-ice-cream' => array(
 				'title'      => 'Classic Ice Cream',
-				'slug'       => 'classic-ice-cream',
+				'slug'       => 'classic-ice-cream-catering',
 				'order'      => 30,
 				'excerpt'    => 'Familiar scoops for shared memories. Flavors are discussed with your quote.',
 				'image'      => 'asset:treat-classic-scoops',
@@ -272,7 +272,7 @@ final class SeedData {
 			),
 			'frozen-yogurt'     => array(
 				'title'      => 'Frozen Yogurt',
-				'slug'       => 'frozen-yogurt',
+				'slug'       => 'frozen-yogurt-catering',
 				'order'      => 40,
 				'excerpt'    => 'A bright, relaxed dessert moment with a smooth texture and a recognizable tang.',
 				'image'      => 'asset:treat-frozen-yogurt',
@@ -708,7 +708,7 @@ final class SeedData {
 		return array(
 			'birthday'    => array(
 				'title'   => 'Birthdays',
-				'slug'    => 'birthday',
+				'slug'    => 'birthday-party-ice-cream-catering',
 				'order'   => 10,
 				'excerpt' => 'Sweet treats for their special day, from little celebrations to big milestones.',
 				'image'   => 'asset:birthday-child',
@@ -762,7 +762,7 @@ final class SeedData {
 			),
 			'wedding'     => array(
 				'title'   => 'Weddings',
-				'slug'    => 'wedding',
+				'slug'    => 'weddings-ice-cream-catering',
 				'order'   => 20,
 				'excerpt' => 'A memorable treat for your big day.',
 				'image'   => 'asset:wedding-couple',
@@ -818,7 +818,7 @@ final class SeedData {
 			// prom photos are supplied (see docs/content/PHOTO_INVENTORY.md).
 			'graduation'  => array(
 				'title'   => 'Graduation Parties',
-				'slug'    => 'graduation-parties',
+				'slug'    => 'graduation-party-ice-cream-catering',
 				'order'   => 30,
 				'excerpt' => 'Ice cream for the grad, the family and everyone who cheered them on.',
 				'image'   => 'asset:yogurt-friends',
@@ -885,7 +885,7 @@ final class SeedData {
 			),
 			'prom'        => array(
 				'title'   => 'Proms',
-				'slug'    => 'proms',
+				'slug'    => 'proms-ice-cream-catering',
 				'order'   => 40,
 				'excerpt' => 'A dessert stop that fits the big night.',
 				'image'   => 'asset:banana-theme-evening',
@@ -944,7 +944,7 @@ final class SeedData {
 			),
 			'corporate'   => array(
 				'title'   => 'Corporate Events',
-				'slug'    => 'corporate',
+				'slug'    => 'corporate-events-ice-cream-catering',
 				'order'   => 50,
 				'excerpt' => 'A refreshing way to bring people together.',
 				'image'   => 'asset:corporate-friends',
@@ -1002,7 +1002,7 @@ final class SeedData {
 			),
 			'anniversary' => array(
 				'title'   => 'Anniversaries',
-				'slug'    => 'anniversary',
+				'slug'    => 'anniversary-ice-cream-catering',
 				'order'   => 60,
 				'excerpt' => 'Celebrate your story with favorite frozen treats.',
 				'image'   => 'asset:anniversary-couple',

@@ -91,7 +91,7 @@ try {
 	);
 
 	/* ---------------- M: metadata on every marketing page ---------------- */
-	$cic_pages = array( '/', '/events/', '/events/birthday/', '/events/wedding/', '/events/graduation-parties/', '/events/proms/', '/events/corporate/', '/events/anniversary/', '/treats/', '/treats/dippin-dots/', '/treats/dipn-bananas/', '/treats/classic-ice-cream/', '/treats/frozen-yogurt/', '/service-areas/', '/service-areas/california/', '/about/', '/contact/', '/get-a-quote/' );
+	$cic_pages = array( '/', '/events/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/events/graduation-party-ice-cream-catering/', '/events/proms-ice-cream-catering/', '/events/corporate-events-ice-cream-catering/', '/events/anniversary-ice-cream-catering/', '/treats/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/treats/classic-ice-cream-catering/', '/treats/frozen-yogurt-catering/', '/service-areas/', '/service-areas/california/', '/about/', '/contact/', '/get-a-quote/' );
 	$cic_bad   = array();
 	$cic_seen  = array( 'title' => array(), 'desc' => array() );
 	$cic_html  = array();
@@ -124,12 +124,12 @@ try {
 	$cic_dupes = array_filter( array_merge( $cic_seen['title'], $cic_seen['desc'] ), static fn( $v ) => count( $v ) > 1 );
 	$cic_check( 'M2 titles and descriptions are distinct across those pages', ! $cic_dupes, $cic_dupes );
 
-	$cic_m = $cic_meta( $cic_get( '/events/birthday/' )[1] );
+	$cic_m = $cic_meta( $cic_get( '/events/birthday-party-ice-cream-catering/' )[1] );
 	$cic_check( 'M3 event metadata comes from the CIC search fields: "Birthday Party Ice Cream Catering | CaterIceCream.com"', array( 'Birthday Party Ice Cream Catering | CaterIceCream.com' ) === $cic_m['title'], $cic_m['title'] );
 
 	/* ---------------- I: indexing rules ---------------- */
 	$cic_bad = array();
-	foreach ( array( '/', '/events/birthday/', '/treats/dippin-dots/', '/service-areas/california/' ) as $cic_p ) {
+	foreach ( array( '/', '/events/birthday-party-ice-cream-catering/', '/treats/dippin-dots-catering/', '/service-areas/california/' ) as $cic_p ) {
 		$cic_m = $cic_meta( $cic_get( $cic_p, false )[1] );
 		if ( 1 !== count( $cic_m['robots'] ) || false === strpos( $cic_m['robots'][0], 'noindex' ) || false === strpos( $cic_m['robots'][0], 'nofollow' ) ) {
 			$cic_bad[ $cic_p ] = $cic_m['robots'];
@@ -146,8 +146,8 @@ try {
 	}
 	$cic_check( 'I2 production: quote prefills, receipts and filtered variants are "noindex, follow"', ! $cic_bad, $cic_bad );
 
-	$cic_m = $cic_meta( $cic_get( '/events/birthday/?utm_source=newsletter' )[1] );
-	$cic_check( 'I3 production: a tracking-parameter URL keeps index and canonicalises to the clean URL', array( home_url( '/events/birthday/' ) ) === $cic_m['canon'] && false === strpos( implode( ',', $cic_m['robots'] ), 'noindex' ), $cic_m );
+	$cic_m = $cic_meta( $cic_get( '/events/birthday-party-ice-cream-catering/?utm_source=newsletter' )[1] );
+	$cic_check( 'I3 production: a tracking-parameter URL keeps index and canonicalises to the clean URL', array( home_url( '/events/birthday-party-ice-cream-catering/' ) ) === $cic_m['canon'] && false === strpos( implode( ',', $cic_m['robots'] ), 'noindex' ), $cic_m );
 
 	$cic_bad = array();
 	foreach ( array( '/hello-world/' => 404, '/no-such-page/' => 404, '/service-areas/california/no-such-city/' => 404, '/service-areas/nevada/' => 404, '/service-areas/california/compton/' => 404 ) as $cic_p => $cic_want ) {
@@ -178,7 +178,7 @@ try {
 	$cic_check( 'G2 WebSite is published by the Organization and has no SearchAction', array( '@id' => home_url( '/' ) . '#organization' ) === ( $cic_site['publisher'] ?? null ) && empty( $cic_site['potentialAction'] ), $cic_site );
 
 	$cic_bad = array();
-	foreach ( array( '/events/birthday/', '/events/proms/' ) as $cic_p ) {
+	foreach ( array( '/events/birthday-party-ice-cream-catering/', '/events/proms-ice-cream-catering/' ) as $cic_p ) {
 		$cic_m   = $cic_meta( $cic_html[ $cic_p ] );
 		$cic_svc = $cic_piece( $cic_m['graph'], 'Service' );
 		$cic_wp  = $cic_piece( $cic_m['graph'], 'WebPage' );
@@ -189,7 +189,7 @@ try {
 	$cic_check( 'G3 event pages: Service → provider #organization + mainEntityOfPage; WebPage name/description equal the title/description', ! $cic_bad, $cic_bad );
 
 	$cic_bad = array();
-	foreach ( array( '/treats/dippin-dots/', '/treats/frozen-yogurt/', '/treats/' ) as $cic_p ) {
+	foreach ( array( '/treats/dippin-dots-catering/', '/treats/frozen-yogurt-catering/', '/treats/' ) as $cic_p ) {
 		foreach ( $cic_meta( $cic_html[ $cic_p ] )['graph'] as $cic_pc ) {
 			if ( array_intersect( (array) ( $cic_pc['@type'] ?? array() ), array( 'Product', 'Offer', 'AggregateRating', 'Review' ) ) ) {
 				$cic_bad[ $cic_p ] = $cic_pc['@type'];
@@ -252,7 +252,7 @@ try {
 		$cic_url = DatabaseRepository::url( 'california', $cic_city_slug );
 		$cic_xml = $cic_get( '/cic-locations-sitemap.xml' )[1];
 		$cic_idx = $cic_get( '/sitemap_index.xml' )[1];
-		$cic_m   = $cic_meta( $cic_get( '/service-areas/california/' . $cic_city_slug . '/' )[1] );
+		$cic_m   = $cic_meta( $cic_get( '/service-areas/california/' . $cic_city_slug . '-ice-cream-catering/' )[1] );
 		$cic_ok  = $cic_repo->is_served( $cic_city ) && false !== strpos( $cic_xml, '<loc>' . $cic_url . '</loc>' ) && (bool) preg_match( '#<loc>' . preg_quote( $cic_url, '#' ) . '</loc>\s*<lastmod>\d{4}-\d\d-\d\dT#', $cic_xml )
 			&& (bool) preg_match( '#cic-locations-sitemap\.xml</loc>\s*<lastmod>\d{4}-#', $cic_idx )
 			&& array( $cic_url ) === $cic_m['canon'] && false === strpos( implode( ',', $cic_m['robots'] ), 'noindex' );
@@ -264,8 +264,8 @@ try {
 	}
 
 	// Two different city routes in a row keep their own metadata (no cross-route leakage).
-	$cic_a = $cic_meta( $cic_get( '/service-areas/california/los-angeles/' )[1] );
-	$cic_b = $cic_meta( $cic_get( '/service-areas/california/pasadena/' )[1] );
+	$cic_a = $cic_meta( $cic_get( '/service-areas/california/los-angeles-ice-cream-catering/' )[1] );
+	$cic_b = $cic_meta( $cic_get( '/service-areas/california/pasadena-ice-cream-catering/' )[1] );
 	$cic_check(
 		'L4 city metadata is per route: Los Angeles and Pasadena titles/descriptions name their own city',
 		false !== strpos( $cic_a['title'][0] ?? '', 'Los Angeles, CA' ) && false !== strpos( $cic_a['desc'][0] ?? '', 'Los Angeles' ) && false === strpos( implode( ' ', $cic_a['desc'] ), 'Pasadena' )

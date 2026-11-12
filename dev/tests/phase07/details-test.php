@@ -41,10 +41,10 @@ $events = array( 'birthday', 'wedding', 'anniversary', 'corporate' );
 $treats = array( 'dippin-dots', 'dipn-bananas', 'classic-ice-cream', 'frozen-yogurt' );
 $pages  = array();
 foreach ( $events as $key ) {
-	$pages[ $key ] = array( 'type' => 'cic_event', 'id' => Catalog::find_by_key( 'cic_event', $key ), 'path' => '/events/' . $key . '/' );
+	$pages[ $key ] = array( 'type' => 'cic_event', 'id' => Catalog::find_by_key( 'cic_event', $key ), 'path' => (string) wp_parse_url( (string) get_permalink( Catalog::find_by_key( 'cic_event', $key ) ), PHP_URL_PATH ) );
 }
 foreach ( $treats as $key ) {
-	$pages[ $key ] = array( 'type' => 'product', 'id' => Catalog::find_by_key( 'product', $key ), 'path' => '/treats/' . $key . '/' );
+	$pages[ $key ] = array( 'type' => 'product', 'id' => Catalog::find_by_key( 'product', $key ), 'path' => (string) wp_parse_url( (string) get_permalink( Catalog::find_by_key( 'product', $key ) ), PHP_URL_PATH ) );
 }
 $html = array();
 foreach ( $pages as $key => $p ) {
@@ -162,14 +162,14 @@ cic7_check( 'D4.2 every internal content link resolves (200) (' . count( $links 
 $cross = array();
 foreach ( $treats as $t ) {
 	foreach ( $events as $e ) {
-		if ( ! str_contains( cic7_main( $html[ $t ] ), 'href="' . home_url( '/events/' . $e . '/' ) . '"' ) ) {
+		if ( ! str_contains( cic7_main( $html[ $t ] ), 'href="' . get_permalink( Catalog::find_by_key( 'cic_event', $e ) ) . '"' ) ) {
 			$cross[] = "{$t}→{$e}";
 		}
 	}
 }
 foreach ( array( 'wedding', 'anniversary', 'corporate' ) as $e ) {
 	foreach ( $treats as $t ) {
-		if ( ! str_contains( cic7_main( $html[ $e ] ), 'href="' . home_url( '/treats/' . $t . '/' ) . '"' ) ) {
+		if ( ! str_contains( cic7_main( $html[ $e ] ), 'href="' . get_permalink( Catalog::find_by_key( 'product', $t ) ) . '"' ) ) {
 			$cross[] = "{$e}→{$t}";
 		}
 	}

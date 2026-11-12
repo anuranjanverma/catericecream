@@ -1048,6 +1048,14 @@
 	--cic-media-w: var(--cic-media-max);
 }
 
+/* Mixed photo + video row: one shared height (width per item from section-media.php). */
+@media (min-width: 600px) {
+	.cic-media-grid--equal .cic-media-item {
+		flex-basis: var(--cic-media-row-w);
+		max-width: min(100%, var(--cic-media-row-w));
+	}
+}
+
 .cic-media-item__figure {
 	margin: 0;
 }

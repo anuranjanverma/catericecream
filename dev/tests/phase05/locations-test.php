@@ -110,7 +110,7 @@ try {
 	$out = $repo->evaluate_coverage( '90224' );
 	cic5_check( 'L2.2 outside_area uses the exact required message and blocks the quote', 'Sorry, we do not currently serve this area. Please choose another event location.' === $out['message'] && 'block' === $out['action'] && Coverage::blocks_quote( 'outside_area' ), $out );
 	$cov = $repo->evaluate_coverage( '91101' );
-	cic5_check( 'L2.3 covered never claims a date (geography only), links the city page, flagged as fixture', ! preg_match( '/\b(available|reserved|booked)\b/i', $cov['message'] ) && str_contains( $cov['url'], '/service-areas/california/pasadena/' ) && true === $cov['fixture'], $cov );
+	cic5_check( 'L2.3 covered never claims a date (geography only), links the city page, flagged as fixture', ! preg_match( '/\b(available|reserved|booked)\b/i', $cov['message'] ) && str_contains( $cov['url'], '/service-areas/california/pasadena-ice-cream-catering/' ) && true === $cov['fixture'], $cov );
 	cic5_check( 'L2.4 clarify actions for unknown/manual_review; correct for invalid', 'clarify' === $repo->evaluate_coverage( '93108' )['action'] && 'clarify' === $repo->evaluate_coverage( '90220' )['action'] && 'correct' === $repo->evaluate_coverage( '1234' )['action'] );
 	cic5_check( 'L2.5 Context keeps leading zeros and normalises ZIP+4 / "City, ST"', '02108' === Context::location( '02108' ) && '02108' === Context::location( '02108-1234' ) && 'pasadena-ca' === Context::location( 'Pasadena, CA' ) && '' === Context::location( '2108' ) );
 
@@ -155,14 +155,16 @@ try {
 	$codes = array(
 		'/service-areas/'                              => 200,
 		'/service-areas/california/'                   => 200,
-		'/service-areas/california/pasadena/'          => 200,
+		'/service-areas/california/pasadena-ice-cream-catering/' => 200,
+		'/service-areas/california/compton-ice-cream-catering/' => 404,
+		'/service-areas/california/pasadena-ice-cream-catering/birthday/' => 404,
 		'/service-areas/california/compton/'           => 404,
 		'/service-areas/california/atlantis/'          => 404,
 		'/service-areas/texas/'                        => 404,
 		'/service-areas/texas/austin/'                 => 404,
 		'/service-areas/california/pasadena/birthday/' => 404,
 		'/service-areas/california/pasadena/birthday/dippin-dots/' => 404,
-		'/service-areas/california/pasadena/?location=91101' => 200,
+		'/service-areas/california/pasadena-ice-cream-catering/?location=91101' => 200,
 	);
 	$wrong = array();
 	foreach ( $codes as $path => $code ) {
@@ -172,25 +174,27 @@ try {
 		}
 	}
 	cic5_check( 'L5.1 canonical routes 200; draft/unknown city, unknown state and city×event×treat paths are real 404s', ! $wrong, $wrong );
-	$r1 = cic5_get( '/service-areas/california/pasadena' );
-	$r2 = cic5_get( '/service-areas/California/PASADENA/' );
-	$canon = home_url( '/service-areas/california/pasadena/' );
+	$r1 = cic5_get( '/service-areas/california/pasadena-ice-cream-catering' );
+	$r2 = cic5_get( '/service-areas/California/PASADENA-Ice-Cream-Catering/' );
+	$canon = home_url( '/service-areas/california/pasadena-ice-cream-catering/' );
 	cic5_check( 'L5.2 missing slash and wrong case redirect once (301) to the canonical URL', 301 === $r1['code'] && $canon === $r1['location'] && 301 === $r2['code'] && $canon === $r2['location'], array( $r1['code'], $r1['location'], $r2['code'], $r2['location'] ) );
+	$rbare = cic5_get( '/service-areas/california/pasadena/' );
+	cic5_check( 'L5.2b the bare city slug (address before 2026-11-12) redirects once (301) to the -ice-cream-catering canonical', 301 === $rbare['code'] && $canon === $rbare['location'], array( $rbare['code'], $rbare['location'] ) );
 	$pid = (int) $wpdb->get_var( "SELECT id FROM {$t['cities']} WHERE city_slug = 'pasadena'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	CityStore::add_alias( $pid, 'pasadena-city' );
 	$ra = cic5_get( '/service-areas/california/pasadena-city/' );
 	cic5_check( 'L5.3 a recorded alias redirects once (301) to the canonical city', 301 === $ra['code'] && $canon === $ra['location'], array( $ra['code'], $ra['location'] ) );
 	$changed = CityStore::update_city( $pid, array( 'city_slug' => 'pasadena-renamed' ) );
-	$rold    = cic5_get( '/service-areas/california/pasadena/' );
-	$rnew    = cic5_get( '/service-areas/california/pasadena-renamed/' );
+	$rold    = cic5_get( '/service-areas/california/pasadena-ice-cream-catering/' );
+	$rnew    = cic5_get( '/service-areas/california/pasadena-renamed-ice-cream-catering/' );
 	$ralias  = cic5_get( '/service-areas/california/pasadena-city/' );
-	cic5_check( 'L5.4 after a slug change the old URL and the alias each redirect in ONE hop to the new canonical', true === $changed && 301 === $rold['code'] && home_url( '/service-areas/california/pasadena-renamed/' ) === $rold['location'] && 200 === $rnew['code'] && home_url( '/service-areas/california/pasadena-renamed/' ) === $ralias['location'], array( $rold['code'], $rold['location'], $rnew['code'], $ralias['location'] ) );
+	cic5_check( 'L5.4 after a slug change the old URL and the alias each redirect in ONE hop to the new canonical', true === $changed && 301 === $rold['code'] && home_url( '/service-areas/california/pasadena-renamed-ice-cream-catering/' ) === $rold['location'] && 200 === $rnew['code'] && home_url( '/service-areas/california/pasadena-renamed-ice-cream-catering/' ) === $ralias['location'], array( $rold['code'], $rold['location'], $rnew['code'], $ralias['location'] ) );
 	CityStore::update_city( $pid, array( 'city_slug' => 'pasadena' ) );
-	$rback = cic5_get( '/service-areas/california/pasadena/' );
+	$rback = cic5_get( '/service-areas/california/pasadena-ice-cream-catering/' );
 	$hist  = wp_list_pluck( CityStore::redirects( $pid ), 'slug' );
 	cic5_check( 'L5.5 restoring the slug serves it again (canonical slug removed from history; the renamed slug now redirects)', 200 === $rback['code'] && ! in_array( 'pasadena', $hist, true ) && in_array( 'pasadena-renamed', $hist, true ), $hist );
 	CityStore::update_city( $pid, array( 'publish_status' => 'draft' ) );
-	$rdraft = cic5_get( '/service-areas/california/pasadena/' );
+	$rdraft = cic5_get( '/service-areas/california/pasadena-ice-cream-catering/' );
 	CityStore::update_city( $pid, array( 'publish_status' => 'published' ) );
 	cic5_check( 'L5.6 an unpublished city returns 404 (no public preview without authentication)', 404 === $rdraft['code'], $rdraft['code'] );
 	$rprev = cic5_get( '/service-areas/california/compton/?' . Editorial::PREVIEW . '=1&_wpnonce=abc' );
@@ -210,7 +214,7 @@ try {
 	// With Yoast SEO the YoastAdapter feeds Yoast's output: Yoast prints no canonical on noindex pages
 	// and serves its own sitemaps (cic-locations-sitemap.xml in sitemap_index.xml).
 	$cic5_yoast = defined( 'WPSEO_VERSION' );
-	$city = cic5_get( '/service-areas/california/pasadena/' )['body'];
+	$city = cic5_get( '/service-areas/california/pasadena-ice-cream-catering/' )['body'];
 	preg_match_all( '/<link rel="canonical" href="([^"]+)"/', $city, $canon_tags );
 	preg_match( '/<title>([^<]+)<\/title>/', $city, $title );
 	cic5_check( 'L6.1 one canonical tag pointing at the virtual city URL (Yoast: none while noindex); city title from the template', ( $cic5_yoast ? 0 === count( $canon_tags[1] ) : ( 1 === count( $canon_tags[1] ) && $canon === $canon_tags[1][0] ) ) && str_contains( html_entity_decode( $title[1] ?? '' ), 'Ice Cream Catering in Pasadena, CA' ), array( $canon_tags[1], $title[1] ?? '' ) );
@@ -222,9 +226,9 @@ try {
 	update_post_meta( $editorial, Editorial::REVIEWED, '1' );
 	update_post_meta( $editorial, 'cic_city_subtitle', 'Reviewed local copy for the test.' );
 	Tables::bump_cache();
-	$city2 = cic5_get( '/service-areas/california/pasadena/' )['body'];
+	$city2 = cic5_get( '/service-areas/california/pasadena-ice-cream-catering/' )['body'];
 	cic5_check( 'L6.5 published + index + reviewed content → indexable (no noindex), one canonical to the city URL, and the override renders', ! preg_match( '/<meta name=[\'"]robots[\'"] content=[\'"][^\'"]*noindex/', $city2 ) && 1 === substr_count( $city2, 'rel="canonical"' ) && str_contains( $city2, '<link rel="canonical" href="' . $canon . '"' ) && str_contains( $city2, 'Reviewed local copy for the test.' ) );
-	$q = cic5_get( '/service-areas/california/pasadena/?location=91101' )['body'];
+	$q = cic5_get( '/service-areas/california/pasadena-ice-cream-catering/?location=91101' )['body'];
 	$h = cic5_get( '/service-areas/?location=pasadena' )['body'];
 	$s = cic5_get( '/service-areas/california/?county=los-angeles-county' )['body'];
 	$noindex = '/<meta name=[\'"]robots[\'"] content=[\'"][^\'"]*noindex/';
@@ -308,7 +312,7 @@ try {
 	$rules = get_option( 'rewrite_rules' );
 	cic5_check( 'L12.1 explicit city/state rules are stored and the route version is recorded', isset( $rules['^service-areas/([^/]+)/([^/]+)/?$'], $rules['^service-areas/([^/]+)/?$'] ) && Routes::ROUTE_VERSION === get_option( Routes::VERSION_OPTION ) );
 	for ( $i = 0; $i < 3; $i++ ) {
-		cic5_get( '/service-areas/california/pasadena/' );
+		cic5_get( '/service-areas/california/pasadena-ice-cream-catering/' );
 	}
 	cic5_check( 'L12.2 normal requests never flush rewrite rules (rules unchanged after page loads)', md5( (string) wp_json_encode( get_option( 'rewrite_rules' ) ) ) === $rules_before );
 

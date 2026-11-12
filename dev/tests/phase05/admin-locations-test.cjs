@@ -80,11 +80,11 @@ let browser;
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.click( '#submit' ) ] );
 		const saved = await page.$eval( '.notice-success', ( n ) => n.textContent.trim() ).catch( () => '' );
 		const oldUrl = await head( BASE + '/service-areas/california/pasadena/' );
-		const newUrl = await head( BASE + '/service-areas/california/pasadena-admin-test/' );
-		check( 'A4 slug saved in admin: old URL → one 301 to the new canonical, new URL 200', saved.startsWith( 'City saved.' ) && 301 === oldUrl.code && oldUrl.location === BASE + '/service-areas/california/pasadena-admin-test/' && 200 === newUrl.code, { saved, oldUrl, newUrl } );
+		const newUrl = await head( BASE + '/service-areas/california/pasadena-admin-test-ice-cream-catering/' );
+		check( 'A4 slug saved in admin: old URL → one 301 to the new canonical, new URL 200', saved.startsWith( 'City saved.' ) && 301 === oldUrl.code && oldUrl.location === BASE + '/service-areas/california/pasadena-admin-test-ice-cream-catering/' && 200 === newUrl.code, { saved, oldUrl, newUrl } );
 		await page.$eval( '#cic-city_slug', ( el ) => { el.value = 'pasadena'; } );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.click( '#submit' ) ] );
-		const restored = await head( BASE + '/service-areas/california/pasadena/' );
+		const restored = await head( BASE + '/service-areas/california/pasadena-ice-cream-catering/' );
 		const legacy = await head( BASE + '/service-areas/california/pasadena-admin-test/' );
 		check( 'A5 slug restored in admin: canonical 200 again; the test slug now redirects back', 200 === restored.code && 301 === legacy.code, { restored, legacy } );
 
@@ -111,10 +111,10 @@ let browser;
 		} ) );
 		await preview.screenshot( { path: path.join( OUT, 'admin-preview.png' ) } );
 		await preview.close();
-		check( 'A7 Preview opens the virtual city URL with the draft override, a preview banner and noindex', previewHref.includes( '/service-areas/california/pasadena/' ) && 200 === resp.status() && pv.banner && pv.override && /noindex/.test( pv.robots ) && resp.headers()[ 'x-robots-tag' ], { previewHref, pv } );
+		check( 'A7 Preview opens the virtual city URL with the draft override, a preview banner and noindex', previewHref.includes( '/service-areas/california/pasadena-ice-cream-catering/' ) && 200 === resp.status() && pv.banner && pv.override && /noindex/.test( pv.robots ) && resp.headers()[ 'x-robots-tag' ], { previewHref, pv } );
 		const publicCtx = await browser.createBrowserContext();
 		const anon = await publicCtx.newPage();
-		await anon.goto( BASE + '/service-areas/california/pasadena/', { waitUntil: 'domcontentloaded' } );
+		await anon.goto( BASE + '/service-areas/california/pasadena-ice-cream-catering/', { waitUntil: 'domcontentloaded' } );
 		const leaked = await anon.evaluate( () => document.body.textContent.includes( 'Admin preview override for Pasadena.' ) );
 		await publicCtx.close();
 		check( 'A8 the unpublished override is not visible to the public', ! leaked );
@@ -158,7 +158,7 @@ let browser;
 			await browser.close();
 		}
 	}
-	const after = await head( BASE + '/service-areas/california/pasadena/' );
+	const after = await head( BASE + '/service-areas/california/pasadena-ice-cream-catering/' );
 	const gone = await head( BASE + '/service-areas/california/pasadena-admin-test/' );
 	check( 'A12 cleanup: canonical slug serves 200, test slug and city removed (404), no city content left', 200 === after.code && 404 === gone.code && '0' === state( 'leftovers', 'testville-phase-five' ), { after, gone } );
 	const failed = results.filter( ( r ) => ! r ).length;

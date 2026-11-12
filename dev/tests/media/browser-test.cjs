@@ -35,10 +35,10 @@ const playButton = async ( p, el ) => {
 const SEARCHES = [
 	[ 'home hero', '/', '#cic-home-search-location', '#cic-home-search-date' ],
 	[ 'service areas hub', '/service-areas/', '.cic-search input[data-cic-context=location]:not([type=hidden])', '.cic-search [aria-haspopup=dialog]' ],
-	[ 'city hero', '/service-areas/california/agoura-hills/', '.cic-search input[data-cic-context=location]:not([type=hidden])', '#cic-city-search-date' ],
-	[ 'event starter', '/events/birthday/', '#cic-starter-location', '#cic-starter-date' ],
-	[ 'treat starter (Dippin\u2019 Dots)', '/treats/dippin-dots/', '#cic-treat-quote-location', '#cic-treat-quote-date' ],
-	[ 'treat starter (Frozen Yogurt)', '/treats/frozen-yogurt/', '#cic-treat-quote-location', '#cic-treat-quote-date' ],
+	[ 'city hero', '/service-areas/california/agoura-hills-ice-cream-catering/', '.cic-search input[data-cic-context=location]:not([type=hidden])', '#cic-city-search-date' ],
+	[ 'event starter', '/events/birthday-party-ice-cream-catering/', '#cic-starter-location', '#cic-starter-date' ],
+	[ 'treat starter (Dippin\u2019 Dots)', '/treats/dippin-dots-catering/', '#cic-treat-quote-location', '#cic-treat-quote-date' ],
+	[ 'treat starter (Frozen Yogurt)', '/treats/frozen-yogurt-catering/', '#cic-treat-quote-location', '#cic-treat-quote-date' ],
 ];
 
 // Options/days whose centre is inside the viewport and inside their own scroll box but painted
@@ -194,7 +194,7 @@ let browser;
 		};
 		const ratio = ( a ) => a.frame[ 0 ] / a.frame[ 1 ];
 
-		const dots = await media( '/treats/dippin-dots/', 1440 );
+		const dots = await media( '/treats/dippin-dots-catering/', 1440 );
 		const di = dots.info;
 		check( 'M1 Dippin\u2019 Dots: the wedding setup photo is the large Product detail photo (replacing the AI macro)', /^dots-wedding-setup/.test( di.detail ), di.detail );
 		check( 'M2 Dippin\u2019 Dots: "Photos and videos" sits after Product detail, before the quote starter (approved sections kept)', JSON.stringify( di.order ) === JSON.stringify( [ 'cic-treat__hero', 'cic-treat__feelings', 'cic-treat__occasions', 'cic-treat__themes', 'cic-treat__detail', 'cic-treat__media', 'cic-treat__quote' ] ), di.order );
@@ -233,7 +233,7 @@ let browser;
 		check( 'M12 axe-core: no violations in the Dippin\u2019 Dots media section', 0 === axeM.length, axeM );
 		await p.close();
 
-		const ban = await media( '/treats/dipn-bananas/', 1440 );
+		const ban = await media( '/treats/dipn-bananas-catering/', 1440 );
 		const bi = ban.info;
 		check( 'B1 DipN\u2019 Bananas: storage photo first (not the hero), banana clip second; hero image unchanged; no Dippin\u2019 Dots media', 2 === bi.items.length && /^bananas-storage-trays/.test( bi.items[ 0 ].src ) && /^bananas-dipping-video/.test( bi.items[ 1 ].src ) && ! /dots-(serving|birthday|wedding)/.test( bi.html ) && /banana-hero/.test( bi.html.slice( 0, bi.html.indexOf( 'cic-treat__feelings' ) ) ), bi.items );
 		check( 'B2 the low-resolution banana clip is a modest player: 128×224 source shown at most 1.5× (≤ 192 px wide), portrait', 128 === bi.items[ 1 ].attrs.w && 224 === bi.items[ 1 ].attrs.h && bi.items[ 1 ].frame[ 0 ] <= 192 && Math.abs( ratio( bi.items[ 1 ] ) - 128 / 224 ) < 0.01, bi.items[ 1 ] );
@@ -249,7 +249,7 @@ let browser;
 
 		// Mobile: readable and sized to the screen.
 		const mob = {};
-		for ( const [ u, n ] of [ [ '/treats/dippin-dots/', 'dots' ], [ '/treats/dipn-bananas/', 'bananas' ] ] ) {
+		for ( const [ u, n ] of [ [ '/treats/dippin-dots-catering/', 'dots' ], [ '/treats/dipn-bananas-catering/', 'bananas' ] ] ) {
 			const m = await media( u, 390 );
 			mob[ n ] = { frames: m.info.items.map( ( i ) => i.frame ), cap: m.info.items.map( ( i ) => i.capFont ), overflow: m.info.overflow, mp4: m.mp4.length };
 			const sec = await m.p.$( '.cic-treat__media' );
@@ -260,7 +260,7 @@ let browser;
 
 		// Other treat pages keep their approved compositions (no empty media section).
 		const others = {};
-		for ( const u of [ '/treats/classic-ice-cream/', '/treats/frozen-yogurt/' ] ) {
+		for ( const u of [ '/treats/classic-ice-cream-catering/', '/treats/frozen-yogurt-catering/' ] ) {
 			await go( u );
 			others[ u ] = await page.$$eval( '.cic-treat__media, .cic-media-grid', ( e ) => e.length );
 		}

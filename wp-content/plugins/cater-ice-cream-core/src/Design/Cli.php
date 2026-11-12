@@ -79,16 +79,16 @@ final class Cli {
 	 */
 	public static function navigation_plan(): array {
 		$treats = array(
-			array( 'title' => "Dippin' Dots", 'path' => '/treats/dippin-dots/' ),
-			array( 'title' => "DipN' Bananas", 'path' => '/treats/dipn-bananas/' ),
-			array( 'title' => 'Classic Ice Cream', 'path' => '/treats/classic-ice-cream/' ),
-			array( 'title' => 'Frozen Yogurt', 'path' => '/treats/frozen-yogurt/' ),
+			array( 'title' => "Dippin' Dots", 'path' => '/treats/dippin-dots-catering/' ),
+			array( 'title' => "DipN' Bananas", 'path' => '/treats/dipn-bananas-catering/' ),
+			array( 'title' => 'Classic Ice Cream', 'path' => '/treats/classic-ice-cream-catering/' ),
+			array( 'title' => 'Frozen Yogurt', 'path' => '/treats/frozen-yogurt-catering/' ),
 		);
 		$events = array(
-			array( 'title' => 'Birthdays', 'path' => '/events/birthday/' ),
-			array( 'title' => 'Weddings', 'path' => '/events/wedding/' ),
-			array( 'title' => 'Anniversaries', 'path' => '/events/anniversary/' ),
-			array( 'title' => 'Corporate Events', 'path' => '/events/corporate/' ),
+			array( 'title' => 'Birthdays', 'path' => '/events/birthday-party-ice-cream-catering/' ),
+			array( 'title' => 'Weddings', 'path' => '/events/weddings-ice-cream-catering/' ),
+			array( 'title' => 'Anniversaries', 'path' => '/events/anniversary-ice-cream-catering/' ),
+			array( 'title' => 'Corporate Events', 'path' => '/events/corporate-events-ice-cream-catering/' ),
 		);
 		return array(
 			'primary' => array(

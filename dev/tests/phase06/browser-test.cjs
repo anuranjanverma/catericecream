@@ -118,17 +118,17 @@ let browser;
 		check( 'E1 homepage search → quote form with location, event and date preselected (event fields in step 2)', 'wedding' === home.event && info.covered === home.loc && info.future === home.date && 1 === await step(), home );
 
 		await page.evaluate( () => window.sessionStorage.clear() );
-		await go( '/events/birthday/' );
+		await go( '/events/birthday-party-ice-cream-catering/' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.$eval( 'a[href*="get-a-quote/?event=birthday"]', ( a ) => a.click() ) ] );
 		check( 'E2 event page Plan action → Birthday preselected', 'birthday' === await page.$eval( 'input[name=event]:checked', ( e ) => e.value ).catch( () => '' ) );
 
 		await page.evaluate( () => window.sessionStorage.clear() );
-		await go( '/treats/dippin-dots/' );
+		await go( '/treats/dippin-dots-catering/' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.$eval( 'a[href*="get-a-quote/?treat=dippin-dots"]', ( a ) => a.click() ) ] );
 		check( 'E3 treat page action → Dippin’ Dots preselected (other fields untouched)', await page.$eval( 'input[name="treats[]"][value="dippin-dots"]', ( e ) => e.checked ) && 0 === await page.$$eval( 'input[name=event]:checked', ( x ) => x.length ) );
 
 		await page.evaluate( () => window.sessionStorage.clear() );
-		await go( '/service-areas/california/pasadena/' );
+		await go( '/service-areas/california/pasadena-ice-cream-catering/' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'networkidle2' } ), page.$eval( 'a[href*="get-a-quote/?location=pasadena-ca"]', ( a ) => a.click() ) ] );
 		const src = await page.evaluate( () => JSON.parse( window.sessionStorage.getItem( 'cic_quote_source' ) || '{}' ) );
 		check( 'E4 city page action → Pasadena prefilled (visible label "Pasadena, CA"); source attributed to the city page (template + key only)', 'Pasadena, CA' === await v( '#cic-f-location' ) && 'city' === ( src.latest || {} ).type && 'pasadena-ca' === ( src.latest || {} ).key, src );

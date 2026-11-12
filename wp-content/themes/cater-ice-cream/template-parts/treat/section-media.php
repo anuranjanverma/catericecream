@@ -12,6 +12,26 @@
 defined( 'ABSPATH' ) || exit;
 
 $cic_m = $args['vm']['media'];
+
+/*
+ * A row that mixes photos and videos shares one height (owner, 2026-11-12): the tallest height
+ * every item can reach at its normal maximum width (the widths below mirror compositions.css;
+ * low-resolution clips stay capped at 1.5× their own size), so nothing is enlarged. Each item then
+ * gets the width that gives it that height (--cic-media-row-w, used from 600 px where they sit side
+ * by side). Rows of one media type keep their approved sizes (first item largest).
+ */
+$cic_row_h = 0.0;
+if ( count( array_unique( array_map( static fn( $i ) => $i['video'] ? 'video' : 'photo', $cic_m['items'] ) ) ) > 1 ) {
+	foreach ( $cic_m['items'] as $cic_i => $cic_item ) {
+		if ( (int) $cic_item['width'] <= 0 || (int) $cic_item['height'] <= 0 ) {
+			$cic_row_h = 0.0;
+			break;
+		}
+		$cic_max_w = $cic_item['lowres'] ? round( $cic_item['width'] * 1.5 ) : ( 0 === $cic_i ? ( $cic_item['video'] ? 360 : 420 ) : 280 );
+		$cic_h     = $cic_max_w * (int) $cic_item['height'] / (int) $cic_item['width'];
+		$cic_row_h = 0.0 === $cic_row_h ? $cic_h : min( $cic_row_h, $cic_h );
+	}
+}
 echo cic_theme_section_open( 'cic-treat', $args['section'], 'cic-section cic-media' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
 ?>
 	<div class="cic-container">
@@ -21,13 +41,13 @@ echo cic_theme_section_open( 'cic-treat', $args['section'], 'cic-section cic-med
 		<?php if ( '' !== $cic_m['intro'] ) : ?>
 			<p class="cic-section-intro cic-center"><?php echo esc_html( $cic_m['intro'] ); ?></p>
 		<?php endif; ?>
-		<ul class="cic-media-grid" role="list">
+		<ul class="cic-media-grid<?php echo $cic_row_h > 0 ? ' cic-media-grid--equal' : ''; ?>" role="list">
 			<?php foreach ( $cic_m['items'] as $cic_i => $cic_item ) : ?>
 				<?php
 				$cic_cap   = 'cic-media-cap-' . (int) $args['vm']['id'] . '-' . ( $cic_i + 1 );
 				$cic_class = 'cic-media-item' . ( 0 === $cic_i ? ' cic-media-item--lead' : '' ) . ( $cic_item['video'] ? ' cic-media-item--video' : '' ) . ( $cic_item['lowres'] ? ' cic-media-item--lowres' : '' );
 				// Low-resolution clips: at most 1.5× their own size, so they are never blown up.
-				$cic_style = '--cic-media-ratio:' . (int) $cic_item['width'] . ' / ' . (int) $cic_item['height'] . ( $cic_item['lowres'] ? ';--cic-media-max:' . (int) round( $cic_item['width'] * 1.5 ) . 'px' : '' );
+				$cic_style = '--cic-media-ratio:' . (int) $cic_item['width'] . ' / ' . (int) $cic_item['height'] . ( $cic_item['lowres'] ? ';--cic-media-max:' . (int) round( $cic_item['width'] * 1.5 ) . 'px' : '' ) . ( $cic_row_h > 0 ? ';--cic-media-row-w:' . (int) round( $cic_row_h * (int) $cic_item['width'] / (int) $cic_item['height'] ) . 'px' : '' );
 				?>
 				<li class="<?php echo esc_attr( $cic_class ); ?>" style="<?php echo esc_attr( $cic_style ); ?>">
 					<figure class="cic-media-item__figure">

@@ -55,7 +55,7 @@ let browser;
 		const page = await browser.newPage();
 
 		// ---- Screenshots at true widths + overflow ----
-		const targets = { hub: '/service-areas/', state: '/service-areas/california/', city: '/service-areas/california/pasadena/' };
+		const targets = { hub: '/service-areas/', state: '/service-areas/california/', city: '/service-areas/california/pasadena-ice-cream-catering/' };
 		const overflow = {};
 		for ( const w of [ 390, 768, 1440 ] ) {
 			await page.setViewport( { width: w, height: 900, deviceScaleFactor: 1 } );
@@ -96,7 +96,7 @@ let browser;
 
 		const form = '.cic-areas-hero form[data-cic-area-check]';
 		const covered = await areaResult( page, input, 'Pasadena, CA', form );
-		check( 'P4 covered city: geography confirmed, links to the city page and the quote, labelled as local test data', 'covered' === covered.status && covered.links.some( ( l ) => l.href.endsWith( '/service-areas/california/pasadena/' ) ) && covered.links.some( ( l ) => l.href.includes( '/get-a-quote/' ) ) && covered.text.includes( 'Local test data' ) && ! /available|reserved|booked/i.test( covered.text ), covered );
+		check( 'P4 covered city: geography confirmed, links to the city page and the quote, labelled as local test data', 'covered' === covered.status && covered.links.some( ( l ) => l.href.endsWith( '/service-areas/california/pasadena-ice-cream-catering/' ) ) && covered.links.some( ( l ) => l.href.includes( '/get-a-quote/' ) ) && covered.text.includes( 'Local test data' ) && ! /available|reserved|booked/i.test( covered.text ), covered );
 		const outside = await areaResult( page, input, '90222', form );
 		check( 'P5 excluded ZIP: exact outside-area error and no way to continue to the quote', 'outside_area' === outside.status && outside.text.startsWith( OUTSIDE ) && ! outside.links.some( ( l ) => l.href.includes( '/get-a-quote/' ) ), outside );
 		await page.screenshot( { path: path.join( OUT, 'area-outside-1440.png' ), clip: { x: 0, y: 150, width: 1440, height: 520 } } );
@@ -131,7 +131,7 @@ let browser;
 
 		// ---- City page ----
 		await page.evaluate( () => window.sessionStorage.clear() );
-		await page.goto( BASE + '/service-areas/california/pasadena/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/service-areas/california/pasadena-ice-cream-catering/', { waitUntil: 'networkidle0' } );
 		const city = await page.evaluate( () => ( {
 			h1: document.querySelector( 'h1' ).textContent.trim(),
 			crumbs: Array.from( document.querySelectorAll( '.cic-breadcrumbs li' ) ).map( ( l ) => l.textContent.trim() ),
@@ -150,14 +150,14 @@ let browser;
 		check( 'P17 city ZIP check confirms a Pasadena ZIP (no self-link to the same page)', 'covered' === cok.status && ! cok.links.some( ( l ) => l.href.endsWith( '/pasadena/' ) ), cok );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.$eval( '#cic-city-search-location', ( el ) => el.form.requestSubmit() ) ] );
 		check( 'P18 city hero starter with no ZIP carries the city key explicitly', 'pasadena-ca' === new URL( page.url() ).searchParams.get( 'location' ), page.url() );
-		await page.goto( BASE + '/service-areas/california/pasadena/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/service-areas/california/pasadena-ice-cream-catering/', { waitUntil: 'networkidle0' } );
 		const zipEmpty = await page.$eval( '#cic-city-quote-zip', ( el ) => el.value );
 		await page.type( '#cic-city-quote-guests', '60' );
 		await page.type( '#cic-city-quote-zip', '91106' );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.$eval( '#cic-city-quote-zip', ( el ) => el.form.requestSubmit() ) ] );
 		const cq = new URL( page.url() );
 		check( 'P19 city quote panel: ZIP field never prefilled with a city key; ZIP + guests carried to the quote', '' === zipEmpty && '91106' === cq.searchParams.get( 'location' ) && '60' === cq.searchParams.get( 'guests' ), { zipEmpty, url: page.url() } );
-		await page.goto( BASE + '/service-areas/california/pasadena/', { waitUntil: 'networkidle0' } );
+		await page.goto( BASE + '/service-areas/california/pasadena-ice-cream-catering/', { waitUntil: 'networkidle0' } );
 		await page.$eval( '#cic-city-quote-zip', ( el ) => { el.value = ''; } );
 		await page.type( '#cic-city-quote-zip', '90221' );
 		await page.$eval( '#cic-city-quote-zip', ( el ) => el.form.requestSubmit() );
@@ -181,14 +181,14 @@ let browser;
 		await page.evaluate( () => window.sessionStorage.clear() );
 		await page.goto( BASE + '/', { waitUntil: 'networkidle0' } );
 		const home = await page.evaluate( () => ( {
-			link: document.querySelector( '.cic-county__cities a[href$="/service-areas/california/pasadena/"]' ) ? true : false,
+			link: document.querySelector( '.cic-county__cities a[href$="/service-areas/california/pasadena-ice-cream-catering/"]' ) ? true : false,
 			combo: document.querySelector( '#cic-home-search-location' ).getAttribute( 'role' ),
 			sections: Array.from( document.querySelectorAll( '.cic-home > section' ) ).map( ( s ) => s.id ).join( '|' ),
 			overflow: document.documentElement.scrollWidth - window.innerWidth,
 		} ) );
 		check( 'P22 homepage: county cities link to city pages, hero location offers autocomplete, section order unchanged', home.link && 'combobox' === home.combo && 'hero|values|treats|events|how-it-works|faq|coverage|cta' === home.sections && home.overflow <= 0, home );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.$eval( '.cic-county__cities a[href$="/pasadena/"]', ( a ) => a.click() ) ] );
-		check( 'P23 following a homepage city link opens the city page', page.url().endsWith( '/service-areas/california/pasadena/' ), page.url() );
+		check( 'P23 following a homepage city link opens the city page', page.url().endsWith( '/service-areas/california/pasadena-ice-cream-catering/' ), page.url() );
 		const nav = await page.evaluate( () => window.sessionStorage.getItem( 'cic_quote_context' ) );
 		check( 'P24 browsing (homepage → city page) does not silently select a location', null === nav || ! JSON.parse( nav ).location, nav );
 	} finally {

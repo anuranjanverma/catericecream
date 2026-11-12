@@ -52,9 +52,17 @@ final class DatabaseRepository implements LocationRepository {
 		return $slug . '-' . strtolower( $state_code );
 	}
 
+	/**
+	 * Public city address: /service-areas/{state}/{city slug}-ice-cream-catering/ (SEO review
+	 * 2026-11-12). The stored city slug never carries the suffix; Routes strips it, and the bare
+	 * address 301s here.
+	 */
 	public static function url( string $state_slug, string $city_slug ): string {
-		return home_url( user_trailingslashit( 'service-areas/' . $state_slug . '/' . $city_slug ) );
+		return home_url( user_trailingslashit( 'service-areas/' . $state_slug . '/' . $city_slug . self::URL_SUFFIX ) );
 	}
+
+	/** Keyword suffix of every public city address (not part of the stored slug or the city key). */
+	public const URL_SUFFIX = '-ice-cream-catering';
 
 	/* ------------------------------------------------------------------ *
 	 * Cities

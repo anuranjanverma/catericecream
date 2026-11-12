@@ -93,7 +93,7 @@ let browser;
 			return ! ed.isSavingPost() && ! ( mb.isSavingMetaBoxes && mb.isSavingMetaBoxes() );
 		}, { timeout: 60000 } );
 		await new Promise( ( r ) => setTimeout( r, 1500 ) );
-		const wed = await publicText( browser, '/events/wedding/' );
+		const wed = await publicText( browser, '/events/weddings-ice-cream-catering/' );
 		check( 'A2 ribbon phrases and story heading saved in the block editor appear on the Wedding page', wed.includes( '<li>Edited in admin</li>' ) && wed.includes( 'For the edited</span> <span class="cic-line"><em>admin moments.</em>' ) );
 		const order = ( wed.match( /<section class="cic-comp cic-event__([a-z]+)/g ) || [] ).map( ( s ) => s.split( '__' )[ 1 ] ).join( ',' );
 		check( 'A3 after an admin save the Wedding sections keep their approved order (empty order fields do not freeze a generic order)', 'hero,ribbon,feature,treats,gallery,planning,quote' === order, order );
@@ -114,14 +114,14 @@ let browser;
 		} );
 		await page.screenshot( { path: path.join( OUT, 'admin-classic-fields.png' ) } );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded', timeout: 60000 } ), page.click( '#publish' ) ] );
-		const classic = await publicText( browser, '/treats/classic-ice-cream/' );
+		const classic = await publicText( browser, '/treats/classic-ice-cream-catering/' );
 		check( 'A5 FAQ question and theme title saved on the product screen appear on the Classic page', classic.includes( 'Edited question from the admin?' ) && classic.includes( 'Edited garden theme' ) );
 		const corder = ( classic.match( /<section class="cic-comp cic-treat__([a-z]+)/g ) || [] ).map( ( s ) => s.split( '__' )[ 1 ] ).join( ',' );
 		check( 'A6 after an admin save the Classic sections keep their approved order', 'hero,feelings,occasions,themes,detail,quote' === corder, corder );
 
 		wp( 'eval-file', 'dev/tests/phase07/state.php', 'restore', snapshot );
-		const wed2 = await publicText( browser, '/events/wedding/' );
-		const classic2 = await publicText( browser, '/treats/classic-ice-cream/' );
+		const wed2 = await publicText( browser, '/events/weddings-ice-cream-catering/' );
+		const classic2 = await publicText( browser, '/treats/classic-ice-cream-catering/' );
 		check( 'A7 restore brings back the approved copy on both pages', wed2.includes( '<li>Favorite treats</li>' ) && ! wed2.includes( 'Edited in admin' ) && classic2.includes( 'Which options can we choose?' ) && ! classic2.includes( 'Edited garden theme' ) );
 	} finally {
 		try {
