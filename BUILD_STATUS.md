@@ -34,6 +34,16 @@ Git (local only, no remote): `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 0
 
 ---
 
+## Meta tag optimization (SEO specialist, 2026-11-12)
+
+Source: "CatereIceCream.com-Meta Tags Optimization.xlsx" (Home, Our Treats, Events, Service Areas, Get a Quote). **Committed, not deployed.** Backup: `C:\laragon\backup\catericecream\pre-meta-tags-20261112-234854\`. Details, final text and live steps: `docs/release/META_TAGS_2026-11-12.md`.
+
+- Owner allowed refinements: specialist keywords kept; Service Areas title made distinct from Home ("Ice Cream Catering Near You: Check Your ZIP"), Get a Quote title shortened, coverage wording kept to "selected areas/ZIP codes", descriptions name all treats/occasions.
+- `dev/tools/content/meta-tags-20261112.php`: compare-and-set (replaces only the 2026-10-28 value or empty; admin edits are reported "kept"). Local: dry run would set 12 / kept 0 → set 12 → re-run done 12. `SEO_2026-10-28.md` §3 rows updated.
+- Verified over HTTP: one title + one description with the new text on all five pages, og:title matches. `wp yoast index` refuses on non-production (expected). Tests: seo-20261028 19/19, qa-20261026 17/17. No code, template or CSS change.
+
+---
+
 ## Our Treats jump chips land at the top (owner request, 2026-11-12)
 
 Bug: `/treats/#treat-…` and the "Jump to a treat" chips left the section ~40% down the screen (370 px at 1440), because the row's `scroll-margin-top` (header + 4.5rem) was added to `html`'s `scroll-padding-top` (header + 8px), and the desktop header compacting mid-scroll changed the target. Fix: `pages.css` `.cic-cat-row` reserves only the jump bar (exact fallback for the browser's fragment scroll); `main.js` "In-page jump navigation" aligns chip clicks, shared hash links, Back/Forward and hash changes to section top = sticky bar bottom, holding the compact header's state during the jump (`holdHeaderUntil`), keeps the hash in the URL and moves focus to the section. Not committed. Verified in Edge at 1440/768/390: hash load and every chip (down, up while compact, Back) → gap 0 under the bar; user scrolling still compacts the header; no JS errors. Tests: header 30/30, phase08 11/11, phase09 interaction 7/7.
