@@ -147,7 +147,7 @@ Rules: no secrets in the MCP server (it uses the user's GitHub token and SSH age
 2. Staging type per app: SiteGround staging copy or separate site? Is `WP_ENVIRONMENT_TYPE=staging` set there?
 3. Is Cater Ice Cream live already receiving real enquiries? (Then the first deployment must also be code-only.)
 4. PHP versions on SiteGround per site (Cater Ice Cream was tested on PHP 8.5).
-5. GitHub: organisation/account, private repos, who approves live deploys.
+5. GitHub: Cater Ice Cream uses the personal account repo `anuranjanverma/catericecream` (private, 2026-11-13). Still open: account/organisation for the central `siteground-deploy` repo and who approves live deploys.
 6. Staging sanitising after refresh: yes/no.
 7. Which other applications, and their stacks (all WordPress?).
 
@@ -155,5 +155,5 @@ Rules: no secrets in the MCP server (it uses the user's GitHub token and SSH age
 
 - Existing tooling to reuse: `dev/tools/release/` (`release.sh`, `verify-deploy.php`, `smoke.sh`, `sanitize.php`), `docs/release/DEPLOYMENT.md` ("Updating staging later (code-only releases)"), `BACKUP_AND_ROLLBACK.md`, changesets listing migrations per deployment group.
 - Pending migrations for the next deploy include `dev/tools/content/url-slugs-20261112.php` (`docs/release/URL_SLUGS_2026-11-12.md`).
-- Repo currently has **no Git remote**; the allow-list `.gitignore` already keeps WordPress core, uploads and secrets out.
+- Repo is on GitHub since 2026-11-13: `https://github.com/anuranjanverma/catericecream` (private, `main`); the allow-list `.gitignore` keeps WordPress core, uploads and secrets out (history checked before the first push: no `wp-config.php`, `.env`, SQL dumps or keys).
 - Mu-plugins: `cic-catalog-guard.php` and `cic-staging-mail-guard.php` must ship; `cic-local-mail.php` must never ship.
