@@ -1,0 +1,1707 @@
+/*
+ * Cater Ice Cream base, typography and shared components.
+ *
+ * Every colour, font, size, radius and spacing value comes from Design System tokens:
+ *   --wp--preset--color--*        palette (theme.json, regenerated from the Design System)
+ *   --wp--custom--cic--*          numeric and component tokens (theme.json settings.custom)
+ *   --cic-color-{role}            semantic roles; presets (.cic-context-*) and local overrides
+ *                                 redefine these by reference
+ * Do not add hex colours or page-specific palettes to this file.
+ */
+
+/* ------------------------------------------------------------------ *
+ * 1. Token aliases. The core plugin regenerates the role mapping; these
+ *    are the theme.json fallbacks when the plugin is inactive.
+ * ------------------------------------------------------------------ */
+:root {
+	--cic-color-surface: var(--wp--preset--color--surface-base);
+	--cic-color-surface-alt: var(--wp--preset--color--surface-soft);
+	--cic-color-text: var(--wp--preset--color--text-primary);
+	--cic-color-muted: var(--wp--preset--color--text-muted);
+	--cic-color-heading: var(--wp--preset--color--text-primary);
+	--cic-color-heading-accent: var(--wp--preset--color--brand-raspberry);
+	--cic-color-accent: var(--wp--preset--color--strawberry);
+	--cic-color-accent-2: var(--wp--preset--color--lavender);
+	--cic-color-decor: var(--wp--preset--color--lavender);
+	--cic-color-action: var(--wp--preset--color--action-primary);
+	--cic-color-action-hover: var(--wp--preset--color--action-primary-hover);
+	--cic-color-on-action: var(--wp--preset--color--on-action);
+	--cic-color-secondary: var(--wp--preset--color--action-secondary);
+	--cic-color-link: var(--wp--preset--color--action-primary);
+	--cic-color-border: var(--wp--preset--color--border);
+	--cic-color-focus: var(--wp--preset--color--focus);
+	--cic-heading-weight: var(--wp--custom--cic--font--heading-weight);
+	--cic-heading-accent-style: var(--wp--custom--cic--font--heading-accent-style);
+
+	--cic-font-heading: var(--wp--custom--cic--font--heading);
+	--cic-font-body: var(--wp--custom--cic--font--body);
+	--cic-weight-body: var(--wp--custom--cic--font--body-weight);
+	--cic-weight-ui: var(--wp--custom--cic--font--ui-weight);
+	--cic-weight-strong: var(--wp--custom--cic--font--strong-weight);
+	--cic-tracking-heading: var(--wp--custom--cic--font--heading-tracking);
+	--cic-tracking-eyebrow: var(--wp--custom--cic--font--eyebrow-tracking);
+	--cic-tracking-button: var(--wp--custom--cic--font--button-tracking);
+
+	/* Responsive type roles (unitless px, mobile at 390px → desktop at 1440px). */
+	--cic-fs-h1-min: var(--wp--custom--cic--fs--h-1--min);
+	--cic-fs-h1-max: var(--wp--custom--cic--fs--h-1--max);
+	--cic-fs-h1-lh-min: var(--wp--custom--cic--fs--h-1--lh-min);
+	--cic-fs-h1-lh-max: var(--wp--custom--cic--fs--h-1--lh-max);
+	--cic-fs-h2-min: var(--wp--custom--cic--fs--h-2--min);
+	--cic-fs-h2-max: var(--wp--custom--cic--fs--h-2--max);
+	--cic-fs-h2-lh-min: var(--wp--custom--cic--fs--h-2--lh-min);
+	--cic-fs-h2-lh-max: var(--wp--custom--cic--fs--h-2--lh-max);
+	--cic-fs-h3-min: var(--wp--custom--cic--fs--h-3--min);
+	--cic-fs-h3-max: var(--wp--custom--cic--fs--h-3--max);
+	--cic-fs-h3-lh-min: var(--wp--custom--cic--fs--h-3--lh-min);
+	--cic-fs-h3-lh-max: var(--wp--custom--cic--fs--h-3--lh-max);
+	--cic-fs-h4-min: var(--wp--custom--cic--fs--h-4--min);
+	--cic-fs-h4-max: var(--wp--custom--cic--fs--h-4--max);
+	--cic-fs-h4-lh-min: var(--wp--custom--cic--fs--h-4--lh-min);
+	--cic-fs-h4-lh-max: var(--wp--custom--cic--fs--h-4--lh-max);
+	--cic-fs-lead-min: var(--wp--custom--cic--fs--lead--min);
+	--cic-fs-lead-max: var(--wp--custom--cic--fs--lead--max);
+	--cic-fs-lead-lh-min: var(--wp--custom--cic--fs--lead--lh-min);
+	--cic-fs-lead-lh-max: var(--wp--custom--cic--fs--lead--lh-max);
+	--cic-fs-body-min: var(--wp--custom--cic--fs--body--min);
+	--cic-fs-body-max: var(--wp--custom--cic--fs--body--max);
+	--cic-fs-body-lh-min: var(--wp--custom--cic--fs--body--lh-min);
+	--cic-fs-body-lh-max: var(--wp--custom--cic--fs--body--lh-max);
+	--cic-fs-caption-min: var(--wp--custom--cic--fs--caption--min);
+	--cic-fs-caption-max: var(--wp--custom--cic--fs--caption--max);
+	--cic-fs-caption-lh-min: var(--wp--custom--cic--fs--caption--lh-min);
+	--cic-fs-caption-lh-max: var(--wp--custom--cic--fs--caption--lh-max);
+	--cic-fs-label-min: var(--wp--custom--cic--fs--label--min);
+	--cic-fs-label-max: var(--wp--custom--cic--fs--label--max);
+	--cic-fs-label-lh-min: var(--wp--custom--cic--fs--label--lh-min);
+	--cic-fs-label-lh-max: var(--wp--custom--cic--fs--label--lh-max);
+	--cic-fs-button-min: var(--wp--custom--cic--fs--button--min);
+	--cic-fs-button-max: var(--wp--custom--cic--fs--button--max);
+	--cic-fs-button-lh-min: var(--wp--custom--cic--fs--button--lh-min);
+	--cic-fs-button-lh-max: var(--wp--custom--cic--fs--button--lh-max);
+	--cic-fs-eyebrow-min: var(--wp--custom--cic--fs--eyebrow--min);
+	--cic-fs-eyebrow-max: var(--wp--custom--cic--fs--eyebrow--max);
+	--cic-fs-eyebrow-lh-min: var(--wp--custom--cic--fs--eyebrow--lh-min);
+	--cic-fs-eyebrow-lh-max: var(--wp--custom--cic--fs--eyebrow--lh-max);
+	--cic-fs-nav-min: var(--wp--custom--cic--fs--nav--min);
+	--cic-fs-nav-max: var(--wp--custom--cic--fs--nav--max);
+	--cic-fs-nav-lh-min: var(--wp--custom--cic--fs--nav--lh-min);
+	--cic-fs-nav-lh-max: var(--wp--custom--cic--fs--nav--lh-max);
+
+	/* Layout. */
+	--cic-space: var(--wp--custom--cic--layout--space);
+	--cic-gutter: clamp(calc(var(--wp--custom--cic--layout--gutter-min) * 1px), calc(var(--wp--custom--cic--layout--gutter-min) * 1px + (var(--wp--custom--cic--layout--gutter-max) - var(--wp--custom--cic--layout--gutter-min)) * (100vw - 390px) / 1050), calc(var(--wp--custom--cic--layout--gutter-max) * 1px));
+	--cic-section-pad: clamp(calc(var(--wp--custom--cic--layout--section-min) * 1px), calc(var(--wp--custom--cic--layout--section-min) * 1px + (var(--wp--custom--cic--layout--section-max) - var(--wp--custom--cic--layout--section-min)) * (100vw - 390px) / 1050), calc(var(--wp--custom--cic--layout--section-max) * 1px));
+	--cic-content: var(--wp--style--global--content-size, 1200px);
+	--cic-wide: var(--wp--style--global--wide-size, 1440px);
+	--cic-radius-card: var(--wp--custom--cic--radius--card);
+	--cic-radius-button: var(--wp--custom--cic--radius--button);
+	--cic-radius-field: var(--wp--custom--cic--radius--field);
+	--cic-radius-image: var(--wp--custom--cic--radius--image);
+
+	scroll-padding-top: calc(var(--cic-header-offset, 0px) + 8px);
+}
+
+/* ------------------------------------------------------------------ *
+ * 2. Base
+ * ------------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	--cic-fs-min: var(--cic-fs-body-min);
+	--cic-fs-max: var(--cic-fs-body-max);
+	--cic-lh-min: var(--cic-fs-body-lh-min);
+	--cic-lh-max: var(--cic-fs-body-lh-max);
+	margin: 0;
+	background-color: var(--cic-color-surface);
+	color: var(--cic-color-text);
+	font-family: var(--cic-font-body);
+	font-weight: var(--cic-weight-body);
+	font-synthesis-weight: none;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+/* Any element that owns a preset paints its own surface and text colour. */
+.cic-ctx {
+	background-color: var(--cic-color-surface);
+	color: var(--cic-color-text);
+}
+
+/* An overridden element recomputes text colour from its (possibly overridden) role. */
+:where(.cic-has-override) {
+	color: var(--cic-color-text);
+}
+
+img,
+svg,
+video {
+	max-width: 100%;
+	height: auto;
+}
+
+a {
+	color: var(--cic-color-link);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
+}
+
+a:hover {
+	text-decoration-thickness: 2px;
+}
+
+strong,
+b {
+	font-weight: var(--cic-weight-strong);
+}
+
+p,
+ul,
+ol {
+	margin: 0 0 1em;
+}
+
+.screen-reader-text {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.cic-skip-link:focus {
+	position: fixed !important;
+	top: 0.5rem;
+	left: 0.5rem;
+	z-index: 100001;
+	width: auto;
+	height: auto;
+	margin: 0;
+	padding: 0.75rem 1rem;
+	clip: auto;
+	border-radius: var(--cic-radius-field);
+	background: var(--wp--preset--color--surface-base);
+	color: var(--wp--preset--color--text-primary);
+	font-weight: var(--cic-weight-ui);
+}
+
+:focus-visible {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------ *
+ * 3. Fluid typography. Each role sets --cic-fs-min/max and --cic-lh-min/max;
+ *    an element override replaces those four values on that element only.
+ * ------------------------------------------------------------------ */
+body,
+p,
+li,
+dd,
+td,
+th,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.cic-h1,
+.cic-h2,
+.cic-h3,
+.cic-h4,
+.cic-lead,
+.cic-caption,
+.cic-eyebrow,
+.cic-label,
+.cic-button,
+.wp-block-button__link,
+.cic-nav a,
+.cic-has-size {
+	font-size: clamp(calc(var(--cic-fs-min) * 1px), calc(var(--cic-fs-min) * 1px + (var(--cic-fs-max) - var(--cic-fs-min)) * (100vw - 390px) / 1050), calc(var(--cic-fs-max) * 1px));
+	line-height: clamp(calc(var(--cic-lh-min) * 1px), calc(var(--cic-lh-min) * 1px + (var(--cic-lh-max) - var(--cic-lh-min)) * (100vw - 390px) / 1050), calc(var(--cic-lh-max) * 1px));
+}
+
+p,
+li,
+dd,
+td,
+th {
+	--cic-fs-min: var(--cic-fs-body-min);
+	--cic-fs-max: var(--cic-fs-body-max);
+	--cic-lh-min: var(--cic-fs-body-lh-min);
+	--cic-lh-max: var(--cic-fs-body-lh-max);
+}
+
+h1,
+.cic-h1 {
+	--cic-fs-min: var(--cic-fs-h1-min);
+	--cic-fs-max: var(--cic-fs-h1-max);
+	--cic-lh-min: var(--cic-fs-h1-lh-min);
+	--cic-lh-max: var(--cic-fs-h1-lh-max);
+}
+
+h2,
+.cic-h2 {
+	--cic-fs-min: var(--cic-fs-h2-min);
+	--cic-fs-max: var(--cic-fs-h2-max);
+	--cic-lh-min: var(--cic-fs-h2-lh-min);
+	--cic-lh-max: var(--cic-fs-h2-lh-max);
+}
+
+h3,
+.cic-h3 {
+	--cic-fs-min: var(--cic-fs-h3-min);
+	--cic-fs-max: var(--cic-fs-h3-max);
+	--cic-lh-min: var(--cic-fs-h3-lh-min);
+	--cic-lh-max: var(--cic-fs-h3-lh-max);
+}
+
+h4,
+h5,
+h6,
+.cic-h4 {
+	--cic-fs-min: var(--cic-fs-h4-min);
+	--cic-fs-max: var(--cic-fs-h4-max);
+	--cic-lh-min: var(--cic-fs-h4-lh-min);
+	--cic-lh-max: var(--cic-fs-h4-lh-max);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.cic-h1,
+.cic-h2,
+.cic-h3,
+.cic-h4 {
+	margin: 0 0 0.45em;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-weight: var(--cic-heading-weight);
+	letter-spacing: var(--cic-tracking-heading);
+	text-wrap: balance;
+}
+
+:is(h1, h2, h3, h4, h5, h6, .cic-h1, .cic-h2, .cic-h3, .cic-h4) :is(em, .cic-accent, mark) {
+	background: none;
+	color: var(--cic-color-heading-accent);
+	font-style: var(--cic-heading-accent-style);
+}
+
+.cic-lead {
+	--cic-fs-min: var(--cic-fs-lead-min);
+	--cic-fs-max: var(--cic-fs-lead-max);
+	--cic-lh-min: var(--cic-fs-lead-lh-min);
+	--cic-lh-max: var(--cic-fs-lead-lh-max);
+}
+
+.cic-caption {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	--cic-lh-min: var(--cic-fs-caption-lh-min);
+	--cic-lh-max: var(--cic-fs-caption-lh-max);
+	color: var(--cic-color-muted);
+}
+
+.cic-eyebrow {
+	--cic-fs-min: var(--cic-fs-eyebrow-min);
+	--cic-fs-max: var(--cic-fs-eyebrow-max);
+	--cic-lh-min: var(--cic-fs-eyebrow-lh-min);
+	--cic-lh-max: var(--cic-fs-eyebrow-lh-max);
+	margin: 0 0 0.9em;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-body);
+	font-weight: var(--cic-weight-ui);
+	letter-spacing: var(--cic-tracking-eyebrow);
+	text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ *
+ * 4. Layout helpers
+ * ------------------------------------------------------------------ */
+.cic-container {
+	width: min(100% - 2 * var(--cic-gutter), var(--cic-content));
+	margin-inline: auto;
+}
+
+.cic-container--wide {
+	width: min(100% - 2 * var(--cic-gutter), var(--cic-wide));
+}
+
+.cic-section {
+	padding-block: var(--cic-section-pad);
+}
+
+.cic-surface-alt {
+	background-color: var(--cic-color-surface-alt);
+}
+
+/* ------------------------------------------------------------------ *
+ * 5. Buttons and links
+ * ------------------------------------------------------------------ */
+.cic-button,
+.wp-block-button__link {
+	--cic-fs-min: var(--cic-fs-button-min);
+	--cic-fs-max: var(--cic-fs-button-max);
+	--cic-lh-min: var(--cic-fs-button-lh-min);
+	--cic-lh-max: var(--cic-fs-button-lh-max);
+	display: inline-flex;
+	gap: 0.5em;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: var(--wp--custom--cic--component--button-pad-y) var(--wp--custom--cic--component--button-pad-x);
+	border: 2px solid var(--cic-color-action);
+	border-radius: var(--cic-radius-button);
+	background-color: var(--cic-color-action);
+	box-shadow: var(--wp--custom--cic--component--button-shadow);
+	color: var(--cic-color-on-action);
+	font-family: var(--cic-font-body);
+	font-weight: var(--cic-weight-ui);
+	letter-spacing: var(--cic-tracking-button);
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.cic-button:hover,
+.cic-button:focus-visible,
+.wp-block-button__link:hover,
+.wp-block-button__link:focus-visible {
+	border-color: var(--cic-color-action-hover);
+	background-color: var(--cic-color-action-hover);
+	color: var(--cic-color-on-action);
+}
+
+.cic-button--secondary {
+	border-color: currentColor;
+	background-color: transparent;
+	box-shadow: none;
+	color: var(--cic-color-secondary);
+}
+
+.cic-button--secondary:hover,
+.cic-button--secondary:focus-visible {
+	border-color: var(--cic-color-secondary);
+	background-color: var(--cic-color-secondary);
+	color: var(--cic-color-surface);
+}
+
+.cic-button--inverse {
+	border-color: var(--cic-color-on-action);
+	background-color: var(--cic-color-on-action);
+	color: var(--cic-color-action);
+}
+
+.cic-button--inverse:hover,
+.cic-button--inverse:focus-visible {
+	border-color: var(--cic-color-on-action);
+	background-color: transparent;
+	color: var(--cic-color-on-action);
+}
+
+.cic-text-link {
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-ui);
+	text-decoration: underline;
+	text-underline-offset: 0.3em;
+}
+
+/* ------------------------------------------------------------------ *
+ * 6. Form fields
+ * ------------------------------------------------------------------ */
+.cic-field {
+	min-width: 0;
+}
+
+.cic-label {
+	--cic-fs-min: var(--cic-fs-label-min);
+	--cic-fs-max: var(--cic-fs-label-max);
+	--cic-lh-min: var(--cic-fs-label-lh-min);
+	--cic-lh-max: var(--cic-fs-label-lh-max);
+	display: block;
+	margin-bottom: 0.4em;
+	color: var(--cic-color-text);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-required {
+	color: var(--wp--preset--color--error);
+}
+
+.cic-input {
+	width: 100%;
+	min-height: var(--wp--custom--cic--component--field-height);
+	padding: 0.6em 0.9em;
+	border: 1px solid var(--wp--custom--cic--component--field-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+	color: var(--wp--preset--color--text-primary);
+	font: inherit;
+	font-size: max(16px, 1em);
+}
+
+textarea.cic-input {
+	min-height: 7em;
+	resize: vertical;
+}
+
+.cic-input::placeholder {
+	color: var(--wp--preset--color--text-muted);
+	opacity: 1;
+}
+
+.cic-input:focus-visible {
+	border-color: var(--cic-color-focus);
+	outline-offset: 1px;
+}
+
+.cic-field--error .cic-input,
+.cic-input[aria-invalid="true"] {
+	border-color: var(--wp--preset--color--error);
+	box-shadow: 0 0 0 1px var(--wp--preset--color--error);
+}
+
+.cic-field__error {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	margin: 0.4em 0 0;
+	color: var(--wp--preset--color--error);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-check {
+	display: inline-flex;
+	gap: 0.6em;
+	align-items: center;
+	min-height: 44px;
+	cursor: pointer;
+}
+
+.cic-check input {
+	width: 1.25em;
+	height: 1.25em;
+	accent-color: var(--cic-color-action);
+}
+
+/* ------------------------------------------------------------------ *
+ * 7. Cards, accordion, call panel, quote starter
+ * ------------------------------------------------------------------ */
+.cic-card {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border: var(--wp--custom--cic--component--card-border);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--cic-color-surface);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	color: var(--cic-color-text);
+}
+
+.cic-card__media {
+	position: relative;
+	aspect-ratio: 16 / 10;
+	overflow: hidden;
+	background-color: var(--cic-color-surface-alt);
+}
+
+.cic-card__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.25em;
+	padding: calc(var(--cic-space) * 3);
+}
+
+.cic-card__body > :last-child {
+	margin-top: auto;
+	margin-bottom: 0;
+}
+
+.cic-accordion {
+	display: grid;
+	gap: calc(var(--cic-space) * 1.5);
+}
+
+.cic-accordion__item {
+	border: var(--wp--custom--cic--component--accordion-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--custom--cic--component--accordion-surface);
+	color: var(--wp--preset--color--text-primary);
+}
+
+.cic-accordion__item > summary {
+	display: flex;
+	gap: 1em;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 48px;
+	padding: 0.75em 1.1em;
+	color: var(--wp--preset--color--text-primary);
+	font-weight: var(--cic-weight-ui);
+	list-style: none;
+	cursor: pointer;
+}
+
+.cic-accordion__item > summary::-webkit-details-marker {
+	display: none;
+}
+
+.cic-accordion__item > summary::after {
+	flex: none;
+	width: 0.55em;
+	height: 0.55em;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	content: "";
+	transform: translateY(-25%) rotate(45deg);
+	transition: transform 0.2s ease;
+}
+
+.cic-accordion__item[open] > summary {
+	color: var(--wp--preset--color--action-primary);
+}
+
+.cic-accordion__item[open] > summary::after {
+	transform: translateY(25%) rotate(-135deg);
+}
+
+.cic-accordion__panel {
+	padding: 0 1.1em 0.9em;
+}
+
+.cic-accordion__panel > :last-child {
+	margin-bottom: 0;
+}
+
+.cic-call-panel {
+	--cic-color-text: var(--wp--custom--cic--component--call-panel-text);
+	--cic-color-heading: var(--wp--custom--cic--component--call-panel-text);
+	--cic-color-heading-accent: var(--wp--custom--cic--component--call-panel-text);
+	--cic-color-link: var(--wp--custom--cic--component--call-panel-text);
+	--cic-color-focus: var(--wp--custom--cic--component--call-panel-text);
+	padding-block: calc(var(--cic-section-pad) * 0.55);
+	background-color: var(--wp--custom--cic--component--call-panel-surface);
+	color: var(--cic-color-text);
+}
+
+.cic-call-panel__inner {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25rem 2.5rem;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.cic-call-panel__title {
+	margin: 0;
+}
+
+.cic-call-panel__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 1.5rem;
+	align-items: center;
+	justify-content: center;
+}
+
+.cic-call-panel__phone {
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-quote-starter {
+	--cic-color-text: var(--wp--preset--color--text-primary);
+	display: grid;
+	gap: 1rem;
+	padding: calc(var(--cic-space) * 2.5);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--custom--cic--component--quote-starter-surface);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	color: var(--cic-color-text);
+}
+
+.cic-quote-starter__note {
+	margin: 0;
+	text-align: center;
+}
+
+@media (min-width: 900px) {
+	.cic-quote-starter {
+		grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+		align-items: end;
+	}
+
+	.cic-quote-starter__note {
+		grid-column: 1 / -1;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * 8. Header (three rows) and navigation
+ * ------------------------------------------------------------------ */
+.cic-header {
+	position: relative;
+	z-index: 50;
+	background-color: var(--wp--custom--cic--component--header-surface);
+}
+
+.cic-header.is-sticky {
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 0px);
+	box-shadow: 0 1px 0 var(--cic-color-border);
+}
+
+@media (max-width: 600px) {
+	/* The admin bar scrolls away on small screens, so the sticky header sits at the very top. */
+	.admin-bar .cic-header.is-sticky {
+		top: 0;
+	}
+}
+
+.cic-header__row {
+	--cic-color-heading: var(--cic-row-fg);
+	--cic-color-link: var(--cic-row-fg);
+	--cic-color-focus: var(--cic-row-fg);
+	background-color: var(--cic-row-bg);
+	color: var(--cic-row-fg);
+}
+
+.cic-header__top-inner {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 1.5rem;
+	align-items: center;
+	justify-content: center;
+	min-height: 34px;
+	padding-block: 4px;
+	text-align: center;
+}
+
+.cic-header__top-inner p,
+.cic-header__top-inner li {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	--cic-lh-min: var(--cic-fs-caption-lh-min);
+	--cic-lh-max: var(--cic-fs-caption-lh-max);
+	margin: 0;
+}
+
+.cic-inline-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 1.25rem;
+	align-items: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-header__row a {
+	color: inherit;
+}
+
+.cic-header__main-inner {
+	display: flex;
+	gap: 1rem 2rem;
+	align-items: center;
+	min-height: 72px;
+	padding-block: 8px;
+}
+
+.cic-logo {
+	display: block;
+	flex: none;
+	width: var(--cic-logo-w-mobile, 136px);
+	line-height: 0;
+}
+
+.cic-logo img {
+	display: block;
+	width: 100%;
+	height: auto;
+	/* The approved 2:1 logo box (190×95 desktop, 136×68 mobile, 140×70 compact) is kept whatever the
+	   artwork's proportions, so header heights never change; the artwork is fitted, never stretched. */
+	aspect-ratio: 2 / 1;
+	object-fit: contain;
+}
+
+.cic-nav ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-nav a {
+	--cic-fs-min: var(--cic-fs-nav-min);
+	--cic-fs-max: var(--cic-fs-nav-max);
+	--cic-lh-min: var(--cic-fs-nav-lh-min);
+	--cic-lh-max: var(--cic-fs-nav-lh-max);
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+	text-decoration: none;
+}
+
+.cic-nav--primary .current-menu-item > a,
+.cic-nav--primary .current-menu-ancestor > a,
+.cic-nav--primary .current_page_parent > a {
+	color: var(--cic-color-link);
+}
+
+.cic-header__actions {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	margin-left: auto;
+}
+
+/* Phone beside the quote button: desktop only (the mobile/tablet header keeps its menu button and
+   the drawer's call action). The icon follows the text colour; the link keeps a 44px target. */
+.cic-header__call {
+	display: inline-flex;
+	gap: 0.4rem;
+	align-items: center;
+	min-height: 44px;
+	margin-right: 0.5rem;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+	font-variant-numeric: tabular-nums;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.cic-header__call:hover {
+	color: var(--cic-color-link);
+}
+
+.cic-header__call-icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	width: 1.125rem;
+	height: 1.125rem;
+	color: var(--cic-color-link);
+}
+
+.cic-header__call-icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+/* 1024–1199px: the menu, number and button do not fit on one line next to the approved logo, so the
+   number is shown from 1200px; below that the same link is a 44px round phone button (its
+   accessible name still reads "Call 424-235-4942"). */
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+	.cic-header__call {
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		margin-right: 0.25rem;
+		border: 1px solid var(--cic-color-border);
+		border-radius: 50%;
+	}
+
+	.cic-header__call-number {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+	}
+}
+
+.cic-submenu-toggle,
+.cic-menu-toggle,
+.cic-drawer__close {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--cic-color-heading);
+	cursor: pointer;
+}
+
+.cic-submenu-toggle {
+	width: 28px;
+	height: 44px;
+}
+
+.cic-submenu-toggle::before {
+	width: 0.45em;
+	height: 0.45em;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	content: "";
+	transform: translateY(-20%) rotate(45deg);
+	transition: transform 0.2s ease;
+}
+
+.cic-submenu-toggle[aria-expanded="true"]::before {
+	transform: translateY(20%) rotate(-135deg);
+}
+
+.cic-menu-toggle {
+	display: none;
+	gap: 0.5em;
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0 0.75em;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-field);
+	font-family: var(--cic-font-body);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-menu-toggle__bars,
+.cic-menu-toggle__bars::before,
+.cic-menu-toggle__bars::after {
+	display: block;
+	width: 20px;
+	height: 2px;
+	border-radius: 2px;
+	background: currentColor;
+}
+
+.cic-menu-toggle__bars {
+	position: relative;
+}
+
+.cic-menu-toggle__bars::before,
+.cic-menu-toggle__bars::after {
+	position: absolute;
+	left: 0;
+	content: "";
+}
+
+.cic-menu-toggle__bars::before {
+	top: -6px;
+}
+
+.cic-menu-toggle__bars::after {
+	top: 6px;
+}
+
+@media (min-width: 1024px) {
+	.cic-logo {
+		width: var(--cic-logo-w, 190px);
+	}
+
+	.cic-nav--primary {
+		margin-inline: auto;
+	}
+
+	.cic-nav--primary > ul {
+		display: flex;
+		gap: clamp(1rem, 2vw, 2.25rem);
+		align-items: center;
+	}
+
+	.cic-nav--primary > ul > li {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.cic-nav--primary > ul > li > a::after {
+		position: absolute;
+		right: 0;
+		bottom: 6px;
+		left: 0;
+		height: 2px;
+		border-radius: 2px;
+		background: currentColor;
+		content: "";
+		transform: scaleX(0);
+		transition: transform 0.2s ease;
+	}
+
+	.cic-nav--primary > ul > li > a:hover::after,
+	.cic-nav--primary > ul > li.current-menu-item > a::after,
+	.cic-nav--primary > ul > li.current-menu-ancestor > a::after {
+		transform: scaleX(1);
+	}
+
+	.cic-nav--primary .sub-menu {
+		position: absolute;
+		top: 100%;
+		left: -1rem;
+		z-index: 60;
+		display: none;
+		min-width: 15rem;
+		padding: 0.5rem;
+		border-radius: var(--cic-radius-card);
+		background-color: var(--wp--preset--color--surface-base);
+		box-shadow: var(--wp--custom--cic--component--card-shadow);
+	}
+
+	.cic-nav--primary li:hover > .sub-menu,
+	.cic-nav--primary li:focus-within > .sub-menu,
+	.cic-nav--primary li.is-open > .sub-menu {
+		display: block;
+	}
+
+	.cic-nav--primary .sub-menu a {
+		display: flex;
+		width: 100%;
+		padding: 0.4rem 0.75rem;
+		border-radius: var(--cic-radius-field);
+	}
+
+	.cic-nav--primary .sub-menu a:hover {
+		background-color: var(--cic-color-surface-alt);
+	}
+
+	.cic-hide-desktop {
+		display: none !important;
+	}
+}
+
+@media (max-width: 1023.98px) {
+	.cic-hide-mobile {
+		display: none !important;
+	}
+
+	.cic-js .cic-nav--primary {
+		display: none;
+	}
+
+	.cic-js .cic-menu-toggle {
+		display: inline-flex;
+	}
+
+	.cic-header__actions .cic-header__call {
+		display: none;
+	}
+
+	/* Without JavaScript the menu stays visible as a wrapped list. */
+	html:not(.cic-js) .cic-header__main-inner {
+		flex-wrap: wrap;
+	}
+
+	html:not(.cic-js) .cic-nav--primary {
+		order: 3;
+		width: 100%;
+	}
+
+	html:not(.cic-js) .cic-nav--primary > ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 1.25rem;
+	}
+
+	html:not(.cic-js) .cic-nav--primary .sub-menu {
+		display: none;
+	}
+}
+
+@media (max-width: 599.98px) {
+	.cic-header__actions .cic-header__quote,
+	.cic-header__actions .cic-header__call {
+		display: none;
+	}
+}
+
+/* 8b. Desktop compact sticky header (assets/js/main.js; Header settings → "compact").
+   Desktop only: nothing here applies below 1024px, and the script removes its class and variables
+   when the window narrows. The header box keeps its measured full height in the page flow in both
+   states (so the content never jumps, also while it re-expands) and only its rows are painted, so
+   the band freed while compact shows the page underneath. Rows hidden in the admin keep their
+   display:none (cic-hide-desktop), so restoring cannot reveal them. */
+@media (min-width: 1024px) {
+	.cic-header[data-cic-compact] {
+		height: var(--cic-header-full, auto);
+		background-color: transparent;
+		pointer-events: none;
+	}
+
+	.cic-header[data-cic-compact] > * {
+		pointer-events: auto;
+	}
+
+	.cic-header[data-cic-compact] .cic-header__main {
+		background-color: var(--wp--custom--cic--component--header-surface);
+	}
+
+	.cic-header[data-cic-compact] .cic-header__top {
+		overflow: hidden;
+		max-height: var(--cic-top-h, 6rem);
+	}
+
+	.cic-header.is-compact {
+		box-shadow: none;
+	}
+
+	.cic-header.is-compact .cic-header__main {
+		box-shadow: 0 1px 0 var(--cic-color-border);
+	}
+
+	/* visibility:hidden also takes the collapsed top-row links out of the keyboard order. */
+	.cic-header.is-compact .cic-header__top {
+		max-height: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+
+	.cic-header.is-compact .cic-header__main-inner {
+		min-height: 56px;
+		padding-block: 4px;
+	}
+
+	.cic-header.is-compact .cic-logo {
+		width: var(--cic-logo-w-compact, 140px);
+	}
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+	.cic-header[data-cic-compact] .cic-header__top {
+		transition: max-height 0.25s ease, opacity 0.2s ease, visibility 0s linear 0s;
+	}
+
+	.cic-header.is-compact .cic-header__top {
+		transition: max-height 0.25s ease, opacity 0.2s ease, visibility 0s linear 0.25s;
+	}
+
+	.cic-header[data-cic-compact] .cic-header__main-inner {
+		transition: min-height 0.25s ease, padding 0.25s ease;
+	}
+
+	.cic-header[data-cic-compact] .cic-logo {
+		transition: width 0.25s ease;
+	}
+}
+
+.cic-header__bottom-inner {
+	display: flex;
+	justify-content: center;
+}
+
+.cic-header__bottom .cic-nav > ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 1.5rem;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------------ *
+ * 9. Mobile navigation drawer
+ * ------------------------------------------------------------------ */
+.cic-drawer {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.cic-drawer[hidden] {
+	display: none;
+}
+
+.cic-drawer__backdrop {
+	position: absolute;
+	inset: 0;
+	background: color-mix(in srgb, var(--wp--preset--color--text-primary) 45%, transparent);
+}
+
+.cic-drawer__panel {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	width: min(88vw, 400px);
+	height: 100%;
+	overflow-y: auto;
+	padding: 1rem 1.25rem 2rem;
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	color: var(--wp--preset--color--text-primary);
+	animation: cic-drawer-in 0.2s ease-out;
+}
+
+@keyframes cic-drawer-in {
+	from {
+		transform: translateX(100%);
+	}
+}
+
+.cic-drawer__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.cic-drawer__title {
+	margin: 0;
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-drawer__close {
+	width: 44px;
+	height: 44px;
+	border-radius: var(--cic-radius-field);
+}
+
+.cic-drawer__close::before {
+	content: "\00d7";
+	font-size: 2rem;
+	line-height: 1;
+}
+
+.cic-drawer .menu > li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	border-bottom: 1px solid var(--cic-color-border);
+}
+
+.cic-drawer .menu a {
+	flex: 1;
+	min-height: 52px;
+}
+
+.cic-drawer .cic-submenu-toggle {
+	width: 44px;
+	height: 52px;
+}
+
+.cic-drawer .sub-menu {
+	display: none;
+	width: 100%;
+	padding: 0 0 0.5rem 1rem;
+}
+
+.cic-drawer .is-open > .sub-menu {
+	display: block;
+}
+
+.cic-drawer .sub-menu a {
+	min-height: 44px;
+	font-weight: var(--cic-weight-body);
+}
+
+.cic-drawer__actions {
+	display: grid;
+	gap: 0.75rem;
+	margin-top: auto;
+	padding-top: 1rem;
+}
+
+.cic-drawer__actions .cic-button {
+	width: 100%;
+}
+
+.cic-drawer__contact {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	font-weight: var(--cic-weight-ui);
+}
+
+body.cic-drawer-open {
+	overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ *
+ * 10. Footer
+ * ------------------------------------------------------------------ */
+.cic-footer {
+	--cic-color-text: var(--wp--custom--cic--component--footer-text);
+	--cic-color-heading: var(--wp--custom--cic--component--footer-text);
+	--cic-color-link: var(--wp--custom--cic--component--footer-text);
+	--cic-color-focus: var(--wp--custom--cic--component--footer-text);
+	--cic-color-muted: var(--wp--custom--cic--component--footer-text);
+	background-color: var(--wp--custom--cic--component--footer-surface);
+	color: var(--cic-color-text);
+}
+
+.cic-footer a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.cic-footer a:hover {
+	text-decoration: underline;
+}
+
+.cic-footer__grid {
+	display: grid;
+	gap: 1.75rem;
+	justify-items: center;
+	padding-block: calc(var(--cic-space) * 5);
+	text-align: center;
+}
+
+.cic-footer__logo {
+	display: inline-block;
+	width: var(--cic-footer-logo-w, 168px);
+	/* Same box with or without the light plate, so the logo keeps its approved size and footer height. */
+	padding: 8px 12px;
+	line-height: 0;
+}
+
+.cic-footer__logo img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 2 / 1;
+	object-fit: contain;
+}
+
+.cic-footer__logo.has-plate {
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-footer__intro {
+	max-width: 32ch;
+	margin: 0.75rem 0 0;
+}
+
+.cic-footer .cic-nav ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 2rem;
+	justify-content: center;
+}
+
+.cic-footer__contact p,
+.cic-footer__contact ul {
+	margin: 0 0 0.35em;
+}
+
+.cic-footer__site {
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-footer__contact a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 32px;
+}
+
+.cic-footer__legal {
+	border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.cic-footer__legal-inner {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 2rem;
+	align-items: center;
+	justify-content: center;
+	padding-block: 1rem;
+}
+
+.cic-footer__legal-inner p,
+.cic-footer__legal-inner li {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	--cic-lh-min: var(--cic-fs-caption-lh-min);
+	--cic-lh-max: var(--cic-fs-caption-lh-max);
+	margin: 0;
+}
+
+@media (min-width: 768px) {
+	.cic-footer__grid {
+		align-items: center;
+		justify-items: stretch;
+		text-align: left;
+	}
+
+	.cic-footer--brand-menu-contact {
+		grid-template-columns: auto 1fr auto;
+	}
+
+	.cic-footer--brand-menus-contact {
+		grid-template-columns: auto 1fr 1fr auto;
+	}
+
+	.cic-footer--brand-contact {
+		grid-template-columns: 1fr auto;
+	}
+
+	.cic-footer__contact {
+		text-align: right;
+	}
+
+	.cic-footer__legal-inner {
+		justify-content: space-between;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * 10a. Prefooter "Cities We Serve" (2026-10-22)
+ * Same palette and width as the footer; a quiet wrapping list on desktop, two columns on phones,
+ * and a hairline divider before the footer. No cards, images or motion.
+ * ------------------------------------------------------------------ */
+.cic-prefooter {
+	--cic-color-text: var(--wp--custom--cic--component--footer-text);
+	--cic-color-heading: var(--wp--custom--cic--component--footer-text);
+	--cic-color-link: var(--wp--custom--cic--component--footer-text);
+	--cic-color-focus: var(--wp--custom--cic--component--footer-text);
+	background-color: var(--wp--custom--cic--component--footer-surface);
+	color: var(--cic-color-text);
+}
+
+.cic-prefooter__inner {
+	padding-block: calc(var(--cic-space) * 5) calc(var(--cic-space) * 4);
+	border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.cic-prefooter__title {
+	--cic-fs-min: var(--cic-fs-h4-min);
+	--cic-fs-max: var(--cic-fs-h4-max);
+	--cic-lh-min: var(--cic-fs-h4-lh-min);
+	--cic-lh-max: var(--cic-fs-h4-lh-max);
+	margin: 0 0 1.25rem;
+	color: var(--cic-color-heading);
+}
+
+.cic-prefooter__list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.15rem 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-prefooter a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	color: inherit;
+	text-decoration: none;
+	text-underline-offset: 0.2em;
+	opacity: 0.9;
+}
+
+.cic-prefooter a:hover {
+	text-decoration: underline;
+	opacity: 1;
+}
+
+.cic-prefooter a:focus-visible {
+	outline: 2px solid var(--cic-color-focus);
+	outline-offset: 2px;
+	border-radius: 2px;
+	text-decoration: underline;
+	opacity: 1;
+}
+
+.cic-prefooter__all {
+	margin: 1rem 0 0;
+}
+
+.cic-prefooter__all a {
+	gap: 0.35em;
+	font-weight: var(--cic-weight-strong);
+	opacity: 1;
+}
+
+@media (min-width: 768px) {
+	.cic-prefooter__list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 2rem;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * 10b. Touch targets (Phase 09)
+ * Compact links and the hero search inputs get a hit area of at least 44px tall. Padding enlarges
+ * the target and the equal negative margin cancels it in layout, so the approved spacing is
+ * unchanged (inline links ignore both vertically for layout, so only the hit area grows).
+ * ------------------------------------------------------------------ */
+.cic-text-link,
+.cic-brand-links__all,
+.cic-brand-links a,
+.cic-city-nearby__all,
+.cic-city-nearby__list a,
+.cic-qs__call a,
+.cic-footer__contact a {
+	padding-block: 0.75em;
+	margin-block: -0.75em;
+}
+
+.cic-county__cities a,
+.cic-county-card__cities a {
+	padding-block: 0.75em;
+	margin-block: -0.75em;
+}
+
+/* Breadcrumbs and the hero jump link use the caption size, so a fixed extension reaches 44px. */
+.cic-breadcrumbs a,
+.cic-hero__jump a {
+	padding-block: 14px;
+	margin-block: -14px;
+}
+
+/* .cic-event-card__title a needs nothing: its ::after stretches over the whole card. */
+
+/* .cic-search__input: see home.css (its own rule sets the padding). */
+
+/* ------------------------------------------------------------------ *
+ * 10c. Date picker (assets/js/datepicker.js)
+ * One calendar for every event-date field. Design System tokens only; 44px day targets.
+ * ------------------------------------------------------------------ */
+.cic-dp-host {
+	cursor: pointer;
+}
+
+.cic-dp-host input {
+	cursor: text;
+}
+
+.cic-dp {
+	position: absolute;
+	z-index: 1000;
+	width: min(22rem, calc(100vw - 24px));
+	padding: 0.75rem;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--cic-color-surface);
+	box-shadow: 0 14px 40px color-mix(in srgb, var(--cic-color-text) 16%, transparent);
+	color: var(--cic-color-text);
+	font-family: var(--cic-font-body);
+}
+
+.cic-dp__head {
+	display: flex;
+	align-items: center;
+	gap: 0.15rem;
+	margin-bottom: 0.4rem;
+}
+
+.cic-dp__title {
+	flex: 1;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-weight: var(--cic-heading-weight);
+	font-size: 1.05rem;
+	text-align: center;
+}
+
+.cic-dp__nav,
+.cic-dp__close,
+.cic-dp__day {
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.cic-dp__nav {
+	display: inline-grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	color: var(--cic-color-action);
+}
+
+.cic-dp__nav:hover:not(:disabled),
+.cic-dp__day:hover:not([aria-disabled="true"]) {
+	background-color: var(--cic-color-surface-alt);
+}
+
+.cic-dp__nav:disabled {
+	color: var(--cic-color-muted);
+	opacity: 0.45;
+	cursor: default;
+}
+
+.cic-dp__grid {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+
+.cic-dp__grid th {
+	padding: 0.25rem 0;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+	font-weight: var(--cic-weight-strong);
+	text-align: center;
+}
+
+.cic-dp__grid td {
+	padding: 1px;
+	text-align: center;
+}
+
+.cic-dp__day {
+	width: 100%;
+	min-width: 2.5rem;
+	height: 44px;
+	border-radius: var(--cic-radius-field);
+	font-variant-numeric: tabular-nums;
+}
+
+.cic-dp__day[aria-current="date"] {
+	box-shadow: inset 0 0 0 1px var(--cic-color-action);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-dp__grid td[aria-selected="true"] .cic-dp__day {
+	background-color: var(--cic-color-action);
+	color: var(--cic-color-on-action);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-dp__day[aria-disabled="true"] {
+	color: var(--cic-color-muted);
+	text-decoration: line-through;
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.cic-dp__nav:focus-visible,
+.cic-dp__day:focus-visible,
+.cic-dp__close:focus-visible {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 1px;
+}
+
+.cic-dp__note {
+	margin: 0.5rem 0 0;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+	line-height: 1.4;
+}
+
+.cic-dp__foot {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 0.25rem;
+}
+
+.cic-dp__close {
+	min-height: 44px;
+	padding: 0 0.75rem;
+	border-radius: var(--cic-radius-button);
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-strong);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+/* ------------------------------------------------------------------ *
+ * 10d. Fixed mobile "Get a Quote" button (template-parts/footer/mobile-quote.php, main.js)
+ * Phones only: the same breakpoint that hides the header quote button (below 600px), so there is
+ * never a second quote bar. The bar is the last element of the page and sticks to the bottom of
+ * the screen: while scrolling it stays in view, and at the end of the page it rests below the
+ * footer in the normal flow, so it reserves exactly its own height (whatever the button size) and
+ * never covers footer links. Its bottom padding includes the iPhone home-indicator inset where the
+ * browser reports one. A future fixed bottom notice (e.g. cookies) belongs inside or above this
+ * bar, not in a second bar. The script adds .is-hidden while the drawer or a dialog is open or a
+ * form field has focus (instantly); visibility:hidden also removes the link from the keyboard order.
+ * ------------------------------------------------------------------ */
+.cic-mobile-cta {
+	display: none;
+}
+
+@media (max-width: 599.98px) {
+	.cic-mobile-cta {
+		position: sticky;
+		bottom: 0;
+		z-index: 40;
+		display: block;
+		padding: 0.625rem 16px calc(0.625rem + env(safe-area-inset-bottom, 0px));
+		border-top: 1px solid var(--cic-color-border);
+		background-color: var(--wp--custom--cic--component--header-surface);
+		box-shadow: 0 -4px 16px color-mix(in srgb, var(--wp--preset--color--text-primary) 10%, transparent);
+		transition: transform 0.2s ease, visibility 0s linear 0s;
+	}
+
+	.cic-mobile-cta__button {
+		width: 100%;
+		min-height: 3rem;
+	}
+
+	/* Hiding is instant (a focused field must never sit under the bar, even mid-animation);
+	   only the return slides in. */
+	.cic-mobile-cta.is-hidden {
+		visibility: hidden;
+		transform: translateY(110%);
+		transition: none;
+	}
+
+	body.cic-drawer-open .cic-mobile-cta {
+		visibility: hidden;
+	}
+}
+
+@media print {
+	.cic-mobile-cta {
+		display: none !important;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * 11. Motion preferences
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* Location autocomplete list (ARIA combobox from context.js), used by every location input. */
+.cic-ac-host {
+	position: relative;
+}
+
+.cic-ac-list {
+	position: absolute;
+	top: calc(100% + 4px);
+	right: 0;
+	left: 0;
+	z-index: 20;
+	max-height: 18rem;
+	margin: 0;
+	padding: 0.35rem;
+	overflow-y: auto;
+	border: 1px solid var(--wp--custom--cic--component--field-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	list-style: none;
+}
+
+.cic-ac-list [role="option"] {
+	padding: 0.6rem 0.75rem;
+	border-radius: calc(var(--cic-radius-field) * 0.6);
+	color: var(--wp--preset--color--text-primary);
+	cursor: pointer;
+}
+
+.cic-ac-list [role="option"][aria-selected="true"],
+.cic-ac-list [role="option"]:hover {
+	background-color: var(--wp--preset--color--surface-soft);
+}

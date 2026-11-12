@@ -1,0 +1,1148 @@
+/*
+ * Homepage composition (approved references 01 desktop / 02 mobile) and the interim quote route.
+ * Colours: Design System tokens and preset roles only. Widths derive from layout tokens.
+ */
+
+.cic-home {
+	--cic-home-width: calc((var(--cic-content) + var(--cic-wide)) / 2);
+}
+
+.cic-container--home {
+	width: min(100% - 2 * var(--cic-gutter), var(--cic-home-width));
+}
+
+/* Decorative three-stroke "spark" used before headings in the references. */
+.cic-swoosh {
+	position: relative;
+	display: inline-block;
+	width: 0.7em;
+	height: 0.8em;
+	margin-right: 0.15em;
+	vertical-align: 0.1em;
+}
+
+.cic-swoosh::before,
+.cic-swoosh::after,
+.cic-swoosh {
+	--cic-swoosh-color: var(--wp--preset--color--lavender);
+}
+
+.cic-swoosh::before,
+.cic-swoosh::after {
+	position: absolute;
+	width: 0.42em;
+	height: 0.09em;
+	border-radius: 1em;
+	background: var(--cic-swoosh-color);
+	content: "";
+}
+
+.cic-swoosh::before {
+	top: 0.12em;
+	left: 0.12em;
+	transform: rotate(50deg);
+}
+
+.cic-swoosh::after {
+	top: 0.48em;
+	left: 0;
+	transform: rotate(20deg);
+	box-shadow: 0.08em 0.25em 0 0 var(--cic-swoosh-color);
+}
+
+.cic-swoosh--light {
+	--cic-swoosh-color: var(--wp--preset--color--strawberry);
+}
+
+.cic-swoosh--light::before,
+.cic-swoosh--light::after {
+	--cic-swoosh-color: var(--wp--preset--color--strawberry);
+}
+
+/* ------------------------------------------------------------------ *
+ * Hero
+ * ------------------------------------------------------------------ */
+.cic-home-hero {
+	padding-top: calc(var(--cic-space) * 4);
+	background: linear-gradient(180deg, var(--wp--preset--color--surface-soft) 0%, var(--wp--preset--color--surface-soft) 78%, var(--wp--preset--color--surface-base) 78%);
+}
+
+.cic-home-hero__grid {
+	display: grid;
+	gap: 2rem;
+	align-items: center;
+	width: min(100% - 2 * var(--cic-gutter), var(--cic-home-width));
+}
+
+.cic-home-hero__text {
+	position: relative;
+	z-index: 1;
+}
+
+.cic-home-hero__title {
+	position: relative;
+	margin-bottom: 0.4em;
+}
+
+.cic-home-hero__title .cic-swoosh {
+	position: absolute;
+	top: 0.55em;
+	left: -0.8em;
+}
+
+.cic-home-hero__media {
+	position: relative;
+	min-height: 320px;
+}
+
+.cic-home-hero__blob {
+	position: absolute;
+	right: -8%;
+	bottom: -2%;
+	left: 6%;
+	height: 34%;
+	border-radius: 62% 38% 55% 45% / 70% 60% 40% 30%;
+	background: color-mix(in srgb, var(--wp--preset--color--lavender) 60%, transparent);
+}
+
+.cic-home-hero__ring {
+	position: absolute;
+	top: -4%;
+	left: -6%;
+	display: none;
+	width: 46%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--wp--preset--color--lavender) 22%, transparent);
+}
+
+.cic-home-hero__spark {
+	position: absolute;
+	right: 2%;
+	bottom: 30%;
+	z-index: 3;
+	display: none;
+	font-size: 2.25rem;
+	transform: rotate(150deg);
+}
+
+.cic-home-hero__main,
+.cic-home-hero__inset {
+	position: relative;
+	overflow: hidden;
+	border: 5px solid var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-home-hero__main {
+	z-index: 1;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	border-radius: 58% 42% 46% 54% / 46% 52% 48% 54%;
+}
+
+.cic-home-hero__inset {
+	display: none;
+	z-index: 2;
+	aspect-ratio: 4 / 3;
+	border-width: 6px;
+	border-radius: calc(var(--cic-radius-image) * 1.6) calc(var(--cic-radius-image) * 2.2) calc(var(--cic-radius-image) * 1.4) calc(var(--cic-radius-image) * 2);
+}
+
+.cic-home-hero__search {
+	position: relative;
+	z-index: 3;
+	margin-top: 1.5rem;
+	padding-bottom: 1rem;
+}
+
+/* Mobile order follows reference 02: text, search card, then the photo. */
+@media (max-width: 899.98px) {
+	.cic-home-hero {
+		display: flex;
+		flex-direction: column;
+		background: var(--wp--preset--color--surface-soft);
+	}
+
+	.cic-home-hero__grid {
+		display: contents;
+	}
+
+	.cic-home-hero__text,
+	.cic-home-hero__media {
+		width: min(100% - 2 * var(--cic-gutter), var(--cic-home-width));
+		margin-inline: auto;
+	}
+
+	.cic-home-hero__text {
+		order: 1;
+	}
+
+	.cic-home-hero__search {
+		order: 2;
+		margin-top: 0.5rem;
+	}
+
+	.cic-home-hero__media {
+		order: 3;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-home-hero__grid {
+		grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+		min-height: 440px;
+	}
+
+	.cic-home-hero__media {
+		min-height: 440px;
+	}
+
+	.cic-home-hero__main {
+		position: absolute;
+		top: 4%;
+		left: 0;
+		width: 74%;
+	}
+
+	.cic-home-hero__inset {
+		position: absolute;
+		display: block;
+		width: 34%;
+	}
+
+	/* Insets overlap the main photo's right edge, as in the reference. */
+	.cic-home-hero__inset--1 {
+		top: -2%;
+		right: -1%;
+	}
+
+	.cic-home-hero__inset--2 {
+		right: 1%;
+		bottom: 11%;
+		width: 37%;
+	}
+
+	.cic-home-hero__ring,
+	.cic-home-hero__spark {
+		display: block;
+	}
+
+	.cic-home-hero__search {
+		margin-top: -2.5rem;
+	}
+
+	/* The search card overlaps the hero by 2.5rem. The text column keeps that band free, so a longer
+	   headline can never push the intro underneath the card (the photo side still runs beneath it). */
+	.cic-home-hero__text {
+		container-type: inline-size;
+		padding-bottom: 2.5rem;
+	}
+
+	/* Each headline line stays on one row where possible, as in the approved two-line design: the size
+	   shrinks to fit the longest line in the column (≈0.53em per character of the display face), never
+	   above the Design System H1 size and never below its mobile size; anything still too long wraps.
+	   Line height keeps the token ratio. --cic-hero-chars comes from section-hero.php. */
+	.cic-home-hero__title {
+		font-size: max(calc(var(--cic-fs-min) * 1px), min(clamp(calc(var(--cic-fs-min) * 1px), calc(var(--cic-fs-min) * 1px + (var(--cic-fs-max) - var(--cic-fs-min)) * (100vw - 390px) / 1050), calc(var(--cic-fs-max) * 1px)), calc(100cqi / (var(--cic-hero-chars, 12) * 0.53))));
+		line-height: calc(var(--cic-lh-max) / var(--cic-fs-max));
+	}
+}
+
+/* Hero search card */
+.cic-search {
+	display: grid;
+	gap: 0.75rem;
+	padding: calc(var(--cic-space) * 2);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--custom--cic--component--quote-starter-surface);
+	box-shadow: 0 14px 40px color-mix(in srgb, var(--wp--preset--color--text-primary) 14%, transparent);
+	color: var(--wp--preset--color--text-primary);
+}
+
+.cic-search__field {
+	position: relative;
+	display: grid;
+	grid-template-columns: 2.25rem 1fr;
+	grid-template-rows: auto auto;
+	align-items: center;
+	min-height: 64px;
+	padding: 0.5rem 0.9rem;
+	border: 1px solid var(--wp--custom--cic--component--field-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-search__field:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 1px;
+}
+
+.cic-search__icon {
+	grid-row: 1 / 3;
+	color: var(--cic-color-action);
+}
+
+.cic-search__label {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	--cic-lh-min: var(--cic-fs-caption-lh-min);
+	--cic-lh-max: var(--cic-fs-caption-lh-max);
+	font-size: calc(var(--cic-fs-min) * 1px);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-search__input {
+	width: 100%;
+	min-height: 28px;
+	/* 44px hit area (Phase 09); the negative margin keeps the approved layout. */
+	padding: 9px 0;
+	margin-block: -9px;
+	border: 0;
+	background: transparent;
+	color: var(--wp--preset--color--text-primary);
+	font: inherit;
+	font-size: max(16px, 1em);
+}
+
+.cic-search__input:focus-visible {
+	outline: none;
+}
+
+.cic-search__input::placeholder {
+	color: var(--wp--preset--color--text-muted);
+	opacity: 1;
+}
+
+.cic-search__input[aria-invalid="true"] {
+	color: var(--wp--preset--color--error);
+}
+
+.cic-search__select {
+	appearance: none;
+	background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+	background-position: calc(100% - 10px) 55%, calc(100% - 5px) 55%;
+	background-size: 5px 5px, 5px 5px;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+.cic-search__submit {
+	min-height: 56px;
+	border-radius: var(--cic-radius-field);
+}
+
+.cic-search__error {
+	margin: 0;
+	color: var(--wp--preset--color--error);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-search__note {
+	margin: 0;
+	text-align: center;
+}
+
+@media (min-width: 900px) {
+	.cic-search {
+		grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+		align-items: stretch;
+		padding: calc(var(--cic-space) * 1.75);
+	}
+
+	.cic-search__submit {
+		padding-inline: 1.75rem;
+	}
+
+	.cic-search__error,
+	.cic-search__note {
+		grid-column: 1 / -1;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Values
+ * ------------------------------------------------------------------ */
+.cic-home-values {
+	padding-block: calc(var(--cic-space) * 2) calc(var(--cic-space) * 1);
+}
+
+.cic-values {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-value {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	align-items: center;
+	padding: 0.5rem;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-ui);
+	text-align: center;
+}
+
+.cic-value + .cic-value {
+	border-left: 1px solid var(--cic-color-border);
+}
+
+.cic-value__icon {
+	display: inline-flex;
+	color: var(--wp--preset--color--birthday-violet);
+}
+
+.cic-value__icon .cic-icon {
+	width: 2.5rem;
+	height: 2.5rem;
+}
+
+@media (min-width: 768px) {
+	.cic-values {
+		max-width: 56rem;
+		margin-inline: auto;
+	}
+
+	.cic-value {
+		flex-direction: row;
+		justify-content: center;
+		gap: 1rem;
+		text-align: left;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Treats
+ * ------------------------------------------------------------------ */
+.cic-home-treats {
+	padding-top: calc(var(--cic-section-pad) * 0.6);
+}
+
+.cic-brand-cards,
+.cic-mini-cards {
+	display: grid;
+	gap: 1rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-brand-card {
+	--cic-card-tint: color-mix(in srgb, var(--wp--preset--color--strawberry) 30%, var(--wp--preset--color--surface-base));
+	position: relative;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+	min-height: 230px;
+	border-radius: var(--cic-radius-card);
+	background-color: var(--cic-card-tint);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-brand-card--2 {
+	--cic-card-tint: color-mix(in srgb, var(--wp--preset--color--wedding-ivory) 55%, var(--wp--preset--color--surface-soft));
+}
+
+.cic-brand-card__body {
+	position: relative;
+	z-index: 1;
+	flex: 0 1 58%;
+	padding: 1.5rem 0 1.5rem 1.5rem;
+}
+
+.cic-brand-card__title {
+	--cic-fs-min: 30;
+	--cic-fs-max: 60;
+	--cic-lh-min: 36;
+	--cic-lh-max: 58;
+	margin: 0 0 0.3em;
+}
+
+.cic-brand-card__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.cic-brand-card__title a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.cic-brand-card:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+.cic-brand-card__title a:focus-visible {
+	outline: none;
+}
+
+.cic-brand-card__tagline {
+	--cic-fs-min: var(--cic-fs-lead-min);
+	--cic-fs-max: var(--cic-fs-lead-max);
+	--cic-lh-min: var(--cic-fs-lead-lh-min);
+	--cic-lh-max: var(--cic-fs-lead-lh-max);
+	max-width: 14ch;
+	margin-bottom: 0.75rem;
+}
+
+.cic-brand-card__link {
+	margin: 0;
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-strong);
+}
+
+/* The photo fills the right of the card and dissolves into the tint behind the text. */
+.cic-brand-card__media {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 62%;
+	-webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%);
+	mask-image: linear-gradient(to right, transparent 0%, black 30%);
+}
+
+.cic-brand-card__media .cic-photo {
+	object-position: 60% 50%;
+}
+
+/* Small screens: keep the text on the tint so links stay readable over busy photos. */
+@media (max-width: 599.98px) {
+	.cic-brand-card__body {
+		flex-basis: 60%;
+		padding-right: 0.5rem;
+	}
+
+	.cic-brand-card__media {
+		width: 46%;
+		-webkit-mask-image: linear-gradient(to right, transparent 0%, black 22%);
+		mask-image: linear-gradient(to right, transparent 0%, black 22%);
+	}
+}
+
+.cic-mini-card {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1.15fr 1fr;
+	align-items: center;
+	overflow: hidden;
+	min-height: 110px;
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-mini-card__media {
+	height: 100%;
+	min-height: 110px;
+}
+
+.cic-mini-card__link {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 0.75rem 1rem;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: clamp(18px, 1.5vw, 22px);
+	font-weight: var(--cic-heading-weight);
+	line-height: 1.15;
+	text-decoration: none;
+}
+
+.cic-mini-card__link::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.cic-mini-card:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+.cic-mini-card__link:focus-visible {
+	outline: none;
+}
+
+.cic-mini-card__arrow {
+	color: var(--cic-color-link);
+	font-family: var(--cic-font-body);
+	font-size: 1.25em;
+}
+
+/* Mobile: label left, arrow aligned at the right edge; the whole card stays the link target. */
+@media (max-width: 767.98px) {
+	.cic-mini-card__link {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		min-height: 110px;
+		padding-right: 1.25rem;
+	}
+}
+
+.cic-mini-cards {
+	margin-top: 1rem;
+}
+
+@media (min-width: 1000px) {
+	.cic-brand-cards {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 768px) {
+	.cic-mini-cards {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1100px) {
+	.cic-brand-card {
+		min-height: 270px;
+	}
+
+	.cic-brand-card__body {
+		padding-left: 2rem;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Events band
+ * ------------------------------------------------------------------ */
+.cic-wave {
+	--cic-wave: 32px;
+	margin-block: var(--cic-wave);
+	padding-block: calc(var(--cic-section-pad) * 0.55) calc(var(--cic-section-pad) * 0.6);
+}
+
+.cic-wave::before,
+.cic-wave::after {
+	position: absolute;
+	right: 0;
+	left: 0;
+	height: var(--cic-wave);
+	background: var(--wp--preset--color--surface-soft);
+	content: "";
+}
+
+/* Asymmetric curves (higher on the left at the top, lower on the right at the bottom), as in 01. */
+.cic-wave::before {
+	top: calc(-1 * var(--cic-wave) + 1px);
+	border-radius: 70% 30% 0 0 / 100% 60% 0 0;
+}
+
+.cic-wave::after {
+	bottom: calc(-1 * var(--cic-wave) + 1px);
+	border-radius: 0 0 35% 65% / 0 0 70% 100%;
+}
+
+.cic-event-cards {
+	margin-top: 1.5rem;
+}
+
+.cic-home-events__title .cic-swoosh {
+	margin-right: 0.3em;
+}
+
+.cic-event-cards {
+	display: grid;
+	gap: 1.25rem;
+	margin: 2rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-event-card {
+	position: relative;
+}
+
+.cic-event-card__media {
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+}
+
+.cic-event-card__title {
+	--cic-fs-min: 22;
+	--cic-fs-max: 26;
+	--cic-lh-min: 26;
+	--cic-lh-max: 30;
+	margin-bottom: 0.2em;
+}
+
+.cic-event-card__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.cic-event-card__title a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.cic-event-card:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+.cic-event-card__title a:focus-visible {
+	outline: none;
+}
+
+.cic-event-card p {
+	margin-bottom: 0.5rem;
+	color: var(--cic-color-muted);
+}
+
+.cic-event-card__more {
+	color: var(--cic-color-link) !important;
+	font-weight: var(--cic-weight-strong);
+}
+
+@media (min-width: 640px) {
+	.cic-event-cards {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1100px) {
+	.cic-event-cards--3 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-event-cards--4 {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	/* Six occasions (2026-10-22): two balanced rows of three. */
+	.cic-event-cards--5,
+	.cic-event-cards--6 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Process
+ * ------------------------------------------------------------------ */
+.cic-home-process {
+	padding-top: calc(var(--cic-section-pad) * 0.6);
+	padding-bottom: calc(var(--cic-section-pad) * 0.5);
+}
+
+/* Mobile: a subtle line connects the step numbers (reference 02). */
+@media (max-width: 899.98px) {
+	.cic-process__step {
+		position: relative;
+	}
+
+	.cic-process__step:not(:last-child)::after {
+		position: absolute;
+		top: 3.25rem;
+		bottom: -1.25rem;
+		left: 1.625rem;
+		width: 1px;
+		background: color-mix(in srgb, var(--wp--preset--color--strawberry) 70%, var(--wp--preset--color--surface-base));
+		content: "";
+	}
+}
+
+.cic-process__row {
+	display: grid;
+	gap: 1.5rem;
+	align-items: center;
+	margin-top: 1.5rem;
+}
+
+.cic-process__steps {
+	display: grid;
+	gap: 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-process__step {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+}
+
+.cic-process__num {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 3.25rem;
+	height: 3.25rem;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--wp--preset--color--strawberry) 35%, var(--wp--preset--color--surface-base));
+	color: var(--wp--preset--color--action-primary-hover);
+	font-family: var(--cic-font-heading);
+	font-size: 1.25rem;
+	font-weight: var(--cic-heading-weight);
+}
+
+.cic-process__text strong {
+	display: block;
+	color: var(--cic-color-heading);
+}
+
+.cic-process__text span {
+	color: var(--cic-color-muted);
+}
+
+.cic-process__cta {
+	justify-self: center;
+}
+
+@media (min-width: 900px) {
+	.cic-process__row {
+		grid-template-columns: 1fr auto;
+	}
+
+	.cic-process__steps {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0;
+	}
+
+	.cic-process__step {
+		padding-inline: 1.25rem;
+	}
+
+	.cic-process__step + .cic-process__step {
+		border-left: 1px solid var(--cic-color-border);
+	}
+
+	.cic-process__cta {
+		justify-self: end;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * FAQ
+ * ------------------------------------------------------------------ */
+.cic-home-faq {
+	padding-top: calc(var(--cic-section-pad) * 0.5);
+	border-top: 1px solid var(--cic-color-border);
+}
+
+.cic-home-faq__grid {
+	display: grid;
+	gap: 1.5rem;
+	padding-top: calc(var(--cic-space) * 2);
+}
+
+.cic-home-faq__title {
+	--cic-fs-min: 30;
+	--cic-fs-max: 36;
+	--cic-lh-min: 34;
+	--cic-lh-max: 42;
+	position: relative;
+}
+
+.cic-home-faq__title .cic-line:nth-child(n + 3) {
+	padding-left: 1em;
+}
+
+.cic-home-faq__cone {
+	display: none;
+	color: var(--cic-color-accent);
+}
+
+.cic-home-faq__cone .cic-icon {
+	width: 3rem;
+	height: 3rem;
+}
+
+@media (min-width: 900px) {
+	.cic-home-faq__grid {
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+		align-items: start;
+	}
+
+	.cic-home-faq__intro {
+		padding-left: 2rem;
+	}
+
+	.cic-home-faq__cone {
+		display: inline-flex;
+		margin: 0.5rem 0 0 3rem;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Coverage
+ * ------------------------------------------------------------------ */
+.cic-home-coverage {
+	--cic-wave: 26px;
+	position: relative;
+	margin-top: calc(var(--cic-section-pad) * 0.4 + var(--cic-wave));
+}
+
+.cic-home-coverage::before {
+	position: absolute;
+	top: calc(-1 * var(--cic-wave) + 1px);
+	right: 0;
+	left: 0;
+	height: var(--cic-wave);
+	border-radius: 30% 70% 0 0 / 60% 100% 0 0;
+	background: var(--wp--preset--color--surface-soft);
+	content: "";
+}
+
+.cic-coverage {
+	display: grid;
+	gap: 2rem;
+	align-items: center;
+}
+
+.cic-coverage__title {
+	--cic-fs-min: 30;
+	--cic-fs-max: 42;
+	--cic-lh-min: 34;
+	--cic-lh-max: 46;
+}
+
+.cic-area-check {
+	display: grid;
+	gap: 0.75rem;
+	margin: 1.25rem 0;
+}
+
+.cic-area-check__field {
+	position: relative;
+}
+
+.cic-area-check__field .cic-search__icon {
+	position: absolute;
+	top: 50%;
+	left: 0.85rem;
+	transform: translateY(-50%);
+}
+
+.cic-area-check__field .cic-input {
+	padding-left: 2.75rem;
+}
+
+.cic-area-check .cic-button {
+	border-radius: var(--cic-radius-field);
+}
+
+.cic-area-check__result {
+	grid-column: 1 / -1;
+	margin: 0;
+	padding: 0.75rem 1rem;
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-county-list {
+	display: grid;
+	gap: 0.75rem;
+	margin: 0 0 0.75rem;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-county__name {
+	--cic-fs-min: var(--cic-fs-body-min);
+	--cic-fs-max: var(--cic-fs-body-max);
+	--cic-lh-min: var(--cic-fs-body-lh-min);
+	--cic-lh-max: var(--cic-fs-body-lh-max);
+	margin: 0;
+	font-family: var(--cic-font-body);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-county__cities {
+	margin: 0.25rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* Counties with cities are accordions on mobile (native details); always open on wider screens. */
+.cic-county__toggle {
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-county__toggle > summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 48px;
+	padding: 0.5rem 1rem;
+	list-style: none;
+	cursor: pointer;
+}
+
+.cic-county__toggle > summary::-webkit-details-marker {
+	display: none;
+}
+
+.cic-county__toggle .cic-county__cities {
+	padding: 0 1rem 0.75rem;
+}
+
+@media (min-width: 640px) {
+	.cic-county__toggle {
+		border: 0;
+		background: none;
+	}
+
+	.cic-county__toggle > summary {
+		min-height: 0;
+		padding: 0;
+		pointer-events: none;
+	}
+
+	.cic-county__toggle .cic-county__cities {
+		padding: 0;
+	}
+}
+
+.cic-coverage__map {
+	margin: 0;
+	text-align: right;
+}
+
+.cic-coverage__map svg {
+	display: block;
+	width: 100%;
+	max-width: 420px;
+	height: auto;
+	margin-left: auto;
+}
+
+.cic-map__state {
+	fill: color-mix(in srgb, var(--wp--preset--color--lavender) 70%, var(--wp--preset--color--surface-base));
+	stroke: var(--wp--preset--color--surface-base);
+	stroke-width: 2;
+}
+
+.cic-map__region {
+	fill: color-mix(in srgb, var(--wp--preset--color--strawberry) 70%, var(--wp--preset--color--surface-base));
+}
+
+.cic-map__pins circle,
+.cic-map__pin {
+	fill: var(--cic-color-action);
+	stroke: var(--wp--preset--color--surface-base);
+	stroke-width: 1.5;
+}
+
+.cic-map__leader {
+	stroke: var(--wp--preset--color--lavender);
+	stroke-width: 1.5;
+	stroke-dasharray: 3 3;
+}
+
+.cic-map__inset > circle:first-child {
+	fill: color-mix(in srgb, var(--wp--preset--color--birthday-sky) 35%, var(--wp--preset--color--surface-base));
+	stroke: var(--wp--preset--color--lavender);
+	stroke-width: 3;
+}
+
+.cic-map__inset text {
+	fill: var(--wp--preset--color--text-primary);
+	font-family: var(--cic-font-body);
+	font-size: 9px;
+	font-weight: var(--cic-weight-ui);
+}
+
+@media (min-width: 640px) {
+	.cic-area-check {
+		grid-template-columns: 1fr auto;
+	}
+
+	.cic-county-list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0;
+	}
+
+	.cic-county {
+		padding-inline: 1rem;
+	}
+
+	.cic-county:first-child {
+		padding-left: 0;
+	}
+
+	.cic-county + .cic-county {
+		border-left: 1px solid var(--cic-color-border);
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-coverage {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Closing call panel
+ * ------------------------------------------------------------------ */
+.cic-home-cta {
+	--cic-wave: 36px;
+	position: relative;
+	margin-top: var(--cic-wave);
+}
+
+.cic-home-cta::before {
+	position: absolute;
+	top: calc(-1 * var(--cic-wave) + 1px);
+	right: 0;
+	left: 0;
+	height: var(--cic-wave);
+	border-radius: 55% 45% 0 0 / 100% 80% 0 0;
+	background: var(--wp--custom--cic--component--call-panel-surface);
+	content: "";
+}
+
+.cic-home-cta .cic-call-panel__title {
+	--cic-fs-min: 30;
+	--cic-fs-max: 44;
+	--cic-lh-min: 34;
+	--cic-lh-max: 48;
+}
+
+/* ------------------------------------------------------------------ *
+ * Interim quote route
+ * ------------------------------------------------------------------ */
+.cic-quote-route__inner {
+	max-width: 46rem;
+}
+
+.cic-quote-summary {
+	display: grid;
+	gap: 0.5rem;
+	margin: 0 0 1.5rem;
+	padding: 1.25rem;
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-quote-summary div {
+	display: grid;
+	grid-template-columns: 9rem 1fr;
+	gap: 1rem;
+}
+
+.cic-quote-summary dt {
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-quote-summary dd {
+	margin: 0;
+}

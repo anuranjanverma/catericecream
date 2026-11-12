@@ -1,0 +1,30 @@
+# Local / server artifacts
+*.log
+php_errorlog
+.php_errorlog
+.DS_Store
+Thumbs.db
+
+# WordPress runtime and media (backed up on the server, not versioned)
+wp-content/uploads/
+wp-content/updraft/
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+wp-content/cache/
+wp-content/ai1wm-backups/
+wp-content/plugins/*/node_modules/
+wp-content/plugins/*/vendor/
+wp-content/themes/*/node_modules/
+
+# Secrets - never commit
+wp-config.php
+*.pem
+*.key
+*-service-account.json
+google-service-account.json
+.env
+
+# Tooling
+.ohmyagent/
+node_modules/
+vendor/

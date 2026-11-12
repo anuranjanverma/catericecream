@@ -1,0 +1,1287 @@
+/*
+ * Service Areas hub, state hub and virtual city pages (approved references 13_city_pasadena,
+ * 15_service_areas and the Service Areas column of 20_mobile_supporting). Builds on home.css
+ * (hero, search card, treat cards, FAQ). Colours: Design System tokens and preset roles only.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Shared pieces
+ * ------------------------------------------------------------------ */
+.cic-loc-eyebrow {
+	display: flex;
+	gap: 0.45em;
+	align-items: center;
+}
+
+.cic-loc-eyebrow .cic-icon {
+	flex: none;
+	width: 1.35em;
+	height: 1.35em;
+	color: var(--cic-color-action);
+}
+
+.cic-loc-notice {
+	margin: 0;
+	padding: 0.6rem var(--cic-gutter);
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 35%, var(--wp--preset--color--surface-base));
+	color: var(--wp--preset--color--text-primary);
+	font-size: 0.875rem;
+	text-align: center;
+}
+
+.cic-loc-notice--preview {
+	background-color: var(--wp--preset--color--surface-soft);
+	font-weight: var(--cic-weight-ui);
+}
+
+/* Area check (card variant in the hub hero; plain in the city check). */
+.cic-area-check__result[data-status="covered"] {
+	border-left: 4px solid var(--wp--preset--color--action-primary);
+}
+
+.cic-area-check__result[data-status="outside_area"] {
+	border-left: 4px solid var(--wp--preset--color--error);
+	color: var(--wp--preset--color--error);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-area-check__result[data-status="manual_review"],
+.cic-area-check__result[data-status="unknown"],
+.cic-area-check__result[data-status="invalid"] {
+	border-left: 4px solid var(--wp--preset--color--lavender);
+}
+
+.cic-area-check__fixture {
+	display: block;
+	margin-top: 0.35rem;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+	font-weight: normal;
+}
+
+.cic-area-check__hint {
+	display: flex;
+	grid-column: 1 / -1;
+	gap: 0.4rem;
+	align-items: center;
+	margin: 0;
+	color: var(--cic-color-muted);
+	font-size: 0.875rem;
+}
+
+.cic-area-check__hint .cic-icon {
+	flex: none;
+	width: 1.1em;
+	height: 1.1em;
+	color: var(--cic-color-action);
+}
+
+.cic-area-check--card {
+	margin: 1.5rem 0 0;
+	padding: calc(var(--cic-space) * 2);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--custom--cic--component--quote-starter-surface);
+	box-shadow: 0 14px 40px color-mix(in srgb, var(--wp--preset--color--text-primary) 12%, transparent);
+}
+
+@media (min-width: 600px) {
+	.cic-area-check {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+}
+
+/* California map (local outline + approximate reviewed points). */
+.cic-ca-map {
+	position: relative;
+	margin: 0;
+}
+
+.cic-ca-map svg {
+	display: block;
+	width: 100%;
+	max-width: 460px;
+	height: auto;
+	margin-inline: auto;
+	overflow: visible;
+}
+
+.cic-ca-map__state {
+	fill: color-mix(in srgb, var(--wp--preset--color--lavender) 55%, var(--wp--preset--color--surface-base));
+	stroke: var(--wp--preset--color--surface-base);
+	stroke-width: 2;
+}
+
+.cic-ca-map__sun circle {
+	fill: color-mix(in srgb, var(--wp--preset--color--treat-sky) 30%, var(--cic-color-decor));
+	opacity: 0.55;
+}
+
+.cic-ca-map__sun path,
+.cic-ca-map__waves {
+	fill: none;
+	stroke: var(--cic-color-decor);
+	stroke-linecap: round;
+	stroke-width: 2.5;
+	opacity: 0.55;
+}
+
+.cic-ca-map__waves {
+	stroke: var(--wp--preset--color--treat-sky);
+}
+
+.cic-ca-map__pin {
+	fill: var(--wp--preset--color--action-primary);
+	stroke: var(--wp--preset--color--surface-base);
+	stroke-width: 1.5;
+}
+
+.cic-ca-map__pin-dot {
+	fill: var(--wp--preset--color--surface-base);
+}
+
+.cic-ca-map__leader {
+	fill: none;
+	stroke: var(--wp--preset--color--text-primary);
+	stroke-dasharray: 2 2;
+	stroke-width: 0.8;
+	opacity: 0.6;
+}
+
+.cic-ca-map__point text {
+	fill: var(--wp--preset--color--text-primary);
+	font-family: var(--cic-font-body);
+	font-size: 9px;
+	font-weight: 700;
+	paint-order: stroke;
+	stroke: var(--wp--preset--color--surface-base);
+	stroke-width: 3px;
+}
+
+/* Interactive counties (assets/js/map.js): invisible hit areas, focus and active states. */
+.cic-ca-map__hit {
+	fill: transparent;
+	stroke: none;
+}
+
+.cic-ca-map__point[role="button"] {
+	cursor: pointer;
+}
+
+.cic-ca-map__point:focus {
+	outline: none;
+}
+
+.cic-ca-map__point:focus-visible {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 2px;
+}
+
+.cic-ca-map__point.is-active .cic-ca-map__pin,
+.cic-ca-map__point[role="button"]:hover .cic-ca-map__pin {
+	fill: var(--cic-color-action-hover);
+}
+
+.cic-ca-map__point.is-active text {
+	text-decoration: underline;
+}
+
+/* One staggered drop/fade when the map first scrolls into view (never with reduced motion). */
+@media (prefers-reduced-motion: no-preference) {
+	.cic-ca-map--pending .cic-ca-map__pin,
+	.cic-ca-map--pending .cic-ca-map__pin-dot {
+		opacity: 0;
+		transform: translateY(-14px);
+		transform-box: fill-box;
+	}
+
+	.cic-ca-map--pending .cic-ca-map__leader,
+	.cic-ca-map--pending .cic-ca-map__point text {
+		opacity: 0;
+	}
+
+	.cic-ca-map--in .cic-ca-map__pin,
+	.cic-ca-map--in .cic-ca-map__pin-dot {
+		opacity: 1;
+		transform: none;
+		transition: opacity 0.3s ease-out, transform 0.45s cubic-bezier(0.3, 1.35, 0.5, 1);
+		transition-delay: calc(var(--i, 0) * 110ms);
+	}
+
+	.cic-ca-map--in .cic-ca-map__leader {
+		opacity: 0.6;
+		transition: opacity 0.3s ease-out calc(var(--i, 0) * 110ms + 0.2s);
+	}
+
+	.cic-ca-map--in .cic-ca-map__point text {
+		opacity: 1;
+		transition: opacity 0.3s ease-out calc(var(--i, 0) * 110ms + 0.2s);
+	}
+}
+
+/* County preview card. */
+.cic-ca-map__card {
+	position: absolute;
+	z-index: 40; /* Above page sections, below the sticky header (50). */
+	width: min(17rem, calc(100vw - 24px));
+	padding: 0.9rem 1rem 1rem;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--cic-color-surface);
+	box-shadow: 0 14px 40px color-mix(in srgb, var(--cic-color-text) 16%, transparent);
+	color: var(--cic-color-text);
+	font-size: 0.9375rem;
+	line-height: 1.45;
+	text-align: left;
+}
+
+.cic-ca-map__close {
+	position: absolute;
+	top: 0.3rem;
+	right: 0.3rem;
+	z-index: 1;
+	display: inline-grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background-color: var(--cic-color-surface);
+	color: var(--cic-color-heading);
+	cursor: pointer;
+}
+
+.cic-ca-map__close:focus-visible {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 1px;
+}
+
+.cic-ca-map__media {
+	display: block;
+	margin: -0.9rem -1rem 0.75rem;
+	overflow: hidden;
+	border-radius: var(--cic-radius-card) var(--cic-radius-card) 0 0;
+	background-color: var(--cic-color-surface-alt);
+	aspect-ratio: 16 / 9;
+}
+
+.cic-ca-map__media img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.cic-ca-map__name {
+	margin: 0 2.75rem 0.25rem 0;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: 1.1rem;
+	font-weight: var(--cic-heading-weight);
+	line-height: 1.25;
+}
+
+.cic-ca-map__media:not([hidden]) + .cic-ca-map__name {
+	margin-right: 0;
+}
+
+.cic-ca-map__text {
+	margin: 0 0 0.4rem;
+}
+
+.cic-ca-map__note {
+	margin: 0 0 0.5rem;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+}
+
+.cic-ca-map__caption {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+	justify-content: center;
+	margin-top: 0.5rem;
+	color: var(--cic-color-muted);
+	font-size: 0.8125rem;
+}
+
+.cic-ca-map__caption .cic-icon {
+	width: 1em;
+	height: 1em;
+}
+
+/* Call panel with photo: plum (secondary action role) as in references 13 and 15. */
+.cic-loc-call {
+	--cic-color-text: var(--wp--preset--color--on-action);
+	--cic-color-heading: var(--wp--preset--color--on-action);
+	--cic-color-heading-accent: var(--wp--preset--color--on-action);
+	--cic-color-secondary: var(--wp--preset--color--on-action);
+	--cic-color-link: var(--wp--preset--color--on-action);
+	--cic-color-focus: var(--wp--preset--color--on-action);
+	position: relative;
+	display: grid;
+	gap: 1.5rem;
+	align-items: center;
+	padding: calc(var(--cic-space) * 2);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--action-secondary);
+	color: var(--cic-color-text);
+}
+
+.cic-loc-call__media {
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+	border-radius: var(--cic-radius-image);
+}
+
+.cic-loc-call__title {
+	margin: 0 0 0.35em;
+}
+
+.cic-loc-call__text {
+	margin: 0 0 1.25rem;
+}
+
+.cic-loc-call__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	align-items: center;
+}
+
+.cic-loc-call__phone {
+	min-height: 52px;
+	padding-inline: 1.5rem;
+	font-size: 1.125rem;
+}
+
+.cic-loc-call__phone .cic-icon {
+	width: 1.3em;
+	height: 1.3em;
+}
+
+.cic-loc-call__note {
+	margin: 1rem 0 0;
+	font-size: 0.875rem;
+	opacity: 0.9;
+}
+
+.cic-loc-call__spark,
+.cic-areas-start__spark {
+	position: absolute;
+	top: 1.25rem;
+	right: 1.5rem;
+	display: none;
+	width: 2.5rem;
+	height: 2.5rem;
+}
+
+.cic-loc-call__spark span,
+.cic-areas-start__spark span {
+	position: absolute;
+	width: 1.1rem;
+	height: 0.25rem;
+	border-radius: 1rem;
+	background-color: var(--wp--preset--color--strawberry);
+}
+
+.cic-loc-call__spark span:nth-child(1),
+.cic-areas-start__spark span:nth-child(1) {
+	top: 0.2rem;
+	left: 0.9rem;
+	transform: rotate(-70deg);
+}
+
+.cic-loc-call__spark span:nth-child(2),
+.cic-areas-start__spark span:nth-child(2) {
+	top: 1rem;
+	left: 1.2rem;
+	transform: rotate(-30deg);
+}
+
+.cic-loc-call__spark span:nth-child(3),
+.cic-areas-start__spark span:nth-child(3) {
+	top: 1.9rem;
+	left: 1rem;
+	transform: rotate(10deg);
+}
+
+@media (min-width: 900px) {
+	.cic-loc-call {
+		grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+		gap: 2.5rem;
+		padding: calc(var(--cic-space) * 1.5);
+		padding-right: calc(var(--cic-space) * 5);
+	}
+
+	.cic-loc-call__media {
+		aspect-ratio: 16 / 10;
+	}
+
+	.cic-loc-call__spark,
+	.cic-areas-start__spark {
+		display: block;
+	}
+}
+
+/* Occasion cards. */
+.cic-occasions {
+	display: grid;
+	gap: 1.25rem;
+	margin: 2rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-occasion {
+	position: relative;
+}
+
+.cic-occasion__media {
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+}
+
+.cic-occasion__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	padding: calc(var(--cic-space) * 2) calc(var(--cic-space) * 2.25);
+}
+
+.cic-occasion__title {
+	--cic-fs-min: 20;
+	--cic-fs-max: 24;
+	--cic-lh-min: 24;
+	--cic-lh-max: 28;
+	margin: 0 0 0.25em;
+}
+
+.cic-occasion__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.cic-occasion__title a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.cic-occasion:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+.cic-occasion__title a:focus-visible {
+	outline: none;
+}
+
+.cic-occasion p {
+	margin: 0 0 0.5rem;
+	color: var(--cic-color-muted);
+}
+
+.cic-occasion__more {
+	margin-top: auto !important;
+	color: var(--cic-color-link) !important;
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-occasions--row .cic-occasion {
+	flex-direction: row;
+}
+
+.cic-occasions--row .cic-occasion__media {
+	flex: 0 0 42%;
+	aspect-ratio: auto;
+	min-height: 8.5rem;
+}
+
+@media (min-width: 640px) {
+	.cic-occasions--grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 768px) {
+	.cic-occasions--row {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.cic-occasions--row .cic-occasion__media {
+		flex-basis: 48%;
+		min-height: 9.5rem;
+	}
+}
+
+@media (min-width: 1100px) {
+	.cic-occasions--grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	/* Five or six occasions: two balanced rows of three. */
+	.cic-occasions--grid.cic-occasions--n5,
+	.cic-occasions--grid.cic-occasions--n6 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Hub hero
+ * ------------------------------------------------------------------ */
+.cic-areas-hero {
+	position: relative;
+	padding-top: calc(var(--cic-space) * 3);
+	padding-bottom: calc(var(--cic-space) * 2);
+	background: linear-gradient(180deg, var(--wp--preset--color--surface-soft) 0%, var(--wp--preset--color--surface-soft) 82%, var(--wp--preset--color--surface-base) 100%);
+}
+
+.cic-areas-hero__grid {
+	display: grid;
+	gap: 1.5rem;
+	align-items: center;
+}
+
+.cic-areas-hero__title {
+	margin-bottom: 0.35em;
+}
+
+.cic-areas-hero__intro {
+	max-width: 36rem;
+	margin-bottom: 0;
+}
+
+.cic-areas-hero__media {
+	position: relative;
+}
+
+.cic-areas-hero__photo {
+	display: none;
+}
+
+.cic-county-tabs {
+	margin-top: 1.5rem;
+}
+
+.cic-county-tabs ul {
+	display: none;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-county-tab {
+	display: inline-flex;
+	gap: 0.45rem;
+	align-items: center;
+	min-height: 44px;
+	padding: 0.5rem 1.4rem;
+	border-radius: 999px;
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 30%, var(--wp--preset--color--surface-base));
+	color: var(--wp--preset--color--text-primary);
+	font-weight: var(--cic-weight-ui);
+	text-decoration: none;
+}
+
+.cic-county-tab .cic-icon {
+	width: 1.15em;
+	height: 1.15em;
+	color: var(--cic-color-action);
+}
+
+.cic-county-tab.is-first {
+	background-color: var(--cic-color-action);
+	color: var(--cic-color-on-action);
+}
+
+.cic-county-tab.is-first .cic-icon {
+	color: inherit;
+}
+
+.cic-county-tab:hover {
+	text-decoration: underline;
+}
+
+@media (min-width: 640px) {
+	.cic-county-tabs ul {
+		display: flex;
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-areas-hero__grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		min-height: 420px;
+	}
+
+	.cic-areas-hero__media {
+		min-height: 400px;
+	}
+
+	.cic-areas-hero__media .cic-ca-map {
+		position: absolute;
+		top: 0;
+		left: -4%;
+		width: 74%;
+	}
+
+	.cic-areas-hero__photo {
+		position: absolute;
+		top: 0;
+		right: calc(-1 * var(--cic-gutter));
+		display: block;
+		width: 48%;
+		height: 100%;
+		overflow: hidden;
+		border-radius: 46% 0 0 54% / 30% 0 0 30%;
+		box-shadow: var(--wp--custom--cic--component--card-shadow);
+	}
+
+	.cic-areas-hero__media .cic-ca-map__caption {
+		justify-content: flex-start;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * County directory
+ * ------------------------------------------------------------------ */
+.cic-areas-counties {
+	padding-top: calc(var(--cic-section-pad) * 0.6);
+}
+
+.cic-county-cards {
+	display: grid;
+	gap: 0.75rem;
+	margin: 1.5rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-county-card {
+	scroll-margin-top: calc(var(--cic-header-offset, 0px) + 1rem);
+}
+
+.cic-county-card__media {
+	display: none;
+	aspect-ratio: 16 / 9;
+	overflow: hidden;
+}
+
+.cic-county-card__toggle > summary {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 52px;
+	padding: 0.75rem 1.25rem;
+	list-style: none;
+	cursor: pointer;
+}
+
+.cic-county-card__toggle > summary::-webkit-details-marker {
+	display: none;
+}
+
+.cic-county-card__name {
+	--cic-fs-min: 20;
+	--cic-fs-max: 28;
+	--cic-lh-min: 24;
+	--cic-lh-max: 32;
+	margin: 0;
+}
+
+.cic-county-card__chevron .cic-icon {
+	transform: rotate(90deg);
+	transition: transform 0.15s ease;
+}
+
+.cic-county-card__toggle[open] .cic-county-card__chevron .cic-icon {
+	transform: rotate(-90deg);
+}
+
+.cic-county-card__body {
+	display: flex;
+	flex-direction: column;
+	padding: 0 1.25rem 1.25rem;
+}
+
+.cic-county-card__text {
+	margin: 0 0 0.75rem;
+	color: var(--cic-color-muted);
+}
+
+.cic-county-card__cities {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.55rem 1rem;
+	margin: 0 0 1rem;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-county-card__cities a {
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-ui);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25em;
+}
+
+.cic-county-card__all {
+	margin: 0 0 1rem;
+}
+
+.cic-county-card__check {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	margin-top: auto;
+	padding: 0.5rem 1rem;
+	border-radius: var(--cic-radius-field);
+	background-color: color-mix(in srgb, var(--wp--preset--color--strawberry) 10%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-ui);
+	text-decoration: none;
+}
+
+.cic-county-card__check:hover {
+	text-decoration: underline;
+}
+
+.cic-areas-counties__note {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+	justify-content: center;
+	margin: 1rem 0 0;
+}
+
+.cic-areas-counties__note .cic-icon {
+	width: 1.1em;
+	height: 1.1em;
+}
+
+.cic-pagination {
+	margin: 0 0 1rem;
+}
+
+.cic-pagination .page-numbers {
+	display: inline-block;
+	min-width: 2.25rem;
+	padding: 0.35rem 0.5rem;
+	text-align: center;
+}
+
+.cic-pagination .current {
+	border-radius: var(--cic-radius-field);
+	background-color: var(--wp--preset--color--surface-soft);
+	font-weight: var(--cic-weight-strong);
+}
+
+@media (min-width: 640px) {
+	.cic-county-cards {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.25rem;
+	}
+
+	.cic-county-card__media {
+		display: block;
+	}
+
+	.cic-county-card__toggle {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+	}
+
+	.cic-county-card__toggle > summary {
+		min-height: 0;
+		padding: 1.25rem 1.25rem 0.25rem;
+		pointer-events: none;
+	}
+
+	.cic-county-card__chevron {
+		display: none;
+	}
+
+	.cic-county-card__body {
+		flex: 1;
+	}
+}
+
+@media (min-width: 1000px) {
+	.cic-county-cards {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-county-cards--single {
+		grid-template-columns: minmax(0, 1fr);
+		max-width: 46rem;
+		margin-inline: auto;
+	}
+
+	.cic-county-cards--single .cic-county-card__cities {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Steps ("What we need to check your location")
+ * ------------------------------------------------------------------ */
+.cic-areas-steps {
+	padding-top: calc(var(--cic-section-pad) * 0.4);
+	padding-bottom: calc(var(--cic-section-pad) * 0.6);
+}
+
+.cic-loc-steps {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1.25rem 1rem;
+	margin: 1.5rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-loc-step {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	align-items: center;
+	text-align: center;
+}
+
+.cic-loc-step__icon {
+	display: grid;
+	flex: none;
+	width: 4.25rem;
+	height: 4.25rem;
+	place-items: center;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 32%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-action);
+}
+
+.cic-loc-step:nth-child(even) .cic-loc-step__icon {
+	color: var(--wp--preset--color--text-primary);
+}
+
+.cic-loc-step__icon .cic-icon {
+	width: 2rem;
+	height: 2rem;
+}
+
+.cic-loc-step__text strong {
+	display: block;
+	color: var(--cic-color-heading);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-loc-step__text span {
+	display: block;
+	color: var(--cic-color-muted);
+	font-size: 0.9375rem;
+}
+
+@media (min-width: 900px) {
+	.cic-loc-steps {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 1.5rem;
+	}
+
+	.cic-loc-step {
+		position: relative;
+		flex-direction: row;
+		gap: 1rem;
+		align-items: flex-start;
+		text-align: left;
+	}
+
+	.cic-loc-step + .cic-loc-step::before {
+		position: absolute;
+		top: 1.6rem;
+		left: -1.2rem;
+		width: 0.55rem;
+		height: 0.55rem;
+		border-top: 2px solid var(--cic-color-muted);
+		border-right: 2px solid var(--cic-color-muted);
+		content: "";
+		transform: rotate(45deg);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Hub call panel, occasions, FAQ, starter
+ * ------------------------------------------------------------------ */
+.cic-areas-call {
+	padding-block: calc(var(--cic-section-pad) * 0.2);
+}
+
+.cic-areas-occasions__intro {
+	max-width: 44rem;
+	margin-inline: auto;
+}
+
+.cic-areas-faq__sundae .cic-icon {
+	color: var(--wp--preset--color--strawberry);
+}
+
+.cic-areas-start {
+	padding-top: calc(var(--cic-section-pad) * 0.4);
+}
+
+.cic-areas-start__panel {
+	position: relative;
+	padding: calc(var(--cic-space) * 2.5) calc(var(--cic-space) * 2);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-areas-start__title {
+	--cic-fs-min: 26;
+	--cic-fs-max: 34;
+	--cic-lh-min: 30;
+	--cic-lh-max: 38;
+	margin: 0 0 0.25em;
+}
+
+.cic-areas-start__intro {
+	margin: 0 0 1.25rem;
+	color: var(--cic-color-muted);
+}
+
+.cic-areas-start .cic-search {
+	box-shadow: none;
+}
+
+@media (min-width: 900px) {
+	.cic-areas-start__panel {
+		padding: calc(var(--cic-space) * 3) calc(var(--cic-space) * 4);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * City page
+ * ------------------------------------------------------------------ */
+.cic-city-hero {
+	padding-top: calc(var(--cic-space) * 3);
+}
+
+.cic-city-hero__title {
+	margin-bottom: 0.25em;
+}
+
+.cic-city-hero__subtitle {
+	margin: 0 0 0.5rem;
+	color: var(--cic-color-heading);
+	font-size: 1.125rem;
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-city-hero__intro {
+	max-width: 32rem;
+	margin: 0;
+}
+
+/* The city hero text is taller than the homepage's, so the search card does not overlap it. */
+@media (min-width: 900px) {
+	.cic-city-hero .cic-home-hero__search {
+		margin-top: 0.5rem;
+	}
+}
+
+.cic-city-plans {
+	padding-top: calc(var(--cic-section-pad) * 0.7);
+	padding-bottom: calc(var(--cic-section-pad) * 0.4);
+}
+
+.cic-city-plans__intro {
+	max-width: 40rem;
+	margin-inline: auto;
+}
+
+.cic-plan-cards {
+	display: grid;
+	gap: 1rem;
+	margin: 1.5rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-plan-card {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	padding: 1.1rem 1.25rem;
+	border: 1px solid color-mix(in srgb, var(--wp--preset--color--lavender) 70%, var(--wp--preset--color--surface-base));
+	border-radius: var(--cic-radius-card);
+	background-color: color-mix(in srgb, var(--wp--preset--color--surface-soft) 70%, var(--wp--preset--color--surface-base));
+}
+
+.cic-plan-card__icon {
+	flex: none;
+	color: var(--wp--preset--color--action-secondary);
+}
+
+.cic-plan-card:nth-child(2) .cic-plan-card__icon,
+.cic-plan-card:nth-child(3) .cic-plan-card__icon {
+	color: var(--cic-color-action);
+}
+
+.cic-plan-card__icon .cic-icon {
+	width: 3rem;
+	height: 3rem;
+	stroke-width: 1.3;
+}
+
+.cic-plan-card__text strong {
+	display: block;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-size: 1.2rem;
+}
+
+.cic-plan-card__text span {
+	display: block;
+	color: var(--cic-color-muted);
+}
+
+@media (min-width: 768px) {
+	.cic-plan-cards {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.cic-city .cic-home-treats {
+	padding-top: calc(var(--cic-section-pad) * 0.5);
+}
+
+.cic-city-call {
+	padding-block: calc(var(--cic-section-pad) * 0.3) 0;
+	background-color: var(--wp--preset--color--action-secondary);
+}
+
+.cic-city-call .cic-loc-call {
+	padding-inline: 0;
+	border-radius: 0;
+}
+
+.cic-city-call + .cic-city-occasions {
+	margin-top: 0;
+}
+
+.cic-city-occasions {
+	padding-top: calc(var(--cic-section-pad) * 0.6);
+	padding-bottom: calc(var(--cic-section-pad) * 0.6);
+}
+
+.cic-city-check__grid {
+	display: grid;
+	gap: 2rem;
+	align-items: center;
+}
+
+.cic-city-check__title {
+	--cic-fs-min: 28;
+	--cic-fs-max: 36;
+	--cic-lh-min: 32;
+	--cic-lh-max: 40;
+	margin-bottom: 0.25em;
+}
+
+.cic-city-check .cic-area-check {
+	margin-top: 1rem;
+}
+
+.cic-city-check__needs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1.5rem;
+	margin: 1.25rem 0 0;
+	padding: 0;
+	list-style: none;
+	color: var(--wp--preset--color--text-primary);
+	font-size: 0.9375rem;
+}
+
+.cic-city-check__needs li {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.cic-city-check__needs .cic-icon {
+	color: var(--wp--preset--color--text-primary);
+}
+
+.cic-city-map {
+	position: relative;
+	margin: 0;
+}
+
+.cic-city-map svg {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: var(--cic-radius-card);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-city-map__ground {
+	fill: color-mix(in srgb, var(--wp--preset--color--lavender) 22%, var(--wp--preset--color--surface-base));
+}
+
+.cic-city-map__park {
+	fill: color-mix(in srgb, var(--wp--preset--color--treat-mint) 55%, var(--wp--preset--color--surface-base));
+}
+
+.cic-city-map__roads path {
+	fill: none;
+	stroke: var(--wp--preset--color--surface-base);
+	stroke-width: 5;
+}
+
+.cic-city-map__streets path {
+	fill: none;
+	stroke: var(--wp--preset--color--surface-base);
+	stroke-width: 2;
+	opacity: 0.85;
+}
+
+.cic-city-map__pin {
+	fill: var(--wp--preset--color--action-primary);
+}
+
+.cic-city-map__pin-dot {
+	fill: var(--wp--preset--color--surface-base);
+}
+
+.cic-city-map__label {
+	position: absolute;
+	top: 32%;
+	left: 58%;
+	color: var(--wp--preset--color--text-primary);
+	font-weight: var(--cic-weight-strong);
+	text-shadow: 0 0 3px var(--wp--preset--color--surface-base), 0 0 6px var(--wp--preset--color--surface-base);
+}
+
+.cic-city-map figcaption {
+	margin-top: 0.4rem;
+}
+
+@media (min-width: 900px) {
+	.cic-city-check__grid {
+		grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+		gap: 3rem;
+	}
+}
+
+.cic-city-faq {
+	padding-top: calc(var(--cic-section-pad) * 0.3);
+}
+
+.cic-city-faq__grid {
+	display: grid;
+	gap: 2rem;
+	align-items: start;
+}
+
+.cic-city-faq__title {
+	--cic-fs-min: 28;
+	--cic-fs-max: 36;
+	--cic-lh-min: 32;
+	--cic-lh-max: 40;
+}
+
+.cic-city-quote {
+	padding: calc(var(--cic-space) * 2.5);
+	background-color: color-mix(in srgb, var(--wp--preset--color--surface-soft) 75%, var(--wp--preset--color--surface-base));
+}
+
+.cic-city-quote__title {
+	--cic-fs-min: 24;
+	--cic-fs-max: 28;
+	--cic-lh-min: 28;
+	--cic-lh-max: 32;
+	margin-bottom: 0.75rem;
+}
+
+.cic-city-quote__form {
+	display: grid;
+	gap: 0.75rem 1rem;
+}
+
+.cic-field {
+	display: grid;
+	gap: 0.3rem;
+	margin: 0;
+}
+
+.cic-field label {
+	color: var(--wp--preset--color--text-primary);
+	font-size: 0.875rem;
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-field .cic-input[readonly] {
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-city-quote__submit,
+.cic-city-quote__form .cic-search__error,
+.cic-city-quote__note {
+	grid-column: 1 / -1;
+}
+
+.cic-city-quote__note {
+	margin: 0;
+	text-align: center;
+}
+
+@media (min-width: 600px) {
+	.cic-city-quote__form {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.cic-field--wide {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-city-faq__grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 3rem;
+	}
+}
+
+.cic-city-nearby {
+	padding-block: 1rem;
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-city-nearby__inner {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.5rem;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.cic-city-nearby__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem 0.6rem;
+	align-items: center;
+	margin: 0;
+}
+
+.cic-city-nearby__list a {
+	color: var(--cic-color-heading);
+	text-underline-offset: 0.25em;
+}

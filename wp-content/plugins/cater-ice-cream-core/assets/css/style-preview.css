@@ -1,0 +1,108 @@
+/* Layout of the private style preview page only. Components are styled by the theme. */
+
+.cic-preview-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 1.5rem;
+}
+
+.cic-preview-nav a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 40px;
+	padding: 0.3em 0.9em;
+	border: 1px solid var(--cic-color-border);
+	border-radius: 999px;
+	color: var(--cic-color-heading);
+	text-decoration: none;
+}
+
+.cic-preview-nav a[aria-current="page"] {
+	border-color: var(--cic-color-action);
+	background-color: var(--cic-color-action);
+	color: var(--cic-color-on-action);
+}
+
+.cic-preview-label {
+	--cic-fs-min: var(--cic-fs-eyebrow-min);
+	--cic-fs-max: var(--cic-fs-eyebrow-max);
+	--cic-lh-min: var(--cic-fs-eyebrow-lh-min);
+	--cic-lh-max: var(--cic-fs-eyebrow-lh-max);
+	margin: 2.5rem 0 1rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--cic-color-border);
+	color: var(--cic-color-muted);
+	font-family: var(--cic-font-body);
+	font-weight: var(--cic-weight-ui);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.cic-preview-label:first-child {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.cic-preview-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 1.25rem;
+	align-items: center;
+	margin-block: 1rem 1.5rem;
+}
+
+.cic-preview-form {
+	display: grid;
+	gap: 1rem 1.5rem;
+}
+
+.cic-preview-cards,
+.cic-preview-grid {
+	display: grid;
+	gap: 1.5rem;
+}
+
+.cic-preview-strip .cic-card__media {
+	aspect-ratio: 16 / 7;
+}
+
+.cic-decor-dot {
+	position: absolute;
+	top: 22%;
+	left: 18%;
+	width: 26%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background-color: var(--cic-color-accent);
+}
+
+.cic-decor-dot--2 {
+	top: 40%;
+	left: 52%;
+	width: 18%;
+	background-color: var(--cic-color-accent-2);
+	box-shadow: 0 0 0 6px var(--cic-color-decor);
+}
+
+.cic-contrast-warnings {
+	color: var(--wp--preset--color--error);
+}
+
+@media (min-width: 768px) {
+	.cic-preview-form,
+	.cic-preview-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.cic-field--wide {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-preview-cards {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}

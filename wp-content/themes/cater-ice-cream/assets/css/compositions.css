@@ -1,0 +1,1080 @@
+/*
+ * Treat and event compositions (vertical slice: Dippin' Dots 09, Birthday 04) and the functional
+ * /treats/ and /events/ lists. Colours come only from Design System roles/tokens; presets
+ * (.cic-context-dots, .cic-context-birthday …) supply the occasion palette.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Shared composition pieces
+ * ------------------------------------------------------------------ */
+.cic-comp {
+	position: relative;
+	overflow-x: clip;
+}
+
+/* Content always sits above decorative balloons and confetti. */
+.cic-comp > .cic-container,
+.cic-comp > .cic-collage {
+	position: relative;
+	z-index: 1;
+}
+
+/* Each section's content layer is z-index 1, so a later section paints over an earlier one. While a
+   section shows an open popover (location suggestions from context.js, the date picker), the whole
+   section is lifted one step so the popover stays above the following sections and every option
+   remains clickable. Still far below the sticky header (50) and the mobile quote bar (40). */
+.cic-comp:has(.cic-ac-list:not([hidden]), .cic-dp:not([hidden])) {
+	z-index: 2;
+}
+
+.cic-center {
+	text-align: center;
+}
+
+.cic-section-intro {
+	margin-top: -0.25em;
+	margin-bottom: 2rem;
+}
+
+.cic-band {
+	background-color: var(--wp--preset--color--surface-soft);
+}
+
+.cic-tint {
+	background-color: color-mix(in srgb, var(--cic-color-accent-2) 22%, var(--cic-color-surface));
+}
+
+.cic-photo {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.cic-breadcrumbs ol {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.5rem;
+	margin: 0 0 1.25rem;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-breadcrumbs li {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	--cic-lh-min: var(--cic-fs-caption-lh-min);
+	--cic-lh-max: var(--cic-fs-caption-lh-max);
+	color: var(--cic-color-text);
+}
+
+.cic-breadcrumbs li + li::before {
+	margin-right: 0.5rem;
+	content: "/";
+	opacity: 0.6;
+}
+
+.cic-breadcrumbs a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.cic-breadcrumbs a:hover {
+	text-decoration: underline;
+}
+
+.cic-line {
+	display: block;
+}
+
+.cic-hero__title :is(strong) {
+	color: var(--cic-color-decor);
+	font-weight: inherit;
+}
+
+.cic-icon {
+	width: 1.5em;
+	height: 1.5em;
+	flex: none;
+}
+
+.cic-icon-badge {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--cic-color-accent-2) 22%, var(--wp--preset--color--surface-base));
+	color: var(--cic-color-heading);
+}
+
+.cic-icon-badge--sm {
+	width: 2.75rem;
+	height: 2.75rem;
+}
+
+.cic-icon-badge--plain {
+	width: 2rem;
+	height: 2rem;
+	background: none;
+	color: var(--cic-color-action);
+}
+
+.cic-eyebrow--accent {
+	color: var(--cic-color-link);
+}
+
+.cic-button--block {
+	width: 100%;
+}
+
+.cic-rule-note {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	margin: 2rem 0 0;
+	color: var(--cic-color-muted);
+	text-align: center;
+}
+
+.cic-rule-note::before,
+.cic-rule-note::after {
+	flex: 1;
+	height: 1px;
+	background: var(--cic-color-border);
+	content: "";
+}
+
+.cic-rule-note span {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	font-size: clamp(calc(var(--cic-fs-min) * 1px), 1vw, calc(var(--cic-fs-max) * 1px));
+}
+
+.cic-accordion__item[open] > summary {
+	color: var(--cic-color-link);
+}
+
+/* ------------------------------------------------------------------ *
+ * Treat hero (09)
+ * ------------------------------------------------------------------ */
+.cic-hero {
+	padding-block: calc(var(--cic-space) * 3) 0;
+}
+
+.cic-treat__hero .cic-hero__grid {
+	display: grid;
+	gap: 2rem;
+	align-items: center;
+}
+
+.cic-treat__hero .cic-hero__text {
+	position: relative;
+	z-index: 1;
+	padding-bottom: calc(var(--cic-space) * 4);
+}
+
+.cic-hero__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 1.75rem;
+	align-items: center;
+	margin-top: 1.5rem;
+}
+
+.cic-hero__jump {
+	--cic-fs-min: var(--cic-fs-caption-min);
+	--cic-fs-max: var(--cic-fs-caption-max);
+	margin: 1.25rem 0 0;
+}
+
+.cic-hero__jump a {
+	color: var(--cic-color-text);
+	text-decoration: none;
+}
+
+.cic-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin: 1.5rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-chip {
+	display: inline-flex;
+	gap: 0.5rem;
+	align-items: center;
+	min-height: 44px;
+	padding: 0.4rem 1.1rem;
+	border-radius: 999px;
+	background-color: color-mix(in srgb, var(--cic-color-accent-2) 30%, var(--wp--preset--color--surface-base));
+	color: var(--wp--preset--color--text-primary);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-chip:nth-child(2) {
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 35%, var(--wp--preset--color--surface-base));
+}
+
+.cic-chip:nth-child(3) {
+	background-color: color-mix(in srgb, var(--wp--preset--color--birthday-mint) 35%, var(--wp--preset--color--surface-base));
+}
+
+.cic-chip .cic-icon {
+	width: 1.15em;
+	height: 1.15em;
+	color: var(--cic-color-link);
+}
+
+.cic-treat__hero .cic-hero__media {
+	position: relative;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	border-radius: var(--cic-radius-image);
+}
+
+.cic-dots-decor {
+	display: none;
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background-image:
+		radial-gradient(circle at 54% 18%, var(--cic-color-accent-2) 0 7px, transparent 8px),
+		radial-gradient(circle at 60% 9%, var(--cic-color-accent) 0 9px, transparent 10px),
+		radial-gradient(circle at 47% 30%, var(--wp--preset--color--birthday-mint) 0 6px, transparent 7px),
+		radial-gradient(circle at 66% 22%, var(--wp--preset--color--lavender) 0 5px, transparent 6px),
+		radial-gradient(circle at 51% 4%, var(--cic-color-accent-2) 0 4px, transparent 5px);
+	opacity: 0.7;
+}
+
+@media (min-width: 900px) {
+	/* Floating dots sit beside the photo on desktop only; on mobile they would cover text. */
+	.cic-dots-decor {
+		display: block;
+	}
+
+	.cic-treat__hero .cic-hero__grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		min-height: 520px;
+	}
+
+	.cic-treat__hero .cic-hero__media {
+		align-self: stretch;
+		aspect-ratio: auto;
+		margin-right: calc(-1 * var(--cic-gutter));
+		border-radius: calc(var(--cic-radius-image) * 4) 0 0 calc(var(--cic-radius-image) * 4);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Treat feelings, occasions, themes, detail, quote
+ * ------------------------------------------------------------------ */
+.cic-qualities {
+	display: grid;
+	gap: 1.5rem 2rem;
+	margin: 2rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-quality {
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
+}
+
+.cic-quality__title {
+	--cic-fs-min: var(--cic-fs-h4-min);
+	--cic-fs-max: var(--cic-fs-h4-max);
+	--cic-lh-min: var(--cic-fs-h4-lh-min);
+	--cic-lh-max: var(--cic-fs-h4-lh-max);
+	margin-bottom: 0.25em;
+}
+
+.cic-quality p {
+	margin: 0;
+	color: var(--cic-color-muted);
+}
+
+.cic-pairing-grid,
+.cic-theme-grid,
+.cic-story-grid {
+	display: grid;
+	gap: 1.5rem;
+	margin: 2rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-pairing-card {
+	display: grid;
+	grid-template-rows: auto 1fr;
+}
+
+.cic-pairing-card__media {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+}
+
+.cic-pairing-card h3 {
+	--cic-fs-min: var(--cic-fs-h4-min);
+	--cic-fs-max: 26;
+	--cic-lh-min: var(--cic-fs-h4-lh-min);
+	--cic-lh-max: 32;
+}
+
+.cic-pairing-card__text {
+	color: var(--cic-color-muted);
+}
+
+.cic-theme-card__media {
+	position: relative;
+	aspect-ratio: 3 / 2;
+	overflow: hidden;
+	border-radius: var(--cic-radius-card);
+}
+
+.cic-swatches {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	gap: 6px;
+	padding: 8px 12px;
+	border-top-left-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-swatch-dot {
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+}
+
+.cic-theme-card__title {
+	--cic-fs-min: var(--cic-fs-h4-min);
+	--cic-fs-max: var(--cic-fs-h4-max);
+	--cic-lh-min: var(--cic-fs-h4-lh-min);
+	--cic-lh-max: var(--cic-fs-h4-lh-max);
+	margin: 1rem 0 0.25em;
+}
+
+.cic-split {
+	display: grid;
+}
+
+.cic-split__media {
+	min-height: 280px;
+}
+
+.cic-split__body {
+	padding: var(--cic-section-pad) var(--cic-gutter);
+}
+
+.cic-points {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 2rem;
+	margin: 1.5rem 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-points li {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	max-width: 15rem;
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-quote-split {
+	display: grid;
+	gap: 2rem;
+	align-items: center;
+}
+
+.cic-your-treat {
+	display: inline-flex;
+	gap: 1rem;
+	align-items: center;
+	padding: 0.75rem 1.5rem 0.75rem 0.75rem;
+	border-radius: 999px;
+	background-color: var(--wp--preset--color--surface-base);
+}
+
+.cic-quote-card {
+	padding: calc(var(--cic-space) * 4);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--custom--cic--component--quote-starter-surface);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	text-align: center;
+}
+
+.cic-quote-card .cic-caption {
+	margin: 0.75rem 0 0.5rem;
+}
+
+.cic-faq-split {
+	display: grid;
+	gap: 1.5rem 3rem;
+}
+
+@media (min-width: 768px) {
+	.cic-qualities {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.cic-pairing-grid,
+	.cic-story-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.cic-pairing-card {
+		grid-template-columns: 45% 1fr;
+		grid-template-rows: none;
+	}
+
+	.cic-pairing-card__media {
+		aspect-ratio: auto;
+	}
+
+	.cic-theme-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 900px) {
+	.cic-split {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+	}
+
+	.cic-split__body {
+		padding-inline: calc(var(--cic-gutter) * 1.5);
+	}
+
+	.cic-quote-split,
+	.cic-faq-split {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Event hero (04 Birthday) and collage
+ * ------------------------------------------------------------------ */
+.cic-event__hero {
+	padding-bottom: 6rem;
+	text-align: center;
+}
+
+.cic-event-hero__intro {
+	position: relative;
+	z-index: 1;
+	max-width: 46rem;
+}
+
+.cic-event-hero__intro .cic-breadcrumbs ol {
+	justify-content: center;
+}
+
+.cic-event-hero__intro .cic-hero__actions {
+	justify-content: center;
+}
+
+.cic-event--birthday .cic-hero__title {
+	--cic-fs-max: 72;
+	--cic-lh-max: 76;
+}
+
+.cic-collage {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	width: min(100% - 2 * var(--cic-gutter), var(--cic-wide));
+	margin: 2.5rem auto 0;
+}
+
+.cic-collage__item {
+	overflow: hidden;
+	aspect-ratio: 4 / 3;
+	border: 6px solid var(--wp--preset--color--surface-base);
+	border-radius: var(--cic-radius-image);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-collage__item--2 {
+	grid-column: 1 / -1;
+	grid-row: 1;
+}
+
+@media (min-width: 768px) {
+	.cic-collage--3 {
+		grid-template-columns: 0.9fr 1.35fr 0.85fr;
+		align-items: center;
+		gap: 0;
+	}
+
+	.cic-collage--3 .cic-collage__item--1 {
+		grid-column: 1;
+		grid-row: 1;
+		z-index: 1;
+		margin-right: -2rem;
+		border-radius: 50% 50% 48% 52% / 55% 50% 50% 45%;
+	}
+
+	.cic-collage--3 .cic-collage__item--2 {
+		grid-column: 2;
+		z-index: 2;
+	}
+
+	.cic-collage--3 .cic-collage__item--3 {
+		grid-column: 3;
+		grid-row: 1;
+		z-index: 1;
+		margin-left: -1.5rem;
+		transform: rotate(3deg);
+	}
+}
+
+/* Balloons and confetti: decorative, positioned like the approved reference, hidden when cramped. */
+.cic-balloon {
+	position: absolute;
+	z-index: 0;
+	width: clamp(34px, 5vw, 64px);
+	height: auto;
+	pointer-events: none;
+}
+
+.cic-balloon--l1 {
+	top: 6%;
+	left: 4%;
+}
+
+.cic-balloon--l2 {
+	top: 9%;
+	left: 10%;
+	transform: rotate(8deg);
+}
+
+.cic-balloon--r1 {
+	top: 5%;
+	right: 9%;
+}
+
+.cic-balloon--r2 {
+	top: 10%;
+	right: 4%;
+	transform: rotate(-8deg);
+}
+
+.cic-balloon--t1 {
+	top: 1.5rem;
+	left: 6%;
+	width: clamp(30px, 4vw, 48px);
+}
+
+/* Graduation treats: a few stars at the top corner (the confetti is shared with Birthday). */
+.cic-treats__stars {
+	top: 1.5rem;
+	left: 5%;
+	width: clamp(48px, 6vw, 80px);
+}
+
+.cic-confetti {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+}
+
+.cic-confetti__piece {
+	position: absolute;
+	width: 6px;
+	height: 18px;
+	border-radius: 3px;
+	background-color: var(--cic-color-heading-accent);
+	transform: rotate(25deg);
+}
+
+.cic-confetti__piece:nth-child(3n + 2) {
+	background-color: var(--cic-color-accent);
+}
+
+.cic-confetti__piece:nth-child(3n) {
+	background-color: var(--cic-color-accent-2);
+}
+
+.cic-confetti__piece--1 { top: 12%; left: 22%; }
+.cic-confetti__piece--2 { top: 30%; left: 17%; transform: rotate(-35deg); }
+.cic-confetti__piece--3 { top: 8%; left: 33%; transform: rotate(60deg); }
+.cic-confetti__piece--4 { top: 38%; left: 8%; }
+.cic-confetti__piece--5 { top: 14%; right: 24%; transform: rotate(-20deg); }
+.cic-confetti__piece--6 { top: 32%; right: 16%; }
+.cic-confetti__piece--7 { top: 6%; right: 33%; transform: rotate(45deg); }
+.cic-confetti__piece--8 { top: 42%; right: 7%; transform: rotate(-60deg); }
+.cic-confetti__piece--9 { top: 52%; left: 3%; }
+.cic-confetti__piece--10 { top: 55%; right: 3%; transform: rotate(80deg); }
+
+@media (max-width: 767.98px) {
+	.cic-balloon--l2,
+	.cic-balloon--r2,
+	.cic-confetti__piece--1,
+	.cic-confetti__piece--3,
+	.cic-confetti__piece--5,
+	.cic-confetti__piece--7 {
+		display: none;
+	}
+
+	.cic-balloon--l1 {
+		top: 2%;
+		left: 2%;
+	}
+
+	.cic-balloon--r1 {
+		top: 2%;
+		right: 2%;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Quote starter strip
+ * ------------------------------------------------------------------ */
+.cic-starter-wrap {
+	position: relative;
+	z-index: 3;
+	margin-top: -4rem;
+}
+
+/* Graduation: the strip follows the value row (not the hero), so it does not overlap upward. */
+.cic-event--graduation .cic-starter-wrap {
+	margin-top: 0;
+	padding-bottom: calc(var(--cic-space) * 2);
+}
+
+.cic-starter {
+	display: grid;
+	gap: 1rem;
+	padding: calc(var(--cic-space) * 2.5);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--custom--cic--component--quote-starter-surface);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	color: var(--wp--preset--color--text-primary);
+}
+
+.cic-starter__field {
+	display: flex;
+	gap: 0.5rem;
+	align-items: flex-end;
+}
+
+.cic-starter__field > div {
+	flex: 1;
+	min-width: 0;
+}
+
+.cic-starter__note {
+	margin: 0;
+	text-align: center;
+}
+
+@media (min-width: 900px) {
+	.cic-starter {
+		grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+		align-items: end;
+	}
+
+	.cic-starter__note {
+		grid-column: 1 / -1;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Event featured treats
+ * ------------------------------------------------------------------ */
+.cic-treat-feature {
+	display: grid;
+	gap: 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-treat-feature__card {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	align-items: center;
+	overflow: hidden;
+	border-radius: var(--cic-radius-card);
+	background-color: color-mix(in srgb, var(--cic-color-heading-accent) 14%, var(--wp--preset--color--surface-base));
+}
+
+.cic-treat-feature__card--2 {
+	background-color: color-mix(in srgb, var(--cic-color-accent-2) 30%, var(--wp--preset--color--surface-base));
+}
+
+.cic-treat-feature__card--2 .cic-treat-feature__media {
+	order: 2;
+}
+
+.cic-treat-feature__media {
+	aspect-ratio: 4 / 3;
+	height: 100%;
+}
+
+.cic-treat-feature__body {
+	padding: 1.25rem;
+}
+
+.cic-treat-feature__title {
+	--cic-fs-min: 28;
+	--cic-fs-max: 46;
+	--cic-lh-min: 30;
+	--cic-lh-max: 48;
+	margin: 0 0 0.35em;
+}
+
+.cic-treat-feature__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* The whole card is clickable through the title link. */
+.cic-treat-feature__title a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.cic-treat-feature__card:focus-within {
+	outline: 3px solid var(--cic-color-focus);
+	outline-offset: 3px;
+}
+
+.cic-treat-feature__title a:focus-visible {
+	outline: none;
+}
+
+.cic-treat-feature__more {
+	margin: 0;
+	color: var(--cic-color-link);
+	font-weight: var(--cic-weight-ui);
+}
+
+.cic-treat-mini {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1.5rem;
+	justify-content: center;
+	width: fit-content;
+	max-width: 100%;
+	margin: 1.5rem auto 0;
+	padding: 0.75rem 1.5rem;
+	border-radius: var(--cic-radius-card);
+	background-color: var(--wp--preset--color--surface-base);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	list-style: none;
+}
+
+.cic-treat-mini__item {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+}
+
+.cic-treat-mini__img {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+}
+
+.cic-treat-mini__item a {
+	display: inline-flex;
+	gap: 0.35em;
+	align-items: center;
+	min-height: 44px;
+	color: var(--cic-color-heading);
+	font-family: var(--cic-font-heading);
+	font-weight: var(--cic-heading-weight);
+	text-decoration: none;
+}
+
+@media (min-width: 768px) {
+	.cic-treat-feature {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Event stories, planning, quote + FAQ
+ * ------------------------------------------------------------------ */
+.cic-scallop {
+	--cic-scallop: 22px;
+	margin-top: var(--cic-scallop);
+}
+
+.cic-scallop::before {
+	position: absolute;
+	top: calc(-1 * var(--cic-scallop));
+	right: 0;
+	left: 0;
+	height: var(--cic-scallop);
+	background: radial-gradient(circle at 50% 100%, var(--wp--preset--color--surface-soft) calc(var(--cic-scallop) - 1px), transparent var(--cic-scallop)) 0 0 / calc(var(--cic-scallop) * 2) var(--cic-scallop) repeat-x;
+	content: "";
+}
+
+.cic-story-card {
+	display: grid;
+	grid-template-rows: auto 1fr;
+}
+
+.cic-story-card__media {
+	aspect-ratio: 4 / 3;
+}
+
+.cic-story-card__title {
+	--cic-fs-min: 26;
+	--cic-fs-max: 32;
+	--cic-lh-min: 30;
+	--cic-lh-max: 36;
+}
+
+@media (min-width: 900px) {
+	.cic-story-card {
+		grid-template-columns: 55% 1fr;
+		grid-template-rows: none;
+	}
+
+	.cic-story-card__media {
+		aspect-ratio: auto;
+	}
+}
+
+.cic-plan {
+	display: grid;
+	gap: 2rem;
+	align-items: center;
+}
+
+.cic-plan__media {
+	overflow: hidden;
+	aspect-ratio: 4 / 3;
+	border: 6px solid var(--wp--preset--color--surface-base);
+	border-radius: var(--cic-radius-image);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+	transform: rotate(-2deg);
+}
+
+.cic-plan__icon {
+	display: inline-flex;
+	color: var(--cic-color-heading);
+}
+
+.cic-plan__icon .cic-icon {
+	width: 3rem;
+	height: 3rem;
+}
+
+.cic-steps {
+	display: grid;
+	gap: 1.25rem;
+	margin: 1.5rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-step {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-start;
+}
+
+.cic-step__num {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+	background-color: color-mix(in srgb, var(--cic-color-heading-accent) 18%, var(--wp--preset--color--surface-base));
+	color: var(--wp--preset--color--action-primary-hover);
+	font-family: var(--cic-font-heading);
+	font-weight: var(--cic-heading-weight);
+}
+
+.cic-step--2 .cic-step__num {
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 35%, var(--wp--preset--color--surface-base));
+	color: var(--wp--preset--color--text-primary);
+}
+
+.cic-step--3 .cic-step__num {
+	background-color: color-mix(in srgb, var(--cic-color-accent-2) 45%, var(--wp--preset--color--surface-base));
+	color: var(--wp--preset--color--text-primary);
+}
+
+.cic-step__title {
+	--cic-fs-min: 17;
+	--cic-fs-max: 19;
+	--cic-lh-min: 22;
+	--cic-lh-max: 24;
+	margin: 0 0 0.25em;
+	font-family: var(--cic-font-body);
+	font-weight: var(--cic-weight-strong);
+}
+
+.cic-step p {
+	margin: 0;
+	color: var(--cic-color-muted);
+}
+
+@media (min-width: 900px) {
+	.cic-plan {
+		grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	}
+
+	.cic-steps {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.cic-quote-faq {
+	display: grid;
+	gap: 1.5rem;
+}
+
+.cic-quote-panel {
+	position: relative;
+	padding: calc(var(--cic-space) * 4);
+}
+
+.cic-quote-panel__icon {
+	display: inline-flex;
+	color: var(--cic-color-decor);
+}
+
+.cic-quote-panel__icon .cic-icon {
+	width: 2.75rem;
+	height: 2.75rem;
+}
+
+.cic-faq-panel {
+	padding: calc(var(--cic-space) * 3);
+	border-radius: var(--cic-radius-card);
+	background-color: color-mix(in srgb, var(--wp--preset--color--lavender) 22%, var(--wp--preset--color--surface-base));
+}
+
+.cic-faq-panel__area {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	margin: 1.5rem 0 0;
+	color: var(--cic-color-link);
+}
+
+@media (min-width: 900px) {
+	.cic-quote-faq {
+		grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+		align-items: start;
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Functional /treats/ and /events/ lists (approved compositions: Phase 08)
+ * ------------------------------------------------------------------ */
+.cic-catalogue__list {
+	display: grid;
+	gap: 1.5rem;
+	margin: 2rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-catalogue__media {
+	display: block;
+	aspect-ratio: 16 / 10;
+	overflow: hidden;
+}
+
+.cic-catalogue__item h2 a {
+	color: inherit;
+	text-decoration: none;
+}
+
+@media (min-width: 768px) {
+	.cic-catalogue__list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+/* ------------------------------------------------------------------ *
+ * Treat "Photos and videos" (template-parts/treat/section-media.php, 2026-10-24)
+ * Authentic photos and portrait phone videos in one centred row. The first item is the largest;
+ * low-resolution clips are capped at 1.5× their own size (--cic-media-max). Each frame reserves its
+ * shape from the poster/photo size (--cic-media-ratio), so nothing shifts when media loads.
+ * ------------------------------------------------------------------ */
+.cic-media-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem 1.5rem;
+	align-items: flex-start;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-media-item {
+	--cic-media-w: 280px;
+	flex: 0 1 var(--cic-media-w);
+	min-width: 0;
+	max-width: min(100%, var(--cic-media-max, var(--cic-media-w)));
+}
+
+.cic-media-item--lead.cic-media-item--video {
+	--cic-media-w: 360px;
+}
+
+.cic-media-item--lead:not(.cic-media-item--video) {
+	--cic-media-w: 420px;
+}
+
+.cic-media-item--lowres {
+	--cic-media-w: var(--cic-media-max);
+}
+
+.cic-media-item__figure {
+	margin: 0;
+}
+
+.cic-media-item__frame {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: var(--cic-media-ratio, 9 / 16);
+	border-radius: var(--cic-radius-image);
+	background-color: var(--wp--preset--color--surface-soft);
+	box-shadow: var(--wp--custom--cic--component--card-shadow);
+}
+
+.cic-media-item__frame > img,
+.cic-media-item__video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.cic-media-item__video {
+	background-color: var(--wp--preset--color--text-primary);
+	object-fit: contain;
+}
+
+.cic-media-item__caption {
+	margin-top: 0.75rem;
+}
+

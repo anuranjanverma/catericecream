@@ -1,0 +1,189 @@
+/* Design System / Header & Footer admin screens and the page override meta box. */
+
+.cic-admin .cic-intro {
+	max-width: 70em;
+	font-size: 14px;
+}
+
+.cic-admin .cic-tabs {
+	margin-bottom: 1em;
+}
+
+.cic-admin .cic-panel {
+	max-width: 1100px;
+}
+
+.cic-table th {
+	width: 260px;
+}
+
+.cic-row td,
+.cic-row th {
+	vertical-align: top;
+}
+
+.cic-row-state {
+	width: 220px;
+	white-space: nowrap;
+}
+
+.cic-badge {
+	display: none;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: #f0e6f6;
+	color: #4a2c5e;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.cic-row.is-active .cic-badge,
+.cic-badge.is-visible {
+	display: inline-block;
+}
+
+.cic-reset {
+	display: none;
+}
+
+.cic-row.is-active .cic-reset {
+	display: inline;
+}
+
+.cic-inherits {
+	margin: 6px 0 0;
+	color: #50575e;
+	font-size: 12px;
+}
+
+.cic-swatch {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 1px solid rgba(0, 0, 0, 0.25);
+	border-radius: 3px;
+	vertical-align: -2px;
+}
+
+.cic-color-field,
+.cic-custom-hex {
+	display: inline-flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.cic-hex-picker {
+	width: 36px;
+	height: 30px;
+	padding: 0;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: none;
+	cursor: pointer;
+}
+
+.cic-hex:invalid {
+	border-color: #d63638;
+	box-shadow: 0 0 0 1px #d63638;
+}
+
+.cic-preset {
+	margin: 0 0 12px;
+	padding: 8px 16px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.cic-preset > summary {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	padding: 6px 0;
+	cursor: pointer;
+}
+
+.cic-preset > summary code {
+	margin-left: auto;
+	font-size: 11px;
+}
+
+.cic-scroll {
+	overflow-x: auto;
+}
+
+.cic-scale-table input {
+	width: 64px;
+}
+
+.cic-contrast-table tr.is-fail td {
+	background: #fcf0f1;
+}
+
+.cic-sample {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 4px;
+	font-weight: 600;
+}
+
+.cic-live-contrast ul {
+	margin: 0 0 1em;
+}
+
+.cic-live-contrast li.is-fail strong {
+	color: #b32d2e;
+}
+
+.cic-submit {
+	position: sticky;
+	bottom: 0;
+	z-index: 5;
+	padding: 12px 0;
+	border-top: 1px solid #dcdcde;
+	background: #f0f0f1;
+}
+
+.cic-image-preview {
+	display: block;
+	max-width: 240px;
+	max-height: 90px;
+	margin-bottom: 8px;
+	border: 1px solid #dcdcde;
+	background: #fff;
+}
+
+.cic-inline-note {
+	padding: 6px 10px;
+	border-left: 4px solid #dba617;
+	background: #fcf9e8;
+}
+
+#cic-design-overrides .cic-table th {
+	width: 200px;
+}
+
+/* Occasion pairings box (treat screen). */
+.cic-pairing {
+	margin: 0 0 16px;
+	padding: 12px 16px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.cic-pairing__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0 16px;
+}
+
+.cic-pairing__wide {
+	grid-column: 1 / -1;
+}
+
+@media (max-width: 782px) {
+	.cic-pairing__grid {
+		grid-template-columns: 1fr;
+	}
+}
