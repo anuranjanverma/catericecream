@@ -68,6 +68,12 @@ Source: `handoff/cater-ice-cream/CIC_URL Optimization.csv`. **Not committed, not
 
 ---
 
+## Blog drafts (owner request, 2026-10-29)
+
+Four planning guides (truck/cart vs catering, wedding ice cream bar, office ice cream social, birthday ice cream party) written from Semrush keyword data and competitor review; originals in `docs/content/blog/` (README has keywords and publishing steps). Imported as WordPress **Drafts** #1245–#1248 (category "Planning Tips", Yoast title/description/keyphrase) by `dev/tools/content/blog-posts-20261029.php` (dry run, report, add-only; re-run verified "kept"). Backup: `C:\laragon\backup\catericecream\blog-posts-20261029-002634\`. Verified: valid core blocks only, all links local, drafts 404 publicly. Committed (sources and import tool), not deployed. **Not published:** needs a post/blog template in the approved style, one real photo each, a public author display name and owner review.
+
+---
+
 ## SEO foundation (owner request, 2026-10-28)
 
 **Not committed, not deployed.** Backup before the local settings migration: `C:\laragon\backup\catericecream\seo-20261028-20261028-231725\` (database, `wp-config.php`, SHA256SUMS, `seo-report.json`). Full write-up (audit, page mapping with final titles/descriptions, indexing and sitemap rules, location SEO, deployment, rollback, backlog): `docs/release/SEO_2026-10-28.md`.
