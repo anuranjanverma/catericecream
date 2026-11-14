@@ -91,7 +91,7 @@ try {
 	);
 
 	/* ---------------- M: metadata on every marketing page ---------------- */
-	$cic_pages = array( '/', '/events/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/events/graduation-party-ice-cream-catering/', '/events/proms-ice-cream-catering/', '/events/corporate-events-ice-cream-catering/', '/events/anniversary-ice-cream-catering/', '/treats/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/treats/classic-ice-cream-catering/', '/treats/frozen-yogurt-catering/', '/service-areas/', '/service-areas/california/', '/about/', '/contact/', '/get-a-quote/' );
+	$cic_pages = array( '/', '/events/', '/events/birthday-party-ice-cream-catering/', '/events/wedding-ice-cream-catering/', '/events/graduation-party-ice-cream-catering/', '/events/prom-ice-cream-catering/', '/events/corporate-event-ice-cream-catering/', '/events/anniversary-ice-cream-catering/', '/treats/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/treats/classic-ice-cream-catering/', '/treats/frozen-yogurt-catering/', '/service-areas/', '/service-areas/california/', '/about/', '/contact/', '/get-a-quote/' );
 	$cic_bad   = array();
 	$cic_seen  = array( 'title' => array(), 'desc' => array() );
 	$cic_html  = array();
@@ -106,7 +106,7 @@ try {
 				'status'    => 200 !== $cic_code ? $cic_code : null,
 				'titles'    => 1 !== count( $cic_m['title'] ) ? count( $cic_m['title'] ) : null,
 				'brand'     => 1 !== substr_count( $cic_title, 'CaterIceCream.com' ) || ! str_ends_with( $cic_title, ' | CaterIceCream.com' ) ? $cic_title : null,
-				'generic'   => preg_match( '/^(Home|Our Treats|Service Areas|About|Get a Quote|Events Archive|Birthdays|Weddings|Anniversaries|Corporate Events) [|-]/', $cic_title ) ? $cic_title : null,
+				'generic'   => preg_match( '/^(Home|Our Treats|Service Areas|About|Get a Quote|Events Archive|Birthday|Wedding|Anniversary|Corporate Event|Graduation Party|Prom) [|-]/', $cic_title ) ? $cic_title : null,
 				'desc'      => 1 !== count( $cic_m['desc'] ) || strlen( $cic_m['desc'][0] ) < 70 ? $cic_m['desc'] : null,
 				'robots'    => 1 !== count( $cic_m['robots'] ) || false !== strpos( $cic_r, 'noindex' ) || false !== strpos( $cic_r, 'nofollow' ) ? $cic_m['robots'] : null,
 				'canonical' => array( home_url( $cic_p ) ) !== $cic_m['canon'] ? $cic_m['canon'] : null,
@@ -125,7 +125,8 @@ try {
 	$cic_check( 'M2 titles and descriptions are distinct across those pages', ! $cic_dupes, $cic_dupes );
 
 	$cic_m = $cic_meta( $cic_get( '/events/birthday-party-ice-cream-catering/' )[1] );
-	$cic_check( 'M3 event metadata comes from the CIC search fields: "Birthday Party Ice Cream Catering | CaterIceCream.com"', array( 'Birthday Party Ice Cream Catering | CaterIceCream.com' ) === $cic_m['title'], $cic_m['title'] );
+	$cic_m3 = trim( (string) get_post_meta( (int) \CIC\Content\Catalog::find_by_key( 'cic_event', 'birthday' ), 'cic_seo_title', true ) ) . ' | ' . get_bloginfo( 'name' );
+	$cic_check( 'M3 event metadata comes from the CIC search fields (Birthday: search result title + " | " + site name)', ' | ' . get_bloginfo( 'name' ) !== $cic_m3 && array( $cic_m3 ) === $cic_m['title'], array( 'expected' => $cic_m3, 'got' => $cic_m['title'] ) );
 
 	/* ---------------- I: indexing rules ---------------- */
 	$cic_bad = array();
@@ -178,7 +179,7 @@ try {
 	$cic_check( 'G2 WebSite is published by the Organization and has no SearchAction', array( '@id' => home_url( '/' ) . '#organization' ) === ( $cic_site['publisher'] ?? null ) && empty( $cic_site['potentialAction'] ), $cic_site );
 
 	$cic_bad = array();
-	foreach ( array( '/events/birthday-party-ice-cream-catering/', '/events/proms-ice-cream-catering/' ) as $cic_p ) {
+	foreach ( array( '/events/birthday-party-ice-cream-catering/', '/events/prom-ice-cream-catering/' ) as $cic_p ) {
 		$cic_m   = $cic_meta( $cic_html[ $cic_p ] );
 		$cic_svc = $cic_piece( $cic_m['graph'], 'Service' );
 		$cic_wp  = $cic_piece( $cic_m['graph'], 'WebPage' );
