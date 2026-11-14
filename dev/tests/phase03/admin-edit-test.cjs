@@ -70,7 +70,7 @@ async function scrollAll( page ) {
 		await page.evaluate( () => {
 			document.querySelector( '[name="acf[field_cic_hero_eyebrow]"]' ).value = 'Edited eyebrow from the admin';
 			const rows = document.querySelectorAll( '[data-cic-pairing]' );
-			const birthdayRow = Array.from( rows ).find( ( r ) => /Birthdays/.test( r.querySelector( 'select' ).selectedOptions[ 0 ].textContent ) );
+			const birthdayRow = Array.from( rows ).find( ( r ) => /Birthday/.test( r.querySelector( 'select' ).selectedOptions[ 0 ].textContent ) );
 			birthdayRow.querySelector( 'textarea[name$="[description]"]' ).value = 'Pairing text edited once in the admin.';
 		} );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded', timeout: 60000 } ), page.click( '#publish' ) ] );

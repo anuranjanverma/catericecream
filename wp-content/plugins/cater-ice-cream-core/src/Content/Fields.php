@@ -867,7 +867,7 @@ final class Fields {
 			self::text( 'cic_hero_link_label', 'Treats link label' ),
 			self::text( 'cic_event_short_label', 'Short label', 'Used on the quote form tiles and inquiry summaries (e.g. "Birthday"). Empty uses the title.' ),
 			self::icon( 'cic_event_icon', 'Occasion icon (quote form tile and treat-page badge; none = the default for this event)' ),
-			self::f( 'message', 'cic_event_order_help', 'Where this event appears in lists', array( 'message' => 'Menus, event cards, quote options and treat recommendations list events by the "Order" number in the Page Attributes box (lowest first). Current order: Birthdays 10, Weddings 20, Graduation Parties 30, Proms 40, Corporate Events 50, Anniversaries 60.' ) ),
+			self::f( 'message', 'cic_event_order_help', 'Where this event appears in lists', array( 'message' => 'Menus, event cards, quote options and treat recommendations list events by the "Order" number in the Page Attributes box (lowest first). Current order: Birthday 10, Wedding 20, Graduation Party 30, Prom 40, Corporate Event 50, Anniversary 60.' ) ),
 		);
 		for ( $i = 1; $i <= 3; $i++ ) {
 			$fields[] = self::image( "cic_hero_image_{$i}", "Hero photo {$i}", 1 === $i ? 'Birthday: left of the collage. Wedding: full-width background. Anniversary/Corporate: main photo.' : ( 2 === $i ? 'Birthday: centre (largest). Anniversary/Corporate: framed inset.' : 'Birthday: right.' ) );

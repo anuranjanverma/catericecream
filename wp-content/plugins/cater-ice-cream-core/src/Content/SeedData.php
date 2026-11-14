@@ -645,7 +645,7 @@ final class SeedData {
 					'cic_sa_call_image'        => 'asset:corporate-friends',
 					'cic_sa_call_quote_label'  => 'Request a Quote',
 					'cic_sa_occasions_heading' => 'Your location. Your kind of celebration.',
-					'cic_sa_occasions_intro'   => 'Birthdays, weddings, graduation parties, proms, corporate events and anniversaries: pick your occasion to see how we can help.',
+					'cic_sa_occasions_intro'   => 'Birthday, Wedding, Graduation Party, Prom, Corporate Event or Anniversary: pick your occasion to see how we can help.',
 					'cic_sa_faq_heading'       => "A few location\nquestions.",
 					'cic_sa_faq_1_q'           => 'Does a city listing mean every ZIP code is covered?',
 					'cic_sa_faq_1_a'           => 'No. Service is checked against your exact event ZIP code, date and venue details.',
@@ -707,7 +707,7 @@ final class SeedData {
 	public static function events(): array {
 		return array(
 			'birthday'    => array(
-				'title'   => 'Birthdays',
+				'title'   => 'Birthday',
 				'slug'    => 'birthday-party-ice-cream-catering',
 				'order'   => 10,
 				'excerpt' => 'Sweet treats for their special day, from little celebrations to big milestones.',
@@ -761,8 +761,8 @@ final class SeedData {
 				),
 			),
 			'wedding'     => array(
-				'title'   => 'Weddings',
-				'slug'    => 'weddings-ice-cream-catering',
+				'title'   => 'Wedding',
+				'slug'    => 'wedding-ice-cream-catering',
 				'order'   => 20,
 				'excerpt' => 'A memorable treat for your big day.',
 				'image'   => 'asset:wedding-couple',
@@ -817,7 +817,7 @@ final class SeedData {
 			// Client update 2026-10-22. Photos are temporary pack images until real graduation and
 			// prom photos are supplied (see docs/content/PHOTO_INVENTORY.md).
 			'graduation'  => array(
-				'title'   => 'Graduation Parties',
+				'title'   => 'Graduation Party',
 				'slug'    => 'graduation-party-ice-cream-catering',
 				'order'   => 30,
 				'excerpt' => 'Ice cream for the grad, the family and everyone who cheered them on.',
@@ -831,7 +831,7 @@ final class SeedData {
 					'cic_hero_intro'             => 'Staffed ice cream catering for backyard graduation parties, family get-togethers and school celebrations. You celebrate the grad. We take care of dessert.',
 					'cic_hero_cta'               => 'Plan a graduation party',
 					'cic_hero_link_label'        => 'Explore the treats',
-					'cic_event_short_label'      => 'Graduation',
+					'cic_event_short_label'      => 'Graduation Party',
 					'cic_hero_image_1'           => 'asset:yogurt-friends',
 					'cic_hero_image_2'           => 'asset:service-garden',
 					'cic_ev_value_1_icon'        => 'grad-cap',
@@ -884,8 +884,8 @@ final class SeedData {
 				),
 			),
 			'prom'        => array(
-				'title'   => 'Proms',
-				'slug'    => 'proms-ice-cream-catering',
+				'title'   => 'Prom',
+				'slug'    => 'prom-ice-cream-catering',
 				'order'   => 40,
 				'excerpt' => 'A dessert stop that fits the big night.',
 				'image'   => 'asset:banana-theme-evening',
@@ -943,8 +943,8 @@ final class SeedData {
 				),
 			),
 			'corporate'   => array(
-				'title'   => 'Corporate Events',
-				'slug'    => 'corporate-events-ice-cream-catering',
+				'title'   => 'Corporate Event',
+				'slug'    => 'corporate-event-ice-cream-catering',
 				'order'   => 50,
 				'excerpt' => 'A refreshing way to bring people together.',
 				'image'   => 'asset:corporate-friends',
@@ -957,7 +957,7 @@ final class SeedData {
 					'cic_hero_intro'         => 'Bring people together with staffed ice cream catering for team appreciation, client gatherings and office celebrations.',
 					'cic_hero_cta'           => 'Plan a corporate event',
 					'cic_hero_link_label'    => 'Explore the treats',
-					'cic_event_short_label' => 'Corporate',
+					'cic_event_short_label' => 'Corporate Event',
 					'cic_hero_image_1'       => 'asset:corporate-caterer',
 					'cic_hero_image_2'       => 'asset:corporate-friends',
 					'cic_ev_value_1_icon'    => 'people',
@@ -1001,7 +1001,7 @@ final class SeedData {
 				),
 			),
 			'anniversary' => array(
-				'title'   => 'Anniversaries',
+				'title'   => 'Anniversary',
 				'slug'    => 'anniversary-ice-cream-catering',
 				'order'   => 60,
 				'excerpt' => 'Celebrate your story with favorite frozen treats.',

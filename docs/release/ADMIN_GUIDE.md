@@ -56,7 +56,7 @@ Use real photos of people only with their permission (and parents' permission fo
 
 ## 3. Events
 
-**Events** holds Birthdays, Weddings, Graduation Parties, Proms, Corporate Events and Anniversaries.
+**Events** holds Birthday, Wedding, Graduation Party, Prom, Corporate Event and Anniversary (singular names, 2026-11-13).
 
 **Event order (one place for the whole site).** Every list of events (the header Events dropdown, homepage cards, the Events page, Service Areas and city pages, the hero search and quote-form choices, and the occasion recommendations on treat pages) follows each event's **Order** number in the **Page Attributes** box on the event's edit screen, lowest first. Current numbers: Birthdays 10, Weddings 20, Graduation Parties 30, Proms 40, Corporate Events 50, Anniversaries 60. To move an event, change its number (for example 35 puts it between Graduation Parties and Proms). Menu links to events are re-sorted automatically, so you never reorder them in Appearance → Menus; a link to an unpublished event is hidden. "Other" always stays last in the quote choices.
 
@@ -69,7 +69,7 @@ Use real photos of people only with their permission (and parents' permission fo
 
 Adding an event: **Add New**, choose a composition, set its **Order** number, fill the fields, then save as **Draft** and preview it. Publishing adds it to the Events page, the homepage and Service Areas cards and the quote form's occasion choices automatically. Add its link under **Events** in Appearance → Menus (the position is sorted for you) and pair it with treats on each treat's **Occasion pairings** box.
 
-**Graduation Parties** (`/events/graduation-parties/`, composition "Graduation party") and **Proms** (`/events/proms/`, composition "Prom") were added on 2026-10-22, each with its own design preset (Graduation, Prom) and pairings with all four treats. Their photos are temporary until real graduation and prom photos are supplied (see `docs/content/PHOTO_INVENTORY.md`).
+**Graduation Party** (`/events/graduation-party-ice-cream-catering/`, composition "Graduation party") and **Prom** (`/events/prom-ice-cream-catering/`, composition "Prom") were added on 2026-10-22, each with its own design preset (Graduation, Prom) and pairings with all four treats. Their photos are temporary until real graduation and prom photos are supplied (see `docs/content/PHOTO_INVENTORY.md`).
 
 ## 4. Global design (colours, fonts and sizes)
 

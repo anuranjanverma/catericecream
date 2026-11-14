@@ -85,10 +85,10 @@ final class Cli {
 			array( 'title' => 'Frozen Yogurt', 'path' => '/treats/frozen-yogurt-catering/' ),
 		);
 		$events = array(
-			array( 'title' => 'Birthdays', 'path' => '/events/birthday-party-ice-cream-catering/' ),
-			array( 'title' => 'Weddings', 'path' => '/events/weddings-ice-cream-catering/' ),
-			array( 'title' => 'Anniversaries', 'path' => '/events/anniversary-ice-cream-catering/' ),
-			array( 'title' => 'Corporate Events', 'path' => '/events/corporate-events-ice-cream-catering/' ),
+			array( 'title' => 'Birthday', 'path' => '/events/birthday-party-ice-cream-catering/' ),
+			array( 'title' => 'Wedding', 'path' => '/events/wedding-ice-cream-catering/' ),
+			array( 'title' => 'Anniversary', 'path' => '/events/anniversary-ice-cream-catering/' ),
+			array( 'title' => 'Corporate Event', 'path' => '/events/corporate-event-ice-cream-catering/' ),
 		);
 		return array(
 			'primary' => array(

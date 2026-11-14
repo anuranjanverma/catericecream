@@ -5,9 +5,9 @@ Four planning guides written for real search demand. Keyword data: Semrush, US n
 | # | Post | Focus keyword (searches/mo · difficulty) | Converts to |
 | --- | --- | --- | --- |
 | 1 | Ice Cream Truck, Cart or Staffed Catering? | ice cream truck rental (3,600 · 7), ice cream cart rental (1,900 · 10) | Treats, Service Areas, quote |
-| 2 | Wedding Ice Cream Bar Ideas | wedding ice cream bar (390 · 13), wedding dessert ideas (1,900 · 18) | Weddings, quote `?event=wedding` |
-| 3 | Office Ice Cream Social Ideas | ice cream social ideas (590 · 4) | Corporate Events, quote `?event=corporate` |
-| 4 | Ice Cream Party Ideas for Birthdays | ice cream party ideas (480 · 16) | Birthdays, quote `?event=birthday` |
+| 2 | Wedding Ice Cream Bar Ideas | wedding ice cream bar (390 · 13), wedding dessert ideas (1,900 · 18) | Wedding, quote `?event=wedding` |
+| 3 | Office Ice Cream Social Ideas | ice cream social ideas (590 · 4) | Corporate Event, quote `?event=corporate` |
+| 4 | Ice Cream Party Ideas for Birthdays | ice cream party ideas (480 · 16) | Birthday, quote `?event=birthday` |
 
 Next candidates: graduation party dessert ideas (260 · 20, publish by April for May–June), frozen yogurt catering (210 · 8), Dippin' Dots catering (170 · 24).
 

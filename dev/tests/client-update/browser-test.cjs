@@ -25,7 +25,7 @@ const OUT = path.join( ROOT, 'dev/tests/output/client-update' );
 const WP = 'C:\\laragon\\bin\\wp-cli\\wp.cmd';
 const BROWSER = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 const ORDER = [ 'birthday', 'wedding', 'graduation', 'prom', 'corporate', 'anniversary' ];
-const SLUGS = [ 'birthday-party-ice-cream-catering', 'weddings-ice-cream-catering', 'graduation-party-ice-cream-catering', 'proms-ice-cream-catering', 'corporate-events-ice-cream-catering', 'anniversary-ice-cream-catering' ];
+const SLUGS = [ 'birthday-party-ice-cream-catering', 'wedding-ice-cream-catering', 'graduation-party-ice-cream-catering', 'prom-ice-cream-catering', 'corporate-event-ice-cream-catering', 'anniversary-ice-cream-catering' ];
 fs.mkdirSync( OUT, { recursive: true } );
 
 const results = [];
@@ -114,7 +114,7 @@ let browser;
 
 		/* ================= 2. New pages at three widths ================= */
 		console.log( '== New pages' );
-		const pages = { graduation: '/events/graduation-party-ice-cream-catering/', prom: '/events/proms-ice-cream-catering/' };
+		const pages = { graduation: '/events/graduation-party-ice-cream-catering/', prom: '/events/prom-ice-cream-catering/' };
 		for ( const [ key, url ] of Object.entries( pages ) ) {
 			for ( const width of [ 390, 768, 1440 ] ) {
 				await page.setViewport( { width, height: 900 } );
@@ -149,7 +149,7 @@ let browser;
 		/* ================= 3. Contact details, legal name, logo ================= */
 		console.log( '== Contact and brand' );
 		const tels = [];
-		for ( const url of [ '/', '/about/', '/contact/', '/events/proms-ice-cream-catering/' ] ) {
+		for ( const url of [ '/', '/about/', '/contact/', '/events/prom-ice-cream-catering/' ] ) {
 			await page.setViewport( { width: 1440, height: 900 } );
 			await go( url );
 			tels.push( ...await page.$$eval( 'a[href^="tel:"]', ( as ) => as.map( ( a ) => a.getAttribute( 'href' ) ) ) );

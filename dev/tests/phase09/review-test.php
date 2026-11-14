@@ -60,7 +60,7 @@ foreach ( $surface as $s ) {
 p9_check( 'R3 the default link colour (' . $link . ') reaches 4.5:1 on every surface token; buttons keep the primary action pink', ! $low && '#D92373' === $colors[ $roles['action'] ]['default'], $low );
 
 // R4–R6 public pages: no unused commerce scripts, lightbox markup or tracking cookies.
-$pages  = array( '/', '/events/', '/events/weddings-ice-cream-catering/', '/treats/', '/treats/dippin-dots-catering/', '/service-areas/california/pasadena-ice-cream-catering/', '/about/', '/contact/', '/get-a-quote/' );
+$pages  = array( '/', '/events/', '/events/wedding-ice-cream-catering/', '/treats/', '/treats/dippin-dots-catering/', '/service-areas/california/pasadena-ice-cream-catering/', '/about/', '/contact/', '/get-a-quote/' );
 $found  = array();
 $pswp   = array();
 $cookie = array();

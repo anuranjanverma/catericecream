@@ -77,7 +77,7 @@ For an accurate quote, share your **office address or ZIP code, date, time windo
 
 ## Planning a team event in Southern California?
 
-CaterIceCream.com provides staffed ice cream catering for team appreciation, client gatherings and office celebrations in selected ZIP codes across Los Angeles, Ventura and Santa Barbara counties. See [corporate ice cream catering](/events/corporate-events-ice-cream-catering/), [check your office location](/service-areas/), or [request a quote](/get-a-quote/?event=corporate).
+CaterIceCream.com provides staffed ice cream catering for team appreciation, client gatherings and office celebrations in selected ZIP codes across Los Angeles, Ventura and Santa Barbara counties. See [corporate ice cream catering](/events/corporate-event-ice-cream-catering/), [check your office location](/service-areas/), or [request a quote](/get-a-quote/?event=corporate).
 
 ---
 

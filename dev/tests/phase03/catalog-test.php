@@ -163,7 +163,7 @@ try {
 	$e2 = ViewModel::event( $birthday );
 	cic3_check( 'E1 draft event is hidden from the treat page pairings and quote event choices', ! in_array( $wedding, wp_list_pluck( $t2['occasions']['items'], 'event_id' ), true ) && ! in_array( 'wedding', wp_list_pluck( Catalog::selectable_events(), 'key' ), true ) );
 	cic3_check( 'E2 draft treat is hidden from the event page and quote treat choices', ! in_array( $bananas, wp_list_pluck( $e2['treats']['items'], 'product_id' ), true ) && ! in_array( 'dipn-bananas', wp_list_pluck( Catalog::selectable_products(), 'key' ), true ) );
-	cic3_check( 'E3 drafts return 404 to anonymous visitors; editor still sees the pairing in admin', 404 === cic3_get( '/events/weddings-ice-cream-catering/' )['code'] && 404 === cic3_get( '/treats/dipn-bananas-catering/' )['code'] && 6 === count( Pairings::for_product( $dd ) ) );
+	cic3_check( 'E3 drafts return 404 to anonymous visitors; editor still sees the pairing in admin', 404 === cic3_get( '/events/wedding-ice-cream-catering/' )['code'] && 404 === cic3_get( '/treats/dipn-bananas-catering/' )['code'] && 6 === count( Pairings::for_product( $dd ) ) );
 	$page = cic3_get( '/treats/dippin-dots-catering/' )['body'];
 	// Checked on the pairing cards only: the seeded navigation menu uses custom links (pending item).
 	cic3_check( 'E4 rendered treat page shows no pairing card for the draft event', ! str_contains( $page, 'data-cic-pairing-event="' . $wedding . '"' ) && str_contains( $page, 'data-cic-pairing-event="' . $birthday . '"' ) );
@@ -255,7 +255,7 @@ try {
 	switch_theme( 'twentytwentyfive' );
 	$tt5 = cic3_get( '/events/birthday-party-ice-cream-catering/' );
 	$tt5p = cic3_get( '/treats/dippin-dots-catering/' );
-	cic3_check( 'L1 with Twenty Twenty-Five active, event and treat still exist and return 200', 200 === $tt5['code'] && 200 === $tt5p['code'] && 'More candles.' !== '' && str_contains( $tt5['body'], 'Birthdays' ) );
+	cic3_check( 'L1 with Twenty Twenty-Five active, event and treat still exist and return 200', 200 === $tt5['code'] && 200 === $tt5p['code'] && 'More candles.' !== '' && str_contains( $tt5['body'], 'Birthday' ) );
 	switch_theme( $snap['theme'] );
 	deactivate_plugins( 'advanced-custom-fields/acf.php', true );
 	$noacf = cic3_get( '/events/birthday-party-ice-cream-catering/' );

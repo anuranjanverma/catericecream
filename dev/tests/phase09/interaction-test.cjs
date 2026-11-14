@@ -98,7 +98,7 @@ let browser;
 		// I3 reduced motion.
 		await page.emulateMediaFeatures( [ { name: 'prefers-reduced-motion', value: 'reduce' } ] );
 		const motion = [];
-		for ( const url of [ '/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/treats/dippin-dots-catering/', '/get-a-quote/' ] ) {
+		for ( const url of [ '/', '/events/birthday-party-ice-cream-catering/', '/events/wedding-ice-cream-catering/', '/treats/dippin-dots-catering/', '/get-a-quote/' ] ) {
 			await page.goto( BASE + url, { waitUntil: 'networkidle2' } );
 			await page.evaluate( () => window.scrollTo( 0, 600 ) );
 			await new Promise( ( r ) => setTimeout( r, 300 ) );
@@ -113,7 +113,7 @@ let browser;
 		await page.emulateMediaFeatures( [] );
 		check( 'I3 with reduced motion: no running animations or smooth scrolling (home, Birthday, Wedding, a treat, quote)', ! motion.length, motion );
 		const endless = [];
-		for ( const url of [ '/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/events/anniversary-ice-cream-catering/', '/events/corporate-events-ice-cream-catering/', '/treats/dippin-dots-catering/' ] ) {
+		for ( const url of [ '/', '/events/birthday-party-ice-cream-catering/', '/events/wedding-ice-cream-catering/', '/events/anniversary-ice-cream-catering/', '/events/corporate-event-ice-cream-catering/', '/treats/dippin-dots-catering/' ] ) {
 			await page.goto( BASE + url, { waitUntil: 'networkidle2' } );
 			const e = await page.evaluate( () => document.getAnimations().filter( ( a ) => { const t = a.effect && a.effect.getComputedTiming(); return t && ( t.endTime === Infinity || t.endTime > 5000 ); } ).map( ( a ) => ( a.animationName || 'anim' ) + ' ' + Math.round( a.effect.getComputedTiming().endTime ) ) );
 			if ( e.length ) {

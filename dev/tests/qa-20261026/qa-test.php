@@ -220,7 +220,7 @@ try {
 
 	/* ---------------- Item 10: alt text ---------------- */
 	$cic_bad = array();
-	foreach ( array( '/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/treats/frozen-yogurt-catering/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/events/graduation-party-ice-cream-catering/', '/service-areas/', '/contact/', '/get-a-quote/' ) as $cic_p ) {
+	foreach ( array( '/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/treats/frozen-yogurt-catering/', '/events/birthday-party-ice-cream-catering/', '/events/wedding-ice-cream-catering/', '/events/graduation-party-ice-cream-catering/', '/service-areas/', '/contact/', '/get-a-quote/' ) as $cic_p ) {
 		preg_match_all( '#<img[^>]+alt="([^"]*)"#', $cic_get( $cic_p )[1], $cic_alts );
 		foreach ( $cic_alts[1] as $cic_alt ) {
 			$cic_alt = html_entity_decode( $cic_alt );

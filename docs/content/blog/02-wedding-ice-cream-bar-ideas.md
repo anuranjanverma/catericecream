@@ -78,7 +78,7 @@ To prepare an accurate quote, a caterer needs your **date, venue location, estim
 
 ## Planning a wedding in Los Angeles, Ventura or Santa Barbara counties?
 
-CaterIceCream.com brings staffed ice cream catering to weddings in selected ZIP codes across Los Angeles, Ventura and Santa Barbara counties. See our [wedding ice cream catering](/events/weddings-ice-cream-catering/) page, [check your venue's location](/service-areas/), or [request a wedding quote](/get-a-quote/?event=wedding). Your date and service availability are confirmed with your quote.
+CaterIceCream.com brings staffed ice cream catering to weddings in selected ZIP codes across Los Angeles, Ventura and Santa Barbara counties. See our [wedding ice cream catering](/events/wedding-ice-cream-catering/) page, [check your venue's location](/service-areas/), or [request a wedding quote](/get-a-quote/?event=wedding). Your date and service availability are confirmed with your quote.
 
 ---
 

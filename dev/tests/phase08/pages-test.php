@@ -101,7 +101,7 @@ try {
 			$cards[] = $ev['key'];
 		}
 	}
-	cic8_check( 'P3.1 all six occasions (Anniversary included) with Explore opening each event page', 6 === count( Catalog::selectable_events() ) && ! $cards && str_contains( $events, 'Anniversaries' ), $cards );
+	cic8_check( 'P3.1 all six occasions (Anniversary included) with Explore opening each event page', 6 === count( Catalog::selectable_events() ) && ! $cards && str_contains( $events, 'Anniversary' ), $cards );
 	cic8_check( 'P3.2 "Tell us about your event" opens the quote route with Other occasion; treats link their pages', str_contains( $events, '/get-a-quote/?event=other"' ) && str_contains( $events, 'href="' . get_permalink( Catalog::find_by_key( 'product', 'dippin-dots' ) ) . '"' ) );
 	$ev_id = wp_insert_post( array( 'post_type' => 'cic_event', 'post_status' => 'publish', 'post_title' => 'Phase Eight Graduations', 'post_name' => 'phase-eight-graduations', 'menu_order' => 99, 'post_excerpt' => 'A temporary test occasion.' ) );
 	update_post_meta( $ev_id, '_cic_phase08_test', '1' );

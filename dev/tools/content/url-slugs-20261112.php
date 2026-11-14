@@ -14,6 +14,10 @@
  *   3. Links in post content (href only, relative or on this site's host) are updated through
  *      wp_update_post, so revisions keep the previous text.
  *
+ * Singular event names (owner, 2026-11-13): wedding, prom and corporate now end on singular slugs
+ * (wedding-…, prom-…, corporate-event-…). Each record accepts several old slugs: the original one
+ * (live) and the plural one used locally on 2026-11-12; every old address 301s in one hop.
+ *
  * Location (/service-areas/...) URLs are NOT changed by this tool.
  *
  * Usage: wp eval-file dev/tools/content/url-slugs-20261112.php [dry-run]
@@ -27,17 +31,17 @@ defined( 'WP_CLI' ) && WP_CLI || exit;
 $cic_args = (array) ( $args ?? array() );
 $cic_dry  = in_array( 'dry-run', $cic_args, true );
 
-/** cic_key => array( post type, URL base, old slug, new slug ). */
+/** cic_key => array( post type, URL base, old slug(s), new slug ). */
 $cic_map = array(
 	'dippin-dots'       => array( 'product', 'treats', 'dippin-dots', 'dippin-dots-catering' ),
 	'dipn-bananas'      => array( 'product', 'treats', 'dipn-bananas', 'dipn-bananas-catering' ),
 	'classic-ice-cream' => array( 'product', 'treats', 'classic-ice-cream', 'classic-ice-cream-catering' ),
 	'frozen-yogurt'     => array( 'product', 'treats', 'frozen-yogurt', 'frozen-yogurt-catering' ),
 	'birthday'          => array( 'cic_event', 'events', 'birthday', 'birthday-party-ice-cream-catering' ),
-	'wedding'           => array( 'cic_event', 'events', 'wedding', 'weddings-ice-cream-catering' ),
+	'wedding'           => array( 'cic_event', 'events', array( 'wedding', 'weddings-ice-cream-catering' ), 'wedding-ice-cream-catering' ),
 	'graduation'        => array( 'cic_event', 'events', 'graduation-parties', 'graduation-party-ice-cream-catering' ),
-	'prom'              => array( 'cic_event', 'events', 'proms', 'proms-ice-cream-catering' ),
-	'corporate'         => array( 'cic_event', 'events', 'corporate', 'corporate-events-ice-cream-catering' ),
+	'prom'              => array( 'cic_event', 'events', array( 'proms', 'proms-ice-cream-catering' ), 'prom-ice-cream-catering' ),
+	'corporate'         => array( 'cic_event', 'events', array( 'corporate', 'corporate-events-ice-cream-catering' ), 'corporate-event-ice-cream-catering' ),
 	'anniversary'       => array( 'cic_event', 'events', 'anniversary', 'anniversary-ice-cream-catering' ),
 );
 
@@ -46,7 +50,8 @@ WP_CLI::log( $cic_dry ? 'DRY RUN: nothing will be changed.' : 'Applying changes.
 /* 1. Slugs. Old path => new path, only for records that are (or will be) on the new slug. */
 $cic_paths = array();
 foreach ( $cic_map as $cic_key => $cic_row ) {
-	list( $cic_type, $cic_base, $cic_old, $cic_new ) = $cic_row;
+	list( $cic_type, $cic_base, $cic_olds, $cic_new ) = $cic_row;
+	$cic_olds = (array) $cic_olds;
 	$cic_id = \CIC\Content\Catalog::find_by_key( $cic_type, $cic_key );
 	if ( ! $cic_id ) {
 		WP_CLI::warning( "Slug: no {$cic_type} with key \"{$cic_key}\"; skipped." );
@@ -55,7 +60,8 @@ foreach ( $cic_map as $cic_key => $cic_row ) {
 	$cic_slug = (string) get_post_field( 'post_name', $cic_id );
 	if ( $cic_new === $cic_slug ) {
 		WP_CLI::log( "Slug: #{$cic_id} {$cic_key} is already \"{$cic_new}\" (already done)." );
-	} elseif ( $cic_old === $cic_slug ) {
+	} elseif ( in_array( $cic_slug, $cic_olds, true ) ) {
+		$cic_old = $cic_slug;
 		$cic_clash = get_page_by_path( $cic_new, OBJECT, $cic_type );
 		if ( $cic_clash && (int) $cic_clash->ID !== $cic_id ) {
 			WP_CLI::warning( "Slug: \"{$cic_new}\" is already used by #{$cic_clash->ID}; #{$cic_id} kept as \"{$cic_old}\"." );
@@ -81,10 +87,12 @@ foreach ( $cic_map as $cic_key => $cic_row ) {
 			}
 		}
 	} else {
-		WP_CLI::warning( "Slug: #{$cic_id} {$cic_key} is \"{$cic_slug}\" (changed in wp-admin); kept. Links to /{$cic_base}/{$cic_old}/ are left alone." );
+		WP_CLI::warning( "Slug: #{$cic_id} {$cic_key} is \"{$cic_slug}\" (changed in wp-admin); kept. Links to its old addresses are left alone." );
 		continue;
 	}
-	$cic_paths[ "/{$cic_base}/{$cic_old}/" ] = "/{$cic_base}/{$cic_new}/";
+	foreach ( $cic_olds as $cic_from ) {
+		$cic_paths[ "/{$cic_base}/{$cic_from}/" ] = "/{$cic_base}/{$cic_new}/";
+	}
 }
 
 $cic_host = (string) wp_parse_url( home_url(), PHP_URL_HOST );

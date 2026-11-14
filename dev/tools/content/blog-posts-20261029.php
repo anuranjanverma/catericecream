@@ -5,7 +5,7 @@
  * - Markdown (headings, paragraphs, lists, tables, quotes, bold/italic, links) becomes core blocks,
  *   so the posts are edited normally in the block editor. The front matter, the H1 (= post title)
  *   and the "Editor notes" after the last horizontal rule are not imported.
- * - Site links ("/events/weddings-ice-cream-catering/") become absolute for this site; "/blog/{slug}/" links point to
+ * - Site links ("/events/wedding-ice-cream-catering/") become absolute for this site; "/blog/{slug}/" links point to
  *   the post's published address /{slug}/ (the site's /%postname%/ permalinks).
  * - Yoast SEO title (brand as %%sep%% %%sitename%%), meta description, focus keyphrase, excerpt,
  *   category "Planning Tips".

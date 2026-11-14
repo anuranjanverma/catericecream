@@ -116,7 +116,7 @@ try {
 	$cic_check( 'R8 redaction line sits after gtag(\'js\') and before gtag(\'config\'), removes received/sent and sets no consent', array_search( $cic_redact[0] ?? '', $cic_lines, true ) === 6 && false !== strpos( $cic_redact[0] ?? '', "delete('received')" ) && false !== strpos( $cic_redact[0] ?? '', "delete('sent')" ) && false === stripos( $cic_snip, 'consent' ) );
 
 	/* 2. This local site, unchanged: no tag anywhere. */
-	$cic_pages = array( '/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/events/birthday-party-ice-cream-catering/', '/events/weddings-ice-cream-catering/', '/get-a-quote/', '/get-a-quote/?received=abc123', '/contact/', '/about/', '/service-areas/', '/service-areas/california/agoura-hills-ice-cream-catering/', '/no-such-page-analytics/' );
+	$cic_pages = array( '/', '/treats/dippin-dots-catering/', '/treats/dipn-bananas-catering/', '/events/birthday-party-ice-cream-catering/', '/events/wedding-ice-cream-catering/', '/get-a-quote/', '/get-a-quote/?received=abc123', '/contact/', '/about/', '/service-areas/', '/service-areas/california/agoura-hills-ice-cream-catering/', '/no-such-page-analytics/' );
 	$cic_local = array();
 	foreach ( $cic_pages as $cic_p ) {
 		list( $cic_code, $cic_html ) = $cic_get( $cic_p );

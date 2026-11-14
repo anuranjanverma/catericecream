@@ -34,6 +34,35 @@ Git: `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `
 
 ---
 
+## Meta tags part 2: treat and event pages (SEO manager, 2026-11-13)
+
+Updated sheet (same five pages as 2026-11-12, plus 4 treats and 6 events). **Not committed, not deployed.** Backup: `C:\laragon\backup\catericecream\pre-meta-tags-2-20261113-215754\`. Final text, changes from the sheet and live steps: `docs/release/META_TAGS_2026-11-12.md` §8.
+
+- New `dev/tools/content/meta-tags-20261113.php` (compare-and-set against the sheet's existing values): treats → Yoast fields, events → CIC search result fields. Refinements: site suffix kept on DipN’ Bananas (not the supplier brand), coverage wording ("near you"/"across" removed), no "free quote", grammar, descriptions ≤ 160.
+- Local: dry run would set 20 / kept 0 → set 20 → re-run done 20. Ten pages verified over HTTP (one title + description each, og:title present). Tests: seo-20261028 19/19 (M3 made field-driven), qa-20261026 17/17.
+
+---
+
+## Mobile floating call + Inquiry buttons (owner request, 2026-11-13)
+
+Reference: a floating "Inquiry" pill (kidscharacterparty.com screenshot). The existing phone bar (below 600 px) is now a floating group with no background: a round call button on the left (central phone, `tel:`, screen-reader name "Call 424-235-4942") and an "Inquiry" pill on the right to Get a Quote. **Not committed, not deployed.** No database change.
+
+- Files: `template-parts/footer/mobile-quote.php`, `main.css` §10d (sticky group, taps pass between the buttons; at the end of the page the footer gets matching extra space below its last row so the buttons never cover footer links or sit on a white strip), `CIC\Site\Layout` + theme defaults: `mobile.sticky_label` (default "Inquiry", empty = quote label) and `mobile.sticky_call` (default on). Behaviour unchanged: below 600 px only, never on Get a Quote, hidden while the drawer/a dialog is open or a field has focus, works without JavaScript.
+- Verified in Edge at 390 px (home, event, treats; mid-page and end of page): both buttons 52 × 52 / 112 × 52 px, pinned to the bottom, correct links; hidden with a focused field; absent on Get a Quote and at 768 px. Tests: nav-quote browser 38/38 (C2, C3, C4, C13 updated for the new design), header browser 30/30. puppeteer-core 23.11.1 reinstalled in a temporary folder (NODE_PATH), as ENVIRONMENT.md describes.
+
+---
+
+## Singular event names (owner request, 2026-11-13)
+
+Events are now Birthday, Wedding, Graduation Party, Prom, Corporate Event, Anniversary (titles, short labels, menus, URLs). **Not committed, not deployed.** Backup: `C:\laragon\backup\catericecream\pre-event-names-20261113-003512\` (+ `event-names-report.json`). Details and live order: `docs/release/URL_SLUGS_2026-11-12.md` § Singular event names.
+
+- URLs: `/events/wedding-ice-cream-catering/`, `/events/prom-ice-cream-catering/`, `/events/corporate-event-ice-cream-catering/` (`url-slugs-20261112.php` now accepts several old slugs per event; live goes straight to singular). New `dev/tools/content/event-names-20261113.php` (compare-and-set): 6 titles, 2 short labels, 6 menu titles, Service Areas intro. Code: `SeedData`, `Design\Cli` menu defaults, `Fields` order help text, tests, `enquiry-drill.php`, blog sources; docs: CLAUDE.md, ADMIN_GUIDE, SEO_2026-10-28, blog README.
+- Prose ("for birthdays, weddings and parties") and search titles (already singular) unchanged; historical inquiries untouched (keys only).
+- Verified over HTTP: nine old event addresses → one 301; six new pages 200 with singular breadcrumbs; header menu and quote tiles singular; no plural event names on eight key pages. Both tools re-run as no-ops.
+- Tests: phase03 catalog 46/46, phase07 details 23/23, phase08 pages 23/24 (P6.1 reported the Lakewood city link broken; the URL answers 200 on a manual check, likely a timeout while the machine was low on memory; not re-confirmed). The run was stopped for low system memory before seo-20261028, qa-20261026 and cities; browser tests (client-update, nav-quote, quote-flow, phase07) not run yet.
+
+---
+
 ## Meta tag optimization (SEO specialist, 2026-11-12)
 
 Source: "CatereIceCream.com-Meta Tags Optimization.xlsx" (Home, Our Treats, Events, Service Areas, Get a Quote). **Committed, not deployed.** Backup: `C:\laragon\backup\catericecream\pre-meta-tags-20261112-234854\`. Details, final text and live steps: `docs/release/META_TAGS_2026-11-12.md`.

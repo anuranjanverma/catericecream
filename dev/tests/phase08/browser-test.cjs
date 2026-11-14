@@ -117,7 +117,7 @@ let browser;
 		// ---- Events Explore ----
 		await page.goto( BASE + '/events/', { waitUntil: 'networkidle0' } );
 		await Promise.all( [ page.waitForNavigation( { waitUntil: 'domcontentloaded' } ), page.$eval( '[data-cic-event="wedding"] .cic-ov-card__cta', ( a ) => a.click() ) ] );
-		check( 'B5 Events "Explore weddings" opens the Wedding detail page', page.url().endsWith( '/events/weddings-ice-cream-catering/' ), page.url() );
+		check( 'B5 Events "Explore weddings" opens the Wedding detail page', page.url().endsWith( '/events/wedding-ice-cream-catering/' ), page.url() );
 
 		// ---- Contact FAQ by keyboard + contact links ----
 		await page.goto( BASE + '/contact/', { waitUntil: 'networkidle0' } );

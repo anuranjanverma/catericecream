@@ -55,10 +55,10 @@ switch ( $args[0] ?? '' ) {
 		update_post_meta( $id, '_cic_drill', '1' );
 		$key = 'drill' . bin2hex( random_bytes( 12 ) );
 		CIC\Enquiries\Store::claim( 'quote', $key );
-		CIC\Enquiries\Store::complete( $key, $id, array( 'event' => 'Birthdays', 'location' => 'Pasadena' ) );
+		CIC\Enquiries\Store::complete( $key, $id, array( 'event' => 'Birthday', 'location' => 'Pasadena' ) );
 		CIC\Enquiries\Store::set_channel( $id, 'operator', 'sent' );
 		CIC\Enquiries\Store::set_channel( $id, 'customer', 'skipped', 'drill' );
-		CIC\Enquiries\Workflow::init( $id, array( 'type' => 'quote', 'event' => 'birthday', 'event_label' => 'Birthdays', 'date' => '2027-05-15', 'guests' => 40, 'location' => 'pasadena', 'location_label' => 'Pasadena', 'coverage' => 'unknown' ), array( 'first' => array( 'type' => 'event', 'key' => 'birthday' ) ) );
+		CIC\Enquiries\Workflow::init( $id, array( 'type' => 'quote', 'event' => 'birthday', 'event_label' => 'Birthday', 'date' => '2027-05-15', 'guests' => 40, 'location' => 'pasadena', 'location_label' => 'Pasadena', 'coverage' => 'unknown' ), array( 'first' => array( 'type' => 'event', 'key' => 'birthday' ) ) );
 		CIC\Enquiries\Workflow::set_status( $id, 'contacted' );
 		CIC\Enquiries\Workflow::set_follow_up( $id, '2027-04-01' );
 		CIC\Enquiries\Workflow::add_note( $id, 'Restore drill note.' );
