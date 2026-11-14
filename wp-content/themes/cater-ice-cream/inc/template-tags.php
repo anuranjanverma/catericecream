@@ -37,6 +37,8 @@ function cic_theme_layout(): array {
 			'show_secondary' => false,
 			'show_email'     => false,
 			'sticky_quote'   => true,
+			'sticky_label'   => 'Inquiry',
+			'sticky_call'    => true,
 		),
 		'footer' => array(
 			'logo_id'        => 0,

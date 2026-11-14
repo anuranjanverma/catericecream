@@ -1607,39 +1607,87 @@ body.cic-drawer-open {
 }
 
 /* ------------------------------------------------------------------ *
- * 10d. Fixed mobile "Get a Quote" button (template-parts/footer/mobile-quote.php, main.js)
+ * 10d. Floating mobile actions: call + "Inquiry" (template-parts/footer/mobile-quote.php, main.js)
  * Phones only: the same breakpoint that hides the header quote button (below 600px), so there is
- * never a second quote bar. The bar is the last element of the page and sticks to the bottom of
- * the screen: while scrolling it stays in view, and at the end of the page it rests below the
- * footer in the normal flow, so it reserves exactly its own height (whatever the button size) and
- * never covers footer links. Its bottom padding includes the iPhone home-indicator inset where the
- * browser reports one. A future fixed bottom notice (e.g. cookies) belongs inside or above this
- * bar, not in a second bar. The script adds .is-hidden while the drawer or a dialog is open or a
- * form field has focus (instantly); visibility:hidden also removes the link from the keyboard order.
+ * never a second quote bar. The group is the last element of the page and sticks to the bottom of
+ * the screen with no background of its own (owner request, 2026-11-13): a round call button on the
+ * left and the Inquiry pill on the right float over the content, and only the two buttons take
+ * taps (the gap between them passes taps through). At the end of the page it settles into extra
+ * footer-coloured space added below the footer's last row (same height as the group), so it never
+ * covers footer links and never sits on a separate strip. Its bottom padding includes the
+ * iPhone home-indicator inset where the browser reports one. A future fixed bottom notice (e.g.
+ * cookies) belongs inside or above this group, not in a second bar. The script adds .is-hidden
+ * while the drawer or a dialog is open or a form field has focus (instantly); visibility:hidden
+ * also removes the links from the keyboard order.
  * ------------------------------------------------------------------ */
 .cic-mobile-cta {
 	display: none;
 }
 
 @media (max-width: 599.98px) {
+	:root {
+		--cic-mobile-cta-h: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+	}
+
+	.cic-footer:has(+ .cic-mobile-cta) {
+		padding-bottom: var(--cic-mobile-cta-h);
+	}
+
 	.cic-mobile-cta {
 		position: sticky;
 		bottom: 0;
 		z-index: 40;
-		display: block;
-		padding: 0.625rem 16px calc(0.625rem + env(safe-area-inset-bottom, 0px));
-		border-top: 1px solid var(--cic-color-border);
-		background-color: var(--wp--custom--cic--component--header-surface);
-		box-shadow: 0 -4px 16px color-mix(in srgb, var(--wp--preset--color--text-primary) 10%, transparent);
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.75rem;
+		box-sizing: border-box;
+		height: var(--cic-mobile-cta-h);
+		margin-top: calc(-1 * var(--cic-mobile-cta-h));
+		padding: 0.75rem 16px calc(0.75rem + env(safe-area-inset-bottom, 0px));
+		pointer-events: none;
 		transition: transform 0.2s ease, visibility 0s linear 0s;
 	}
 
-	.cic-mobile-cta__button {
-		width: 100%;
-		min-height: 3rem;
+	.cic-mobile-cta.has-call {
+		justify-content: space-between;
 	}
 
-	/* Hiding is instant (a focused field must never sit under the bar, even mid-animation);
+	.cic-mobile-cta > a {
+		pointer-events: auto;
+		box-shadow: 0 6px 18px color-mix(in srgb, var(--wp--preset--color--text-primary) 22%, transparent);
+	}
+
+	.cic-mobile-cta__button {
+		min-height: 3.25rem;
+		padding-inline: 1.75rem;
+		border-radius: 999px;
+	}
+
+	.cic-mobile-cta__call {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 3.25rem;
+		height: 3.25rem;
+		border: 1px solid var(--cic-color-border);
+		border-radius: 50%;
+		background-color: var(--cic-color-surface);
+		color: var(--cic-color-action);
+	}
+
+	.cic-mobile-cta__call:hover,
+	.cic-mobile-cta__call:focus-visible {
+		color: var(--cic-color-action-hover);
+	}
+
+	.cic-mobile-cta__call svg {
+		display: block;
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+
+	/* Hiding is instant (a focused field must never sit under the buttons, even mid-animation);
 	   only the return slides in. */
 	.cic-mobile-cta.is-hidden {
 		visibility: hidden;

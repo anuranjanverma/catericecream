@@ -308,7 +308,8 @@ let browser;
 			if ( ! c ) {
 				return null;
 			}
-			const a = c.querySelector( 'a' );
+			const a = c.querySelector( '.cic-mobile-cta__button' );
+			const call = c.querySelector( '.cic-mobile-cta__call' );
 			const b = c.getBoundingClientRect();
 			return {
 				display: getComputedStyle( c ).display,
@@ -321,10 +322,16 @@ let browser;
 				text: a.textContent.trim(),
 				overflow: document.documentElement.scrollWidth - window.innerWidth,
 				buttonH: Math.round( a.getBoundingClientRect().height ),
+				callHref: call ? call.getAttribute( 'href' ) : null,
+				callName: call ? call.textContent.trim() : null,
+				callW: call ? Math.round( call.getBoundingClientRect().width ) : 0,
+				callH: call ? Math.round( call.getBoundingClientRect().height ) : 0,
+				callLeft: call ? call.getBoundingClientRect().left < a.getBoundingClientRect().left : false,
+				transparent: 'rgba(0, 0, 0, 0)' === getComputedStyle( c ).backgroundColor,
 			};
 		} );
 		const c1 = await cta();
-		check( 'C2 390 px: bar pinned to the bottom of the screen with a full-width "Get a Quote" link to the Get a Quote page; ≥ 44 px target; no overflow', c1 && c1.shown && c1.fixed && /^Get a Quote/.test( c1.text ) && BASE + '/get-a-quote/' === c1.href && c1.buttonH >= 44 && c1.overflow <= 0, c1 );
+		check( 'C2 390 px: floating group pinned to the bottom of the screen (no background): "Inquiry" pill to the Get a Quote page on the right, round call button (tel:, named "Call …") on the left; both ≥ 44 px; no overflow', c1 && c1.shown && c1.fixed && c1.transparent && 'Inquiry' === c1.text && BASE + '/get-a-quote/' === c1.href && c1.buttonH >= 44 && /^tel:\+\d+$/.test( c1.callHref || '' ) && /^Call \S/.test( c1.callName || '' ) && c1.callW >= 44 && c1.callH >= 44 && c1.callLeft && c1.overflow <= 0, c1 );
 		await page.screenshot( { path: path.join( OUT, 'cta-390-home.png' ) } );
 		await page.evaluate( () => window.scrollTo( 0, document.documentElement.scrollHeight ) );
 		await sleep( 400 );
@@ -337,9 +344,9 @@ let browser;
 			return { lastBottom: Math.round( lastLink.getBoundingClientRect().bottom ), barTop: Math.round( bar.top ), footerBottom: Math.round( foot.bottom ), barBottom: Math.round( bar.bottom ), vh: window.innerHeight, covered };
 		} );
 		await page.screenshot( { path: path.join( OUT, 'cta-390-footer.png' ) } );
-		check( 'C3 scrolled to the end, the bar rests below the footer (space reserved = its own height) and covers no footer link', 0 === bottom.covered.length && bottom.lastBottom <= bottom.barTop && bottom.footerBottom <= bottom.barTop + 1 && bottom.barBottom <= bottom.vh, bottom );
+		check( 'C3 scrolled to the end, the buttons rest in footer-coloured space below the last footer row (the footer reaches the bottom of the group) and cover no footer link', 0 === bottom.covered.length && bottom.lastBottom <= bottom.barTop && bottom.footerBottom >= bottom.barBottom - 1 && bottom.barBottom <= bottom.vh, bottom );
 		const css = fs.readFileSync( path.join( ROOT, 'wp-content/themes/cater-ice-cream/assets/css/main.css' ), 'utf8' );
-		check( 'C4 (static) the bottom padding of the bar includes env(safe-area-inset-bottom) for the iPhone home indicator', /padding: 0\.625rem 16px calc\(0\.625rem \+ env\(safe-area-inset-bottom/.test( css ) );
+		check( 'C4 (static) the bottom padding of the bar includes env(safe-area-inset-bottom) for the iPhone home indicator', /padding: 0\.75rem 16px calc\(0\.75rem \+ env\(safe-area-inset-bottom/.test( css ) && /--cic-mobile-cta-h: calc\(4\.75rem \+ env\(safe-area-inset-bottom/.test( css ) );
 
 		// Keyboard: Tab from the last footer link reaches the bar's link, which is visible.
 		await page.evaluate( () => { const l = Array.from( document.querySelectorAll( '.cic-footer a' ) ).filter( ( a ) => a.offsetParent ); l[ l.length - 1 ].focus(); } );
@@ -411,7 +418,7 @@ let browser;
 		await pn.setJavaScriptEnabled( false );
 		await pn.setViewport( { width: 390, height: 844 } );
 		await pn.goto( BASE + '/', { waitUntil: 'domcontentloaded' } );
-		const nojs = await pn.evaluate( () => { const c = document.querySelector( '[data-cic-mobile-cta]' ); return c ? { visible: 'visible' === getComputedStyle( c ).visibility && 'block' === getComputedStyle( c ).display, href: c.querySelector( 'a' ).getAttribute( 'href' ) } : null; } );
+		const nojs = await pn.evaluate( () => { const c = document.querySelector( '[data-cic-mobile-cta]' ); return c ? { visible: 'visible' === getComputedStyle( c ).visibility && 'flex' === getComputedStyle( c ).display, href: c.querySelector( '.cic-mobile-cta__button' ).getAttribute( 'href' ) } : null; } );
 		await ctxN.close();
 		check( 'C13 without JavaScript the bar is a visible, working link', nojs && nojs.visible && /\/get-a-quote\/$/.test( nojs.href ), nojs );
 		check( 'C14 (static) no cookie notice or other fixed bottom bar exists on the site, so nothing can overlap the bar', ! /cookie/i.test( fs.readFileSync( path.join( ROOT, 'wp-content/themes/cater-ice-cream/footer.php' ), 'utf8' ) ) && 1 === ( css.match( /^\s*bottom: 0;/gm ) || [] ).length );

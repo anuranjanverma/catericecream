@@ -57,7 +57,9 @@ final class Layout {
 				'show_quote'     => array( 'type' => 'bool', 'default' => true, 'label' => 'Quote button in the menu drawer' ),
 				'show_secondary' => array( 'type' => 'bool', 'default' => true, 'label' => 'Include the bottom-row menu in the drawer' ),
 				'show_email'     => array( 'type' => 'bool', 'default' => false, 'label' => 'Email link in the menu drawer' ),
-				'sticky_quote'   => array( 'type' => 'bool', 'default' => true, 'label' => 'Phones: fixed "Get a Quote" button at the bottom of the screen', 'help' => 'Below 600 px only, on every page except Get a Quote. Links to the Get a Quote page; hidden while the menu is open or a form field is being filled in.' ),
+				'sticky_quote'   => array( 'type' => 'bool', 'default' => true, 'label' => 'Phones: floating Inquiry button at the bottom of the screen', 'help' => 'Below 600 px only, on every page except Get a Quote. Links to the Get a Quote page; hidden while the menu is open or a form field is being filled in.' ),
+				'sticky_label'   => array( 'type' => 'text', 'default' => 'Inquiry', 'label' => 'Phones: floating button text', 'max' => 24, 'help' => 'Short text for the floating button (e.g. Inquiry). Empty uses the quote button text from Business contact.' ),
+				'sticky_call'    => array( 'type' => 'bool', 'default' => true, 'label' => 'Phones: round call button on the left', 'help' => 'Calls the business phone from Header, Footer & Contact. Hidden when no phone number is set.' ),
 			),
 			'footer' => array(
 				'logo_id'      => array( 'type' => 'image', 'default' => 0, 'label' => 'Footer logo', 'help' => 'Leave empty to use the approved original logo on a light plate. A reversed (white) logo can be uploaded when an approved one exists.' ),
