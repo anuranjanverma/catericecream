@@ -1389,7 +1389,9 @@ final class ViewModel {
 			'schema'      => array_filter(
 				array(
 					'@type'       => 'Service',
-					'name'        => self::m( $id, 'cic_hero_eyebrow' ) ?: $title,
+					// The search title names the service ("Ice Cream Catering for Weddings"); the hero
+					// eyebrow may be a slogan (2026-11-17), so it is not used here.
+					'name'        => self::m( $id, 'cic_seo_title' ) ?: $title,
 					'serviceType' => __( 'Ice cream catering', 'cater-ice-cream-core' ),
 					'description' => $description,
 					'provider'    => self::provider(),

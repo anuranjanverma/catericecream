@@ -34,9 +34,19 @@ Git: `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `
 
 ---
 
+## H1 headings and eyebrows (SEO specialist sheet, 2026-11-17)
+
+**Applied and verified locally; not committed, not deployed.** Owner: Home H1 stays; accept the better recommendations with corrections. Details, final text and live steps: `docs/release/META_TAGS_2026-11-12.md` §9. Backup: `C:\laragon\backup\catericecream\pre-headings-20261117-003249\`.
+
+- New `dev/tools/content/headings-20261117.php` (compare-and-set): keyword H1s on Our Treats, Events, Service Areas, Get a Quote, 4 treats and 6 events; former slogans move to the eyebrow; Our Treats title "Frozen Treat Catering for Events". 27 set → re-run done 27.
+- Core: event Service schema `name` = search title (was the hero eyebrow, which is now a slogan).
+- Tests: seo-20261028 19/19, qa-20261026 17/17, phase07 details 23/23, phase03 catalog 46/46; browser check 390/768/1440 on 14 pages (no page overflow; Anniversary hearts motif overflow ~10 px is pre-existing).
+
+---
+
 ## City landing pages: content and indexing (owner request, 2026-11-16)
 
-**Built and verified locally (production simulated); NOT committed, not deployed.** All **202 of 202** eligible cities (published + Index + served) have published, Reviewed content and pass technical SEO QA. Full report, research, exceptions, live steps, rollback and Search Console checklist: `docs/release/CITY_SEO_2026-11-16.md`; inventory, briefs and per-city status: `docs/content/city-seo/`.
+**Built and verified locally (production simulated); committed (`6ef880d`), not deployed.** All **202 of 202** eligible cities (published + Index + served) have published, Reviewed content and pass technical SEO QA. Full report, research, exceptions, live steps, rollback and Search Console checklist: `docs/release/CITY_SEO_2026-11-16.md`; inventory, briefs and per-city status: `docs/content/city-seo/`.
 
 - Content: 185 generated from planning angles + database evidence (no local facts claimed); 16 written 2026-11-15/16 and Los Angeles (curated in wp-admin) kept. Semrush: city-level searches near zero; demand in "ice cream social/station/party", "wedding ice cream bar", "graduation party dessert ideas".
 - Tools: `city-inventory.php`, `city-content-20261116-generate.php` (deterministic) → `data/city-content-20261116.json` (keyed by city key) → `city-content-20261116.php` (dry run, batches, backup, resume, rollback; rollback tested on the pilot). Core: `CityStore::remove_editorial()`.
