@@ -44,6 +44,16 @@ if ( 'city-id' === $action || 'city-row' === $action || 'leftovers' === $action 
 		$data['options'][ $opt ] = get_option( $opt, '__absent__' );
 	}
 	$data['posts'] = get_posts( array( 'post_type' => Editorial::POST_TYPE, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids' ) );
+	// Existing city content records (2026-11-16: every eligible city has one): keep their status
+	// and every meta value, so a test that edits a record (e.g. Pasadena) puts it back exactly.
+	$data['post_state'] = array();
+	foreach ( $data['posts'] as $id ) {
+		$meta = array();
+		foreach ( (array) get_post_meta( $id ) as $key => $values ) {
+			$meta[ $key ] = array_map( 'maybe_unserialize', (array) $values );
+		}
+		$data['post_state'][ $id ] = array( 'status' => get_post_status( $id ), 'meta' => $meta );
+	}
 	file_put_contents( $file, wp_json_encode( $data ) );
 	WP_CLI::success( 'Snapshot written.' );
 } elseif ( 'restore' === $action ) {
@@ -58,6 +68,27 @@ if ( 'city-id' === $action || 'city-row' === $action || 'leftovers' === $action 
 	foreach ( get_posts( array( 'post_type' => Editorial::POST_TYPE, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids' ) ) as $id ) {
 		if ( ! in_array( $id, (array) $data['posts'], true ) ) {
 			wp_delete_post( $id, true );
+		}
+	}
+	foreach ( (array) ( $data['post_state'] ?? array() ) as $id => $state ) {
+		$id = (int) $id;
+		if ( ! get_post( $id ) ) {
+			continue;
+		}
+		$saved = (array) $state['meta'];
+		foreach ( array_keys( (array) get_post_meta( $id ) ) as $key ) {
+			if ( ! array_key_exists( $key, $saved ) ) {
+				delete_post_meta( $id, $key ); // Added by a test.
+			}
+		}
+		foreach ( $saved as $key => $values ) {
+			delete_post_meta( $id, $key );
+			foreach ( (array) $values as $value ) {
+				add_post_meta( $id, $key, wp_slash( $value ) );
+			}
+		}
+		if ( get_post_status( $id ) !== $state['status'] ) {
+			wp_update_post( array( 'ID' => $id, 'post_status' => $state['status'] ) );
 		}
 	}
 	foreach ( (array) $data['options'] as $opt => $value ) {

@@ -574,4 +574,20 @@ final class CityStore {
 		Tables::bump_cache();
 		return $post_id;
 	}
+
+	/**
+	 * Undo ensure_editorial() for one city (rollback tools): deletes the editorial record and its
+	 * link row, only while the city is still linked to exactly that record.
+	 */
+	public static function remove_editorial( int $city_id, int $post_id ): bool {
+		global $wpdb;
+		if ( ! $post_id || self::editorial_id( $city_id ) !== $post_id || Editorial::POST_TYPE !== get_post_type( $post_id ) ) {
+			return false;
+		}
+		wp_delete_post( $post_id, true );
+		$wpdb->delete( Tables::name( 'city_content' ), array( 'city_id' => $city_id, 'editorial_post_id' => $post_id ), array( '%d', '%d' ) );
+		self::audit( 'editorial_remove', sprintf( 'city #%d → post #%d', $city_id, $post_id ) );
+		Tables::bump_cache();
+		return true;
+	}
 }

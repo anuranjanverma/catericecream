@@ -34,6 +34,17 @@ Git: `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `
 
 ---
 
+## City landing pages: content and indexing (owner request, 2026-11-16)
+
+**Built and verified locally (production simulated); NOT committed, not deployed.** All **202 of 202** eligible cities (published + Index + served) have published, Reviewed content and pass technical SEO QA. Full report, research, exceptions, live steps, rollback and Search Console checklist: `docs/release/CITY_SEO_2026-11-16.md`; inventory, briefs and per-city status: `docs/content/city-seo/`.
+
+- Content: 185 generated from planning angles + database evidence (no local facts claimed); 16 written 2026-11-15/16 and Los Angeles (curated in wp-admin) kept. Semrush: city-level searches near zero; demand in "ice cream social/station/party", "wedding ice cream bar", "graduation party dessert ideas".
+- Tools: `city-inventory.php`, `city-content-20261116-generate.php` (deterministic) → `data/city-content-20261116.json` (keyed by city key) → `city-content-20261116.php` (dry run, batches, backup, resume, rollback; rollback tested on the pilot). Core: `CityStore::remove_editorial()`.
+- Tests: new `dev/tests/city-seo/city-seo-test.php` 202/202 and `browser-test.cjs` 36/36; qa-20261026 17/17, seo-20261028 19/19, cities 18/18, phase05 locations 50/56 (6 known fixture-era failures). Test fixes: `phase05/state.php` now restores existing city records (it had overwritten Pasadena's subtitle and Reviewed flag; repaired); S2/S3/L4/L6/L14 updated for reviewed cities.
+- Owner to confirm service for the special-logistics places (Avalon, Santa Catalina Island, Mount Wilson, Mount Baldy, Wrightwood, Point Mugu). Backups: `C:\laragon\backup\catericecream\pre-city-seo-20261116-112253\` and `city-content-runs\`.
+
+---
+
 ## Meta tags part 2: treat and event pages (SEO manager, 2026-11-13)
 
 Updated sheet (same five pages as 2026-11-12, plus 4 treats and 6 events). **Not committed, not deployed.** Backup: `C:\laragon\backup\catericecream\pre-meta-tags-2-20261113-215754\`. Final text, changes from the sheet and live steps: `docs/release/META_TAGS_2026-11-12.md` §8.

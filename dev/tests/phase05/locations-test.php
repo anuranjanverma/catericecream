@@ -47,6 +47,8 @@ function cic5_status( string $location, string $city = '' ): string {
 $snapshot = wp_normalize_path( ABSPATH . 'dev/tests/output/phase05/state-server.json' );
 wp_mkdir_p( dirname( $snapshot ) );
 WP_CLI::runcommand( 'eval-file dev/tests/phase05/state.php snapshot ' . $snapshot, array( 'launch' => false, 'exit_error' => true ) );
+// City content records that exist before the run (every eligible city has one since 2026-11-16).
+$cic5_ed_count = count( get_posts( array( 'post_type' => Editorial::POST_TYPE, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids' ) ) );
 $rules_before = md5( (string) wp_json_encode( get_option( 'rewrite_rules' ) ) );
 
 try {
@@ -214,10 +216,17 @@ try {
 	// With Yoast SEO the YoastAdapter feeds Yoast's output: Yoast prints no canonical on noindex pages
 	// and serves its own sitemaps (cic-locations-sitemap.xml in sitemap_index.xml).
 	$cic5_yoast = defined( 'WPSEO_VERSION' );
+	// Since 2026-11-16 every eligible city has reviewed content: un-review Pasadena's record for
+	// the "unreviewed" checks (state.php restores the record's status and meta in finally).
+	$cic5_existing = CityStore::editorial_id( $pid );
+	if ( $cic5_existing && get_post( $cic5_existing ) ) {
+		delete_post_meta( $cic5_existing, Editorial::REVIEWED );
+		Tables::bump_cache();
+	}
 	$city = cic5_get( '/service-areas/california/pasadena-ice-cream-catering/' )['body'];
 	preg_match_all( '/<link rel="canonical" href="([^"]+)"/', $city, $canon_tags );
 	preg_match( '/<title>([^<]+)<\/title>/', $city, $title );
-	cic5_check( 'L6.1 one canonical tag pointing at the virtual city URL (Yoast: none while noindex); city title from the template', ( $cic5_yoast ? 0 === count( $canon_tags[1] ) : ( 1 === count( $canon_tags[1] ) && $canon === $canon_tags[1][0] ) ) && str_contains( html_entity_decode( $title[1] ?? '' ), 'Ice Cream Catering in Pasadena, CA' ), array( $canon_tags[1], $title[1] ?? '' ) );
+	cic5_check( 'L6.1 one canonical tag pointing at the virtual city URL (Yoast: none while noindex); title names the city', ( $cic5_yoast ? 0 === count( $canon_tags[1] ) : ( 1 === count( $canon_tags[1] ) && $canon === $canon_tags[1][0] ) ) && str_contains( html_entity_decode( $title[1] ?? '' ), 'Pasadena' ), array( $canon_tags[1], $title[1] ?? '' ) );
 	cic5_check( 'L6.2 unreviewed city is noindex even though its index status is "index"', (bool) preg_match( '/<meta name=[\'"]robots[\'"] content=[\'"][^\'"]*noindex/', $city ) );
 	cic5_check( 'L6.3 BreadcrumbList + Service JSON-LD; no fabricated address, reviews or ratings', str_contains( $city, '"BreadcrumbList"' ) && str_contains( $city, '"areaServed"' ) && ! preg_match( '/"(address|aggregateRating|review)"/', $city ) );
 	cic5_check( 'L6.4 Open Graph and meta description use the same canonical URL', str_contains( $city, '<meta property="og:url" content="' . $canon . '"' ) && str_contains( $city, '<meta name="description"' ) );
@@ -330,7 +339,7 @@ try {
 	}
 	WP_CLI::runcommand( 'eval-file dev/tests/phase05/state.php restore ' . $snapshot, array( 'launch' => false, 'exit_error' => false ) );
 	$left = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}cic_zips WHERE source_reference LIKE 'test:%'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-	cic5_check( 'L14.1 cleanup: test rows, aliases, editorial records and options restored', 0 === $left && '0' === (string) get_option( 'blog_public' ) && 'pasadena' === $wpdb->get_var( "SELECT city_slug FROM {$wpdb->prefix}cic_cities WHERE city_slug = 'pasadena'" ) && 0 === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}cic_city_slugs" ) && ! get_posts( array( 'post_type' => Editorial::POST_TYPE, 'post_status' => 'any', 'numberposts' => 1 ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	cic5_check( 'L14.1 cleanup: test rows, aliases, editorial records (same count as before) and options restored', 0 === $left && '0' === (string) get_option( 'blog_public' ) && 'pasadena' === $wpdb->get_var( "SELECT city_slug FROM {$wpdb->prefix}cic_cities WHERE city_slug = 'pasadena'" ) && 0 === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}cic_city_slugs" ) && $cic5_ed_count === count( get_posts( array( 'post_type' => Editorial::POST_TYPE, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids' ) ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 }
 
 WP_CLI::log( sprintf( '== RESULT: %d passed, %d failed', $cic5['pass'], $cic5['fail'] ) );

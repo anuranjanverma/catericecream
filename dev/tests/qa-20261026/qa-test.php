@@ -146,13 +146,23 @@ try {
 		$cic_m = $cic_meta( $cic_head( $cic_get( "/service-areas/california/{$cic_slug}-ice-cream-catering/", 'prod' )[1] ) );
 		$cic_titles[] = $cic_m['title'][0] ?? '';
 		$cic_types_c  = $cic_types( $cic_m['ld'] );
-		if ( array( "Ice Cream Catering in {$cic_name}, CA | CaterIceCream.com" ) !== $cic_m['title'] || 1 !== count( $cic_m['desc'] ) || false === strpos( $cic_m['desc'][0], "{$cic_name}, CA" ) || array( "Ice Cream Catering in {$cic_name}, CA | CaterIceCream.com" ) !== $cic_m['og'] || 1 !== count( $cic_m['ld'] ) || ! array_intersect( array( 'WebPage' ), $cic_types_c ) || ! in_array( 'BreadcrumbList', $cic_types_c, true ) || ! in_array( 'Service', $cic_types_c, true ) ) {
-			$cic_bad[ $cic_slug ] = $cic_m + array( 'types' => $cic_types_c );
+		// City pages have their own search titles since 2026-11-16 (city content); the expected title
+		// is the city's own (or the "Ice Cream Catering in {City}, CA" default when none is set).
+		$cic_c_obj    = Locations::repository()->resolve_city( 'california', $cic_slug );
+		$cic_expect   = $cic_c_obj ? \CIC\Content\ViewModel::city( $cic_c_obj )['seo']['title'] : '';
+		if ( array( $cic_expect ) !== $cic_m['title'] || ' | CaterIceCream.com' !== substr( $cic_expect, -20 ) || 1 !== count( $cic_m['desc'] ) || false === strpos( $cic_m['desc'][0], $cic_name ) || array( $cic_expect ) !== $cic_m['og'] || 1 !== count( $cic_m['ld'] ) || ! array_intersect( array( 'WebPage' ), $cic_types_c ) || ! in_array( 'BreadcrumbList', $cic_types_c, true ) || ! in_array( 'Service', $cic_types_c, true ) ) {
+			$cic_bad[ $cic_slug ] = $cic_m + array( 'types' => $cic_types_c, 'expected' => $cic_expect );
 		}
 	}
-	$cic_check( 'S2 the four audited city pages: unique "Ice Cream Catering in {City}, CA | CaterIceCream.com" titles, city descriptions, og:title, and WebPage + BreadcrumbList + Service inside Yoast’s single graph', ! $cic_bad && 4 === count( array_unique( $cic_titles ) ), $cic_bad );
+	$cic_check( 'S2 the four audited city pages: unique "… | CaterIceCream.com" titles (the city’s own search title), descriptions naming the city, og:title, and WebPage + BreadcrumbList + Service inside Yoast’s single graph', ! $cic_bad && 4 === count( array_unique( $cic_titles ) ), $cic_bad );
 
-	$cic_m = $cic_meta( $cic_head( $cic_get( '/service-areas/california/los-angeles-ice-cream-catering/', 'prod' )[1] ) );
+	// S3: since 2026-11-16 every eligible city is reviewed, so un-review the test city for this check
+	// (its status and Reviewed flag are restored in finally).
+	if ( $cic_city && $cic_editorial ) {
+		delete_post_meta( $cic_editorial, Editorial::REVIEWED );
+		Tables::bump_cache();
+	}
+	$cic_m = $cic_meta( $cic_head( $cic_get( "/service-areas/california/{$cic_city_slug}-ice-cream-catering/", 'prod' )[1] ) );
 	$cic_check( 'S3 an unreviewed city keeps the existing rule: "noindex, follow", no canonical (Yoast omits it on noindex pages)', 1 === count( $cic_m['robots'] ) && false !== strpos( $cic_m['robots'][0], 'noindex' ) && false === strpos( $cic_m['robots'][0], 'nofollow' ) && ! $cic_m['canon'], $cic_m['robots'] );
 
 	// Indexable path: mark one published + Index city's content as reviewed for the run.

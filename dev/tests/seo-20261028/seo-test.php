@@ -269,8 +269,9 @@ try {
 	$cic_b = $cic_meta( $cic_get( '/service-areas/california/pasadena-ice-cream-catering/' )[1] );
 	$cic_check(
 		'L4 city metadata is per route: Los Angeles and Pasadena titles/descriptions name their own city',
-		false !== strpos( $cic_a['title'][0] ?? '', 'Los Angeles, CA' ) && false !== strpos( $cic_a['desc'][0] ?? '', 'Los Angeles' ) && false === strpos( implode( ' ', $cic_a['desc'] ), 'Pasadena' )
-		&& false !== strpos( $cic_b['title'][0] ?? '', 'Pasadena, CA' ) && false !== strpos( $cic_b['desc'][0] ?? '', 'Pasadena' ) && false === strpos( implode( ' ', $cic_b['desc'] ), 'Los Angeles' ),
+		// Cities have their own search titles since 2026-11-16 (no fixed ", CA" format): each names its city only.
+		false !== strpos( $cic_a['title'][0] ?? '', 'Los Angeles' ) && false === strpos( $cic_a['title'][0] ?? '', 'Pasadena' ) && false !== strpos( $cic_a['desc'][0] ?? '', 'Los Angeles' ) && false === strpos( implode( ' ', $cic_a['desc'] ), 'Pasadena' )
+		&& false !== strpos( $cic_b['title'][0] ?? '', 'Pasadena' ) && false === strpos( $cic_b['title'][0] ?? '', 'Los Angeles' ) && false !== strpos( $cic_b['desc'][0] ?? '', 'Pasadena' ) && false === strpos( implode( ' ', $cic_b['desc'] ), 'Los Angeles' ),
 		array( $cic_a['title'], $cic_b['title'] )
 	);
 } finally {
