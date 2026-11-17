@@ -1,0 +1,368 @@
+name: Deploy to SiteGround (staging / production)
+
+# Routing:
+#   main        ->  DEPLOY_PATH      (staging web root)
+#   production  ->  DEPLOY_PATH_PROD (live web root)
+#
+# Safe by design:
+#   * rsync runs WITHOUT --delete (nothing on the server is ever removed)
+#   * a --dry-run pass always runs first
+#   * staging and production never write to each other's path (guarded)
+#   * the result is verified over SSH by comparing checksums, never over HTTP
+on:
+  push:
+    branches: ["main", "production"]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Where to deploy"
+        type: choice
+        options: [staging, production]
+        default: staging
+      dry_run_only:
+        description: "Only run the rsync dry-run (no files written)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy_staging:
+    name: rsync deploy -> staging
+    if: >-
+      (github.event_name == 'push' && github.ref_name != 'production') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target == 'staging')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    environment:
+      name: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Report source
+        run: |
+          echo "branch=${GITHUB_REF_NAME} sha=${GITHUB_SHA::7} target=staging"
+
+      - name: Check required secrets
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          missing=""
+          [ -z "${SSH_PRIVATE_KEY:-}" ] && missing="$missing SSH_PRIVATE_KEY"
+          [ -z "${SSH_HOST:-}" ]        && missing="$missing SSH_HOST"
+          [ -z "${SSH_USER:-}" ]        && missing="$missing SSH_USER"
+          [ -z "${DEPLOY_PATH:-}" ]     && missing="$missing DEPLOY_PATH"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing"
+            echo "Add them in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Guard - staging path is a web root and is not production
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+        run: |
+          set -euo pipefail
+          p="${DEPLOY_PATH%/}"
+          prod="${DEPLOY_PATH_PROD%/}"
+          case "$p" in
+            */public_html) ;;
+            *) echo "::error::DEPLOY_PATH must end with /public_html: $DEPLOY_PATH"; exit 1 ;;
+          esac
+          if [ -n "$prod" ] && [ "$p" = "$prod" ]; then
+            echo "::error::DEPLOY_PATH and DEPLOY_PATH_PROD point at the same folder"; exit 1
+          fi
+
+      - name: Install deploy SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KNOWN_HOSTS_FINGERPRINT: ${{ secrets.SSH_KNOWN_HOSTS_FINGERPRINT }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          PORT="${SSH_PORT:-18765}"
+          ssh-keyscan -p "$PORT" -H "$SSH_HOST" > ~/.ssh/known_hosts 2>/dev/null || true
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            echo "::error::Could not read the host key from $SSH_HOST:$PORT."
+            exit 1
+          fi
+
+          if [ -n "${SSH_KNOWN_HOSTS_FINGERPRINT:-}" ]; then
+            ssh-keygen -lf ~/.ssh/known_hosts | tee /tmp/keys.txt
+            if ! grep -qiF "$SSH_KNOWN_HOSTS_FINGERPRINT" /tmp/keys.txt; then
+              echo "::error::SSH host key fingerprint mismatch - refusing to deploy."
+              exit 1
+            fi
+          fi
+
+          cat >> ~/.ssh/config <<EOF
+          Host sg-deploy
+            HostName $SSH_HOST
+            Port $PORT
+            User $SSH_USER
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+            LogLevel ERROR
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Verify SSH + target path
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          ssh sg-deploy 'echo "connected as $(whoami)"'
+          ssh sg-deploy "test -d '$DEPLOY_PATH' && echo 'target exists' || (echo '::error::DEPLOY_PATH missing'; exit 1)"
+
+      - name: Preflight - rsync dry-run
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          rsync -az --dry-run --itemize-changes --stats \
+            -e "ssh -F $HOME/.ssh/config" \
+            --exclude-from=.deployignore \
+            ./ "sg-deploy:$DEPLOY_PATH/" | tee "$RUNNER_TEMP/dryrun.txt"
+          echo "---- dry-run summary ----"
+          grep -E 'Number of (files|regular files transferred)|Total file size' "$RUNNER_TEMP/dryrun.txt" || true
+
+      - name: Deploy (rsync, no --delete)
+        if: ${{ inputs.dry_run_only != true }}
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          rsync -az --itemize-changes \
+            -e "ssh -F $HOME/.ssh/config" \
+            --exclude-from=.deployignore \
+            ./ "sg-deploy:$DEPLOY_PATH/"
+
+      - name: Verify over SSH (repo hash vs server hash)
+        if: ${{ inputs.dry_run_only != true }}
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+
+          echo "== whole deployed tree: rsync checksum comparison =="
+          rsync -rlc --itemize-changes -n \
+            -e "ssh -F $HOME/.ssh/config" \
+            --exclude-from=.deployignore \
+            ./ "sg-deploy:$DEPLOY_PATH/" > "$RUNNER_TEMP/verify.txt"
+          grep -vE '(^sent |^total size|^Number of |^Total file size|^$|\.f\.\.t\.\.\.\.\.\.)' \
+            "$RUNNER_TEMP/verify.txt" > "$RUNNER_TEMP/verify2.txt" || true
+          if [ -s "$RUNNER_TEMP/verify2.txt" ]; then
+            echo "::error::Server does not match the repo:"
+            head -40 "$RUNNER_TEMP/verify2.txt"
+            exit 1
+          fi
+
+          echo "== spot check: first tracked file =="
+          f=$(git ls-files | grep -v '^\.github/' | head -1)
+          if [ -n "$f" ]; then
+            a=$(sha256sum "$f" | cut -d' ' -f1)
+            b=$(ssh sg-deploy "sha256sum '$DEPLOY_PATH/$f'" | cut -d' ' -f1)
+            printf '  %-56s repo=%.16s  server=%.16s\n' "$f" "$a" "$b"
+            [ "$a" = "$b" ] || { echo "::error::Hash mismatch for $f"; exit 1; }
+          fi
+
+          echo "OK - every deployed file matches the repo by checksum (verified over SSH, no HTTP)."
+
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log-staging
+          path: |
+            ${{ runner.temp }}/dryrun.txt
+            ${{ runner.temp }}/verify.txt
+          if-no-files-found: ignore
+
+  deploy_production:
+    name: rsync deploy -> production
+    if: >-
+      (github.event_name == 'push' && github.ref_name == 'production') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target == 'production')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Report source
+        run: |
+          echo "branch=${GITHUB_REF_NAME} sha=${GITHUB_SHA::7} target=production"
+
+      - name: Check required secrets
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+        run: |
+          set -euo pipefail
+          missing=""
+          [ -z "${SSH_PRIVATE_KEY:-}" ]   && missing="$missing SSH_PRIVATE_KEY"
+          [ -z "${SSH_HOST:-}" ]          && missing="$missing SSH_HOST"
+          [ -z "${SSH_USER:-}" ]          && missing="$missing SSH_USER"
+          [ -z "${DEPLOY_PATH_PROD:-}" ]  && missing="$missing DEPLOY_PATH_PROD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing"
+            echo "Add them in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Guard - production path is a web root, not staging
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+        run: |
+          set -euo pipefail
+          p="${DEPLOY_PATH_PROD%/}"
+          stg="${DEPLOY_PATH%/}"
+          case "$p" in
+            */public_html) ;;
+            *) echo "::error::DEPLOY_PATH_PROD must end with /public_html: $DEPLOY_PATH_PROD"; exit 1 ;;
+          esac
+          case "$p" in
+            *staging*) echo "::error::DEPLOY_PATH_PROD points at staging: $DEPLOY_PATH_PROD"; exit 1 ;;
+          esac
+          if [ -n "$stg" ] && [ "$p" = "$stg" ]; then
+            echo "::error::DEPLOY_PATH_PROD and DEPLOY_PATH point at the same folder"; exit 1
+          fi
+
+      - name: Install deploy SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KNOWN_HOSTS_FINGERPRINT: ${{ secrets.SSH_KNOWN_HOSTS_FINGERPRINT }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          PORT="${SSH_PORT:-18765}"
+          ssh-keyscan -p "$PORT" -H "$SSH_HOST" > ~/.ssh/known_hosts 2>/dev/null || true
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            echo "::error::Could not read the host key from $SSH_HOST:$PORT."
+            exit 1
+          fi
+
+          if [ -n "${SSH_KNOWN_HOSTS_FINGERPRINT:-}" ]; then
+            ssh-keygen -lf ~/.ssh/known_hosts | tee /tmp/keys.txt
+            if ! grep -qiF "$SSH_KNOWN_HOSTS_FINGERPRINT" /tmp/keys.txt; then
+              echo "::error::SSH host key fingerprint mismatch - refusing to deploy."
+              exit 1
+            fi
+          fi
+
+          cat >> ~/.ssh/config <<EOF
+          Host sg-deploy
+            HostName $SSH_HOST
+            Port $PORT
+            User $SSH_USER
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+            LogLevel ERROR
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Verify SSH + target path
+        env:
+          DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+        run: |
+          set -euo pipefail
+          ssh sg-deploy 'echo "connected as $(whoami)"'
+          ssh sg-deploy "test -d '$DEPLOY_PATH_PROD' && echo 'target exists' || (echo '::error::DEPLOY_PATH_PROD missing'; exit 1)"
+
+      - name: Preflight - rsync dry-run
+        env:
+          DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+        run: |
+          set -euo pipefail
+          rsync -az --dry-run --itemize-changes --stats \
+            -e "ssh -F $HOME/.ssh/config" \
+            --exclude-from=.deployignore \
+            ./ "sg-deploy:$DEPLOY_PATH_PROD/" | tee "$RUNNER_TEMP/dryrun.txt"
+          echo "---- dry-run summary ----"
+          grep -E 'Number of (files|regular files transferred)|Total file size' "$RUNNER_TEMP/dryrun.txt" || true
+
+      - name: Deploy (rsync, no --delete)
+        if: ${{ inputs.dry_run_only != true }}
+        env:
+          DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+        run: |
+          set -euo pipefail
+          rsync -az --itemize-changes \
+            -e "ssh -F $HOME/.ssh/config" \
+            --exclude-from=.deployignore \
+            ./ "sg-deploy:$DEPLOY_PATH_PROD/"
+
+      - name: Verify over SSH (repo hash vs server hash)
+        if: ${{ inputs.dry_run_only != true }}
+        env:
+          DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+        run: |
+          set -euo pipefail
+
+          echo "== whole deployed tree: rsync checksum comparison =="
+          rsync -rlc --itemize-changes -n \
+            -e "ssh -F $HOME/.ssh/config" \
+            --exclude-from=.deployignore \
+            ./ "sg-deploy:$DEPLOY_PATH_PROD/" > "$RUNNER_TEMP/verify.txt"
+          grep -vE '(^sent |^total size|^Number of |^Total file size|^$|\.f\.\.t\.\.\.\.\.\.)' \
+            "$RUNNER_TEMP/verify.txt" > "$RUNNER_TEMP/verify2.txt" || true
+          if [ -s "$RUNNER_TEMP/verify2.txt" ]; then
+            echo "::error::Server does not match the repo:"
+            head -40 "$RUNNER_TEMP/verify2.txt"
+            exit 1
+          fi
+
+          echo "== spot check: first tracked file =="
+          f=$(git ls-files | grep -v '^\.github/' | head -1)
+          if [ -n "$f" ]; then
+            a=$(sha256sum "$f" | cut -d' ' -f1)
+            b=$(ssh sg-deploy "sha256sum '$DEPLOY_PATH_PROD/$f'" | cut -d' ' -f1)
+            printf '  %-56s repo=%.16s  server=%.16s\n' "$f" "$a" "$b"
+            [ "$a" = "$b" ] || { echo "::error::Hash mismatch for $f"; exit 1; }
+          fi
+
+          echo "OK - every deployed file matches the repo by checksum (verified over SSH, no HTTP)."
+
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log-production
+          path: |
+            ${{ runner.temp }}/dryrun.txt
+            ${{ runner.temp }}/verify.txt
+          if-no-files-found: ignore
