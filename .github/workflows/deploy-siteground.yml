@@ -176,7 +176,7 @@ jobs:
           fi
 
           echo "== spot check: first tracked file =="
-          f=$(git ls-files | grep -v '^\.github/' | head -1)
+          f=$(git ls-files | grep -v '^\.' | grep -vE '^(dev|docs|handoff)/' | head -1)
           if [ -n "$f" ]; then
             a=$(sha256sum "$f" | cut -d' ' -f1)
             b=$(ssh sg-deploy "sha256sum '$DEPLOY_PATH/$f'" | cut -d' ' -f1)
@@ -347,7 +347,7 @@ jobs:
           fi
 
           echo "== spot check: first tracked file =="
-          f=$(git ls-files | grep -v '^\.github/' | head -1)
+          f=$(git ls-files | grep -v '^\.' | grep -vE '^(dev|docs|handoff)/' | head -1)
           if [ -n "$f" ]; then
             a=$(sha256sum "$f" | cut -d' ' -f1)
             b=$(ssh sg-deploy "sha256sum '$DEPLOY_PATH_PROD/$f'" | cut -d' ' -f1)

@@ -7,6 +7,7 @@
 .gitignore
 .gitattributes
 .github/
+.deployignore
 
 # --- Docs and developer tooling (never web content) ---
 dev/
