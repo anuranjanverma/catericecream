@@ -42,6 +42,7 @@ final class Plugin {
 		( new Locations\Service() )->register();
 		( new Seo\Service() )->register();
 		( new Enquiries\Service() )->register();
+		( new Sheets\Service() )->register();
 		( new Analytics\Service() )->register();
 	}
 
@@ -66,8 +67,9 @@ final class Plugin {
 	}
 
 	/**
-	 * Deactivation keeps all data and settings. Nothing is deleted here.
+	 * Deactivation keeps all data and settings; only scheduled work is removed.
 	 */
 	public static function deactivate(): void {
+		Sheets\Service::unschedule();
 	}
 }

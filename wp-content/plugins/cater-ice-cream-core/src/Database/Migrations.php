@@ -12,6 +12,7 @@
  * coverage decisions so CSV imports report conflicts instead of overwriting them.
  * v5 (Phase 06): {prefix}cic_submissions (retry claims + notification state referencing Flamingo
  * messages; no personal data), manage_cic_enquiries capability and the Enquiry manager role.
+ * v6: {prefix}cic_sheet_sync, the Google Sheets export ledger (one row per exported enquiry).
  *
  * @package CIC
  */
@@ -24,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Migrations {
 
-	public const TARGET_VERSION = 5;
+	public const TARGET_VERSION = 6;
 
 	private const LOCK_OPTION = 'cic_core_migration_lock';
 	private const LOCK_TTL    = 300;
@@ -88,6 +89,13 @@ final class Migrations {
 	private function migrate_to_5(): void {
 		self::create_submissions_table();
 		\CIC\Enquiries\Roles::install();
+	}
+
+	/**
+	 * Google Sheets export ledger: the Flamingo ids already appended to the Sheet.
+	 */
+	private function migrate_to_6(): void {
+		\CIC\Sheets\Ledger::create();
 	}
 
 	/**

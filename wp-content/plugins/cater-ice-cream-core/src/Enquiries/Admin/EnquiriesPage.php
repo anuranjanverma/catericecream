@@ -21,6 +21,8 @@ use CIC\Enquiries\Settings;
 use CIC\Enquiries\Store;
 use CIC\Enquiries\Validator;
 use CIC\Enquiries\Workflow;
+use CIC\Sheets\Admin\SheetsPage;
+use CIC\Sheets\Settings as SheetsSettings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -41,6 +43,7 @@ final class EnquiriesPage {
 		add_menu_page( __( 'Enquiries', 'cater-ice-cream-core' ), __( 'Enquiries', 'cater-ice-cream-core' ) . $badge, Roles::CAPABILITY, self::SLUG, array( $this, 'render' ), 'dashicons-email-alt', 25 );
 		add_submenu_page( self::SLUG, __( 'All enquiries', 'cater-ice-cream-core' ), __( 'All enquiries', 'cater-ice-cream-core' ), Roles::CAPABILITY, self::SLUG, array( $this, 'render' ) );
 		add_submenu_page( self::SLUG, __( 'Enquiry settings', 'cater-ice-cream-core' ), __( 'Settings', 'cater-ice-cream-core' ), 'manage_options', Settings::PAGE, array( new Settings(), 'render' ) );
+		add_submenu_page( self::SLUG, __( 'Google Sheet export', 'cater-ice-cream-core' ), __( 'Google Sheet', 'cater-ice-cream-core' ), 'manage_options', SheetsSettings::PAGE, array( new SheetsPage(), 'render' ) );
 	}
 
 	public static function detail_url( int $id ): string {
