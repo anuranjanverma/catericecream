@@ -40,7 +40,7 @@ Git: `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `
 
 - New `dev/tools/content/headings-20261117.php` (compare-and-set): keyword H1s on Our Treats, Events, Service Areas, Get a Quote, 4 treats and 6 events; former slogans move to the eyebrow; Our Treats title "Frozen Treat Catering for Events". 27 set → re-run done 27.
 - Core: event Service schema `name` = search title (was the hero eyebrow, which is now a slogan).
-- Tests: seo-20261028 19/19, qa-20261026 17/17, phase07 details 23/23, phase03 catalog 46/46; browser check 390/768/1440 on 14 pages (no page overflow; Anniversary hearts motif overflow ~10 px is pre-existing).
+- Tests: seo-20261028 19/19, qa-20261026 17/17, phase07 details 23/23, phase03 catalog 46/46; browser check 390/768/1440 on 14 pages (no page overflow; Anniversary hearts motif fixed in `details.css`: after the last word below 1200 px, approved top-right position from 1200 px; phase07 browser 13/13).
 
 ---
 

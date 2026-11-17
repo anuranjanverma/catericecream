@@ -345,11 +345,36 @@
 	position: relative;
 }
 
+/* Anniversary hearts: below 1200 px a keyword headline fills the column, so the hearts follow
+   the last word instead of sitting on the first line (no overlap, never past the screen edge).
+   From 1200 px they keep the approved top-right position (§1200 block below). */
 .cic-split-hero__hearts {
-	top: -0.6em;
-	right: -0.6em;
-	width: 2.2em;
+	position: relative;
+	display: inline-block;
+	width: 1.5em;
+	margin-left: 0.15em;
+	vertical-align: -0.05em;
 	color: var(--cic-color-heading-accent);
+}
+
+/* The last headline line flows inline so the hearts sit right after its last word
+   (without :has support they simply drop to their own line). */
+.cic-split-hero__title .cic-line:has(+ .cic-split-hero__hearts) {
+	display: inline;
+}
+
+@media (min-width: 1200px) {
+	.cic-split-hero__title .cic-line:has(+ .cic-split-hero__hearts) {
+		display: block;
+	}
+
+	.cic-split-hero__hearts {
+		position: absolute;
+		top: -0.6em;
+		right: -0.6em;
+		width: 2.2em;
+		margin-left: 0;
+	}
 }
 
 /* Graduation: a graduation-cap line beside the headline. */
