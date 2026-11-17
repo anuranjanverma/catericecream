@@ -1,0 +1,68 @@
+# rsync exclude list for the SiteGround deploy.
+# Consumed by .github/workflows/deploy-siteground.yml via --exclude-from.
+# Only project-owned WordPress code may reach the web root.
+
+# --- Version control / CI ---
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# --- Docs and developer tooling (never web content) ---
+dev/
+docs/
+handoff/
+*.md
+wp-cli.yml
+
+# --- Secrets and credentials ---
+.env
+.env.*
+*.pem
+*.key
+deploy-keys/
+*ssh-instructions*
+
+# --- Server-specific config (belongs to the server, not the repo) ---
+wp-config.php
+wp-config-local.php
+.user.ini
+.htaccess
+.htaccess.local
+
+# --- Media / uploads: user content, not deployable code ---
+wp-content/uploads/
+*.sql
+*.sql.gz
+*.tar.gz
+*.zip
+backups/
+
+# --- Caches and generated files ---
+wp-content/cache/
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+wp-content/ai1wm-backups/
+wp-content/updraft/
+wp-content/backup*
+wp-content/litespeed/
+wp-content/debug.log
+cache/
+tmp/
+
+# --- Dependencies / build output ---
+node_modules/
+vendor/
+dist/
+build/
+
+# --- Logs / OS junk ---
+*.log
+logs/
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+dryrun.txt
+verify.txt
