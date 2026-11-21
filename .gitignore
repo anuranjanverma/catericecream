@@ -17,6 +17,9 @@
 # Developer tooling (CLI-only scripts, fixtures, tests)
 !/dev/
 
+# Admin-only browser tools (owner request, 2026-11-21; login + manage_locations required)
+!/API/
+
 # Project-owned WordPress code
 !/wp-content/
 /wp-content/*

@@ -44,6 +44,7 @@ Git: `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `
 - Tests: new `dev/tests/venues/venues-test.php` 24/24 (E4 "unserved cities excluded" is vacuous locally: all 202 cities are served) and `browser-test.cjs` 23/23 (390/768/1440, axe on section; screenshots `dev/tests/output/venues/`). phase07 details 23/23 (D1.3 updated to allow the trailing venues strip), phase03 46/46, city-seo 202/202, cities 18/18, seo-20261028 19/19.
 - Pre-existing failures (identical with the venue changes stashed): phase05 locations 50/56 (L2.1, L2.3, L2.4, L4.1, L8.1, L10.4), service-areas admin 40/42 (B7, H1), phase09 review 7/8 (R8). They assume fixture-only coverage; production coverage data is now loaded. Not addressed here.
 - Pending owner: verify/approve venues; heading wording (optionally "… in {City}" / "Popular Wedding Venues").
+- Browser importer (owner request, same day; staging had no venues because `dev/` is not deployed): `API/import-venues.php` (login + `manage_locations`; GET = preview, POST + nonce = import as Draft or, by explicit choice, Approved; undo; purges SiteGround cache when present). Logic moved to `CIC\Locations\VenueImporter` (CLI tool now wraps it); data moved to the core plugin `data/venues-starter-20261121.json`. Local check: logged-out GET/POST → 302 to login; bad nonce → 403; preview 174 → import 174 Draft → re-visit "Nothing to add"; temporary admin session removed; venues-test 24/24.
 
 ---
 
