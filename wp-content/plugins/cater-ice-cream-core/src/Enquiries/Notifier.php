@@ -251,16 +251,62 @@ final class Notifier {
 			'{contact_name}' => Contact::get()['contact_name'],
 		);
 		$key     = 'contact' === $type ? 'contact' : 'quote';
-		$headers = array_merge( self::from_headers(), array( 'Content-Type: text/plain; charset=UTF-8' ) );
+		$headers = array_merge( self::from_headers(), array( 'Content-Type: text/html; charset=UTF-8' ) );
 		if ( is_email( (string) ( $s['reply_to'] ?? '' ) ) ) {
 			$headers[] = 'Reply-To: ' . $s['reply_to'];
 		}
 		return array(
 			'to'      => $to,
 			'subject' => strtr( (string) $s[ $key . '_ack_subject' ], $vars ),
-			'body'    => strtr( (string) $s[ $key . '_ack_body' ], $vars ),
+			'body'    => self::html_mail( strtr( (string) $s[ $key . '_ack_body' ], $vars ) ),
 			'headers' => $headers,
 		);
+	}
+
+	/**
+	 * The customer acknowledgement is HTML so the signature can carry the logo. The configured body
+	 * stays plain text: blank lines become paragraphs, single line breaks stay breaks.
+	 */
+	private static function html_mail( string $text ): string {
+		$paragraphs = preg_split( '/\R{2,}/', trim( $text ) ) ?: array();
+		$html       = '';
+		foreach ( $paragraphs as $paragraph ) {
+			$html .= '<p style="margin:0 0 14px;">' . nl2br( esc_html( $paragraph ), false ) . '</p>';
+		}
+		return '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#ffffff;">'
+			. '<div style="max-width:600px;margin:0 auto;padding:24px 20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#222222;">'
+			. $html
+			. self::signature_html()
+			. '</div></body></html>';
+	}
+
+	/** Sender signature: name, phone, website and logo. */
+	private static function signature_html(): string {
+		$c     = Contact::get();
+		$name  = (string) $c['contact_name'];
+		$phone = self::format_phone( (string) $c['phone'] );
+		$site  = 'https://www.catericecream.com';
+		$logo  = set_url_scheme( CIC_CORE_URL . 'assets/img/email-logo.jpg', 'https' );
+
+		return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px;border-top:1px solid #ececec;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#333333;">'
+			. '<tr><td style="padding:18px 0 12px 0;">'
+			. '<div style="font-size:15px;font-weight:bold;color:#111111;">' . esc_html( $name ) . '</div>'
+			. '<div>' . esc_html( $phone ) . ' call/text</div>'
+			. '<div><a href="' . esc_url( $site ) . '" style="color:#c2185b;text-decoration:none;">www.catericecream.com</a></div>'
+			. '</td></tr>'
+			. '<tr><td style="padding:0 0 4px 0;">'
+			. '<img src="' . esc_url( $logo ) . '" alt="' . esc_attr( (string) $c['business_name'] ) . '" width="180" style="display:block;width:180px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">'
+			. '</td></tr>'
+			. '</table>';
+	}
+
+	/** 424-235-4942 → (424) 235-4942; anything else is kept as written. */
+	private static function format_phone( string $phone ): string {
+		$digits = preg_replace( '/\D+/', '', $phone );
+		if ( is_string( $digits ) && 10 === strlen( $digits ) ) {
+			return '(' . substr( $digits, 0, 3 ) . ') ' . substr( $digits, 3, 3 ) . '-' . substr( $digits, 6 );
+		}
+		return $phone;
 	}
 
 	/** Internal follow-up reminder to the assignee, else the fallback, else the operator recipient. */

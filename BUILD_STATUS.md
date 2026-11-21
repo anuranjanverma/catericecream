@@ -34,6 +34,20 @@ Git: `7f2cbc3` Phase 00–01 baseline; `ccc05e9` Phase 02; `d055da2` Phase 03; `
 
 ---
 
+## Popular Event Venues (owner request, 2026-11-21)
+
+**Built and verified locally; not committed, not deployed.** Owner: section "Popular Event Venues" on all city pages (above "Explore nearby areas", max 12, 4 per row desktop / 2 mobile) and event pages (occasion's venues across served cities, max 32); draft a starter list; add the table. Backup before schema v7: `C:\laragon\backup\catericecream\venues-v7-20261121-132213\` (DB + wp-config + SHA256SUMS).
+
+- Core: schema v7 `{prefix}cic_venues` (`VenueStore`, all venue SQL; statuses draft/approved/hidden; drafts visible only on local/development); admin Service Areas → Venues (`Admin\VenuesPage`: add/edit, filters, bulk approve/draft/hide/delete, audited); `ViewModel::city()['venues']` / `event()['venues']`.
+- Theme: shared `template-parts/components/venue-list.php` (names only, no links), `location/city-venues.php`, appended after the composition sections in `single-cic_event.php`; grid in `compositions.css` (2 / 3 from 768 / 4 from 1024 px).
+- Starter list: `dev/tools/content/venues-20261121.php` + `data/venues-20261121.json` — 174 venues in 42 cities, **drafted by Claude from general knowledge, unverified**, imported as Draft (dry run 174 → applied 174 → re-run 0 added / 174 unchanged). Nothing is live until the owner approves each venue. 160 cities have no venues yet (section hidden there).
+- Tests: new `dev/tests/venues/venues-test.php` 24/24 (E4 "unserved cities excluded" is vacuous locally: all 202 cities are served) and `browser-test.cjs` 23/23 (390/768/1440, axe on section; screenshots `dev/tests/output/venues/`). phase07 details 23/23 (D1.3 updated to allow the trailing venues strip), phase03 46/46, city-seo 202/202, cities 18/18, seo-20261028 19/19.
+- Pre-existing failures (identical with the venue changes stashed): phase05 locations 50/56 (L2.1, L2.3, L2.4, L4.1, L8.1, L10.4), service-areas admin 40/42 (B7, H1), phase09 review 7/8 (R8). They assume fixture-only coverage; production coverage data is now loaded. Not addressed here.
+- Pending owner: verify/approve venues; heading wording (optionally "… in {City}" / "Popular Wedding Venues").
+- Browser importer (owner request, same day; staging had no venues because `dev/` is not deployed): `API/import-venues.php` (login + `manage_locations`; GET = preview, POST + nonce = import as Draft or, by explicit choice, Approved; undo; purges SiteGround cache when present). Logic moved to `CIC\Locations\VenueImporter` (CLI tool now wraps it); data moved to the core plugin `data/venues-starter-20261121.json`. Local check: logged-out GET/POST → 302 to login; bad nonce → 403; preview 174 → import 174 Draft → re-visit "Nothing to add"; temporary admin session removed; venues-test 24/24.
+
+---
+
 ## H1 headings and eyebrows (SEO specialist sheet, 2026-11-17)
 
 **Applied and verified locally; not committed, not deployed.** Owner: Home H1 stays; accept the better recommendations with corrections. Details, final text and live steps: `docs/release/META_TAGS_2026-11-12.md` §9. Backup: `C:\laragon\backup\catericecream\pre-headings-20261117-003249\`.

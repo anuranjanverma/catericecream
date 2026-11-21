@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 $cic_current = \CIC\Locations\Routes::current();
 $cic_vm      = \CIC\Content\ViewModel::city( $cic_current['city'], (int) $cic_current['preview'] );
-$cic_parts   = array( 'hero', 'plans', 'treats', 'call', 'occasions', 'check', 'faq', 'nearby' );
+$cic_parts   = array( 'hero', 'plans', 'treats', 'call', 'occasions', 'check', 'faq', 'venues', 'nearby' );
 
 get_header();
 echo '<div class="cic-home cic-city" data-cic-city="' . esc_attr( $cic_vm['city']['key'] ) . '">';

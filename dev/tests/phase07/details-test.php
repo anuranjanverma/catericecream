@@ -75,7 +75,13 @@ cic7_check( 'D1.2 every page renders its own approved section set and order (05â
 $rendered = array();
 foreach ( $pages as $key => $p ) {
 	preg_match_all( '/<section class="cic-comp cic-(?:event|treat)__([a-z]+)/', $html[ $key ], $m );
-	$rendered[ $key ] = implode( ',', $m[1] );
+	// "Popular Event Venues" (2026-11-21) is a shared strip after every composition, not one of
+	// its approved sections; it must be last when present.
+	$cic_sections = $m[1];
+	if ( 'venues' === end( $cic_sections ) ) {
+		array_pop( $cic_sections );
+	}
+	$rendered[ $key ] = implode( ',', array_diff( $cic_sections, array( 'venues' ) ) === $cic_sections ? $cic_sections : array_merge( $cic_sections, array( 'venues-not-last' ) ) );
 }
 cic7_check( 'D1.3 the rendered HTML follows the same order', $expected === $rendered, array_diff_assoc( $rendered, $expected ) );
 

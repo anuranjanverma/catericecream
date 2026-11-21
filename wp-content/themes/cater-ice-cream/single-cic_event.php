@@ -32,6 +32,18 @@ while ( have_posts() ) {
 			foreach ( $cic_vm['sections'] as $cic_section ) {
 				get_template_part( 'template-parts/event/section', $cic_map[ $cic_section['key'] ] ?? $cic_section['key'], array( 'vm' => $cic_vm, 'section' => $cic_section ) );
 			}
+			// "Popular Event Venues" (2026-11-21) follows every composition's approved sections; it
+			// takes the occasion palette of the last section and renders nothing without venues.
+			$cic_last = end( $cic_vm['sections'] );
+			get_template_part(
+				'template-parts/components/venue-list',
+				null,
+				array(
+					'prefix'  => 'cic-event',
+					'section' => array( 'key' => 'venues', 'preset' => $cic_last ? (string) $cic_last['preset'] : '' ),
+					'venues'  => $cic_vm['venues'],
+				)
+			);
 			?>
 		</article>
 		<?php
