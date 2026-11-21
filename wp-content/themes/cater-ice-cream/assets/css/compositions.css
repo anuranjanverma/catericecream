@@ -1086,3 +1086,56 @@
 	margin-top: 0.75rem;
 }
 
+
+/* ------------------------------------------------------------------ *
+ * Popular Event Venues (2026-11-21; template-parts/components/venue-list.php)
+ * City pages (above "Explore nearby areas") and event pages (after the approved sections).
+ * Names only, in a quiet tile grid: 2 per row on mobile, 3 on tablet, 4 on desktop.
+ * ------------------------------------------------------------------ */
+.cic-venues__title {
+	--cic-fs-min: 28;
+	--cic-fs-max: 36;
+	--cic-lh-min: 32;
+	--cic-lh-max: 40;
+	margin: 0 0 1.5rem;
+	color: var(--cic-color-heading);
+	text-align: center;
+}
+
+.cic-venues__list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.cic-venues__item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 4rem;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--cic-color-border);
+	border-radius: var(--cic-radius-card);
+	background-color: var(--cic-color-surface);
+	color: var(--cic-color-heading);
+	font-weight: 600;
+	line-height: 1.35;
+	text-align: center;
+	overflow-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+	.cic-venues__list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.cic-venues__list {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}

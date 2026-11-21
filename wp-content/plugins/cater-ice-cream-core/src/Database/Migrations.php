@@ -13,6 +13,7 @@
  * v5 (Phase 06): {prefix}cic_submissions (retry claims + notification state referencing Flamingo
  * messages; no personal data), manage_cic_enquiries capability and the Enquiry manager role.
  * v6: {prefix}cic_sheet_sync, the Google Sheets export ledger (one row per exported enquiry).
+ * v7 (2026-11-21): {prefix}cic_venues, venue names for the "Popular Event Venues" sections.
  *
  * @package CIC
  */
@@ -25,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Migrations {
 
-	public const TARGET_VERSION = 6;
+	public const TARGET_VERSION = 7;
 
 	private const LOCK_OPTION = 'cic_core_migration_lock';
 	private const LOCK_TTL    = 300;
@@ -96,6 +97,13 @@ final class Migrations {
 	 */
 	private function migrate_to_6(): void {
 		\CIC\Sheets\Ledger::create();
+	}
+
+	/**
+	 * Venue names for the "Popular Event Venues" sections (Service Areas → Venues).
+	 */
+	private function migrate_to_7(): void {
+		\CIC\Locations\VenueStore::create();
 	}
 
 	/**

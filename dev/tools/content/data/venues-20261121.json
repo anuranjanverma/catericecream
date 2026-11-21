@@ -1,0 +1,264 @@
+{
+	"source": "starter-20261121",
+	"note": "DRAFT starter list written by Claude Code from general knowledge on 2026-11-21. NOT VERIFIED: each venue must be checked by the owner (exists, open, in this city, hosts this kind of event) before it is approved. Imported as Draft, which is never shown on staging or production. Keyed by city key; occasions are event keys.",
+	"cities": {
+		"los-angeles-ca": [
+			["The Millennium Biltmore Hotel", "wedding,prom,corporate,anniversary"],
+			["Vibiana", "wedding,corporate,anniversary"],
+			["Union Station Los Angeles", "wedding,corporate"],
+			["The Ebell of Los Angeles", "wedding,anniversary,corporate"],
+			["Natural History Museum of Los Angeles County", "wedding,corporate"],
+			["The Hollywood Roosevelt", "wedding,prom,corporate"],
+			["The Majestic Downtown", "wedding,prom,corporate"],
+			["Petersen Automotive Museum", "corporate,wedding,graduation"],
+			["Skirball Cultural Center", "wedding,corporate,anniversary"],
+			["The Fig House", "wedding,birthday,anniversary"],
+			["Cicada Club", "wedding,anniversary,prom"],
+			["Hotel Figueroa", "wedding,corporate"]
+		],
+		"pasadena-ca": [
+			["The Langham Huntington, Pasadena", "wedding,anniversary,prom,corporate"],
+			["Pasadena Convention Center", "corporate,graduation,prom"],
+			["Rose Bowl Stadium", "corporate,graduation,wedding"],
+			["Castle Green", "wedding,anniversary"],
+			["The Athenaeum at Caltech", "wedding,corporate,anniversary"],
+			["Pasadena Civic Auditorium", "corporate,graduation"],
+			["Noor", "wedding,prom,corporate,birthday"],
+			["Tournament House (Wrigley Mansion)", "wedding,corporate"],
+			["Hilton Pasadena", "corporate,prom,wedding"],
+			["Brookside Golf Club", "corporate,birthday,wedding"],
+			["Kidspace Children's Museum", "birthday"]
+		],
+		"long-beach-ca": [
+			["The Queen Mary", "wedding,prom,corporate,anniversary"],
+			["Aquarium of the Pacific", "corporate,wedding,birthday"],
+			["Long Beach Convention & Entertainment Center", "corporate,graduation,prom"],
+			["Hotel Maya", "wedding,corporate"],
+			["The Westin Long Beach", "corporate,wedding,prom"],
+			["Rancho Los Alamitos", "wedding"],
+			["Rancho Los Cerritos", "wedding,birthday"],
+			["Museum of Latin American Art", "wedding,corporate"],
+			["Long Beach Museum of Art", "wedding,anniversary"],
+			["Earl Burns Miller Japanese Garden", "wedding"],
+			["Walter Pyramid", "graduation,corporate"]
+		],
+		"santa-monica-ca": [
+			["Fairmont Miramar Hotel & Bungalows", "wedding,corporate,anniversary,prom"],
+			["Shutters on the Beach", "wedding,anniversary,corporate"],
+			["Hotel Casa del Mar", "wedding,anniversary,corporate"],
+			["Loews Santa Monica Beach Hotel", "wedding,corporate,prom"],
+			["Annenberg Community Beach House", "wedding,birthday,corporate"],
+			["Santa Monica Pier", "corporate,birthday"],
+			["The Victorian", "wedding,anniversary"],
+			["Barker Hangar", "corporate,prom,graduation"],
+			["Le Méridien Delfina Santa Monica", "corporate"]
+		],
+		"beverly-hills-ca": [
+			["The Beverly Hilton", "wedding,corporate,prom"],
+			["Beverly Wilshire, A Four Seasons Hotel", "wedding,anniversary,corporate"],
+			["The Beverly Hills Hotel", "wedding,anniversary,corporate"],
+			["Greystone Mansion & Gardens", "wedding,corporate"],
+			["Waldorf Astoria Beverly Hills", "wedding,corporate,anniversary"],
+			["Montage Beverly Hills", "wedding,anniversary,corporate"],
+			["The Peninsula Beverly Hills", "wedding,anniversary,corporate"],
+			["Wallis Annenberg Center for the Performing Arts", "corporate,wedding"]
+		],
+		"west-hollywood-ca": [
+			["The London West Hollywood", "wedding,corporate"],
+			["Pendry West Hollywood", "wedding,corporate"],
+			["Sunset Tower Hotel", "wedding,anniversary"],
+			["1 Hotel West Hollywood", "wedding,corporate"],
+			["The Abbey", "birthday,corporate"]
+		],
+		"culver-city-ca": [
+			["The Culver Hotel", "wedding,anniversary"],
+			["Culver City Veterans Memorial Building", "corporate,birthday,graduation,prom"],
+			["Kirk Douglas Theatre", "corporate"]
+		],
+		"universal-city-ca": [
+			["Hilton Los Angeles/Universal City", "wedding,corporate,prom"],
+			["Sheraton Universal Hotel", "wedding,corporate,prom"],
+			["Universal Studios Hollywood", "corporate,birthday,graduation"]
+		],
+		"glendale-ca": [
+			["Hilton Los Angeles North/Glendale", "corporate,prom,wedding"],
+			["Oakmont Country Club", "wedding,corporate,anniversary"],
+			["Brand Library & Art Center", "wedding"],
+			["Glendale Civic Auditorium", "corporate,graduation,prom,birthday"],
+			["Alex Theatre", "corporate"],
+			["Brand Park", "birthday"]
+		],
+		"burbank-ca": [
+			["Castaway Burbank", "wedding,anniversary,corporate,prom"],
+			["Los Angeles Marriott Burbank Airport", "corporate,prom,wedding"],
+			["DeBell Golf Club", "corporate,birthday,wedding"],
+			["Starlight Bowl", "corporate,graduation"],
+			["Johnny Carson Park", "birthday"]
+		],
+		"la-canada-flintridge-ca": [
+			["Descanso Gardens", "wedding,corporate,anniversary"],
+			["La Cañada Flintridge Country Club", "wedding,corporate,anniversary"]
+		],
+		"arcadia-ca": [
+			["Los Angeles County Arboretum and Botanic Garden", "wedding,corporate"],
+			["Santa Anita Park", "corporate,wedding,prom"]
+		],
+		"san-marino-ca": [
+			["The Huntington Library, Art Museum and Botanical Gardens", "corporate,wedding"]
+		],
+		"pomona-ca": [
+			["Fairplex", "corporate,graduation,prom,birthday"],
+			["Sheraton Fairplex Hotel & Conference Center", "corporate,wedding,prom"],
+			["The Fox Theater Pomona", "corporate,prom"]
+		],
+		"claremont-ca": [
+			["DoubleTree by Hilton Claremont", "wedding,corporate,prom"],
+			["California Botanic Garden", "wedding"]
+		],
+		"diamond-bar-ca": [
+			["Diamond Bar Center", "wedding,birthday,corporate,graduation,anniversary"]
+		],
+		"city-of-industry-ca": [
+			["Pacific Palms Resort", "wedding,corporate,prom"],
+			["Industry Hills Expo Center", "corporate,graduation,prom"],
+			["Homestead Museum", "wedding"]
+		],
+		"downey-ca": [
+			["Rio Hondo Event Center", "wedding,corporate,birthday,graduation"],
+			["Columbia Memorial Space Center", "birthday,corporate"]
+		],
+		"cerritos-ca": [
+			["Cerritos Center for the Performing Arts", "corporate,graduation,prom"],
+			["Sheraton Cerritos Hotel", "wedding,corporate,prom"]
+		],
+		"torrance-ca": [
+			["Torrance Cultural Arts Center", "wedding,birthday,corporate,graduation"],
+			["DoubleTree by Hilton Torrance - South Bay", "corporate,prom,wedding"],
+			["Torrance Marriott Redondo Beach", "corporate,prom,wedding"]
+		],
+		"redondo-beach-ca": [
+			["Portofino Hotel & Marina", "wedding,corporate,anniversary"],
+			["Crowne Plaza Redondo Beach & Marina", "wedding,corporate,prom"],
+			["Redondo Beach Performing Arts Center", "corporate,graduation"],
+			["Seaside Lagoon", "birthday"]
+		],
+		"manhattan-beach-ca": [
+			["Shade Hotel Manhattan Beach", "wedding,corporate"],
+			["Manhattan Beach Marriott", "wedding,corporate,prom"],
+			["Manhattan Country Club", "wedding,corporate"]
+		],
+		"hermosa-beach-ca": [
+			["Beach House Hotel Hermosa Beach", "wedding,corporate"],
+			["Hermosa Beach Community Center", "birthday,corporate"]
+		],
+		"rancho-palos-verdes-ca": [
+			["Terranea Resort", "wedding,corporate,anniversary,prom"],
+			["Trump National Golf Club Los Angeles", "wedding,corporate"],
+			["Point Vicente Interpretive Center", "wedding,birthday"]
+		],
+		"palos-verdes-estates-ca": [
+			["La Venta Inn", "wedding,anniversary,corporate"],
+			["Palos Verdes Golf Club", "wedding,corporate"]
+		],
+		"inglewood-ca": [
+			["SoFi Stadium", "corporate"],
+			["Kia Forum", "corporate"],
+			["YouTube Theater", "corporate"]
+		],
+		"malibu-ca": [
+			["Calamigos Ranch Malibu", "wedding,corporate,birthday,prom"],
+			["Saddlerock Ranch", "wedding"],
+			["Malibu West Beach Club", "wedding"],
+			["Adamson House", "wedding"],
+			["Malibu Rocky Oaks Estate Vineyards", "wedding,anniversary"],
+			["Serra Retreat", "wedding"],
+			["Duke's Malibu", "birthday,corporate,wedding"]
+		],
+		"calabasas-ca": [
+			["King Gillette Ranch", "wedding,corporate"],
+			["Calabasas Country Club", "wedding,corporate"],
+			["Saddle Peak Lodge", "wedding,anniversary"]
+		],
+		"santa-clarita-ca": [
+			["Hyatt Regency Valencia", "wedding,corporate,prom"],
+			["Robinson Ranch Golf Club", "wedding,corporate"],
+			["Valencia Country Club", "wedding,corporate"],
+			["Six Flags Magic Mountain", "birthday,corporate,graduation"]
+		],
+		"newhall-ca": [
+			["William S. Hart Park", "birthday,wedding"]
+		],
+		"lancaster-ca": [
+			["Antelope Valley Fairgrounds", "corporate,graduation,birthday"],
+			["Lancaster Performing Arts Center", "corporate"]
+		],
+		"santa-barbara-ca": [
+			["Santa Barbara County Courthouse", "wedding"],
+			["Santa Barbara Museum of Natural History", "wedding,corporate"],
+			["El Encanto, A Belmond Hotel", "wedding,anniversary"],
+			["Hilton Santa Barbara Beachfront Resort", "wedding,corporate,prom"],
+			["Santa Barbara Zoo", "birthday,wedding,corporate"],
+			["Hotel Californian", "wedding,corporate"],
+			["Kimpton Canary Hotel", "wedding,corporate"],
+			["Santa Barbara Historical Museum", "wedding"],
+			["Santa Barbara Botanic Garden", "wedding"],
+			["Old Mission Santa Barbara", "wedding"],
+			["Lobero Theatre", "corporate"]
+		],
+		"montecito-ca": [
+			["Rosewood Miramar Beach", "wedding,anniversary,corporate"],
+			["Four Seasons Resort The Biltmore Santa Barbara", "wedding,anniversary,corporate"],
+			["San Ysidro Ranch", "wedding,anniversary"]
+		],
+		"goleta-ca": [
+			["The Ritz-Carlton Bacara, Santa Barbara", "wedding,corporate,anniversary"],
+			["Glen Annie Golf Club", "wedding,corporate"],
+			["Sandpiper Golf Club", "wedding,corporate"],
+			["Rancho La Patera & Stow House", "wedding,birthday"]
+		],
+		"ventura-ca": [
+			["Crowne Plaza Ventura Beach", "wedding,corporate,prom"],
+			["Ventura County Fairgrounds", "corporate,graduation,birthday"],
+			["Four Points by Sheraton Ventura Harbor Resort", "wedding,corporate"],
+			["Museum of Ventura County", "wedding,corporate"],
+			["Olivas Adobe Historical Park", "wedding"],
+			["Ventura Botanical Gardens", "wedding"],
+			["Majestic Ventura Theater", "corporate,prom"]
+		],
+		"oxnard-ca": [
+			["Embassy Suites by Hilton Mandalay Beach", "wedding,corporate,prom"],
+			["Oxnard Performing Arts and Convention Center", "corporate,graduation,prom"],
+			["Heritage Square", "wedding,birthday"],
+			["River Ridge Golf Club", "corporate,wedding"]
+		],
+		"camarillo-ca": [
+			["Camarillo Ranch House", "wedding,anniversary,corporate"],
+			["Spanish Hills Country Club", "wedding,corporate"],
+			["Sterling Hills Golf Club", "wedding,corporate"]
+		],
+		"thousand-oaks-ca": [
+			["Sherwood Country Club", "wedding,corporate"],
+			["Gardens of the World", "wedding"],
+			["Bank of America Performing Arts Center", "corporate,graduation"],
+			["Los Robles Greens", "wedding,corporate,birthday"]
+		],
+		"westlake-village-ca": [
+			["Four Seasons Hotel Westlake Village", "wedding,corporate,anniversary"],
+			["Westlake Village Inn", "wedding,anniversary,corporate"],
+			["Hyatt Regency Westlake", "wedding,corporate,prom"],
+			["North Ranch Country Club", "wedding,corporate"]
+		],
+		"simi-valley-ca": [
+			["Ronald Reagan Presidential Library and Museum", "wedding,corporate"],
+			["Hummingbird Nest Ranch", "wedding"],
+			["Strathearn Historical Park", "wedding,birthday"],
+			["Simi Hills Golf Course", "corporate,wedding"]
+		],
+		"ojai-ca": [
+			["Ojai Valley Inn", "wedding,anniversary,corporate"]
+		],
+		"moorpark-ca": [
+			["Underwood Family Farms", "birthday,corporate"]
+		]
+	}
+}

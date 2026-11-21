@@ -641,6 +641,11 @@ final class ViewModel {
 				'events'  => self::event_options(),
 				'action'  => $contact['quote_url'],
 			),
+			// Names only (VenueStore: approved; drafts only on local/development). Empty = no section.
+			'venues'    => array(
+				'heading' => __( 'Popular Event Venues', 'cater-ice-cream-core' ),
+				'items'   => \CIC\Locations\VenueStore::for_city( (int) $city['id'] ),
+			),
 			'nearby'    => $nearby,
 			'hub_url'   => $hub_url,
 			'breadcrumbs' => $crumbs,
@@ -1326,6 +1331,11 @@ final class ViewModel {
 				'note'     => Contact::get()['availability_note'],
 			),
 			'ribbon'    => $ribbon,
+			// Venues tagged with this occasion across the served cities (names only, max 32).
+			'venues'    => array(
+				'heading' => __( 'Popular Event Venues', 'cater-ice-cream-core' ),
+				'items'   => '' !== $key ? \CIC\Locations\VenueStore::for_event( $key ) : array(),
+			),
 			'values'    => self::filled( $values, 'title' ),
 			'feature'   => array(
 				'eyebrow' => self::m( $id, 'cic_ev_feature_eyebrow' ),
