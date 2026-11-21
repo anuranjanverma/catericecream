@@ -25,6 +25,7 @@ final class Service {
 		( new Editorial() )->register();
 		if ( is_admin() ) {
 			( new Admin\LocationsPage() )->register();
+			( new Admin\VenuesPage() )->register();
 		}
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'cic locations', Cli::class );
