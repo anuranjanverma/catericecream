@@ -5,6 +5,8 @@ name: Deploy to SiteGround (staging / production)
 #   production  ->  DEPLOY_PATH_PROD (live web root)
 #
 # Safe by design:
+#   * rsync uses --checksum so only new/changed content is uploaded
+#     (GitHub checkout resets mtimes, so size+time would re-send every file)
 #   * rsync runs WITHOUT --delete (nothing on the server is ever removed)
 #   * a --dry-run pass always runs first
 #   * staging and production never write to each other's path (guarded)
@@ -137,7 +139,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           set -euo pipefail
-          rsync -az --dry-run --itemize-changes --stats \
+          rsync -az --checksum --dry-run --itemize-changes --stats \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH/" | tee "$RUNNER_TEMP/dryrun.txt"
@@ -150,7 +152,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           set -euo pipefail
-          rsync -az --itemize-changes \
+          rsync -az --checksum --itemize-changes --stats \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH/"
@@ -308,7 +310,7 @@ jobs:
           DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
         run: |
           set -euo pipefail
-          rsync -az --dry-run --itemize-changes --stats \
+          rsync -az --checksum --dry-run --itemize-changes --stats \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH_PROD/" | tee "$RUNNER_TEMP/dryrun.txt"
@@ -321,7 +323,7 @@ jobs:
           DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
         run: |
           set -euo pipefail
-          rsync -az --itemize-changes \
+          rsync -az --checksum --itemize-changes --stats \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH_PROD/"
