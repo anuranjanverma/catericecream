@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>deploy probe - v1</title>
-  <style>body{font-family:system-ui,sans-serif;margin:3rem;line-height:1.6}</style>
+  <title>deploy probe - v2 (updated)</title>
+  <style>body{font-family:system-ui,sans-serif;margin:3rem;line-height:1.6}h1{color:#0a5}</style>
 </head>
 <body>
-  <h1 id="probe-version">deploy probe v1</h1>
-  <p>Created for the delta-sync test (add step).</p>
+  <h1 id="probe-version">deploy probe v2 - updated content</h1>
+  <p>This is the update step: only this file should change on the server.</p>
   <ul>
     <li>file: probe.html</li>
-    <li>stage: add</li>
+    <li>stage: update</li>
+    <li>expected: this file gets a new mtime, everything else keeps its old mtime</li>
   </ul>
 </body>
 </html>
