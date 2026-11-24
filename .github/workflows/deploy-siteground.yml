@@ -139,7 +139,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           set -euo pipefail
-          P="$DEPLOY_PATH DEPLOY_PATH/index.php DEPLOY_PATH/wp-content DEPLOY_PATH/wp-content/plugins DEPLOY_PATH/wp-content/themes"
+          P="$DEPLOY_PATH $DEPLOY_PATH/index.php $DEPLOY_PATH/wp-content $DEPLOY_PATH/wp-content/plugins $DEPLOY_PATH/wp-content/themes"
           ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-before.txt" 2>&1 || true
           cat "$RUNNER_TEMP/mtimes-before.txt"
 
@@ -203,7 +203,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           set -euo pipefail
-          P="$DEPLOY_PATH DEPLOY_PATH/index.php DEPLOY_PATH/wp-content DEPLOY_PATH/wp-content/plugins DEPLOY_PATH/wp-content/themes"
+          P="$DEPLOY_PATH $DEPLOY_PATH/index.php $DEPLOY_PATH/wp-content $DEPLOY_PATH/wp-content/plugins $DEPLOY_PATH/wp-content/themes"
           ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-after.txt" 2>&1 || true
           cat "$RUNNER_TEMP/mtimes-after.txt"
           if diff -q "$RUNNER_TEMP/mtimes-before.txt" "$RUNNER_TEMP/mtimes-after.txt" > /dev/null; then
@@ -335,7 +335,7 @@ jobs:
           DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
         run: |
           set -euo pipefail
-          P="$DEPLOY_PATH_PROD DEPLOY_PATH_PROD/index.php DEPLOY_PATH_PROD/wp-content DEPLOY_PATH_PROD/wp-content/plugins DEPLOY_PATH_PROD/wp-content/themes"
+          P="$DEPLOY_PATH_PROD $DEPLOY_PATH_PROD/index.php $DEPLOY_PATH_PROD/wp-content $DEPLOY_PATH_PROD/wp-content/plugins $DEPLOY_PATH_PROD/wp-content/themes"
           ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-before.txt" 2>&1 || true
           cat "$RUNNER_TEMP/mtimes-before.txt"
 
@@ -399,7 +399,7 @@ jobs:
           DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
         run: |
           set -euo pipefail
-          P="$DEPLOY_PATH_PROD DEPLOY_PATH_PROD/index.php DEPLOY_PATH_PROD/wp-content DEPLOY_PATH_PROD/wp-content/plugins DEPLOY_PATH_PROD/wp-content/themes"
+          P="$DEPLOY_PATH_PROD $DEPLOY_PATH_PROD/index.php $DEPLOY_PATH_PROD/wp-content $DEPLOY_PATH_PROD/wp-content/plugins $DEPLOY_PATH_PROD/wp-content/themes"
           ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-after.txt" 2>&1 || true
           cat "$RUNNER_TEMP/mtimes-after.txt"
           if diff -q "$RUNNER_TEMP/mtimes-before.txt" "$RUNNER_TEMP/mtimes-after.txt" > /dev/null; then
