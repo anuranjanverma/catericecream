@@ -183,7 +183,7 @@ jobs:
             case "$rel" in
               .github/*|docs/*|dev/*|handoff/*|scripts/*|tests/*|src/*|node_modules/*|*.md|*.docx|.deployignore|.gitignore) echo "skip (never deployed): $path"; continue ;;
             esac
-            target='DEPLOY_PATH'/'$rel'
+            target="$DEPLOY_PATH/$rel"
             if ssh -o BatchMode=yes sg-deploy "test -e '$target'"; then
               ssh -o BatchMode=yes sg-deploy "rm -f -- '$target'"
               echo "REMOVED  $path"
@@ -240,7 +240,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "--- sentinels (existing files must keep their old timestamps) ---"
-          P='$DEPLOY_PATH' '$DEPLOY_PATH/index.php' '$DEPLOY_PATH/wp-content' '$DEPLOY_PATH/wp-content/plugins' '$DEPLOY_PATH/wp-content/themes'
+          P="$DEPLOY_PATH $DEPLOY_PATH/index.php $DEPLOY_PATH/wp-content $DEPLOY_PATH/wp-content/plugins $DEPLOY_PATH/wp-content/themes"
           for p in $P; do
             ssh -o BatchMode=yes sg-deploy "stat -c '   %y  %n' '$p'" 2>/dev/null || echo "   (missing) $p"
           done
@@ -252,7 +252,7 @@ jobs:
             case "$rel" in
               .github/*|docs/*|dev/*|handoff/*|scripts/*|tests/*|src/*|node_modules/*|*.md|*.docx|.deployignore|.gitignore) continue ;;
             esac
-            target='DEPLOY_PATH'/'$rel'
+            target="$DEPLOY_PATH/$rel"
             if [ "$st" = "D" ]; then
               if ssh -o BatchMode=yes sg-deploy "test -e '$target'"; then
                 echo "RESULT still-present (unexpected): $path"
@@ -449,7 +449,7 @@ jobs:
             case "$rel" in
               .github/*|docs/*|dev/*|handoff/*|scripts/*|tests/*|src/*|node_modules/*|*.md|*.docx|.deployignore|.gitignore) echo "skip (never deployed): $path"; continue ;;
             esac
-            target='DEPLOY_PATH_PROD'/'$rel'
+            target="$DEPLOY_PATH_PROD/$rel"
             if ssh -o BatchMode=yes sg-deploy "test -e '$target'"; then
               ssh -o BatchMode=yes sg-deploy "rm -f -- '$target'"
               echo "REMOVED  $path"
@@ -506,7 +506,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "--- sentinels (existing files must keep their old timestamps) ---"
-          P='$DEPLOY_PATH_PROD' '$DEPLOY_PATH_PROD/index.php' '$DEPLOY_PATH_PROD/wp-content' '$DEPLOY_PATH_PROD/wp-content/plugins' '$DEPLOY_PATH_PROD/wp-content/themes'
+          P="$DEPLOY_PATH_PROD $DEPLOY_PATH_PROD/index.php $DEPLOY_PATH_PROD/wp-content $DEPLOY_PATH_PROD/wp-content/plugins $DEPLOY_PATH_PROD/wp-content/themes"
           for p in $P; do
             ssh -o BatchMode=yes sg-deploy "stat -c '   %y  %n' '$p'" 2>/dev/null || echo "   (missing) $p"
           done
@@ -518,7 +518,7 @@ jobs:
             case "$rel" in
               .github/*|docs/*|dev/*|handoff/*|scripts/*|tests/*|src/*|node_modules/*|*.md|*.docx|.deployignore|.gitignore) continue ;;
             esac
-            target='DEPLOY_PATH_PROD'/'$rel'
+            target="$DEPLOY_PATH_PROD/$rel"
             if [ "$st" = "D" ]; then
               if ssh -o BatchMode=yes sg-deploy "test -e '$target'"; then
                 echo "RESULT still-present (unexpected): $path"
