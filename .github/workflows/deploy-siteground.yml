@@ -134,6 +134,15 @@ jobs:
           ssh sg-deploy 'echo "connected as $(whoami)"'
           ssh sg-deploy "test -d '$DEPLOY_PATH' && echo 'target exists' || (echo '::error::DEPLOY_PATH missing'; exit 1)"
 
+      - name: Snapshot target mtimes (before)
+        env:
+          DEPLOY_PATH: ${{{{ secrets.DEPLOY_PATH }}}}
+        run: |
+          set -euo pipefail
+          P='$DEPLOY_PATH' '$DEPLOY_PATH/index.php' '$DEPLOY_PATH/wp-content' '$DEPLOY_PATH/wp-content/plugins' '$DEPLOY_PATH/wp-content/themes'
+          ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-before.txt" 2>&1 || true
+          cat "$RUNNER_TEMP/mtimes-before.txt"
+
       - name: Preflight - rsync dry-run
         env:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
@@ -187,6 +196,22 @@ jobs:
           fi
 
           echo "OK - every deployed file matches the repo by checksum (verified over SSH, no HTTP)."
+
+      - name: Check target mtimes (after)
+        if: ${{{{ github.event_name == 'push' || inputs.dry_run_only == false }}}}
+        env:
+          DEPLOY_PATH: ${{{{ secrets.DEPLOY_PATH }}}}
+        run: |
+          set -euo pipefail
+          P='$DEPLOY_PATH' '$DEPLOY_PATH/index.php' '$DEPLOY_PATH/wp-content' '$DEPLOY_PATH/wp-content/plugins' '$DEPLOY_PATH/wp-content/themes'
+          ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-after.txt" 2>&1 || true
+          cat "$RUNNER_TEMP/mtimes-after.txt"
+          if diff -q "$RUNNER_TEMP/mtimes-before.txt" "$RUNNER_TEMP/mtimes-after.txt" > /dev/null; then
+            echo "OK - mtimes unchanged: no existing file or folder was rewritten"
+          else
+            echo "::warning::mtimes differ - expected only for files whose content actually changed"
+            diff "$RUNNER_TEMP/mtimes-before.txt" "$RUNNER_TEMP/mtimes-after.txt" || true
+          fi
 
       - name: Upload deploy log
         if: always()
@@ -305,6 +330,15 @@ jobs:
           ssh sg-deploy 'echo "connected as $(whoami)"'
           ssh sg-deploy "test -d '$DEPLOY_PATH_PROD' && echo 'target exists' || (echo '::error::DEPLOY_PATH_PROD missing'; exit 1)"
 
+      - name: Snapshot target mtimes (before)
+        env:
+          DEPLOY_PATH_PROD: ${{{{ secrets.DEPLOY_PATH_PROD }}}}
+        run: |
+          set -euo pipefail
+          P='$DEPLOY_PATH_PROD' '$DEPLOY_PATH_PROD/index.php' '$DEPLOY_PATH_PROD/wp-content' '$DEPLOY_PATH_PROD/wp-content/plugins' '$DEPLOY_PATH_PROD/wp-content/themes'
+          ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-before.txt" 2>&1 || true
+          cat "$RUNNER_TEMP/mtimes-before.txt"
+
       - name: Preflight - rsync dry-run
         env:
           DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
@@ -358,6 +392,22 @@ jobs:
           fi
 
           echo "OK - every deployed file matches the repo by checksum (verified over SSH, no HTTP)."
+
+      - name: Check target mtimes (after)
+        if: ${{{{ github.event_name == 'push' || inputs.dry_run_only == false }}}}
+        env:
+          DEPLOY_PATH_PROD: ${{{{ secrets.DEPLOY_PATH_PROD }}}}
+        run: |
+          set -euo pipefail
+          P='$DEPLOY_PATH_PROD' '$DEPLOY_PATH_PROD/index.php' '$DEPLOY_PATH_PROD/wp-content' '$DEPLOY_PATH_PROD/wp-content/plugins' '$DEPLOY_PATH_PROD/wp-content/themes'
+          ssh -o BatchMode=yes sg-deploy "stat -c '%y  %n' $P" > "$RUNNER_TEMP/mtimes-after.txt" 2>&1 || true
+          cat "$RUNNER_TEMP/mtimes-after.txt"
+          if diff -q "$RUNNER_TEMP/mtimes-before.txt" "$RUNNER_TEMP/mtimes-after.txt" > /dev/null; then
+            echo "OK - mtimes unchanged: no existing file or folder was rewritten"
+          else
+            echo "::warning::mtimes differ - expected only for files whose content actually changed"
+            diff "$RUNNER_TEMP/mtimes-before.txt" "$RUNNER_TEMP/mtimes-after.txt" || true
+          fi
 
       - name: Upload deploy log
         if: always()
