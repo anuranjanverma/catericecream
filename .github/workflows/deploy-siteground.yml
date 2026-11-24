@@ -137,7 +137,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           set -euo pipefail
-          rsync -az --dry-run --itemize-changes --stats \
+          rsync -az --checksum --no-times --omit-dir-times --dry-run --itemize-changes --stats \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH/" | tee "$RUNNER_TEMP/dryrun.txt"
@@ -150,7 +150,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           set -euo pipefail
-          rsync -az --itemize-changes \
+          rsync -az --checksum --no-times --omit-dir-times --itemize-changes \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH/"
@@ -308,7 +308,7 @@ jobs:
           DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
         run: |
           set -euo pipefail
-          rsync -az --dry-run --itemize-changes --stats \
+          rsync -az --checksum --no-times --omit-dir-times --dry-run --itemize-changes --stats \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH_PROD/" | tee "$RUNNER_TEMP/dryrun.txt"
@@ -321,7 +321,7 @@ jobs:
           DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
         run: |
           set -euo pipefail
-          rsync -az --itemize-changes \
+          rsync -az --checksum --no-times --omit-dir-times --itemize-changes \
             -e "ssh -F $HOME/.ssh/config" \
             --exclude-from=.deployignore \
             ./ "sg-deploy:$DEPLOY_PATH_PROD/"
